@@ -1,0 +1,105 @@
+import { Injectable } from '@nestjs/common';
+import { Prisma } from '../../../generated/prisma/client';
+import type { TestResult } from '../../../generated/prisma/client';
+import { PrismaService } from '../../../prisma/prisma.service';
+import type {
+  AttemptsRepository,
+  AttemptAccessDetail,
+  CompleteAttemptParams,
+} from './attempts.repository';
+
+@Injectable()
+export class PrismaAttemptsRepository implements AttemptsRepository {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async findAccessDetail(id: string): Promise<AttemptAccessDetail | null> {
+    const attempt = await this.prisma.attempt.findUnique({
+      where: { id },
+      include: {
+        test: {
+          select: { id: true, name: true, scorerType: true, status: true },
+        },
+        session: { select: { id: true, status: true, expiresAt: true } },
+        responses: { select: { itemId: true, value: true } },
+      },
+    });
+    if (!attempt) return null;
+
+    const items = await this.prisma.testItem.findMany({
+      where: { testId: attempt.testId },
+      orderBy: { order: 'asc' },
+      select: { id: true, order: true, content: true },
+    });
+
+    return {
+      attempt: {
+        id: attempt.id,
+        sessionId: attempt.sessionId,
+        testId: attempt.testId,
+        status: attempt.status,
+        startedAt: attempt.startedAt,
+        completedAt: attempt.completedAt,
+        participantId: attempt.participantId,
+      },
+      test: attempt.test,
+      session: attempt.session,
+      items,
+      responses: attempt.responses,
+    };
+  }
+
+  async upsertResponse(
+    attemptId: string,
+    itemId: string,
+    value: unknown,
+  ): Promise<void> {
+    await this.prisma.response.upsert({
+      where: { attemptId_itemId: { attemptId, itemId } },
+      create: {
+        attemptId,
+        itemId,
+        value: value as Prisma.InputJsonValue,
+      },
+      update: {
+        value: value as Prisma.InputJsonValue,
+        answeredAt: new Date(),
+      },
+    });
+  }
+
+  findResultByAttemptId(attemptId: string): Promise<TestResult | null> {
+    return this.prisma.testResult.findUnique({ where: { attemptId } });
+  }
+
+  async completeAndCreateResult(
+    params: CompleteAttemptParams,
+  ): Promise<TestResult> {
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        const result = await tx.testResult.create({
+          data: {
+            attemptId: params.attemptId,
+            scores: params.scores as Prisma.InputJsonValue,
+            patternCode: params.patternCode,
+            status: 'PENDING_REVIEW',
+          },
+        });
+        await tx.attempt.update({
+          where: { id: params.attemptId },
+          data: { status: 'COMPLETED', completedAt: new Date() },
+        });
+        return result;
+      });
+    } catch (error) {
+      // D4 safety net: concurrent/retried complete hits the unique attemptId.
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        const existing = await this.findResultByAttemptId(params.attemptId);
+        if (existing) return existing;
+      }
+      throw error;
+    }
+  }
+}

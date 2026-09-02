@@ -7,8 +7,7 @@ import {
 import { Inject } from '@nestjs/common';
 import { TESTS_REPOSITORY } from '../repository/tests.repository';
 import type { TestsRepository } from '../repository/tests.repository';
-import { getItemSchema } from '../../../scorers/schemas';
-import { DISC_PATTERN_CATALOG } from '../../../scorers/schemas/forced-choice-disc';
+import { getScorer } from '../../../scorers/registry';
 import type { Test } from '../../../generated/prisma/client';
 
 @Injectable()
@@ -34,10 +33,10 @@ export class TestsPublishService {
       });
     }
 
-    const schema = getItemSchema(test.scorerType);
-    if (schema) {
+    const scorer = getScorer(test.scorerType);
+    if (scorer) {
       for (let i = 0; i < items.length; i++) {
-        const result = schema.safeParse(items[i].content);
+        const result = scorer.itemSchema.safeParse(items[i].content);
         if (!result.success) {
           throw new UnprocessableEntityException({
             message: 'validation_failed',
@@ -53,9 +52,9 @@ export class TestsPublishService {
     const existingCodes = new Set(
       interpretations.map((interp) => interp.patternCode),
     );
-    const missing = DISC_PATTERN_CATALOG.filter(
-      (code) => !existingCodes.has(code),
-    );
+    const missing = scorer
+      ? scorer.patternCatalog.filter((code) => !existingCodes.has(code))
+      : [];
     if (missing.length > 0) {
       throw new UnprocessableEntityException({
         message: 'validation_failed',
