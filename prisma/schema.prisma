@@ -207,7 +207,7 @@ model TestSession {
   id            String               @id @default(uuid()) @db.Uuid
   kind          SessionKind
   institutionId String?              @db.Uuid
-  createdById   String?              @db.Uuid
+  createdById   String?
   title         String
   token         String               @unique
   pinHash       String?
@@ -226,7 +226,7 @@ model TestSession {
 
 model PsychologistProfile {
   id                 String   @id @default(uuid()) @db.Uuid
-  userId             String   @unique @db.Uuid
+  userId             String   @unique
   fullName           String
   degree             String
   licenseNumber      String
@@ -269,7 +269,7 @@ model Attempt {
   id            String        @id @default(uuid()) @db.Uuid
   sessionId     String        @db.Uuid
   testId        String        @db.Uuid
-  userId        String?       @db.Uuid
+  userId        String?
   participantId String?       @db.Uuid
   status        AttemptStatus @default(IN_PROGRESS)
   startedAt     DateTime      @default(now())
@@ -305,12 +305,12 @@ model TestResult {
   correctedScores      Json?
   correctedPatternCode String?
   correctionReason     String?
-  correctedById        String?      @db.Uuid
+  correctedById        String?
   correctedAt          DateTime?
   notes                String?
   notesUpdatedAt       DateTime?
   status               ResultStatus @default(PENDING_REVIEW)
-  reviewedById         String?      @db.Uuid
+  reviewedById         String?
   reviewedAt           DateTime?
   reviewNote           String?
   verifyCode           String?      @unique
@@ -340,7 +340,7 @@ model Invoice {
 
 model Order {
   id            String      @id @default(uuid()) @db.Uuid
-  userId        String      @db.Uuid
+  userId        String
   testId        String      @db.Uuid
   basePrice     Int
   uniqueCode    Int
@@ -348,7 +348,7 @@ model Order {
   status        OrderStatus @default(PENDING)
   expiresAt     DateTime
   userClaimedAt DateTime?
-  verifiedById  String?     @db.Uuid
+  verifiedById  String?
   verifiedAt    DateTime?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
