@@ -6,7 +6,6 @@ import {
   Body,
   UseInterceptors,
   UploadedFile,
-  UnsupportedMediaTypeException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Roles, Session } from '@thallesp/nestjs-better-auth';

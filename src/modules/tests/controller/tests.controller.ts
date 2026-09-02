@@ -7,8 +7,7 @@ import {
   Query,
   Body,
 } from '@nestjs/common';
-import { Roles, Session } from '@thallesp/nestjs-better-auth';
-import type { UserSession } from '@thallesp/nestjs-better-auth';
+import { Roles } from '@thallesp/nestjs-better-auth';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
 import { CreateTestSchema } from '../dto/create-test.dto';
 import type { CreateTestDto } from '../dto/create-test.dto';
