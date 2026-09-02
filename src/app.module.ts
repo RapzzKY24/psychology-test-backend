@@ -5,12 +5,18 @@ import { PrismaModule } from './prisma/prisma.module';
 import { HealthModule } from './modules/health/health.module';
 import { AuthModule } from '@thallesp/nestjs-better-auth';
 import { auth } from './modules/auth/auth';
-import { AdminController } from './modules/admin/admin.controller';
-import { PsychologistController } from './modules/psychologist/psychologist.controller';
+import { AdminModule } from './modules/admin/admin.module';
+import { PsychologistModule } from './modules/psychologist/psychologist.module';
 
 @Module({
-  imports: [PrismaModule, HealthModule, AuthModule.forRoot({ auth })],
-  controllers: [AppController, AdminController, PsychologistController],
+  imports: [
+    PrismaModule,
+    HealthModule,
+    AuthModule.forRoot({ auth }),
+    AdminModule,
+    PsychologistModule,
+  ],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
