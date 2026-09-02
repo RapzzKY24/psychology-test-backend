@@ -1,0 +1,150 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return */
+import { TestsPublishService } from '../service/tests-publish.service';
+import type { TestsRepository } from '../repository/tests.repository';
+
+describe('TestsPublishService', () => {
+  let service: TestsPublishService;
+  let mockRepo: jest.Mocked<TestsRepository>;
+
+  beforeEach(() => {
+    mockRepo = {
+      findById: jest.fn(),
+      findBySlug: jest.fn(),
+      findMany: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      hasInProgressAttempts: jest.fn(),
+      replaceItems: jest.fn(),
+      replaceInterpretations: jest.fn(),
+      findItemsByTestId: jest.fn(),
+      findInterpretationsByTestId: jest.fn(),
+    };
+    service = new TestsPublishService(mockRepo);
+  });
+
+  describe('publish', () => {
+    it('should throw 404 if not found', async () => {
+      mockRepo.findById.mockResolvedValue(null);
+      await expect(service.publish('id')).rejects.toThrow('Test not found');
+    });
+
+    it('should throw 409 if ARCHIVED', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: '1',
+        status: 'ARCHIVED',
+      } as any);
+      await expect(service.publish('1')).rejects.toThrow(
+        'cannot publish ARCHIVED test',
+      );
+    });
+
+    it('should throw 422 if no items', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: '1',
+        status: 'DRAFT',
+        scorerType: 'FORCED_CHOICE_DISC',
+      } as any);
+      mockRepo.findItemsByTestId.mockResolvedValue([]);
+      await expect(service.publish('1')).rejects.toThrow('validation_failed');
+    });
+
+    it('should throw 422 for invalid item content', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: '1',
+        status: 'DRAFT',
+        scorerType: 'FORCED_CHOICE_DISC',
+      } as any);
+      mockRepo.findItemsByTestId.mockResolvedValue([
+        {
+          content: {
+            words: ['Only', 'Three', 'Words'],
+            mapping: ['D', 'I', 'S', 'C'],
+          },
+        },
+      ]);
+      await expect(service.publish('1')).rejects.toThrow('validation_failed');
+    });
+
+    it('should throw 422 if missing pattern codes', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: '1',
+        status: 'DRAFT',
+        scorerType: 'FORCED_CHOICE_DISC',
+      } as any);
+      mockRepo.findItemsByTestId.mockResolvedValue([
+        {
+          content: {
+            words: ['A', 'B', 'C', 'D'],
+            mapping: ['D', 'I', 'S', 'C'],
+          },
+        },
+      ]);
+      mockRepo.findInterpretationsByTestId.mockResolvedValue([
+        { patternCode: 'D' },
+      ]);
+      await expect(service.publish('1')).rejects.toThrow('validation_failed');
+    });
+
+    it('should publish when all valid', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: '1',
+        status: 'DRAFT',
+        scorerType: 'FORCED_CHOICE_DISC',
+      } as any);
+      mockRepo.findItemsByTestId.mockResolvedValue([
+        {
+          content: {
+            words: ['A', 'B', 'C', 'D'],
+            mapping: ['D', 'I', 'S', 'C'],
+          },
+        },
+      ]);
+      const fullInterps = [
+        'D',
+        'I',
+        'S',
+        'C',
+        'DI',
+        'DC',
+        'ID',
+        'IS',
+        'SI',
+        'SC',
+        'CD',
+        'CS',
+        'ISC',
+      ].map((c) => ({ patternCode: c }) as any);
+      mockRepo.findInterpretationsByTestId.mockResolvedValue(fullInterps);
+      mockRepo.update.mockResolvedValue({
+        id: '1',
+        status: 'PUBLISHED',
+      } as any);
+      const result = await service.publish('1');
+      expect(result.status).toBe('PUBLISHED');
+    });
+  });
+
+  describe('archive', () => {
+    it('should throw 404 if not found', async () => {
+      mockRepo.findById.mockResolvedValue(null);
+      await expect(service.archive('id')).rejects.toThrow('Test not found');
+    });
+
+    it('should throw 409 if not PUBLISHED', async () => {
+      mockRepo.findById.mockResolvedValue({ id: '1', status: 'DRAFT' } as any);
+      await expect(service.archive('1')).rejects.toThrow(
+        'only PUBLISHED test can be archived',
+      );
+    });
+
+    it('should archive when PUBLISHED', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: '1',
+        status: 'PUBLISHED',
+      } as any);
+      mockRepo.update.mockResolvedValue({ id: '1', status: 'ARCHIVED' } as any);
+      const result = await service.archive('1');
+      expect(result.status).toBe('ARCHIVED');
+    });
+  });
+});
