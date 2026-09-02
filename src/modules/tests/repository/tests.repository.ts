@@ -19,4 +19,8 @@ export interface TestsRepository {
     testId: string,
     interpretations: { patternCode: string; title: string; body: string }[],
   ): Promise<void>;
+  findItemsByTestId(testId: string): Promise<{ content: unknown }[]>;
+  findInterpretationsByTestId(
+    testId: string,
+  ): Promise<{ patternCode: string }[]>;
 }

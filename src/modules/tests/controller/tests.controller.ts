@@ -15,6 +15,7 @@ import type { CreateTestDto } from '../dto/create-test.dto';
 import { UpdateTestSchema } from '../dto/update-test.dto';
 import type { UpdateTestDto } from '../dto/update-test.dto';
 import { TestsService } from '../service/tests.service';
+import { TestsPublishService } from '../service/tests-publish.service';
 import { QueryTestSchema } from '../dto/query-test.dto';
 import type { QueryTestDto } from '../dto/query-test.dto';
 import { PutItemsSchema } from '../dto/put-items.dto';
@@ -29,7 +30,10 @@ import type { Test } from '../../../generated/prisma/client';
 
 @Controller('api/v1/admin/tests')
 export class TestsController {
-  constructor(private readonly testsService: TestsService) {}
+  constructor(
+    private readonly testsService: TestsService,
+    private readonly publishService: TestsPublishService,
+  ) {}
 
   @Post()
   @Roles(['ADMIN'])
@@ -86,6 +90,20 @@ export class TestsController {
       id,
       dto.interpretations,
     );
+    return { data };
+  }
+
+  @Post(':id/publish')
+  @Roles(['ADMIN'])
+  async publish(@Param('id') id: string): Promise<ApiResponse<Test>> {
+    const data = await this.publishService.publish(id);
+    return { data };
+  }
+
+  @Post(':id/archive')
+  @Roles(['ADMIN'])
+  async archive(@Param('id') id: string): Promise<ApiResponse<Test>> {
+    const data = await this.publishService.archive(id);
     return { data };
   }
 }

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TestsController } from './controller/tests.controller';
 import { TestsService } from './service/tests.service';
+import { TestsPublishService } from './service/tests-publish.service';
 import { PrismaTestsRepository } from './repository/tests.prisma-repository';
 import { TESTS_REPOSITORY } from './repository/tests.repository';
 
@@ -8,6 +9,7 @@ import { TESTS_REPOSITORY } from './repository/tests.repository';
   controllers: [TestsController],
   providers: [
     TestsService,
+    TestsPublishService,
     { provide: TESTS_REPOSITORY, useClass: PrismaTestsRepository },
   ],
 })

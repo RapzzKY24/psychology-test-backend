@@ -84,4 +84,22 @@ export class PrismaTestsRepository implements TestsRepository {
       }
     });
   }
+
+  async findItemsByTestId(testId: string): Promise<{ content: unknown }[]> {
+    const items = await this.prisma.testItem.findMany({
+      where: { testId },
+      select: { content: true },
+    });
+    return items;
+  }
+
+  async findInterpretationsByTestId(
+    testId: string,
+  ): Promise<{ patternCode: string }[]> {
+    const interps = await this.prisma.interpretation.findMany({
+      where: { testId },
+      select: { patternCode: true },
+    });
+    return interps;
+  }
 }
