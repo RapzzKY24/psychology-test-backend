@@ -1,0 +1,315 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  PSYCHOLOGIST
+  PARTICIPANT
+}
+
+enum ResultStatus {
+  PENDING_REVIEW
+  APPROVED
+  RETURNED
+}
+
+enum InvoiceStatus {
+  UNPAID
+  PAID
+  CANCELLED
+}
+
+enum TestCategory {
+  PERSONALITY
+  COGNITIVE
+  WORK_STYLE
+  INTEREST
+  PROJECTIVE
+}
+
+enum ScorerType {
+  FORCED_CHOICE_DISC
+}
+
+enum TestStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum SessionKind {
+  INDIVIDUAL
+  GROUP
+}
+
+enum SessionStatus {
+  ACTIVE
+  CLOSED
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  EXPIRED
+  CANCELLED
+}
+
+enum DeliveryChannel {
+  PDF
+  EMAIL
+}
+
+enum DeliveryStatus {
+  SENT
+  FAILED
+}
+
+model Test {
+  id                   String         @id @default(uuid()) @db.Uuid
+  slug                 String         @unique
+  name                 String
+  description          String
+  category             TestCategory
+  scorerType           ScorerType
+  price                Int
+  estimatedDurationMin Int
+  status               TestStatus     @default(DRAFT)
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  items                TestItem[]
+  interpretations      Interpretation[]
+  sessionTests         SessionTest[]
+  orders               Order[]
+  attempts             Attempt[]
+
+  @@map("tests")
+}
+
+model TestItem {
+  id      String @id @default(uuid()) @db.Uuid
+  testId  String @db.Uuid
+  order   Int
+  content Json
+
+  test Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@unique([testId, order])
+  @@map("test_items")
+}
+
+model Interpretation {
+  id          String @id @default(uuid()) @db.Uuid
+  testId      String @db.Uuid
+  patternCode String
+  title       String
+  body        String
+
+  test Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@unique([testId, patternCode])
+  @@map("interpretations")
+}
+
+model Institution {
+  id           String        @id @default(uuid()) @db.Uuid
+  name         String
+  contactName  String
+  contactEmail String
+  phone        String?
+  notes        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  sessions     TestSession[]
+  invoices     Invoice[]
+
+  @@map("institutions")
+}
+
+model TestSession {
+  id            String               @id @default(uuid()) @db.Uuid
+  kind          SessionKind
+  institutionId String?              @db.Uuid
+  createdById   String?              @db.Uuid
+  title         String
+  token         String               @unique
+  pinHash       String?
+  slotLimit     Int
+  expiresAt     DateTime
+  status        SessionStatus        @default(ACTIVE)
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  institution   Institution?         @relation(fields: [institutionId], references: [id])
+  sessionTests  SessionTest[]
+  participants  SessionParticipant[]
+  attempts      Attempt[]
+
+  @@map("test_sessions")
+}
+
+model PsychologistProfile {
+  id                 String   @id @default(uuid()) @db.Uuid
+  userId             String   @unique @db.Uuid
+  fullName           String
+  degree             String
+  licenseNumber      String
+  signatureImagePath String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("psychologist_profiles")
+}
+
+model SessionTest {
+  id        String @id @default(uuid()) @db.Uuid
+  sessionId String @db.Uuid
+  testId    String @db.Uuid
+  order     Int
+
+  session TestSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  test    Test        @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, testId])
+  @@map("session_tests")
+}
+
+model SessionParticipant {
+  id              String   @id @default(uuid()) @db.Uuid
+  sessionId       String   @db.Uuid
+  name            String
+  email           String?
+  candidateNumber String?
+  tokenHash       String   @unique
+  joinedAt        DateTime @default(now())
+  session         TestSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  attempts        Attempt[]
+
+  @@map("session_participants")
+}
+
+model Attempt {
+  id            String        @id @default(uuid()) @db.Uuid
+  sessionId     String        @db.Uuid
+  testId        String        @db.Uuid
+  userId        String?       @db.Uuid
+  participantId String?       @db.Uuid
+  status        AttemptStatus @default(IN_PROGRESS)
+  startedAt     DateTime      @default(now())
+  completedAt   DateTime?
+  session       TestSession        @relation(fields: [sessionId], references: [id])
+  test          Test               @relation(fields: [testId], references: [id])
+  participant   SessionParticipant? @relation(fields: [participantId], references: [id])
+  responses     Response[]
+  result        TestResult?
+
+  @@index([sessionId])
+  @@index([testId])
+  @@map("attempts")
+}
+
+model Response {
+  id         String   @id @default(uuid()) @db.Uuid
+  attemptId  String   @db.Uuid
+  itemId     String   @db.Uuid
+  value      Json
+  answeredAt DateTime @default(now())
+  attempt    Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, itemId])
+  @@map("responses")
+}
+
+model TestResult {
+  id                   String       @id @default(uuid()) @db.Uuid
+  attemptId            String       @unique @db.Uuid
+  scores               Json
+  patternCode          String
+  correctedScores      Json?
+  correctedPatternCode String?
+  correctionReason     String?
+  correctedById        String?      @db.Uuid
+  correctedAt          DateTime?
+  notes                String?
+  notesUpdatedAt       DateTime?
+  status               ResultStatus @default(PENDING_REVIEW)
+  reviewedById         String?      @db.Uuid
+  reviewedAt           DateTime?
+  reviewNote           String?
+  verifyCode           String?      @unique
+  computedAt           DateTime     @default(now())
+  attempt              Attempt      @relation(fields: [attemptId], references: [id])
+  deliveries           ReportDelivery[]
+
+  @@index([status])
+  @@map("test_results")
+}
+
+model Invoice {
+  id            String        @id @default(uuid()) @db.Uuid
+  institutionId String        @db.Uuid
+  number        String        @unique
+  amount        Int
+  status        InvoiceStatus @default(UNPAID)
+  issuedAt      DateTime      @default(now())
+  dueDate       DateTime?
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  institution   Institution   @relation(fields: [institutionId], references: [id])
+
+  @@map("invoices")
+}
+
+model Order {
+  id            String      @id @default(uuid()) @db.Uuid
+  userId        String      @db.Uuid
+  testId        String      @db.Uuid
+  basePrice     Int
+  uniqueCode    Int
+  amount        Int
+  status        OrderStatus @default(PENDING)
+  expiresAt     DateTime
+  userClaimedAt DateTime?
+  verifiedById  String?     @db.Uuid
+  verifiedAt    DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  test          Test        @relation(fields: [testId], references: [id])
+
+  @@index([userId])
+  @@index([status, amount])
+  @@map("orders")
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
+}
+
+model ReportDelivery {
+  id        String         @id @default(uuid()) @db.Uuid
+  resultId  String         @db.Uuid
+  channel   DeliveryChannel
+  recipient String
+  status    DeliveryStatus
+  sentAt    DateTime
+  error     String?
+  result    TestResult     @relation(fields: [resultId], references: [id])
+
+  @@map("report_deliveries")
+}
