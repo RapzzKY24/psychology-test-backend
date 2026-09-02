@@ -242,6 +242,7 @@ model SessionTest {
   sessionId String @db.Uuid
   testId    String @db.Uuid
   order     Int
+  timeLimitSec Int? // reserved for the timer engine (cognitive phase, test-library-mechanics §2.E/F) — no logic in MVP
 
   session TestSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   test    Test        @relation(fields: [testId], references: [id], onDelete: Cascade)
