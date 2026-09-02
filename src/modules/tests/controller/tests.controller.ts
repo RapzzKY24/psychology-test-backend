@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Patch,
+  Put,
   Param,
   Query,
   Body,
@@ -16,6 +17,10 @@ import type { UpdateTestDto } from '../dto/update-test.dto';
 import { TestsService } from '../service/tests.service';
 import { QueryTestSchema } from '../dto/query-test.dto';
 import type { QueryTestDto } from '../dto/query-test.dto';
+import { PutItemsSchema } from '../dto/put-items.dto';
+import type { PutItemsDto } from '../dto/put-items.dto';
+import { PutInterpretationsSchema } from '../dto/put-interpretations.dto';
+import type { PutInterpretationsDto } from '../dto/put-interpretations.dto';
 import type {
   PaginatedResponse,
   ApiResponse,
@@ -57,6 +62,30 @@ export class TestsController {
     @Body(new ZodValidationPipe(UpdateTestSchema)) dto: UpdateTestDto,
   ): Promise<ApiResponse<Test>> {
     const data = await this.testsService.update(id, dto);
+    return { data };
+  }
+
+  @Put(':id/items')
+  @Roles(['ADMIN'])
+  async putItems(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(PutItemsSchema)) dto: PutItemsDto,
+  ): Promise<ApiResponse<{ count: number }>> {
+    const data = await this.testsService.putItems(id, dto.items);
+    return { data };
+  }
+
+  @Put(':id/interpretations')
+  @Roles(['ADMIN'])
+  async putInterpretations(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(PutInterpretationsSchema))
+    dto: PutInterpretationsDto,
+  ): Promise<ApiResponse<{ count: number }>> {
+    const data = await this.testsService.putInterpretations(
+      id,
+      dto.interpretations,
+    );
     return { data };
   }
 }

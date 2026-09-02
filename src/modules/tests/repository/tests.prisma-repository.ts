@@ -41,7 +41,42 @@ export class PrismaTestsRepository implements TestsRepository {
     return this.prisma.test.update({ where: { id }, data });
   }
 
-  async deleteManyByTestId(testId: string): Promise<void> {
-    await this.prisma.testItem.deleteMany({ where: { testId } });
+  async hasInProgressAttempts(testId: string): Promise<boolean> {
+    const count = await this.prisma.attempt.count({ where: { testId, status: 'IN_PROGRESS' } });
+    return count > 0;
+  }
+
+  async replaceItems(testId: string, items: { content: unknown }[]): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      await tx.testItem.deleteMany({ where: { testId } });
+      if (items.length > 0) {
+        await tx.testItem.createMany({
+          data: items.map((item, idx) => ({
+            testId,
+            order: idx + 1,
+            content: item.content as any,
+          })),
+        });
+      }
+    });
+  }
+
+  async replaceInterpretations(
+    testId: string,
+    interpretations: { patternCode: string; title: string; body: string }[],
+  ): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      await tx.interpretation.deleteMany({ where: { testId } });
+      if (interpretations.length > 0) {
+        await tx.interpretation.createMany({
+          data: interpretations.map((interp) => ({
+            testId,
+            patternCode: interp.patternCode,
+            title: interp.title,
+            body: interp.body,
+          })),
+        });
+      }
+    });
   }
 }

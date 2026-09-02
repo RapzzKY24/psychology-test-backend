@@ -13,5 +13,10 @@ export interface TestsRepository {
   }): Promise<{ data: Test[]; total: number }>;
   create(data: Prisma.TestCreateInput): Promise<Test>;
   update(id: string, data: Prisma.TestUpdateInput): Promise<Test>;
-  deleteManyByTestId(testId: string): Promise<void>;
+  hasInProgressAttempts(testId: string): Promise<boolean>;
+  replaceItems(testId: string, items: { content: unknown }[]): Promise<void>;
+  replaceInterpretations(
+    testId: string,
+    interpretations: { patternCode: string; title: string; body: string }[],
+  ): Promise<void>;
 }
