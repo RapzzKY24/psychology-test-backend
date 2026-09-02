@@ -2,23 +2,39 @@ import {
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
+  GoneException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Inject } from '@nestjs/common';
 import { SESSIONS_REPOSITORY } from '../repository/sessions.repository';
 import type {
   SessionsRepository,
   SessionDetail,
+  JoinSessionResult,
 } from '../repository/sessions.repository';
 import type { CreateSessionDto } from '../dto/create-session.dto';
+import type { JoinSessionDto } from '../dto/join-session.dto';
 import type { TestSession } from '../../../generated/prisma/client';
 import type { PaginatedResponse } from '../../../common/interfaces/api-response.interface';
 import { generateInviteToken } from '../utils/generate-invite-token';
 import { hashPin } from '../utils/hash-pin';
+import { verifyPin } from '../utils/verify-pin';
+import { generateParticipantToken } from '../utils/generate-participant-token';
+import { hashParticipantToken } from '../utils/hash-participant-token';
+import { createRateLimiter } from '../../../common/utils/in-memory-rate-limiter';
 
 const TOKEN_MAX_ATTEMPTS = 5;
+// docs/features/04-sessions-attempts.md NFR — 10/min/IP, Redis swap later.
+const JOIN_RATE_LIMIT = 10;
+const JOIN_RATE_WINDOW_MS = 60_000;
 
 @Injectable()
 export class SessionsService {
+  private readonly joinLimiter = createRateLimiter(
+    JOIN_RATE_LIMIT,
+    JOIN_RATE_WINDOW_MS,
+  );
+
   constructor(
     @Inject(SESSIONS_REPOSITORY)
     private readonly repo: SessionsRepository,
@@ -118,5 +134,49 @@ export class SessionsService {
     // Idempotent close — mirrors the idempotent-complete pattern in this feature.
     if (session.status === 'CLOSED') return session;
     return this.repo.updateStatus(id, 'CLOSED');
+  }
+
+  async join(
+    token: string,
+    dto: JoinSessionDto,
+    ip: string,
+  ): Promise<JoinSessionResult> {
+    // Rate limit first — protects the PIN check from brute force.
+    this.joinLimiter.check(ip);
+
+    // Validation order is documented in FR#5 — do not reorder.
+    const session = await this.repo.findByToken(token);
+    if (!session) throw new NotFoundException('Session not found');
+    if (session.status === 'CLOSED') {
+      throw new GoneException('session_closed');
+    }
+    if (session.expiresAt.getTime() <= Date.now()) {
+      throw new GoneException('session_expired');
+    }
+    const sessionTests = await this.repo.findSessionTestsBySessionId(
+      session.id,
+    );
+    const notPublished = sessionTests.filter(
+      (st) => st.testStatus !== 'PUBLISHED',
+    );
+    if (notPublished.length > 0) {
+      throw new GoneException('test_archived');
+    }
+    if (session.pinHash) {
+      const pinOk = dto.pin ? await verifyPin(dto.pin, session.pinHash) : false;
+      if (!pinOk) throw new UnauthorizedException('invalid_pin');
+    }
+
+    const participantToken = generateParticipantToken();
+    const tokenHash = hashParticipantToken(participantToken);
+
+    return this.repo.joinSession({
+      sessionId: session.id,
+      name: dto.name,
+      email: dto.email,
+      candidateNumber: dto.candidateNumber,
+      participantToken,
+      tokenHash,
+    });
   }
 }

@@ -1,10 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
+import { Prisma } from '../../../generated/prisma/client';
+import type {
+  SessionParticipant,
+  TestSession,
+} from '../../../generated/prisma/client';
 import { PrismaService } from '../../../prisma/prisma.service';
-import type { TestSession } from '../../../generated/prisma/client';
 import type {
   SessionsRepository,
   SessionDetail,
   CreateSessionParams,
+  JoinSessionParams,
+  JoinSessionResult,
+  SessionTestSummary,
 } from './sessions.repository';
 
 @Injectable()
@@ -119,5 +130,107 @@ export class PrismaSessionsRepository implements SessionsRepository {
       where: { id },
       data: { status },
     });
+  }
+
+  async findSessionTestsBySessionId(
+    sessionId: string,
+  ): Promise<SessionTestSummary[]> {
+    const rows = await this.prisma.sessionTest.findMany({
+      where: { sessionId },
+      orderBy: { order: 'asc' },
+      include: { test: { select: { name: true, status: true } } },
+    });
+    return rows.map((st) => ({
+      testId: st.testId,
+      testName: st.test.name,
+      testStatus: st.test.status,
+      order: st.order,
+    }));
+  }
+
+  findParticipantByTokenHash(
+    tokenHash: string,
+  ): Promise<SessionParticipant | null> {
+    return this.prisma.sessionParticipant.findUnique({
+      where: { tokenHash },
+    });
+  }
+
+  async joinSession(params: JoinSessionParams): Promise<JoinSessionResult> {
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        // Row lock serializes concurrent joins → slot count + create are atomic (decision D3).
+        await tx.$queryRaw`SELECT id FROM "test_sessions" WHERE id = ${params.sessionId}::uuid FOR UPDATE`;
+        const session = await tx.testSession.findUnique({
+          where: { id: params.sessionId },
+        });
+        if (!session) throw new NotFoundException('Session not found');
+
+        const participants = await tx.sessionParticipant.count({
+          where: { sessionId: params.sessionId },
+        });
+        if (participants >= session.slotLimit) {
+          throw new ConflictException('session_full');
+        }
+
+        const sessionTests = await tx.sessionTest.findMany({
+          where: { sessionId: params.sessionId },
+          orderBy: { order: 'asc' },
+          include: { test: { select: { name: true } } },
+        });
+
+        const participantRow = await tx.sessionParticipant.create({
+          data: {
+            sessionId: params.sessionId,
+            name: params.name,
+            email: params.email,
+            candidateNumber: params.candidateNumber,
+            tokenHash: params.tokenHash,
+          },
+        });
+
+        // Never expose tokenHash (or pinHash) to the client — it is the guest's credential.
+        const participant: Omit<typeof participantRow, 'tokenHash'> = {
+          id: participantRow.id,
+          sessionId: participantRow.sessionId,
+          name: participantRow.name,
+          email: participantRow.email,
+          candidateNumber: participantRow.candidateNumber,
+          joinedAt: participantRow.joinedAt,
+        };
+
+        const attempts = await Promise.all(
+          sessionTests.map((st) =>
+            tx.attempt.create({
+              data: {
+                sessionId: params.sessionId,
+                testId: st.testId,
+                participantId: participant.id,
+                status: 'IN_PROGRESS',
+              },
+            }),
+          ),
+        );
+
+        return {
+          participant,
+          participantToken: params.participantToken,
+          attempts: attempts.map((a, i) => ({
+            id: a.id,
+            testId: a.testId,
+            testName: sessionTests[i].test.name,
+          })),
+        };
+      });
+    } catch (error) {
+      // P2002 safety net per decision D3 — practically unreachable with the FOR UPDATE lock.
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException('session_full');
+      }
+      throw error;
+    }
   }
 }

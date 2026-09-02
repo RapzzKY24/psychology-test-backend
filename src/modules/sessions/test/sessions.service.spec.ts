@@ -3,9 +3,14 @@ jest.mock('../utils/hash-pin', () => ({
   hashPin: jest.fn().mockResolvedValue('hashed-pin'),
 }));
 
+jest.mock('../utils/verify-pin', () => ({
+  verifyPin: jest.fn(),
+}));
+
 import { SessionsService } from '../service/sessions.service';
 import type { SessionsRepository } from '../repository/sessions.repository';
 import { hashPin } from '../utils/hash-pin';
+import { verifyPin } from '../utils/verify-pin';
 
 describe('SessionsService', () => {
   let service: SessionsService;
@@ -23,6 +28,9 @@ describe('SessionsService', () => {
       findInstitutionById: jest.fn(),
       createWithTests: jest.fn(),
       updateStatus: jest.fn(),
+      findSessionTestsBySessionId: jest.fn(),
+      findParticipantByTokenHash: jest.fn(),
+      joinSession: jest.fn(),
     };
     mockRepo.findByToken.mockResolvedValue(null); // no token collision by default
     service = new SessionsService(mockRepo);
@@ -173,6 +181,130 @@ describe('SessionsService', () => {
       const result = await service.close('sess-1');
       expect(result.status).toBe('CLOSED');
       expect(mockRepo.updateStatus).toHaveBeenCalledWith('sess-1', 'CLOSED');
+    });
+  });
+
+  describe('join', () => {
+    const future = new Date(Date.now() + 60 * 60 * 1000);
+    const activeSession = {
+      id: 'sess-1',
+      status: 'ACTIVE',
+      expiresAt: future,
+      pinHash: null,
+      slotLimit: 30,
+    } as any;
+    const publishedTests = [
+      { testId: 't-1', testName: 'DISC', testStatus: 'PUBLISHED', order: 1 },
+    ];
+    const joinResult = {
+      participant: { id: 'p-1' } as any,
+      participantToken: 'a'.repeat(64),
+      attempts: [{ id: 'a-1', testId: 't-1', testName: 'DISC' }],
+    };
+
+    it('should throw 404 when invite token is unknown', async () => {
+      mockRepo.findByToken.mockResolvedValue(null);
+      await expect(
+        service.join('bad-token', { name: 'Budi' } as any, '1.1.1.1'),
+      ).rejects.toThrow('Session not found');
+    });
+
+    it('should throw 410 session_closed when session is CLOSED', async () => {
+      mockRepo.findByToken.mockResolvedValue({
+        ...activeSession,
+        status: 'CLOSED',
+      });
+      await expect(
+        service.join('tok', { name: 'Budi' } as any, '1.1.1.1'),
+      ).rejects.toThrow('session_closed');
+    });
+
+    it('should throw 410 session_expired when expiresAt is in the past', async () => {
+      mockRepo.findByToken.mockResolvedValue({
+        ...activeSession,
+        expiresAt: new Date(Date.now() - 1000),
+      });
+      await expect(
+        service.join('tok', { name: 'Budi' } as any, '1.1.1.1'),
+      ).rejects.toThrow('session_expired');
+    });
+
+    it('should throw 410 test_archived when a session test is not PUBLISHED', async () => {
+      mockRepo.findByToken.mockResolvedValue(activeSession);
+      mockRepo.findSessionTestsBySessionId.mockResolvedValue([
+        { testId: 't-1', testName: 'DISC', testStatus: 'ARCHIVED', order: 1 },
+      ]);
+      await expect(
+        service.join('tok', { name: 'Budi' } as any, '1.1.1.1'),
+      ).rejects.toThrow('test_archived');
+    });
+
+    it('should throw 401 invalid_pin when pin is required but missing', async () => {
+      mockRepo.findByToken.mockResolvedValue({
+        ...activeSession,
+        pinHash: 'stored-hash',
+      });
+      mockRepo.findSessionTestsBySessionId.mockResolvedValue(publishedTests);
+      jest.mocked(verifyPin).mockResolvedValue(false);
+      await expect(
+        service.join('tok', { name: 'Budi' } as any, '1.1.1.1'),
+      ).rejects.toThrow('invalid_pin');
+    });
+
+    it('should throw 401 invalid_pin when pin is wrong', async () => {
+      mockRepo.findByToken.mockResolvedValue({
+        ...activeSession,
+        pinHash: 'stored-hash',
+      });
+      mockRepo.findSessionTestsBySessionId.mockResolvedValue(publishedTests);
+      jest.mocked(verifyPin).mockResolvedValue(false);
+      await expect(
+        service.join('tok', { name: 'Budi', pin: '0000' } as any, '1.1.1.1'),
+      ).rejects.toThrow('invalid_pin');
+      expect(verifyPin).toHaveBeenCalledWith('0000', 'stored-hash');
+    });
+
+    it('should create participant + one attempt per session test and return the one-time token', async () => {
+      mockRepo.findByToken.mockResolvedValue(activeSession);
+      mockRepo.findSessionTestsBySessionId.mockResolvedValue(publishedTests);
+      mockRepo.joinSession.mockResolvedValue(joinResult);
+
+      const result = await service.join(
+        'tok',
+        { name: 'Budi', email: 'budi@mail.com', candidateNumber: '007' },
+        '1.1.1.1',
+      );
+
+      expect(result.participantToken).toMatch(/^[0-9a-f]{64}$/); // 32-byte hex
+      expect(mockRepo.joinSession).toHaveBeenCalledWith(
+        expect.objectContaining({
+          sessionId: 'sess-1',
+          name: 'Budi',
+          email: 'budi@mail.com',
+          candidateNumber: '007',
+          tokenHash: expect.stringMatching(/^[0-9a-f]{64}$/),
+        }),
+      );
+      expect(result.attempts).toEqual([
+        { id: 'a-1', testId: 't-1', testName: 'DISC' },
+      ]);
+    });
+
+    it('should throw 429 too_many_requests on the 11th join from the same ip within a minute', async () => {
+      mockRepo.findByToken.mockResolvedValue(activeSession);
+      mockRepo.findSessionTestsBySessionId.mockResolvedValue(publishedTests);
+      mockRepo.joinSession.mockResolvedValue(joinResult);
+
+      for (let i = 0; i < 10; i++) {
+        await service.join('tok', { name: `Budi ${i}` }, '1.1.1.1');
+      }
+      await expect(
+        service.join('tok', { name: 'Budi 11' } as any, '1.1.1.1'),
+      ).rejects.toThrow('too_many_requests');
+      // different ip is not affected
+      await expect(
+        service.join('tok', { name: 'Sari' } as any, '2.2.2.2'),
+      ).resolves.toEqual(joinResult);
     });
   });
 });

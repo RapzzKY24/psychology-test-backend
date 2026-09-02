@@ -1,4 +1,7 @@
-import type { TestSession } from '../../../generated/prisma/client';
+import type {
+  SessionParticipant,
+  TestSession,
+} from '../../../generated/prisma/client';
 
 export const SESSIONS_REPOSITORY = 'SessionsRepository';
 
@@ -27,6 +30,28 @@ export interface CreateSessionParams {
   tests: { testId: string; order: number }[];
 }
 
+export interface JoinSessionParams {
+  sessionId: string;
+  name: string;
+  email?: string;
+  candidateNumber?: string;
+  participantToken: string;
+  tokenHash: string;
+}
+
+export interface JoinSessionResult {
+  participant: Omit<SessionParticipant, 'tokenHash'>;
+  participantToken: string;
+  attempts: { id: string; testId: string; testName: string }[];
+}
+
+export interface SessionTestSummary {
+  testId: string;
+  testName: string;
+  testStatus: string;
+  order: number;
+}
+
 export interface SessionsRepository {
   findById(id: string): Promise<TestSession | null>;
   findDetailById(id: string): Promise<SessionDetail | null>;
@@ -39,4 +64,9 @@ export interface SessionsRepository {
   findInstitutionById(id: string): Promise<{ id: string } | null>;
   createWithTests(params: CreateSessionParams): Promise<TestSession>;
   updateStatus(id: string, status: 'ACTIVE' | 'CLOSED'): Promise<TestSession>;
+  findSessionTestsBySessionId(sessionId: string): Promise<SessionTestSummary[]>;
+  findParticipantByTokenHash(
+    tokenHash: string,
+  ): Promise<SessionParticipant | null>;
+  joinSession(params: JoinSessionParams): Promise<JoinSessionResult>;
 }
