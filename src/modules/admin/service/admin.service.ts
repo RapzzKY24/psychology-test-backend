@@ -2,6 +2,7 @@ import {
   Injectable,
   ForbiddenException,
   NotFoundException,
+  ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import type { CreateUserDto } from '../dto/create-user.dto';
@@ -56,7 +57,7 @@ export class AdminService {
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
-    if (existing) throw new ForbiddenException('email already exists');
+    if (existing) throw new ConflictException('email already exists');
 
     const hashedPassword = await hashPassword(dto.password);
     const userId = randomUUID();
