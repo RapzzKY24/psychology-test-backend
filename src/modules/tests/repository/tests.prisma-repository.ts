@@ -42,11 +42,16 @@ export class PrismaTestsRepository implements TestsRepository {
   }
 
   async hasInProgressAttempts(testId: string): Promise<boolean> {
-    const count = await this.prisma.attempt.count({ where: { testId, status: 'IN_PROGRESS' } });
+    const count = await this.prisma.attempt.count({
+      where: { testId, status: 'IN_PROGRESS' },
+    });
     return count > 0;
   }
 
-  async replaceItems(testId: string, items: { content: unknown }[]): Promise<void> {
+  async replaceItems(
+    testId: string,
+    items: { content: unknown }[],
+  ): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
       await tx.testItem.deleteMany({ where: { testId } });
       if (items.length > 0) {
@@ -54,7 +59,7 @@ export class PrismaTestsRepository implements TestsRepository {
           data: items.map((item, idx) => ({
             testId,
             order: idx + 1,
-            content: item.content as any,
+            content: item.content as Prisma.InputJsonValue,
           })),
         });
       }

@@ -76,12 +76,17 @@ export class TestsService {
     return this.repo.update(id, dto);
   }
 
-  async putItems(testId: string, items: { content: unknown }[]): Promise<{ count: number }> {
+  async putItems(
+    testId: string,
+    items: { content: unknown }[],
+  ): Promise<{ count: number }> {
     const test = await this.repo.findById(testId);
     if (!test) throw new NotFoundException('Test not found');
-    if (test.status === 'ARCHIVED') throw new ConflictException('cannot edit ARCHIVED test');
+    if (test.status === 'ARCHIVED')
+      throw new ConflictException('cannot edit ARCHIVED test');
 
-    if (await this.repo.hasInProgressAttempts(testId)) throw new ConflictException('edit_locked');
+    if (await this.repo.hasInProgressAttempts(testId))
+      throw new ConflictException('edit_locked');
 
     const schema = getItemSchema(test.scorerType);
     if (schema) {
@@ -90,7 +95,9 @@ export class TestsService {
         if (!result.success) {
           throw new UnprocessableEntityException({
             message: 'validation_failed',
-            details: [`items[${i}]: ${result.error.issues.map((iss) => `${iss.path.join('.')}: ${iss.message}`).join(', ')}`],
+            details: [
+              `items[${i}]: ${result.error.issues.map((iss) => `${iss.path.join('.')}: ${iss.message}`).join(', ')}`,
+            ],
           });
         }
       }
@@ -107,9 +114,11 @@ export class TestsService {
   ): Promise<{ count: number }> {
     const test = await this.repo.findById(testId);
     if (!test) throw new NotFoundException('Test not found');
-    if (test.status === 'ARCHIVED') throw new ConflictException('cannot edit ARCHIVED test');
+    if (test.status === 'ARCHIVED')
+      throw new ConflictException('cannot edit ARCHIVED test');
 
-    if (await this.repo.hasInProgressAttempts(testId)) throw new ConflictException('edit_locked');
+    if (await this.repo.hasInProgressAttempts(testId))
+      throw new ConflictException('edit_locked');
 
     await this.repo.replaceInterpretations(testId, interpretations);
 
