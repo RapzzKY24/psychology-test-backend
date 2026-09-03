@@ -12,12 +12,9 @@ describe('ForcedChoiceDiscScorer (Task 5.1)', () => {
         >[0]['items'],
         responses: fixture.responses,
       });
-      // Golden fixtures freeze behavior — check structure and catalog membership, not exact deep equality for now
-      expect(result.patternCode).toBeDefined();
-      expect(typeof result.patternCode).toBe('string');
-      expect(result.scores).toHaveProperty('M');
-      expect(result.scores).toHaveProperty('P');
-      expect(result.scores).toHaveProperty('graph');
+      expect(result.patternCode).toBe(fixture.expected.patternCode);
+      expect(result.scores).toEqual(fixture.expected.scores);
+      expect(DISC_PATTERN_CATALOG).toContain(result.patternCode);
     });
   }
 

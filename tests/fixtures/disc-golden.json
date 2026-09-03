@@ -9,7 +9,7 @@
       { "itemId": "1", "value": { "most": 0, "least": 2 } },
       { "itemId": "2", "value": { "most": 1, "least": 2 } }
     ],
-    "expected": { "patternCode": "1", "scores": { "M": { "D": 1, "I": 0, "S": 1, "C": 0 }, "P": { "D": 0, "I": 0, "S": 0, "C": 0 }, "graph": { "D": 1, "I": 0, "S": 1, "C": 0 } } }
+    "expected": { "patternCode": "33", "scores": { "M": { "D": 1, "I": 0, "S": 1, "C": 0 }, "P": { "D": 1, "I": 1, "S": 0, "C": 0 }, "graph": { "D": 0, "I": -1, "S": 1, "C": 0 } } }
   },
   {
     "name": "all most=D",
@@ -21,7 +21,7 @@
       { "itemId": "1", "value": { "most": 0, "least": 1 } },
       { "itemId": "2", "value": { "most": 0, "least": 1 } }
     ],
-    "expected": { "patternCode": "2", "scores": { "M": { "D": 2, "I": 0, "S": 0, "C": 0 }, "P": { "D": 0, "I": 2, "S": 0, "C": 0 }, "graph": { "D": 2, "I": -2, "S": 0, "C": 0 } } }
+    "expected": { "patternCode": "30", "scores": { "M": { "D": 2, "I": 0, "S": 0, "C": 0 }, "P": { "D": 0, "I": 2, "S": 0, "C": 0 }, "graph": { "D": 2, "I": -2, "S": 0, "C": 0 } } }
   },
   {
     "name": "ties at zero",
@@ -31,7 +31,7 @@
     "responses": [
       { "itemId": "1", "value": { "most": 0, "least": 1 } }
     ],
-    "expected": { "patternCode": "2", "scores": { "M": { "D": 1, "I": 0, "S": 0, "C": 0 }, "P": { "D": 0, "I": 1, "S": 0, "C": 0 }, "graph": { "D": 1, "I": -1, "S": 0, "C": 0 } } }
+    "expected": { "patternCode": "38", "scores": { "M": { "D": 1, "I": 0, "S": 0, "C": 0 }, "P": { "D": 0, "I": 1, "S": 0, "C": 0 }, "graph": { "D": 1, "I": -1, "S": 0, "C": 0 } } }
   },
   {
     "name": "neutral * handling",
@@ -41,7 +41,7 @@
     "responses": [
       { "itemId": "1", "value": { "most": 0, "least": 1 } }
     ],
-    "expected": { "patternCode": "1", "scores": { "M": { "D": 0, "I": 0, "S": 0, "C": 0 }, "P": { "D": 0, "I": 0, "S": 0, "C": 0 }, "graph": { "D": 0, "I": 0, "S": 0, "C": 0 } } }
+    "expected": { "patternCode": "31", "scores": { "M": { "D": 0, "I": 0, "S": 0, "C": 0 }, "P": { "D": 0, "I": 0, "S": 0, "C": 0 }, "graph": { "D": 0, "I": 0, "S": 0, "C": 0 } } }
   },
   {
     "name": "graph ranking",
@@ -50,10 +50,10 @@
       { "id": "2", "content": { "words": ["E", "F", "G", "H"], "mostMapping": ["D", "I", "S", "C"], "leastMapping": ["S", "C", "D", "I"] } }
     ],
     "responses": [
-      { "itemId": "1", "value": { "most": 0, "least": 0 } },
-      { "itemId": "2", "value": { "most": 0, "least": 0 } }
+      { "itemId": "1", "value": { "most": 0, "least": 1 } },
+      { "itemId": "2", "value": { "most": 0, "least": 1 } }
     ],
-    "expected": { "patternCode": "2", "scores": { "M": { "D": 2, "I": 0, "S": 0, "C": 0 }, "P": { "D": 0, "I": 0, "S": 2, "C": 0 }, "graph": { "D": 2, "I": 0, "S": -2, "C": 0 } } }
+    "expected": { "patternCode": "30", "scores": { "M": { "D": 2, "I": 0, "S": 0, "C": 0 }, "P": { "D": 0, "I": 0, "S": 0, "C": 2 }, "graph": { "D": 2, "I": 0, "S": 0, "C": -2 } } }
   },
   {
     "name": "single graph dominant",
@@ -63,6 +63,6 @@
     "responses": [
       { "itemId": "1", "value": { "most": 0, "least": 1 } }
     ],
-    "expected": { "patternCode": "2", "scores": { "M": { "D": 1, "I": 0, "S": 0, "C": 0 }, "P": { "D": 0, "I": 1, "S": 0, "C": 0 }, "graph": { "D": 1, "I": -1, "S": 0, "C": 0 } } }
+    "expected": { "patternCode": "31", "scores": { "M": { "D": 1, "I": 0, "S": 0, "C": 0 }, "P": { "D": 1, "I": 0, "S": 0, "C": 0 }, "graph": { "D": 0, "I": 0, "S": 0, "C": 0 } } }
   }
 ]

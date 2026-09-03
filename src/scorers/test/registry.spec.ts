@@ -60,7 +60,7 @@ describe('SCORERS registry (task 4.3)', () => {
     expect(out.scores).toHaveProperty('M');
     expect(out.scores).toHaveProperty('P');
     expect(out.scores).toHaveProperty('graph');
-    // D(M)=2, I(M)=1, P(D)=1,P(I)=2, graph D=1,I=-1 -> top is D, but new catalog is 1..40 (not D/I/S/C), so fallback is "1"
-    expect(out.patternCode).toBe('1');
+    // D(M)=2, I(M)=1, P(D)=1,P(I)=2, graph D=1,I=-1 -> top is D, numeric mapping gives 38
+    expect(out.patternCode).toBe('38');
   });
 });
