@@ -8,6 +8,7 @@ import { auth } from './modules/auth/auth';
 import { AdminModule } from './modules/admin/admin.module';
 import { PsychologistModule } from './modules/psychologist/psychologist.module';
 import { TestsModule } from './modules/tests/tests.module';
+import { ReviewsModule } from './modules/reviews/reviews.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { TestsModule } from './modules/tests/tests.module';
     AdminModule,
     PsychologistModule,
     TestsModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
