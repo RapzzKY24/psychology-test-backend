@@ -223,12 +223,20 @@ export class PrismaSessionsRepository implements SessionsRepository {
         };
       });
     } catch (error) {
-      // P2002 safety net per decision D3 — practically unreachable with the FOR UPDATE lock.
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2002'
       ) {
-        throw new ConflictException('session_full');
+        const target =
+          (error.meta?.target as string[] | string | undefined)?.toString() ??
+          '';
+        // Only map participant/tokenHash collisions to session_full; other uniques should bubble
+        if (
+          target.includes('tokenHash') ||
+          target.includes('sessionParticipant')
+        ) {
+          throw new ConflictException('session_full');
+        }
       }
       throw error;
     }

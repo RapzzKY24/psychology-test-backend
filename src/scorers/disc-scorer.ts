@@ -2,7 +2,6 @@ import type {
   DiscItemContent,
   DiscResponse,
 } from './schemas/forced-choice-disc';
-import { DISC_PATTERN_CATALOG } from './schemas/forced-choice-disc';
 
 export interface DiscScores {
   M: Record<string, number>;
@@ -63,7 +62,8 @@ export function scoreDisc(input: {
 
   const key = `${patternLetters.join('-')}:${LETTERS.map((l) => graph[l]).join(',')}`;
   let hash = 0;
-  for (let i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) % 100000;
+  for (let i = 0; i < key.length; i++)
+    hash = (hash * 31 + key.charCodeAt(i)) % 100000;
   const numeric = (hash % 40) + 1;
   return { scores: { M, P, graph }, patternCode: String(numeric) };
 }

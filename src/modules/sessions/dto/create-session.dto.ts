@@ -11,7 +11,9 @@ export const CreateSessionSchema = z
         message: 'testIds must be unique',
       }),
     slotLimit: z.number().int().min(1).max(1000),
-    expiresAt: z.coerce.date(),
+    expiresAt: z.coerce.date().refine((d) => d > new Date(), {
+      message: 'expiresAt must be in the future',
+    }),
     pin: z.string().min(4).max(8).optional(),
   })
   .strict();

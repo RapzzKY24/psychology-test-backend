@@ -124,7 +124,7 @@ export class AttemptsService {
     if (!detail) throw new NotFoundException('Attempt not found');
     this.assertOwnerOr404(detail.attempt.participantId, participantId);
 
-    // D4 idempotency fast path: already completed -> return the existing result.
+    // D4 idempotency: COMPLETED with result → return existing; COMPLETED without result → recover by re-scoring
     if (detail.attempt.status === 'COMPLETED') {
       const existing = await this.repo.findResultByAttemptId(attemptId);
       if (existing) {
@@ -133,13 +133,13 @@ export class AttemptsService {
           testId: detail.attempt.testId,
           testName: detail.test.name,
           status: 'COMPLETED',
-          completedAt: detail.attempt.completedAt ?? new Date(),
+          completedAt:
+            detail.attempt.completedAt ?? existing.computedAt ?? new Date(),
           result: existing,
         };
       }
-    }
-
-    if (detail.attempt.status !== 'IN_PROGRESS') {
+      // No result — fall through to re-score (don't throw 409)
+    } else if (detail.attempt.status !== 'IN_PROGRESS') {
       throw new ConflictException('attempt_not_in_progress');
     }
     this.assertWithinGrace(detail.session);
@@ -178,7 +178,7 @@ export class AttemptsService {
       testId: detail.attempt.testId,
       testName: detail.test.name,
       status: 'COMPLETED',
-      completedAt: new Date(),
+      completedAt: result.computedAt ?? new Date(),
       result,
     };
   }
