@@ -163,7 +163,14 @@ export class ReviewsService {
       throw new ConflictException('result_already_approved');
     if (!data.scores || !data.patternCode)
       throw new UnprocessableEntityException('validation_failed');
-    return this.repo.applyCorrection(resultId, { ...data, psychologistId });
+    const res = await this.repo.applyCorrection(resultId, {
+      ...data,
+      psychologistId,
+    });
+    if (res.count === 0) throw new ConflictException('result_already_approved');
+    const updated = await this.repo.findById(resultId);
+    if (!updated) throw new NotFoundException('Result not found');
+    return updated;
   }
 
   async resubmit(resultId: string): Promise<TestResult> {

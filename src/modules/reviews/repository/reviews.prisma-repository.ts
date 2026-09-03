@@ -238,9 +238,9 @@ export class PrismaReviewsRepository implements ReviewsRepository {
       reason: string;
       psychologistId: string;
     },
-  ): Promise<import('../../../generated/prisma/client').TestResult> {
-    return this.prisma.testResult.update({
-      where: { id: resultId },
+  ): Promise<{ count: number }> {
+    const result = await this.prisma.testResult.updateMany({
+      where: { id: resultId, status: { not: 'APPROVED' } },
       data: {
         correctedScores: data.scores as Prisma.InputJsonValue,
         correctedPatternCode: data.patternCode,
@@ -249,6 +249,7 @@ export class PrismaReviewsRepository implements ReviewsRepository {
         correctedAt: new Date(),
       },
     });
+    return { count: result.count };
   }
 
   async resubmit(resultId: string): Promise<{ count: number }> {

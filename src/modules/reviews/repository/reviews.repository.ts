@@ -65,7 +65,7 @@ export interface ReviewsRepository {
       reason: string;
       psychologistId: string;
     },
-  ): Promise<TestResult>;
+  ): Promise<{ count: number }>;
   resubmit(resultId: string): Promise<{ count: number }>;
   findById(resultId: string): Promise<TestResult | null>;
   findByVerifyCode(code: string): Promise<VerifyLookup | null>;
