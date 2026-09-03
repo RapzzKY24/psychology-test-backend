@@ -42,6 +42,7 @@ describe('InvoicesService', () => {
       (mockPrisma.$transaction as jest.Mock).mockImplementation(
         async (cb: never) => {
           const tx = {
+            $queryRaw: jest.fn().mockResolvedValue([]),
             invoice: {
               findFirst: jest
                 .fn()
@@ -73,6 +74,7 @@ describe('InvoicesService', () => {
       (mockPrisma.$transaction as jest.Mock).mockImplementation(
         async (cb: never) => {
           const tx = {
+            $queryRaw: jest.fn().mockResolvedValue([]),
             invoice: {
               findFirst: jest.fn().mockResolvedValue(null),
               create: jest.fn().mockResolvedValue({

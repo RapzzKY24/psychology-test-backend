@@ -5,18 +5,13 @@ import {
   UnprocessableEntityException,
   Inject,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ORDERS_REPOSITORY } from '../repository/orders.repository';
 import type { OrdersRepository } from '../repository/orders.repository';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { generateUniqueCode } from '../utils/generate-unique-code';
-import { calcTotal } from '../utils/calc-total';
 import { generateInviteToken } from '../../sessions/utils/generate-invite-token';
-import type { Order } from '../../../generated/prisma/client';
+import type { Order, Prisma } from '../../../generated/prisma/client';
 import type { QueryPaymentsDto } from '../dto/query-payments.dto';
-
-const PAYMENT_TTL_MIN = parseInt(process.env.PAYMENT_TTL_MIN ?? '60', 10);
-const COLLISION_WINDOW_MS = 24 * 60 * 60 * 1000;
-const MAX_CODE_ATTEMPTS = 5;
 
 @Injectable()
 export class OrdersService {
@@ -24,16 +19,11 @@ export class OrdersService {
     @Inject(ORDERS_REPOSITORY)
     private readonly repo: OrdersRepository,
     private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
   ) {}
 
-  private async getQrisImageUrl(): Promise<string | null> {
-    const setting = await this.prisma.setting.findUnique({
-      where: { key: 'payment.qrisImagePath' },
-    });
-    if (!setting?.value) return null;
-    const p = (setting.value as { path?: string })?.path;
-    if (!p) return null;
-    return '/api/v1/public/payments/qris-image';
+  private get paymentTtlMin(): number {
+    return this.configService.get<number>('app.paymentTtlMin', 60);
   }
 
   private isExpired(order: Order): boolean {
@@ -63,7 +53,7 @@ export class OrdersService {
     expiresAt: Date;
     qrisImageUrl: string | null;
   }> {
-    const test = await this.prisma.test.findUnique({ where: { id: testId } });
+    const test = await this.repo.findTestById(testId);
     if (!test) throw new NotFoundException('Test not found');
     if (test.status !== 'PUBLISHED') {
       throw new UnprocessableEntityException({
@@ -72,39 +62,14 @@ export class OrdersService {
       });
     }
 
-    const basePrice = test.price;
-    const since = new Date(Date.now() - COLLISION_WINDOW_MS);
-    let uniqueCode = 0;
-    let amount = 0;
-    let attempts = 0;
-    for (; attempts < MAX_CODE_ATTEMPTS; attempts++) {
-      uniqueCode = generateUniqueCode();
-      amount = calcTotal(basePrice, uniqueCode);
-      const collision = await this.repo.findPendingOrPaidByAmount(
-        amount,
-        since,
-      );
-      if (!collision) break;
-      if (attempts === MAX_CODE_ATTEMPTS - 1) {
-        throw new UnprocessableEntityException({
-          message: 'validation_failed',
-          details: ['code_exhausted'],
-        });
-      }
-    }
-
-    const expiresAt = new Date(Date.now() + PAYMENT_TTL_MIN * 60 * 1000);
-    const order = await this.repo.create({
+    const order = await this.repo.createWithUniqueCheck(
+      test.price,
+      testId,
       userId,
-      test: { connect: { id: testId } },
-      basePrice,
-      uniqueCode,
-      amount,
-      status: 'PENDING',
-      expiresAt,
-    } as never);
+      this.paymentTtlMin,
+    );
 
-    const qrisImageUrl = await this.getQrisImageUrl();
+    const qrisImageUrl = await this.repo.getQrisImageUrl();
     return {
       orderId: order.id,
       basePrice: order.basePrice,
@@ -169,25 +134,23 @@ export class OrdersService {
     return { id: updated.id, userClaimedAt: updated.userClaimedAt as Date };
   }
 
-  async listPayments(
-    query: QueryPaymentsDto,
-  ): Promise<{ data: Order[]; total: number }> {
-    // Lazy expire stale PENDING before list
-    await this.prisma.order.updateMany({
-      where: { status: 'PENDING', expiresAt: { lt: new Date() } },
-      data: { status: 'EXPIRED' },
-    });
-    const where: Record<string, unknown> = {};
+  async listPayments(query: QueryPaymentsDto): Promise<{
+    data: (Order & {
+      user: { name: string; email: string };
+      test: { name: string };
+    })[];
+    total: number;
+  }> {
+    await this.repo.expireStalePending();
+    const where: Prisma.OrderWhereInput = {};
     if (query.status) where.status = query.status;
     if (query.amount !== undefined) where.amount = query.amount;
     const skip = (query.page - 1) * query.limit;
-    const { data, total } = await this.repo.findMany({
-      where: where,
+    return this.repo.findManyEnriched({
+      where,
       skip,
       take: query.limit,
     });
-    // Enrich with user/test for admin screen — fetch in bulk
-    return { data, total };
   }
 
   async verify(
@@ -209,24 +172,33 @@ export class OrdersService {
     if (order.status !== 'PENDING' && order.status !== 'EXPIRED') {
       throw new ConflictException('already_verified');
     }
-    const wasLate = order.status === 'EXPIRED';
 
+    let wasLate = false;
     const result = await this.prisma.$transaction(async (tx) => {
+      const current = await tx.order.findUnique({ where: { id: orderId } });
+      if (!current) throw new NotFoundException('Order not found');
+      wasLate = current.status === 'EXPIRED';
+      if (current.status === 'PAID')
+        throw new ConflictException('already_verified');
+      if (current.status === 'CANCELLED')
+        throw new ConflictException('order_cancelled');
+      if (current.status !== 'PENDING' && current.status !== 'EXPIRED') {
+        throw new ConflictException('already_verified');
+      }
       const updated = await tx.order.updateMany({
         where: { id: orderId, status: { in: ['PENDING', 'EXPIRED'] } },
         data: { status: 'PAID', verifiedById: adminId, verifiedAt: new Date() },
       });
       if (updated.count === 0) {
-        const current = await tx.order.findUnique({ where: { id: orderId } });
-        if (!current) throw new NotFoundException('Order not found');
-        if (current.status === 'PAID')
+        const cur = await tx.order.findUnique({ where: { id: orderId } });
+        if (!cur) throw new NotFoundException('Order not found');
+        if (cur.status === 'PAID')
           throw new ConflictException('already_verified');
-        if (current.status === 'CANCELLED')
+        if (cur.status === 'CANCELLED')
           throw new ConflictException('order_cancelled');
         throw new ConflictException('already_verified');
       }
 
-      // Create INDIVIDUAL session + attempt — exactly once
       const token = generateInviteToken();
       const session = await tx.testSession.create({
         data: {
@@ -241,8 +213,8 @@ export class OrdersService {
       const attempt = await tx.attempt.create({
         data: {
           sessionId: session.id,
-          testId: order.testId,
-          userId: order.userId,
+          testId: current.testId,
+          userId: current.userId,
           status: 'IN_PROGRESS',
         },
       });
@@ -260,9 +232,8 @@ export class OrdersService {
 
   async cancel(
     orderId: string,
-    _reason: string,
+    reason: string,
   ): Promise<{ orderId: string; status: string }> {
-    void _reason;
     const order = await this.repo.findById(orderId);
     if (!order) throw new NotFoundException('Order not found');
     if (order.status === 'PAID')
@@ -283,6 +254,8 @@ export class OrdersService {
         throw new ConflictException('already_verified');
       throw new ConflictException('order_cancelled');
     }
+    // Reason is for audit log; persist if column exists, otherwise ignore
+    void reason;
     return { orderId, status: 'CANCELLED' };
   }
 }

@@ -7,44 +7,45 @@ describe('OrdersService', () => {
   let service: OrdersService;
   let mockRepo: jest.Mocked<OrdersRepository>;
   let mockPrisma: jest.Mocked<PrismaService>;
+  let mockConfig: { get: jest.Mock };
 
   beforeEach(() => {
     mockRepo = {
       findById: jest.fn(),
       findPendingOrPaidByAmount: jest.fn(),
+      findTestById: jest.fn(),
+      getQrisImageUrl: jest.fn(),
+      expireStalePending: jest.fn(),
       create: jest.fn(),
+      createWithUniqueCheck: jest.fn(),
       update: jest.fn(),
       updateManyToExpired: jest.fn(),
       findMany: jest.fn(),
+      findManyEnriched: jest.fn(),
     };
     mockPrisma = {
-      test: { findUnique: jest.fn() },
-      setting: { findUnique: jest.fn() },
       order: { updateMany: jest.fn(), findUnique: jest.fn() },
-      institution: { findUnique: jest.fn() },
-      testSession: { create: jest.fn() },
-      attempt: { create: jest.fn() },
       $transaction: jest.fn(),
     } as unknown as jest.Mocked<PrismaService>;
-    service = new OrdersService(mockRepo, mockPrisma);
+    mockConfig = { get: jest.fn().mockReturnValue(60) };
+    service = new OrdersService(mockRepo, mockPrisma, mockConfig as never);
   });
 
   describe('create', () => {
     it('should create order with unique code and total', async () => {
-      (mockPrisma.test.findUnique as jest.Mock).mockResolvedValue({
+      mockRepo.findTestById.mockResolvedValue({
         id: 't1',
         price: 200000,
         status: 'PUBLISHED',
-      });
-      mockRepo.findPendingOrPaidByAmount.mockResolvedValue(null);
-      mockRepo.create.mockResolvedValue({
+      } as never);
+      mockRepo.createWithUniqueCheck.mockResolvedValue({
         id: 'o1',
         basePrice: 200000,
         uniqueCode: 123,
         amount: 200123,
         expiresAt: new Date(),
       } as never);
-      (mockPrisma.setting.findUnique as jest.Mock).mockResolvedValue(null);
+      mockRepo.getQrisImageUrl.mockResolvedValue(null);
 
       const result = await service.create('t1', 'u1');
       expect(result.basePrice).toBe(200000);
@@ -54,44 +55,36 @@ describe('OrdersService', () => {
     });
 
     it('should throw 404 if test not found', async () => {
-      (mockPrisma.test.findUnique as jest.Mock).mockResolvedValue(null);
+      mockRepo.findTestById.mockResolvedValue(null);
       await expect(service.create('t1', 'u1')).rejects.toThrow(
         'Test not found',
       );
     });
 
     it('should throw 422 if test not PUBLISHED', async () => {
-      (mockPrisma.test.findUnique as jest.Mock).mockResolvedValue({
+      mockRepo.findTestById.mockResolvedValue({
         id: 't1',
         price: 100,
         status: 'DRAFT',
-      });
+      } as never);
       await expect(service.create('t1', 'u1')).rejects.toThrow(
         'validation_failed',
       );
     });
 
-    it('should retry on amount collision', async () => {
-      (mockPrisma.test.findUnique as jest.Mock).mockResolvedValue({
+    it('should propagate code_exhausted from repo', async () => {
+      mockRepo.findTestById.mockResolvedValue({
         id: 't1',
         price: 200000,
         status: 'PUBLISHED',
-      });
-      mockRepo.findPendingOrPaidByAmount
-        .mockResolvedValueOnce({ id: 'existing' } as never)
-        .mockResolvedValueOnce(null);
-      mockRepo.create.mockResolvedValue({
-        id: 'o1',
-        basePrice: 200000,
-        uniqueCode: 124,
-        amount: 200124,
-        expiresAt: new Date(),
       } as never);
-      (mockPrisma.setting.findUnique as jest.Mock).mockResolvedValue(null);
+      mockRepo.createWithUniqueCheck.mockRejectedValue(
+        new Error('code_exhausted'),
+      );
 
-      const result = await service.create('t1', 'u1');
-      expect(mockRepo.findPendingOrPaidByAmount).toHaveBeenCalledTimes(2);
-      expect(result.uniqueCode).toBeDefined();
+      await expect(service.create('t1', 'u1')).rejects.toThrow(
+        'code_exhausted',
+      );
     });
   });
 
@@ -227,7 +220,12 @@ describe('OrdersService', () => {
       const tx = {
         order: {
           updateMany: jest.fn().mockResolvedValue({ count: 1 }),
-          findUnique: jest.fn(),
+          findUnique: jest.fn().mockResolvedValue({
+            id: 'o1',
+            status: 'PENDING',
+            testId: 't1',
+            userId: 'u1',
+          }),
         },
         testSession: { create: jest.fn().mockResolvedValue({ id: 's1' }) },
         attempt: { create: jest.fn().mockResolvedValue({ id: 'a1' }) },
@@ -252,7 +250,15 @@ describe('OrdersService', () => {
         userId: 'u1',
       } as never);
       const tx = {
-        order: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
+        order: {
+          updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+          findUnique: jest.fn().mockResolvedValue({
+            id: 'o1',
+            status: 'EXPIRED',
+            testId: 't1',
+            userId: 'u1',
+          }),
+        },
         testSession: { create: jest.fn().mockResolvedValue({ id: 's1' }) },
         attempt: { create: jest.fn().mockResolvedValue({ id: 'a1' }) },
       };

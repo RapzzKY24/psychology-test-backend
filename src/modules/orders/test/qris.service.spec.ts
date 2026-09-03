@@ -5,12 +5,14 @@ import type { PrismaService } from '../../../prisma/prisma.service';
 describe('QrisService', () => {
   let service: QrisService;
   let mockPrisma: jest.Mocked<PrismaService>;
+  let mockConfig: { get: jest.Mock };
 
   beforeEach(() => {
     mockPrisma = {
       setting: { findUnique: jest.fn(), upsert: jest.fn() },
     } as unknown as jest.Mocked<PrismaService>;
-    service = new QrisService(mockPrisma);
+    mockConfig = { get: jest.fn().mockReturnValue('./uploads') };
+    service = new QrisService(mockPrisma, mockConfig as never);
   });
 
   describe('getImagePath', () => {

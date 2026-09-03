@@ -27,8 +27,9 @@ export class InvoicesService {
     if (!institution) throw new NotFoundException('Institution not found');
 
     const year = new Date().getFullYear();
-    // Transactional per-year sequence: max number + 1
     const invoice = await this.prisma.$transaction(async (tx) => {
+      // Lock per-year invoice rows to prevent duplicate numbers under concurrency
+      await tx.$queryRaw`SELECT id FROM "invoices" WHERE number LIKE ${`INV-${year}-%`} FOR UPDATE`;
       const last = await tx.invoice.findFirst({
         where: { number: { startsWith: `INV-${year}-` } },
         orderBy: { number: 'desc' },
@@ -74,7 +75,7 @@ export class InvoicesService {
     const invoice = await this.repo.findById(id);
     if (!invoice) throw new NotFoundException('Invoice not found');
     return this.repo.update(id, {
-      status: status as never,
+      status: status as unknown as Invoice['status'],
       notes,
     });
   }

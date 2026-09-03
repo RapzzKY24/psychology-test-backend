@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../../prisma/prisma.service';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -6,10 +7,13 @@ import { randomUUID } from 'crypto';
 
 @Injectable()
 export class QrisService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {}
 
   private getUploadDir(): string {
-    const dir = process.env.UPLOAD_DIR ?? './uploads';
+    const dir = this.configService.get<string>('app.uploadDir', './uploads');
     return path.resolve(dir, 'qris');
   }
 
@@ -43,9 +47,9 @@ export class QrisService {
       where: { key: 'payment.qrisImagePath' },
       create: {
         key: 'payment.qrisImagePath',
-        value: { path: relative } as never,
+        value: { path: relative },
       },
-      update: { value: { path: relative } as never },
+      update: { value: { path: relative } },
     });
 
     return { qrisImageUrl: `/api/v1/public/payments/qris-image` };

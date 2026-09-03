@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import type { Express } from 'express';
 
-const ALLOWED = ['image/png', 'image/jpeg', 'image/jpg'];
+const ALLOWED = ['image/png', 'image/jpeg'];
 const MAX = 2 * 1024 * 1024;
 
 export function validateQrisFile(file: Express.Multer.File): void {
