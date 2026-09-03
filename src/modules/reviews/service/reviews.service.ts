@@ -137,7 +137,13 @@ export class ReviewsService {
       throw new ConflictException('result_already_approved');
     }
     const res = await this.repo.returnForReason(resultId, reason);
-    if (res.count === 0) throw new ConflictException('result_already_approved');
+    if (res.count === 0) {
+      const current = await this.repo.findById(resultId);
+      if (!current) throw new NotFoundException('Result not found');
+      if (current.status === 'RETURNED')
+        throw new ConflictException('result_returned');
+      throw new ConflictException('result_already_approved');
+    }
     const updated = await this.repo.findById(resultId);
     if (!updated) throw new NotFoundException('Result not found');
     return updated;
