@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { OrdersController } from './controller/orders.controller';
+import { AdminPaymentsController } from './controller/admin-payments.controller';
 import { OrdersService } from './service/orders.service';
 import { PrismaOrdersRepository } from './repository/orders.prisma-repository';
 import { ORDERS_REPOSITORY } from './repository/orders.repository';
 
 @Module({
-  controllers: [OrdersController],
+  controllers: [OrdersController, AdminPaymentsController],
   providers: [
     OrdersService,
     { provide: ORDERS_REPOSITORY, useClass: PrismaOrdersRepository },

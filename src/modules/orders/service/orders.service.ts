@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
@@ -9,7 +10,9 @@ import type { OrdersRepository } from '../repository/orders.repository';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { generateUniqueCode } from '../utils/generate-unique-code';
 import { calcTotal } from '../utils/calc-total';
+import { generateInviteToken } from '../../sessions/utils/generate-invite-token';
 import type { Order } from '../../../generated/prisma/client';
+import type { QueryPaymentsDto } from '../dto/query-payments.dto';
 
 const PAYMENT_TTL_MIN = parseInt(process.env.PAYMENT_TTL_MIN ?? '60', 10);
 const COLLISION_WINDOW_MS = 24 * 60 * 60 * 1000;
@@ -163,5 +166,122 @@ export class OrdersService {
       userClaimedAt: new Date(),
     });
     return { id: updated.id, userClaimedAt: updated.userClaimedAt as Date };
+  }
+
+  async listPayments(
+    query: QueryPaymentsDto,
+  ): Promise<{ data: Order[]; total: number }> {
+    // Lazy expire stale PENDING before list
+    await this.prisma.order.updateMany({
+      where: { status: 'PENDING', expiresAt: { lt: new Date() } },
+      data: { status: 'EXPIRED' },
+    });
+    const where: Record<string, unknown> = {};
+    if (query.status) where.status = query.status;
+    if (query.amount !== undefined) where.amount = query.amount;
+    const skip = (query.page - 1) * query.limit;
+    const { data, total } = await this.repo.findMany({
+      where: where,
+      skip,
+      take: query.limit,
+    });
+    // Enrich with user/test for admin screen — fetch in bulk
+    return { data, total };
+  }
+
+  async verify(
+    orderId: string,
+    adminId: string,
+  ): Promise<{
+    orderId: string;
+    status: string;
+    wasLate: boolean;
+    sessionId: string;
+    attemptId: string;
+  }> {
+    const order = await this.repo.findById(orderId);
+    if (!order) throw new NotFoundException('Order not found');
+    if (order.status === 'PAID')
+      throw new ConflictException('already_verified');
+    if (order.status === 'CANCELLED')
+      throw new ConflictException('order_cancelled');
+    if (order.status !== 'PENDING' && order.status !== 'EXPIRED') {
+      throw new ConflictException('already_verified');
+    }
+    const wasLate = order.status === 'EXPIRED';
+
+    const result = await this.prisma.$transaction(async (tx) => {
+      const updated = await tx.order.updateMany({
+        where: { id: orderId, status: { in: ['PENDING', 'EXPIRED'] } },
+        data: { status: 'PAID', verifiedById: adminId, verifiedAt: new Date() },
+      });
+      if (updated.count === 0) {
+        const current = await tx.order.findUnique({ where: { id: orderId } });
+        if (!current) throw new NotFoundException('Order not found');
+        if (current.status === 'PAID')
+          throw new ConflictException('already_verified');
+        if (current.status === 'CANCELLED')
+          throw new ConflictException('order_cancelled');
+        throw new ConflictException('already_verified');
+      }
+
+      // Create INDIVIDUAL session + attempt — exactly once
+      const token = generateInviteToken();
+      const session = await tx.testSession.create({
+        data: {
+          kind: 'INDIVIDUAL',
+          title: `Order ${orderId}`,
+          token,
+          slotLimit: 1,
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          status: 'ACTIVE',
+        },
+      });
+      const attempt = await tx.attempt.create({
+        data: {
+          sessionId: session.id,
+          testId: order.testId,
+          userId: order.userId,
+          status: 'IN_PROGRESS',
+        },
+      });
+      return { sessionId: session.id, attemptId: attempt.id };
+    });
+
+    return {
+      orderId,
+      status: 'PAID',
+      wasLate,
+      sessionId: result.sessionId,
+      attemptId: result.attemptId,
+    };
+  }
+
+  async cancel(
+    orderId: string,
+    _reason: string,
+  ): Promise<{ orderId: string; status: string }> {
+    void _reason;
+    const order = await this.repo.findById(orderId);
+    if (!order) throw new NotFoundException('Order not found');
+    if (order.status === 'PAID')
+      throw new ConflictException('already_verified');
+    if (order.status === 'CANCELLED')
+      throw new ConflictException('order_cancelled');
+    if (order.status !== 'PENDING' && order.status !== 'EXPIRED') {
+      throw new ConflictException('order_cancelled');
+    }
+    const updated = await this.prisma.order.updateMany({
+      where: { id: orderId, status: { in: ['PENDING', 'EXPIRED'] } },
+      data: { status: 'CANCELLED' },
+    });
+    if (updated.count === 0) {
+      const current = await this.repo.findById(orderId);
+      if (!current) throw new NotFoundException('Order not found');
+      if (current.status === 'PAID')
+        throw new ConflictException('already_verified');
+      throw new ConflictException('order_cancelled');
+    }
+    return { orderId, status: 'CANCELLED' };
   }
 }
