@@ -19,7 +19,14 @@ export function createRateLimiter(
       const now = Date.now();
       const entry = entries.get(key);
       if (!entry || entry.resetAt <= now) {
+        if (entry) entries.delete(key);
         entries.set(key, { count: 1, resetAt: now + windowMs });
+        // opportunistic eviction of stale entries to bound memory
+        if (entries.size > 500) {
+          for (const [k, v] of entries) {
+            if (v.resetAt <= now) entries.delete(k);
+          }
+        }
         return;
       }
       entry.count += 1;

@@ -62,7 +62,7 @@ export class ReviewsService {
     return detail;
   }
 
-  async updateNotes(resultId: string, notes: string) {
+  async updateNotes(resultId: string, notes: string): Promise<TestResult> {
     const detail = await this.repo.findDetailById(resultId);
     if (!detail) throw new NotFoundException('Result not found');
     return this.repo.updateNotes(resultId, notes);
@@ -71,12 +71,13 @@ export class ReviewsService {
   async approve(resultId: string, psychologistId: string): Promise<TestResult> {
     const detail = await this.repo.findDetailById(resultId);
     if (!detail) throw new NotFoundException('Result not found');
-    if (detail.result.status === 'APPROVED')
+    if (detail.result.status !== 'PENDING_REVIEW') {
+      if (detail.result.status === 'APPROVED')
+        throw new ConflictException('result_already_approved');
+      if (detail.result.status === 'RETURNED')
+        throw new ConflictException('result_returned');
       throw new ConflictException('result_already_approved');
-    if (detail.result.status === 'RETURNED')
-      throw new ConflictException('result_returned');
-    if (detail.result.status !== 'PENDING_REVIEW')
-      throw new ConflictException('result_already_approved');
+    }
 
     const profile = await this.repo.findPsychologistProfile(psychologistId);
     const complete =
@@ -90,13 +91,28 @@ export class ReviewsService {
     let verifyCode = generateVerifyCode();
     let attempts = 0;
     while (attempts < 5) {
-      const res = await this.repo.approve(resultId, psychologistId, verifyCode);
-      if (res.count > 0) {
-        const updated = await this.repo.findById(resultId);
-        if (!updated) throw new NotFoundException('Result not found');
-        return updated;
+      try {
+        const res = await this.repo.approve(
+          resultId,
+          psychologistId,
+          verifyCode,
+        );
+        if (res.count > 0) {
+          const updated = await this.repo.findById(resultId);
+          if (!updated) throw new NotFoundException('Result not found');
+          return updated;
+        }
+      } catch (e) {
+        // Unique violation on verifyCode — regenerate and retry
+        const code = (e as { code?: string })?.code;
+        if (code === 'P2002') {
+          verifyCode = generateVerifyCode();
+          attempts++;
+          continue;
+        }
+        throw e;
       }
-      // Collision or race — retry with new code, or check actual status for 409
+      // count 0 → race (already approved/returned) — check actual status for correct 409
       const current = await this.repo.findById(resultId);
       if (!current) throw new NotFoundException('Result not found');
       if (current.status === 'APPROVED')
@@ -115,8 +131,11 @@ export class ReviewsService {
     }
     const detail = await this.repo.findDetailById(resultId);
     if (!detail) throw new NotFoundException('Result not found');
-    if (detail.result.status !== 'PENDING_REVIEW')
+    if (detail.result.status !== 'PENDING_REVIEW') {
+      if (detail.result.status === 'RETURNED')
+        throw new ConflictException('result_returned');
       throw new ConflictException('result_already_approved');
+    }
     const res = await this.repo.returnForReason(resultId, reason);
     if (res.count === 0) throw new ConflictException('result_already_approved');
     const updated = await this.repo.findById(resultId);

@@ -121,11 +121,14 @@ export class PrismaReviewsRepository implements ReviewsRepository {
       select: { id: true, order: true, content: true },
     });
 
+    const effectivePatternCode =
+      (result as unknown as { correctedPatternCode: string | null })
+        .correctedPatternCode ?? result.patternCode;
     const interpretation = await this.prisma.interpretation.findUnique({
       where: {
         testId_patternCode: {
           testId: attempt.testId,
-          patternCode: result.patternCode,
+          patternCode: effectivePatternCode,
         },
       },
       select: { title: true, body: true },
