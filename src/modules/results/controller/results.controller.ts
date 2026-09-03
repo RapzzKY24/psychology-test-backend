@@ -21,7 +21,7 @@ export class ResultsController {
   async getPublicResult(
     @Param('id') id: string,
     @Session() session: UserSession | null,
-    @Req() req: Request & { participantId?: string },
+    @Req() req: Request,
   ): Promise<
     ApiResponse<{
       patternCode: string;
@@ -30,10 +30,8 @@ export class ResultsController {
       completedAt: Date | null;
     }>
   > {
-    // Try participant token from guard-populated request or header
-    const participantToken =
-      req.participantId ??
-      (req.headers['x-participant-token'] as string | undefined);
+    const participantToken = req.headers['x-participant-token'] as
+      string | undefined;
     const owner = {
       userId: (session as unknown as { user?: { id: string } } | null)?.user
         ?.id,

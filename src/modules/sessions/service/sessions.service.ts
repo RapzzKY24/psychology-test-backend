@@ -6,6 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Inject } from '@nestjs/common';
+import { Prisma } from '../../../generated/prisma/client';
 import { SESSIONS_REPOSITORY } from '../repository/sessions.repository';
 import type {
   SessionsRepository,
@@ -70,35 +71,38 @@ export class SessionsService {
       });
     }
 
-    // Token collision retry (unique constraint on token) — D3-adjacent safety.
-    let token = '';
+    // Token collision retry — handles both pre-check and concurrent P2002
+    const pinHash = dto.pin ? await hashPin(dto.pin) : undefined;
     for (let attempt = 0; attempt < TOKEN_MAX_ATTEMPTS; attempt++) {
-      token = generateInviteToken();
+      const token = generateInviteToken();
       const existing = await this.repo.findByToken(token);
-      if (!existing) break;
-      if (attempt === TOKEN_MAX_ATTEMPTS - 1) {
-        throw new UnprocessableEntityException({
-          message: 'validation_failed',
-          details: ['token: could not generate a unique invite token'],
+      if (existing) continue;
+      try {
+        return await this.repo.createWithTests({
+          kind: 'GROUP',
+          title: dto.title,
+          institutionId: dto.institutionId,
+          createdById,
+          token,
+          pinHash,
+          slotLimit: dto.slotLimit,
+          expiresAt: dto.expiresAt,
+          tests: dto.testIds.map((testId, index) => ({
+            testId,
+            order: index + 1,
+          })),
         });
+      } catch (error) {
+        const isUnique =
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === 'P2002';
+        if (isUnique) continue;
+        throw error;
       }
     }
-
-    const pinHash = dto.pin ? await hashPin(dto.pin) : undefined;
-
-    return this.repo.createWithTests({
-      kind: 'GROUP', // group sessions here; INDIVIDUAL sessions arrive with payments (feature 07)
-      title: dto.title,
-      institutionId: dto.institutionId,
-      createdById,
-      token,
-      pinHash,
-      slotLimit: dto.slotLimit,
-      expiresAt: dto.expiresAt,
-      tests: dto.testIds.map((testId, index) => ({
-        testId,
-        order: index + 1,
-      })),
+    throw new UnprocessableEntityException({
+      message: 'validation_failed',
+      details: ['token: could not generate a unique invite token'],
     });
   }
 
