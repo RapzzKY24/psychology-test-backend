@@ -35,7 +35,10 @@ export const SCORERS: Record<ScorerType, Scorer> = {
       return { words: parsed.data.words };
     },
     patternCatalog: [...DISC_PATTERN_CATALOG],
-    score: async (input) => scoreDisc(input as any),
+    score: (input) =>
+      Promise.resolve(
+        scoreDisc(input as unknown as Parameters<typeof scoreDisc>[0]),
+      ),
   },
 };
 

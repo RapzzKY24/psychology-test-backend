@@ -41,7 +41,9 @@ describe('Tests Repository — transactional rollback (integration, DB real)', (
   });
 
   it('PUT items transactional rollback: 1 invalid in 24 keeps old 24', async () => {
-    const validItem = { content: { words: ['A', 'B', 'C', 'D'], mapping: ['D', 'I', 'S', 'C'] } };
+    const validItem = {
+      content: { words: ['A', 'B', 'C', 'D'], mapping: ['D', 'I', 'S', 'C'] },
+    };
     const validItems = Array.from({ length: 24 }, () => validItem);
 
     // Given: PUT 24 valid
@@ -66,7 +68,9 @@ describe('Tests Repository — transactional rollback (integration, DB real)', (
   });
 
   it('replaceItems is transactional: deleteMany + createMany in one transaction', async () => {
-    const validItem = { content: { words: ['A', 'B', 'C', 'D'], mapping: ['D', 'I', 'S', 'C'] } };
+    const validItem = {
+      content: { words: ['A', 'B', 'C', 'D'], mapping: ['D', 'I', 'S', 'C'] },
+    };
     const validItems = Array.from({ length: 24 }, () => validItem);
 
     await repo.replaceItems(testId, validItems);

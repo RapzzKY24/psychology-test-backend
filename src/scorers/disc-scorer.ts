@@ -1,4 +1,7 @@
-import type { DiscItemContent, DiscResponse } from './schemas/forced-choice-disc';
+import type {
+  DiscItemContent,
+  DiscResponse,
+} from './schemas/forced-choice-disc';
 import { DISC_PATTERN_CATALOG } from './schemas/forced-choice-disc';
 
 export interface DiscScores {
@@ -50,25 +53,28 @@ export function scoreDisc(input: {
     return LETTERS.indexOf(a) - LETTERS.indexOf(b);
   });
 
-  let patternLetters = sorted.filter((letter) => graph[letter] >= 1).slice(0, 3);
+  let patternLetters = sorted
+    .filter((letter) => graph[letter] >= 1)
+    .slice(0, 3);
   if (patternLetters.length === 0) {
     patternLetters = [sorted[0]];
   }
 
   const candidate = patternLetters.join('-');
-  const direct = DISC_PATTERN_CATALOG.includes(candidate as any) ? candidate : null;
+  const catalog = DISC_PATTERN_CATALOG as readonly string[];
+  const direct = catalog.includes(candidate) ? candidate : null;
   if (direct) {
     return { scores: { M, P, graph }, patternCode: direct };
   }
 
   // Fallback: try without hyphens (e.g., "DI" vs "D-I") and single letters
   const noHyphen = patternLetters.join('');
-  if (DISC_PATTERN_CATALOG.includes(noHyphen as any)) {
+  if (catalog.includes(noHyphen)) {
     return { scores: { M, P, graph }, patternCode: noHyphen };
   }
 
   for (const letter of patternLetters) {
-    if (DISC_PATTERN_CATALOG.includes(letter as any)) {
+    if (catalog.includes(letter)) {
       return { scores: { M, P, graph }, patternCode: letter };
     }
   }
