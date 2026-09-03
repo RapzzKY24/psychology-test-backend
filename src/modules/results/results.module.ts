@@ -3,8 +3,10 @@ import { ResultsController } from './controller/results.controller';
 import { ResultsService } from './service/results.service';
 import { PrismaResultsRepository } from './repository/results.prisma-repository';
 import { RESULTS_REPOSITORY } from './repository/results.repository';
+import { SessionsModule } from '../sessions/sessions.module';
 
 @Module({
+  imports: [SessionsModule],
   controllers: [ResultsController],
   providers: [
     ResultsService,

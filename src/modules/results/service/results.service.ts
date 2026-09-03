@@ -10,12 +10,17 @@ import type { QueryResultsDto } from '../dto/query-results.dto';
 import type { PaginatedResponse } from '../../../common/interfaces/api-response.interface';
 import type { TestResult } from '../../../generated/prisma/client';
 import type { Prisma } from '../../../generated/prisma/client';
+import { SESSIONS_REPOSITORY } from '../../sessions/repository/sessions.repository';
+import type { SessionsRepository } from '../../sessions/repository/sessions.repository';
+import { hashParticipantToken } from '../../sessions/utils/hash-participant-token';
 
 @Injectable()
 export class ResultsService {
   constructor(
     @Inject(RESULTS_REPOSITORY)
     private readonly repo: ResultsRepository,
+    @Inject(SESSIONS_REPOSITORY)
+    private readonly sessionsRepo: SessionsRepository,
   ) {}
 
   // Public: owner only, 403 until APPROVED
@@ -32,11 +37,17 @@ export class ResultsService {
     if (!detail || !detail.result)
       throw new NotFoundException('Result not found');
 
-    // Ownership check
+    // Ownership check — participantToken is raw header, must be hashed and resolved
+    let participantId: string | null = null;
+    if (owner.participantToken) {
+      const hash = hashParticipantToken(owner.participantToken);
+      const participant =
+        await this.sessionsRepo.findParticipantByTokenHash(hash);
+      participantId = participant?.id ?? null;
+    }
     const isOwner =
       (owner.userId && detail.attempt.userId === owner.userId) ||
-      (owner.participantToken &&
-        detail.attempt.participantId === owner.participantToken);
+      (participantId && detail.attempt.participantId === participantId);
     if (!isOwner) throw new NotFoundException('Result not found');
 
     if (detail.attempt.status !== 'COMPLETED')
@@ -49,9 +60,7 @@ export class ResultsService {
       detail.result.correctedPatternCode ?? detail.result.patternCode;
     const scoresRaw = detail.result.correctedScores ?? detail.result.scores;
     const graph =
-      (scoresRaw as unknown as { graph?: unknown })?.graph ??
-      scoresRaw ??
-      scoresRaw;
+      (scoresRaw as unknown as { graph?: unknown })?.graph ?? scoresRaw;
 
     const interp = await this.repo.findInterpretationByPattern(
       detail.test.id,
@@ -66,7 +75,7 @@ export class ResultsService {
     };
   }
 
-  // Admin: full
+  // Admin: full — effective scores/pattern
   async getAdminResult(attemptId: string): Promise<{
     result: TestResult;
     interpretation: { title: string; body: string } | null;
@@ -81,10 +90,12 @@ export class ResultsService {
       detail.test.id,
       patternCode,
     );
+    const effectiveScores =
+      detail.result.correctedScores ?? detail.result.scores;
     return {
       result: detail.result,
       interpretation: interp,
-      scores: detail.result.scores,
+      scores: effectiveScores,
     };
   }
 
