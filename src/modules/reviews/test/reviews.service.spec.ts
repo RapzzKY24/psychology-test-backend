@@ -11,6 +11,12 @@ describe('ReviewsService', () => {
       listReviews: jest.fn(),
       findDetailById: jest.fn(),
       updateNotes: jest.fn(),
+      findPsychologistProfile: jest.fn(),
+      approve: jest.fn(),
+      returnForReason: jest.fn(),
+      applyCorrection: jest.fn(),
+      resubmit: jest.fn(),
+      findById: jest.fn(),
     };
     service = new ReviewsService(mockRepo);
   });

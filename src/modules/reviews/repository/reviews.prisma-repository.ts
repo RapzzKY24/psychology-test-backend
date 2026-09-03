@@ -178,4 +178,86 @@ export class PrismaReviewsRepository implements ReviewsRepository {
       data: { notes, notesUpdatedAt: new Date() },
     });
   }
+
+  async findPsychologistProfile(userId: string): Promise<{
+    fullName: string;
+    degree: string;
+    licenseNumber: string;
+    signatureImagePath: string;
+  } | null> {
+    const profile = await this.prisma.psychologistProfile.findUnique({
+      where: { userId },
+      select: {
+        fullName: true,
+        degree: true,
+        licenseNumber: true,
+        signatureImagePath: true,
+      },
+    });
+    return profile;
+  }
+
+  async approve(
+    resultId: string,
+    psychologistId: string,
+    verifyCode: string,
+  ): Promise<{ count: number }> {
+    const result = await this.prisma.testResult.updateMany({
+      where: { id: resultId, status: 'PENDING_REVIEW' },
+      data: {
+        status: 'APPROVED',
+        reviewedById: psychologistId,
+        reviewedAt: new Date(),
+        verifyCode: verifyCode.toUpperCase(),
+        reviewNote: null,
+      },
+    });
+    return { count: result.count };
+  }
+
+  async returnForReason(
+    resultId: string,
+    reason: string,
+  ): Promise<{ count: number }> {
+    const result = await this.prisma.testResult.updateMany({
+      where: { id: resultId, status: 'PENDING_REVIEW' },
+      data: { status: 'RETURNED', reviewNote: reason },
+    });
+    return { count: result.count };
+  }
+
+  async applyCorrection(
+    resultId: string,
+    data: {
+      scores: unknown;
+      patternCode: string;
+      reason: string;
+      psychologistId: string;
+    },
+  ): Promise<import('../../../generated/prisma/client').TestResult> {
+    return this.prisma.testResult.update({
+      where: { id: resultId },
+      data: {
+        correctedScores: data.scores as Prisma.InputJsonValue,
+        correctedPatternCode: data.patternCode,
+        correctionReason: data.reason,
+        correctedById: data.psychologistId,
+        correctedAt: new Date(),
+      },
+    });
+  }
+
+  async resubmit(resultId: string): Promise<{ count: number }> {
+    const result = await this.prisma.testResult.updateMany({
+      where: { id: resultId, status: 'RETURNED' },
+      data: { status: 'PENDING_REVIEW', reviewNote: null },
+    });
+    return { count: result.count };
+  }
+
+  async findById(
+    resultId: string,
+  ): Promise<import('../../../generated/prisma/client').TestResult | null> {
+    return this.prisma.testResult.findUnique({ where: { id: resultId } });
+  }
 }

@@ -33,4 +33,27 @@ export interface ReviewsRepository {
   }): Promise<{ data: ReviewListItem[]; total: number }>;
   findDetailById(resultId: string): Promise<ReviewDetail | null>;
   updateNotes(resultId: string, notes: string): Promise<TestResult>;
+  findPsychologistProfile(userId: string): Promise<{
+    fullName: string;
+    degree: string;
+    licenseNumber: string;
+    signatureImagePath: string;
+  } | null>;
+  approve(
+    resultId: string,
+    psychologistId: string,
+    verifyCode: string,
+  ): Promise<{ count: number }>;
+  returnForReason(resultId: string, reason: string): Promise<{ count: number }>;
+  applyCorrection(
+    resultId: string,
+    data: {
+      scores: unknown;
+      patternCode: string;
+      reason: string;
+      psychologistId: string;
+    },
+  ): Promise<TestResult>;
+  resubmit(resultId: string): Promise<{ count: number }>;
+  findById(resultId: string): Promise<TestResult | null>;
 }
