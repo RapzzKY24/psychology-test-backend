@@ -13,6 +13,7 @@ import { InstitutionsModule } from './modules/institutions/institutions.module';
 import { SessionsModule } from './modules/sessions/sessions.module';
 import { ResultsModule } from './modules/results/results.module';
 import { OrdersModule } from './modules/orders/orders.module';
+import { InvoicesModule } from './modules/invoices/invoices.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { OrdersModule } from './modules/orders/orders.module';
     SessionsModule,
     ResultsModule,
     OrdersModule,
+    InvoicesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
