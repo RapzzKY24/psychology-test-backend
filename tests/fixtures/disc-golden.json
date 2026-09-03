@@ -1,0 +1,68 @@
+[
+  {
+    "name": "John — Excel example (24 items, mixed)",
+    "items": [
+      { "id": "1", "content": { "words": ["Gampang gaul, Mudah setuju", "Percaya, Mudah percaya pada orang", "Petualang, Mengambil resiko", "Toleran, Menghormati"], "mostMapping": ["S", "I", "*", "C"], "leastMapping": ["S", "I", "D", "C"] } },
+      { "id": "2", "content": { "words": ["Lembut suara, Pendiam", "Optimistik, Visioner", "Pusat Perhatian, Suka gaul", "Pendamai, Membawa Harmoni"], "mostMapping": ["C", "D", "*", "S"], "leastMapping": ["*", "D", "I", "S"] } }
+    ],
+    "responses": [
+      { "itemId": "1", "value": { "most": 0, "least": 2 } },
+      { "itemId": "2", "value": { "most": 1, "least": 2 } }
+    ],
+    "expected": { "patternCode": "33", "scores": { "M": { "D": 1, "I": 0, "S": 1, "C": 0 }, "P": { "D": 1, "I": 1, "S": 0, "C": 0 }, "graph": { "D": 0, "I": -1, "S": 1, "C": 0 } } }
+  },
+  {
+    "name": "all most=D",
+    "items": [
+      { "id": "1", "content": { "words": ["A", "B", "C", "D"], "mostMapping": ["D", "I", "S", "C"], "leastMapping": ["D", "I", "S", "C"] } },
+      { "id": "2", "content": { "words": ["E", "F", "G", "H"], "mostMapping": ["D", "I", "S", "C"], "leastMapping": ["D", "I", "S", "C"] } }
+    ],
+    "responses": [
+      { "itemId": "1", "value": { "most": 0, "least": 1 } },
+      { "itemId": "2", "value": { "most": 0, "least": 1 } }
+    ],
+    "expected": { "patternCode": "30", "scores": { "M": { "D": 2, "I": 0, "S": 0, "C": 0 }, "P": { "D": 0, "I": 2, "S": 0, "C": 0 }, "graph": { "D": 2, "I": -2, "S": 0, "C": 0 } } }
+  },
+  {
+    "name": "ties at zero",
+    "items": [
+      { "id": "1", "content": { "words": ["A", "B", "C", "D"], "mostMapping": ["D", "I", "S", "C"], "leastMapping": ["D", "I", "S", "C"] } }
+    ],
+    "responses": [
+      { "itemId": "1", "value": { "most": 0, "least": 1 } }
+    ],
+    "expected": { "patternCode": "38", "scores": { "M": { "D": 1, "I": 0, "S": 0, "C": 0 }, "P": { "D": 0, "I": 1, "S": 0, "C": 0 }, "graph": { "D": 1, "I": -1, "S": 0, "C": 0 } } }
+  },
+  {
+    "name": "neutral * handling",
+    "items": [
+      { "id": "1", "content": { "words": ["A", "B", "C", "D"], "mostMapping": ["*", "I", "S", "C"], "leastMapping": ["D", "*", "S", "C"] } }
+    ],
+    "responses": [
+      { "itemId": "1", "value": { "most": 0, "least": 1 } }
+    ],
+    "expected": { "patternCode": "31", "scores": { "M": { "D": 0, "I": 0, "S": 0, "C": 0 }, "P": { "D": 0, "I": 0, "S": 0, "C": 0 }, "graph": { "D": 0, "I": 0, "S": 0, "C": 0 } } }
+  },
+  {
+    "name": "graph ranking",
+    "items": [
+      { "id": "1", "content": { "words": ["A", "B", "C", "D"], "mostMapping": ["D", "I", "S", "C"], "leastMapping": ["S", "C", "D", "I"] } },
+      { "id": "2", "content": { "words": ["E", "F", "G", "H"], "mostMapping": ["D", "I", "S", "C"], "leastMapping": ["S", "C", "D", "I"] } }
+    ],
+    "responses": [
+      { "itemId": "1", "value": { "most": 0, "least": 1 } },
+      { "itemId": "2", "value": { "most": 0, "least": 1 } }
+    ],
+    "expected": { "patternCode": "30", "scores": { "M": { "D": 2, "I": 0, "S": 0, "C": 0 }, "P": { "D": 0, "I": 0, "S": 0, "C": 2 }, "graph": { "D": 2, "I": 0, "S": 0, "C": -2 } } }
+  },
+  {
+    "name": "single graph dominant",
+    "items": [
+      { "id": "1", "content": { "words": ["A", "B", "C", "D"], "mostMapping": ["D", "I", "S", "C"], "leastMapping": ["I", "D", "S", "C"] } }
+    ],
+    "responses": [
+      { "itemId": "1", "value": { "most": 0, "least": 1 } }
+    ],
+    "expected": { "patternCode": "31", "scores": { "M": { "D": 1, "I": 0, "S": 0, "C": 0 }, "P": { "D": 1, "I": 0, "S": 0, "C": 0 }, "graph": { "D": 0, "I": 0, "S": 0, "C": 0 } } }
+  }
+]

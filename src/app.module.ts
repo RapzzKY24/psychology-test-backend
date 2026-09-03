@@ -9,6 +9,9 @@ import { AdminModule } from './modules/admin/admin.module';
 import { PsychologistModule } from './modules/psychologist/psychologist.module';
 import { TestsModule } from './modules/tests/tests.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
+import { InstitutionsModule } from './modules/institutions/institutions.module';
+import { SessionsModule } from './modules/sessions/sessions.module';
+import { ResultsModule } from './modules/results/results.module';
 
 @Module({
   imports: [
@@ -19,6 +22,9 @@ import { ReviewsModule } from './modules/reviews/reviews.module';
     PsychologistModule,
     TestsModule,
     ReviewsModule,
+    InstitutionsModule,
+    SessionsModule,
+    ResultsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

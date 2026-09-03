@@ -162,7 +162,8 @@ describe('TestsService', () => {
           {
             content: {
               words: ['Only', 'Three', 'Words'],
-              mapping: ['D', 'I', 'S', 'C'],
+              mostMapping: ['D', 'I', 'S', 'C'],
+              leastMapping: ['D', 'I', 'S', 'C'],
             },
           } as any,
         ]),
@@ -181,7 +182,8 @@ describe('TestsService', () => {
         {
           content: {
             words: ['A', 'B', 'C', 'D'],
-            mapping: ['D', 'I', 'S', 'C'],
+            mostMapping: ['D', 'I', 'S', 'C'],
+            leastMapping: ['D', 'I', 'S', 'C'],
           },
         },
       ]);
