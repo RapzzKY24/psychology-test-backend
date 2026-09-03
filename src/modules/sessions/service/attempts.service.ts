@@ -65,9 +65,7 @@ export class AttemptsService {
       items: detail.items.map((item) => ({
         id: item.id,
         order: item.order,
-        content: scorer
-          ? scorer.sanitize(item.content)
-          : (item.content as Record<string, unknown>),
+        content: scorer ? scorer.sanitize(item.content) : {},
       })),
       responses: detail.responses,
     };
