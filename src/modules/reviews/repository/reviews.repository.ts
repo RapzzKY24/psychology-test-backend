@@ -24,6 +24,18 @@ export interface ReviewDetail {
   interpretation: { title: string; body: string } | null;
 }
 
+export interface VerifyLookup {
+  result: TestResult;
+  test: { name: string };
+  attempt: { completedAt: Date | null };
+  psychologist: {
+    fullName: string;
+    degree: string;
+    licenseNumber: string;
+  } | null;
+  participantName: string | null;
+}
+
 export interface ReviewsRepository {
   listReviews(params: {
     where: Prisma.TestResultWhereInput;
@@ -56,4 +68,5 @@ export interface ReviewsRepository {
   ): Promise<TestResult>;
   resubmit(resultId: string): Promise<{ count: number }>;
   findById(resultId: string): Promise<TestResult | null>;
+  findByVerifyCode(code: string): Promise<VerifyLookup | null>;
 }

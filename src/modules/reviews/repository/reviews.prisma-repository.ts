@@ -4,8 +4,9 @@ import type {
   ReviewsRepository,
   ReviewListItem,
   ReviewDetail,
+  VerifyLookup,
 } from './reviews.repository';
-import type { Prisma } from '../../../generated/prisma/client';
+import type { Prisma, TestResult } from '../../../generated/prisma/client';
 
 @Injectable()
 export class PrismaReviewsRepository implements ReviewsRepository {
@@ -255,9 +256,73 @@ export class PrismaReviewsRepository implements ReviewsRepository {
     return { count: result.count };
   }
 
-  async findById(
-    resultId: string,
-  ): Promise<import('../../../generated/prisma/client').TestResult | null> {
+  async findById(resultId: string): Promise<TestResult | null> {
     return this.prisma.testResult.findUnique({ where: { id: resultId } });
+  }
+
+  async findByVerifyCode(code: string): Promise<VerifyLookup | null> {
+    const result = await this.prisma.testResult.findUnique({
+      where: { verifyCode: code.toUpperCase() },
+      select: {
+        id: true,
+        status: true,
+        verifyCode: true,
+        reviewedAt: true,
+        reviewedById: true,
+        computedAt: true,
+        attempt: {
+          select: {
+            completedAt: true,
+            test: { select: { name: true } },
+            participant: { select: { name: true } },
+            userId: true,
+          },
+        },
+      },
+    });
+    if (!result || result.status !== 'APPROVED' || !result.verifyCode)
+      return null;
+
+    // Fetch psychologist profile for approvedBy
+    let psychologist: {
+      fullName: string;
+      degree: string;
+      licenseNumber: string;
+    } | null = null;
+    if (result.reviewedById) {
+      const profile = await this.prisma.psychologistProfile.findUnique({
+        where: { userId: result.reviewedById },
+        select: { fullName: true, degree: true, licenseNumber: true },
+      });
+      psychologist = profile;
+    }
+
+    // For B2C, participant is user, not participant — fetch if needed
+    const attemptData = (
+      result as unknown as {
+        attempt: {
+          participant?: { name: string } | null;
+          userId: string | null;
+          test: { name: string };
+          completedAt: Date | null;
+        };
+      }
+    ).attempt;
+    let participantName: string | null = attemptData.participant?.name ?? null;
+    if (!participantName && attemptData.userId) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: attemptData.userId },
+        select: { name: true },
+      });
+      participantName = user?.name ?? null;
+    }
+
+    return {
+      result: result as unknown as TestResult,
+      test: { name: attemptData.test.name },
+      attempt: { completedAt: attemptData.completedAt },
+      psychologist,
+      participantName,
+    };
   }
 }

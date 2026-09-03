@@ -15,9 +15,13 @@ import type {
 } from '../repository/reviews.repository';
 import type { Prisma, TestResult } from '../../../generated/prisma/client';
 import { generateVerifyCode } from '../utils/generate-verify-code';
+import { maskParticipantName } from '../utils/mask-participant-name';
+import { createRateLimiter } from '../../../common/utils/in-memory-rate-limiter';
 
 @Injectable()
 export class ReviewsService {
+  private readonly verifyLimiter = createRateLimiter(30, 60_000);
+
   constructor(
     @Inject(REVIEWS_REPOSITORY)
     private readonly repo: ReviewsRepository,
@@ -147,5 +151,38 @@ export class ReviewsService {
     const updated = await this.repo.findById(resultId);
     if (!updated) throw new NotFoundException('Result not found');
     return updated;
+  }
+
+  async verify(
+    code: string,
+    ip: string,
+  ): Promise<{
+    valid: boolean;
+    testName?: string;
+    participantName?: string;
+    completedAt?: Date | null;
+    approvedBy?: {
+      fullName: string;
+      degree: string;
+      licenseNumber: string;
+    } | null;
+    approvedAt?: Date | null;
+  }> {
+    this.verifyLimiter.check(`verify:${ip}`);
+    const normalized = code.trim().toUpperCase();
+    const data = await this.repo.findByVerifyCode(normalized);
+    if (!data || !data.psychologist) {
+      return { valid: false };
+    }
+    return {
+      valid: true,
+      testName: data.test.name,
+      participantName: data.participantName
+        ? maskParticipantName(data.participantName)
+        : 'Unknown',
+      completedAt: data.attempt.completedAt,
+      approvedBy: data.psychologist,
+      approvedAt: data.result.reviewedAt,
+    };
   }
 }
