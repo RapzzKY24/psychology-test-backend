@@ -12,6 +12,7 @@ import { ReviewsModule } from './modules/reviews/reviews.module';
 import { InstitutionsModule } from './modules/institutions/institutions.module';
 import { SessionsModule } from './modules/sessions/sessions.module';
 import { ResultsModule } from './modules/results/results.module';
+import { OrdersModule } from './modules/orders/orders.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ResultsModule } from './modules/results/results.module';
     InstitutionsModule,
     SessionsModule,
     ResultsModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
