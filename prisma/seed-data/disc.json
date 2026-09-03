@@ -1,0 +1,767 @@
+{
+  "test": {
+    "slug": "disc-form-a",
+    "name": "DISC Form A",
+    "description": "DISC Personality Test – 24 items, Forced Choice",
+    "category": "PERSONALITY",
+    "scorerType": "FORCED_CHOICE_DISC",
+    "price": 75000,
+    "estimatedDurationMin": 15
+  },
+  "items": [
+    {
+      "order": 1,
+      "content": {
+        "words": [
+          "Gampang gaul, Mudah setuju",
+          "Percaya, Mudah percaya pada orang",
+          "Petualang, Mengambil resiko",
+          "Toleran, Menghormati"
+        ],
+        "mostMapping": [
+          "S",
+          "I",
+          "*",
+          "C"
+        ],
+        "leastMapping": [
+          "S",
+          "I",
+          "D",
+          "C"
+        ]
+      }
+    },
+    {
+      "order": 2,
+      "content": {
+        "words": [
+          "Lembut suara, Pendiam",
+          "Optimistik, Visioner",
+          "Pusat Perhatian, Suka gaul",
+          "Pendamai, Membawa Harmoni"
+        ],
+        "mostMapping": [
+          "C",
+          "D",
+          "*",
+          "S"
+        ],
+        "leastMapping": [
+          "*",
+          "D",
+          "I",
+          "S"
+        ]
+      }
+    },
+    {
+      "order": 3,
+      "content": {
+        "words": [
+          "Menyemangati orang",
+          "Berusaha sempurna",
+          "Bagian dari kelompok",
+          "Ingin membuat tujuan"
+        ],
+        "mostMapping": [
+          "I",
+          "*",
+          "*",
+          "D"
+        ],
+        "leastMapping": [
+          "I",
+          "C",
+          "S",
+          "*"
+        ]
+      }
+    },
+    {
+      "order": 4,
+      "content": {
+        "words": [
+          "Menjadi frustrasi",
+          "Menyimpan perasaan saya",
+          "Menceritakan sisi saya",
+          "Siap beroposisi"
+        ],
+        "mostMapping": [
+          "C",
+          "S",
+          "*",
+          "D"
+        ],
+        "leastMapping": [
+          "C",
+          "S",
+          "I",
+          "D"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "content": {
+        "words": [
+          "Hidup, Suka bicara",
+          "Gerak cepat, Tekun",
+          "Usaha menjaga keseimbangan",
+          "Usaha mengikuti aturan"
+        ],
+        "mostMapping": [
+          "I",
+          "D",
+          "S",
+          "*"
+        ],
+        "leastMapping": [
+          "*",
+          "D",
+          "S",
+          "C"
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "content": {
+        "words": [
+          "Kelola waktu secara efisien",
+          "Sering terburu-buru, Merasa tertekan",
+          "Masalah sosial itu penting",
+          "Suka selesaikan apa yang saya mulai"
+        ],
+        "mostMapping": [
+          "C",
+          "D",
+          "I",
+          "S"
+        ],
+        "leastMapping": [
+          "*",
+          "D",
+          "I",
+          "S"
+        ]
+      }
+    },
+    {
+      "order": 7,
+      "content": {
+        "words": [
+          "Tolak perubahan mendadak",
+          "Cenderung janji berlebihan",
+          "Tarik diri di tengah tekanan",
+          "Tidak takut bertempur"
+        ],
+        "mostMapping": [
+          "S",
+          "I",
+          "*",
+          "*"
+        ],
+        "leastMapping": [
+          "*",
+          "I",
+          "C",
+          "D"
+        ]
+      }
+    },
+    {
+      "order": 8,
+      "content": {
+        "words": [
+          "Penyemangat yang baik",
+          "Pendengar yang baik",
+          "Penganalisa yang baik",
+          "Delegator yang baik"
+        ],
+        "mostMapping": [
+          "I",
+          "S",
+          "C",
+          "D"
+        ],
+        "leastMapping": [
+          "I",
+          "S",
+          "C",
+          "D"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "content": {
+        "words": [
+          "Hasil adalah penting",
+          "Lakukan dengan benar, Akurasi penting",
+          "Dibuat menyenangkan",
+          "Mari kerjakan bersama"
+        ],
+        "mostMapping": [
+          "D",
+          "C",
+          "*",
+          "*"
+        ],
+        "leastMapping": [
+          "D",
+          "C",
+          "I",
+          "S"
+        ]
+      }
+    },
+    {
+      "order": 10,
+      "content": {
+        "words": [
+          "Akan berjalan terus tanpa kontrol diri",
+          "Akan membeli sesuai dorongan hati",
+          "Akan menunggu, Tanpa tekanan",
+          "Akan mengusahakan  yang kuinginkan"
+        ],
+        "mostMapping": [
+          "*",
+          "D",
+          "S",
+          "I"
+        ],
+        "leastMapping": [
+          "C",
+          "D",
+          "S",
+          "*"
+        ]
+      }
+    },
+    {
+      "order": 11,
+      "content": {
+        "words": [
+          "Ramah, Mudah bergabung",
+          "Unik, Bosan rutinitas",
+          "Aktif mengubah sesuatu",
+          "Ingin hal-hal yang pasti"
+        ],
+        "mostMapping": [
+          "S",
+          "*",
+          "D",
+          "C"
+        ],
+        "leastMapping": [
+          "*",
+          "I",
+          "D",
+          "C"
+        ]
+      }
+    },
+    {
+      "order": 12,
+      "content": {
+        "words": [
+          "Non-konfrontasi, Menyerah",
+          "Dipenuhi hal detail",
+          "Perubahan pada menit terakhir",
+          "Menuntut, Kasar"
+        ],
+        "mostMapping": [
+          "*",
+          "C",
+          "I",
+          "D"
+        ],
+        "leastMapping": [
+          "S",
+          "*",
+          "I",
+          "D"
+        ]
+      }
+    },
+    {
+      "order": 13,
+      "content": {
+        "words": [
+          "Ingin kemajuan",
+          "Puas dengan segalanya",
+          "Terbuka memperlihatkan perasaan",
+          "Rendah hati, Sederhana"
+        ],
+        "mostMapping": [
+          "D",
+          "S",
+          "I",
+          "*"
+        ],
+        "leastMapping": [
+          "D",
+          "*",
+          "*",
+          "C"
+        ]
+      }
+    },
+    {
+      "order": 14,
+      "content": {
+        "words": [
+          "Tenang, Pendiam",
+          "Bahagia, Tanpa beban",
+          "Menyenangkan, Baik hati",
+          "Tak gentar, Berani"
+        ],
+        "mostMapping": [
+          "C",
+          "I",
+          "S",
+          "D"
+        ],
+        "leastMapping": [
+          "C",
+          "I",
+          "*",
+          "D"
+        ]
+      }
+    },
+    {
+      "order": 15,
+      "content": {
+        "words": [
+          "Menggunakan waktu berkualitas dgn teman",
+          "Rencanakan masa depan, Bersiap",
+          "Bepergian demi petualangan baru",
+          "Menerima ganjaran atas tujuan yg dicapai"
+        ],
+        "mostMapping": [
+          "S",
+          "C",
+          "I",
+          "D"
+        ],
+        "leastMapping": [
+          "S",
+          "*",
+          "I",
+          "D"
+        ]
+      }
+    },
+    {
+      "order": 16,
+      "content": {
+        "words": [
+          "Aturan perlu dipertanyakan",
+          "Aturan membuat adil",
+          "Aturan membuat bosan",
+          "Aturan membuat aman"
+        ],
+        "mostMapping": [
+          "*",
+          "C",
+          "I",
+          "S"
+        ],
+        "leastMapping": [
+          "D",
+          "*",
+          "I",
+          "S"
+        ]
+      }
+    },
+    {
+      "order": 17,
+      "content": {
+        "words": [
+          "Pendidikan, Kebudayaan",
+          "Prestasi, Ganjaran",
+          "Keselamatan, keamanan",
+          "Sosial, Perkumpulan kelompok"
+        ],
+        "mostMapping": [
+          "*",
+          "D",
+          "S",
+          "I"
+        ],
+        "leastMapping": [
+          "C",
+          "D",
+          "S",
+          "*"
+        ]
+      }
+    },
+    {
+      "order": 18,
+      "content": {
+        "words": [
+          "Memimpin, Pendekatan langsung",
+          "Suka bergaul, Antusias",
+          "Dapat diramal, Konsisten",
+          "Waspada, Hati-hati"
+        ],
+        "mostMapping": [
+          "D",
+          "*",
+          "*",
+          "C"
+        ],
+        "leastMapping": [
+          "D",
+          "I",
+          "S",
+          "*"
+        ]
+      }
+    },
+    {
+      "order": 19,
+      "content": {
+        "words": [
+          "Tidak mudah dikalahkan",
+          "Kerjakan sesuai perintah, Ikut pimpinan",
+          "Mudah terangsang, Riang",
+          "Ingin segalanya teratur, Rapi"
+        ],
+        "mostMapping": [
+          "D",
+          "S",
+          "I",
+          "*"
+        ],
+        "leastMapping": [
+          "D",
+          "*",
+          "I",
+          "C"
+        ]
+      }
+    },
+    {
+      "order": 20,
+      "content": {
+        "words": [
+          "Saya akan pimpin mereka",
+          "Saya akan melaksanakan",
+          "Saya akan meyakinkan mereka",
+          "Saya dapatkan fakta"
+        ],
+        "mostMapping": [
+          "D",
+          "S",
+          "I",
+          "C"
+        ],
+        "leastMapping": [
+          "*",
+          "S",
+          "I",
+          "*"
+        ]
+      }
+    },
+    {
+      "order": 21,
+      "content": {
+        "words": [
+          "Memikirkan orang dahulu",
+          "Kompetitif, Suka tantangan",
+          "Optimis, Positif",
+          "Pemikir logis, Sistematik"
+        ],
+        "mostMapping": [
+          "S",
+          "D",
+          "I",
+          "*"
+        ],
+        "leastMapping": [
+          "S",
+          "D",
+          "I",
+          "C"
+        ]
+      }
+    },
+    {
+      "order": 22,
+      "content": {
+        "words": [
+          "Menyenangkan orang, Mudah setuju",
+          "Tertawa lepas, Hidup",
+          "Berani, Tak gentar",
+          "Tenang, Pendiam"
+        ],
+        "mostMapping": [
+          "S",
+          "*",
+          "D",
+          "C"
+        ],
+        "leastMapping": [
+          "S",
+          "I",
+          "D",
+          "C"
+        ]
+      }
+    },
+    {
+      "order": 23,
+      "content": {
+        "words": [
+          "Ingin otoritas lebih",
+          "Ingin kesempatan baru",
+          "Menghindari konflik",
+          "Ingin petunjuk yang jelas"
+        ],
+        "mostMapping": [
+          "*",
+          "I",
+          "S",
+          "*"
+        ],
+        "leastMapping": [
+          "D",
+          "*",
+          "S",
+          "C"
+        ]
+      }
+    },
+    {
+      "order": 24,
+      "content": {
+        "words": [
+          "Dapat diandalkan, Dapata dipercaya",
+          "Kreatif, Unik",
+          "Garis dasar, Orientasi hasil",
+          "Jalankan standar yang tinggi, Akurat"
+        ],
+        "mostMapping": [
+          "*",
+          "I",
+          "D",
+          "C"
+        ],
+        "leastMapping": [
+          "S",
+          "I",
+          "*",
+          "*"
+        ]
+      }
+    }
+  ],
+  "interpretations": [
+    {
+      "patternCode": "1",
+      "title": "LOGICAL THINKER (C)",
+      "body": "Pendiam\nAnti Kritik\nPerfeksionis\nCenderung Santai\nDetail\nEmpati\nRapi\nOrganized\nKaku pada Metode & Prosedur"
+    },
+    {
+      "patternCode": "2",
+      "title": "ESTABLISHER (D)",
+      "body": "Individualis\nEgo Tinggi, Kurang Sensitif\nKurang Pertimbangan\nEfektif\nHigh Motivation\nBersemangat Tinggi\nPercaya Diri, cenderung Nekat\nKreatif\nTerlalu Dominan\nAgresif\nTerlalu Dinamis\nPenuh Ambisi"
+    },
+    {
+      "patternCode": "3",
+      "title": "DESIGNER (D / C-D)",
+      "body": "Sensitif\nKurang Cepat\nAnti Tekanan\nTerlalu Mandiri\nKurang Percaya Orang Lain\nAnti Kritik\nDingin\nKreatif\nResult Oriented\nSuka Tantangan"
+    },
+    {
+      "patternCode": "4",
+      "title": "NEGOTIATOR (D / I-D)",
+      "body": "Suka Bergaul\nAnti Rutin\nAktif\nTerlalu Percaya Diri\nAgresif\nOptimis\nKurang Detail\nResult Oriented"
+    },
+    {
+      "patternCode": "5",
+      "title": "CONFIDENT & DETERMINED (D / I-D-C)",
+      "body": "Pandai Memilih Orang\nLeader\nGood Interpersonal Skill\nDominan\nAgresif\nPerfeksionis\nGood Communication Skill\nAktif\nNeed Recognition n Reward\nKurang Peduli pada Aturan\nTerburu-buru"
+    },
+    {
+      "patternCode": "6",
+      "title": "REFORMER (D / I-D-S)",
+      "body": "Mudah Bergaul\nLeader\nSadar Diri\nButuh Pujian & Penghargaan\nCepat Percaya Orang\nMudah Simpati & Empati\nMotivator\nOptimis & Positif\nAnti Aturan\nKurang Detail\nTerlalu Selektif"
+    },
+    {
+      "patternCode": "7",
+      "title": "MOTIVATOR (D / I-S-D)",
+      "body": "Leader (Kelompok Kecil)\nSupporter\nSosialisasi Baik\nButuh Ketegasan\nButuh Pujian & Penghargaan\nKurang Detail\nAgak Kaku"
+    },
+    {
+      "patternCode": "8",
+      "title": "INQUIRER (D / S-D-C / S-C-D)",
+      "body": "Full Self Control\nSabar\nPenuh Pertimbangan\nGood Interpersonal\nSelektif\nLambat Adaptasi\nInisiatif kurang\nResult Oriented\nKaku dan Keras Kepala\nGood Service\nKurang dlm hal Managerial"
+    },
+    {
+      "patternCode": "9",
+      "title": "PENGAMBIL KEPUTUSAN (D-I)",
+      "body": "Pekerja Keras\nLeader\nBanyak Minat\nDingin / Task Oriented\nKurang Pergaulan\nKontrol Emosi Kurang\nSuka Tantangan\nCepat Bosan\nAnti Aturan\nKurang Detail\nKurang Peduli Wewenang\nArgumentatif"
+    },
+    {
+      "patternCode": "10",
+      "title": "DIRECTOR (D-I-S)",
+      "body": "Pengelola\nEnerjik\nKurang Detail\nMudah Bosan\nAgresif\nArogan\nKurang Focus"
+    },
+    {
+      "patternCode": "11",
+      "title": "SELF-MOTIVATED (D-S )",
+      "body": "Objektif & Analitis\nMandiri\nGood Planner\nKomitmen thd Target\nMenghindari Konflik"
+    },
+    {
+      "patternCode": "12",
+      "title": "MEDIATOR (I / C-I-S)",
+      "body": "Loyal\nTight Scheduled\nCurious\nSensitif\nGood Communication Skill\nGood Analitical Think\nGood Interpersonal Skill\nCepat Beradaptasi\nAnti Kritik\nNot Leader\nWork/Play Conflict"
+    },
+    {
+      "patternCode": "13",
+      "title": "PRACTITIONER (I / C-S-I)",
+      "body": "Perfeksionis\nQuality Oriented\nScheduled\nAnti Kejutan\nGood Interpersonal Skill\nTerlalu Detail\nSistematis\nKaku / Tidak fleksibel\nMonoton"
+    },
+    {
+      "patternCode": "14",
+      "title": "RESPONSIVE & THOUGHTFUL (I-S-C / I-C-S)",
+      "body": "High Energy\nGood Communication Skill\nTo The Point\nSensitif\nBanyak Bicara\nNeed Recognation\nNeed Socialism\nAnti thd Kritik\nTerlalu banyak bersosialisasi\nLeadership kurang\nKurang Fokus\nAnti Deadline"
+    },
+    {
+      "patternCode": "15",
+      "title": "SPECIALIST (S)",
+      "body": "Stabil & Konsisten\nTerkendali\nNyaman di Belakang Layar\nSabar\nLoyal\nSulit Adaptasi\nProcess Oriented\nTeguh\nNeed for Peace\nAnti Perubahan\nSulit Menentukan Prioritas"
+    },
+    {
+      "patternCode": "16",
+      "title": "PERFECTIONIST (S / C-S)",
+      "body": "Detail & Teliti\nButuh Situasi Stabil\nSistematik & Prosedural\nMenghindari Konflik\nAnti Kritik\nLambat Memutuskan\nSulit Adaptasi\nPendendam\nAnti Perubahan"
+    },
+    {
+      "patternCode": "17",
+      "title": "PEACEMAKER, RESPECTFULL & ACCURATE (S-C)",
+      "body": "Sulit Beradaptasi\nAnti Kritik\nPendendam\nSukar Berubah\nDetail\nEmpati\nMemikirkan Dampak ke Orang Lain\nTerlalu Mendalam dalam Berpikir\nConcern ke Data dan Fakta\nIntrovert\nLoyal"
+    },
+    {
+      "patternCode": "18",
+      "title": "CHALLENGER (D-C)",
+      "body": "Seorang yang tekun\nSensitif terhadap permasalahan\nMempunyai keputusan yang kuat\nKreatif  dalam memecahkan masalah\nMemiliki reaksi yang cepat\nMampu mencari solusi permasalahan\nBanyak memberikan ide-ide.\nUsaha yang keras pada ketepatan\nCenderung perfeksionis"
+    },
+    {
+      "patternCode": "19",
+      "title": "CHANCELLOR (D-I-C)",
+      "body": "Seorang yang ramah secara alami\nMenggabungkan kesenangan dengan pekerjaan\nMenyukai hubungan dengan sesama\nMenikmati interaksi dengan sesama\nDapat mengerjakan hal-hal detil\nIngin melakukan segala sesuatu dengan tepat\nMenilai orang dan tugas secara hati-hati\nSering melalaikan perencanaan yang seksama\nMudah beralih kepada proyek-proyek baru"
+    },
+    {
+      "patternCode": "20",
+      "title": "DIRECTOR (D-S-I)",
+      "body": "Seorang yang obyektif dan analitis\nIngin terlibat dalam situasi\nIngin memberikan bantuan dan dukungan\nTermotivasi oleh target pribadi\nBerorientasi terhadap pekerjaannya\nMenyukai hubungan dengan sesama\nMempunyai determinasi yang kuat\nKarakternya tenang\nStabil dan daya tahannya tinggi\nUlet dalam memulai pekerjaan\nBerusaha keras mencapai sasarannya\nMandiri dan cermat"
+    },
+    {
+      "patternCode": "21",
+      "title": "Director (D-S-C)",
+      "body": "Seorang yang obyektif dan analitis\nIngin terlibat dalam situasi\nIngin memberikan bantuan dan dukungan\nTermotivasi oleh target pribadi\nBerorientasi terhadap pekerjaannya\nMenyukai hubungan dengan sesama\nMempunyai determinasi yang kuat\nKarakternya tenang\nStabil dan daya tahannya tinggi\nUlet dalam memulai pekerjaan\nBerusaha keras mencapai sasarannya\nMandiri dan cermat"
+    },
+    {
+      "patternCode": "22",
+      "title": "CHALLENGER (D-C-I)",
+      "body": "Seorang yang tekun\nSensitif terhadap permasalahan\nMempunyai keputusan yang kuat\nKreatif  dalam memecahkan masalah\nMemiliki reaksi yang cepat\nMampu mencari solusi permasalahan\nBanyak memberikan ide-ide.\nUsaha yang keras pada ketepatan\nCenderung perfeksionis"
+    },
+    {
+      "patternCode": "23",
+      "title": "CHALLENGER (D-C-S)",
+      "body": "Seorang yang tekun\nSensitif terhadap permasalahan\nMempunyai keputusan yang kuat\nKreatif  dalam memecahkan masalah\nMemiliki reaksi yang cepat\nMampu mencari solusi permasalahan\nBanyak memberikan ide-ide.\nUsaha yang keras pada ketepatan\nCenderung perfeksionis"
+    },
+    {
+      "patternCode": "24",
+      "title": "COMMUNICATOR (I)",
+      "body": "Antusias\nPercaya\nOptimis\nPersuasif\nBicara aktif\nImpulsif\nEmosional\nRamah\nInspirasional"
+    },
+    {
+      "patternCode": "25",
+      "title": "ADVISOR (I-S)",
+      "body": "Hangat\nSimpati\nTenang dalam situasi sosial\nPendengar yang baik\nDemonstratif\nTidak memaksakan idenya pada orang lain\nKurang tegas dalam memberi perintah\nMenerima kritik\nToleran dan sabar\nPenjaga damai"
+    },
+    {
+      "patternCode": "26",
+      "title": "ASSESSOR (I-C)",
+      "body": "Ramah\nSuka berteman\nNyaman walapun dengan orang asing\nMudah mengembangkan hubungan baru\nDapat mengendalikan diri\nSangat sosial\nCenderung perfeksionis alamiah\nMempromosikan tugas-tugas orang lain"
+    },
+    {
+      "patternCode": "27",
+      "title": "ASSESSOR (I-C-D)",
+      "body": "Analitis\nBerwatak hati-hati\nRamah pada saat merasa nyaman\nSangat biasa dengan orang asing\nMudah mengembangkan hubungan baru\nDapat mengendalikan diri\nPeduli dan ramah\nMemusatkan perhatian pada penyelesaian tugas\nPerfeksionis secara alami\nMengisolasi dirinya jika diperlukan\nMudah diramalkan\nBerorientasi pada kualitas"
+    },
+    {
+      "patternCode": "28",
+      "title": "RESPONSIVE & THOUGHTFUL (I-C-S)",
+      "body": "High Energy\nGood Communication Skill\nTo The Point\nSensitif\nBanyak Bicara\nNeed Recognation\nNeed Socialism\nAnti thd Kritik\nTerlalu banyak bersosialisasi\nLeadership kurang\nKurang Fokus\nAnti Deadline"
+    },
+    {
+      "patternCode": "29",
+      "title": "SELF-MOTIVATED (S-D)",
+      "body": "Objektif & Analitis\nMandiri\nGood planner\nKomitmen terhadap target\nMenghindari konflik\nIngin terlibat dalam situasi\nIngin memberikan bantuan dan dukungan\nTermotivasi oleh target pribadi\nStabil\nTekun"
+    },
+    {
+      "patternCode": "30",
+      "title": "ADVISOR (S-I)",
+      "body": "Hangat\nSimpati dan Pengertian\nTenang dalam situasi sosial\nPendengar yang baik\nDemonstratif\nTidak memaksakan idenya pada orang lain\nKurang tegas dalam memberi perintah\nMenerima kritik\nToleran dan sabar\nPenjaga damai"
+    },
+    {
+      "patternCode": "31",
+      "title": "DIRECTOR (S-D-I)",
+      "body": "Seorang yang obyektif dan analitis\nIngin terlibat dalam situasi\nIngin memberikan bantuan dan dukungan\nTermotivasi oleh target pribadi\nBerorientasi terhadap pekerjaannya\nMenyukai hubungan dengan sesama\nMempunyai determinasi yang kuat\nKarakternya tenang\nStabil dan daya tahannya tinggi\nUlet dalam memulai pekerjaan\nBerusaha keras mencapai sasarannya\nMandiri dan cermat"
+    },
+    {
+      "patternCode": "32",
+      "title": "ADVISOR (S-I-D)",
+      "body": "Hangat\nSimpati dan Pengertian\nTenang dalam situasi sosial\nPendengar yang baik\nDemonstratif\nTidak memaksakan idenya pada orang lain\nKurang tegas dalam memberi perintah\nMenerima kritik\nToleran dan sabar\nPenjaga damai"
+    },
+    {
+      "patternCode": "33",
+      "title": "ADVOCATE (S-I-C)",
+      "body": "Stabil\nRamah\nDetail ketika situasi membutuhkan\nCenderung individualis\nTeguh pendirian\nMenyukai hubungan dengan orang\nMendukung pihak yang lemah\nIngin diterima sebagai anggota tim\nIngin orang lain menyukainya\nSulit membuat keputusan\nModerat\nCermat dan dapat diandalkan"
+    },
+    {
+      "patternCode": "34",
+      "title": "INQUIRER (S-C-D)",
+      "body": "Seorang yang baik\nSangat berorientasi pada detil\nSangat teliti dalam penyelesaian tugas\nSangat berhati-hati\nPenuh pertimbangan\nLambat adaptasi\nKaku dan keras kepala"
+    },
+    {
+      "patternCode": "35",
+      "title": "ADVOCATE (S-C-I)",
+      "body": "Stabil\nRamah\nDetail ketika situasi membutuhkan\nCenderung individualis\nTeguh pendirian\nMenyukai hubungan dengan orang\nMendukung pihak yang lemah\nIngin diterima sebagai anggota tim\nIngin orang lain menyukainya\nSulit membuat keputusan\nModerat\nCermat dan dapat diandalkan"
+    },
+    {
+      "patternCode": "36",
+      "title": "ASSESSOR (C-I)",
+      "body": "Analitis\nBerwatak hati-hati\nRamah pada saat merasa nyaman\nSangat biasa dengan orang asing\nMudah mengembangkan hubungan baru\nDapat mengendalikan diri\nPeduli dan ramah\nMemusatkan perhatian pada penyelesaian tugas\nPerfeksionis secara alami\nMengisolasi dirinya jika diperlukan\nMudah diramalkan\nBerorientasi pada kualitas"
+    },
+    {
+      "patternCode": "37",
+      "title": "CHALLENGER (C-D-I)",
+      "body": "Sangat berorientasi pada tugas\nSensitif terhadap permasalahan\nLebih mempedulikan tugas daripada orang\nKukuh/keras\nDingin\nTidak berperasaan\nMenjaga jarak\nMembuat keputusan berdasarkan fakta\nPendiam\nTidak mudah percaya"
+    },
+    {
+      "patternCode": "38",
+      "title": "CONTEMPLATOR (C-D-S)",
+      "body": "Berorientasi pada hal-hal detil\nMempunyai standar tinggi untuk dirinya\nLogis dan analitis\nIngin berbuat yang terbaik\nSelalu berpikir ada ruang untuk kemajuan\nKompetitif\nIngin menghasilkan mutu yang terbaik\nMampu mencapai sasarannya\nSangat memusatkan perhatian pada tugas\nMantap dan dapat diandalkan"
+    },
+    {
+      "patternCode": "39",
+      "title": "ASSESSOR (C-I-D)",
+      "body": "Analitis\nBerwatak hati-hati\nRamah pada saat merasa nyaman\nSangat biasa dengan orang asing\nMudah mengembangkan hubungan baru\nDapat mengendalikan diri\nPeduli dan ramah\nMemusatkan perhatian pada penyelesaian tugas\nPerfeksionis secara alami\nMengisolasi dirinya jika diperlukan\nMudah diramalkan\nBerorientasi pada kualitas"
+    },
+    {
+      "patternCode": "40",
+      "title": "PRECISIONIST (C-S-D)",
+      "body": "Sistematis dan Prosedural\nTeratur & memiliki perencanaan yang baik\nTeliti\nFokus pada detil\nBijaksana\nDiplomatis\nJarang menentang rekan kerjanya\nIa sangat berhati-hati\nMengharapkan akurasi dan standard tinggi\nMenginginkan adanya petunjuk standard\nTidak menginginkan perubahan mendadak"
+    }
+  ]
+}

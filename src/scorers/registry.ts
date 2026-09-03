@@ -37,7 +37,9 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     patternCatalog: [...DISC_PATTERN_CATALOG],
     score: (input) =>
       Promise.resolve(
-        scoreDisc(input as unknown as Parameters<typeof scoreDisc>[0]),
+        scoreDisc(
+          input as unknown as Parameters<typeof scoreDisc>[0],
+        ) as unknown as ScorerOutput,
       ),
   },
 };
