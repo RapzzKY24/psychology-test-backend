@@ -30,9 +30,10 @@ export class OrdersService {
     const setting = await this.prisma.setting.findUnique({
       where: { key: 'payment.qrisImagePath' },
     });
-    if (!setting || !setting.value) return null;
-    const value = setting.value as { path?: string; url?: string };
-    return value.path ?? value.url ?? null;
+    if (!setting?.value) return null;
+    const p = (setting.value as { path?: string })?.path;
+    if (!p) return null;
+    return '/api/v1/public/payments/qris-image';
   }
 
   private isExpired(order: Order): boolean {

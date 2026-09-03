@@ -63,6 +63,52 @@ export class TestsService {
     return test;
   }
 
+  async findManyPublic(
+    query: QueryTestDto,
+  ): Promise<PaginatedResponse<unknown>> {
+    const where: Prisma.TestWhereInput = { status: 'PUBLISHED' };
+    if (query.category) where.category = query.category;
+    const skip = (query.page - 1) * query.limit;
+    const { data, total } = await this.repo.findMany({
+      skip,
+      take: query.limit,
+      where,
+    });
+    const publicData = data.map((t) => ({
+      id: t.id,
+      slug: t.slug,
+      name: t.name,
+      description: t.description,
+      category: t.category,
+      price: t.price,
+      estimatedDurationMin: t.estimatedDurationMin,
+    }));
+    return {
+      data: publicData,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        total,
+        totalPages: Math.ceil(total / query.limit),
+      },
+    };
+  }
+
+  async findBySlugPublic(slug: string): Promise<unknown> {
+    const test = await this.repo.findBySlug(slug);
+    if (!test || test.status !== 'PUBLISHED')
+      throw new NotFoundException('Test not found');
+    return {
+      id: test.id,
+      slug: test.slug,
+      name: test.name,
+      description: test.description,
+      category: test.category,
+      price: test.price,
+      estimatedDurationMin: test.estimatedDurationMin,
+    };
+  }
+
   async update(id: string, dto: UpdateTestDto): Promise<Test> {
     const test = await this.repo.findById(id);
     if (!test) throw new NotFoundException('Test not found');
