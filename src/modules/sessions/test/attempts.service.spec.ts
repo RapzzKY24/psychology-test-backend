@@ -37,12 +37,12 @@ function makeDetail(
       {
         id: 'it-1',
         order: 1,
-        content: { words: ['a', 'b', 'c', 'd'], mapping: ['D', 'I', 'S', 'C'] },
+        content: { words: ['a', 'b', 'c', 'd'], mostMapping: ['D', 'I', 'S', 'C'], leastMapping: ['D', 'I', 'S', 'C'] },
       },
       {
         id: 'it-2',
         order: 2,
-        content: { words: ['e', 'f', 'g', 'h'], mapping: ['I', 'D', 'S', 'C'] },
+        content: { words: ['e', 'f', 'g', 'h'], mostMapping: ['I', 'D', 'S', 'C'], leastMapping: ['I', 'D', 'S', 'C'] },
       },
     ],
     responses: [],

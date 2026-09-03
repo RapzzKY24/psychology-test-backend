@@ -58,7 +58,7 @@ describe('TestsPublishService', () => {
         {
           content: {
             words: ['Only', 'Three', 'Words'],
-            mapping: ['D', 'I', 'S', 'C'],
+            mostMapping: ['D', 'I', 'S', 'C'], leastMapping: ['D', 'I', 'S', 'C'],
           },
         },
       ]);
@@ -75,7 +75,7 @@ describe('TestsPublishService', () => {
         {
           content: {
             words: ['A', 'B', 'C', 'D'],
-            mapping: ['D', 'I', 'S', 'C'],
+            mostMapping: ['D', 'I', 'S', 'C'], leastMapping: ['D', 'I', 'S', 'C'],
           },
         },
       ]);
@@ -95,25 +95,11 @@ describe('TestsPublishService', () => {
         {
           content: {
             words: ['A', 'B', 'C', 'D'],
-            mapping: ['D', 'I', 'S', 'C'],
+            mostMapping: ['D', 'I', 'S', 'C'], leastMapping: ['D', 'I', 'S', 'C'],
           },
         },
       ]);
-      const fullInterps = [
-        'D',
-        'I',
-        'S',
-        'C',
-        'DI',
-        'DC',
-        'ID',
-        'IS',
-        'SI',
-        'SC',
-        'CD',
-        'CS',
-        'ISC',
-      ].map((c) => ({ patternCode: c }) as any);
+      const fullInterps = Array.from({ length: 40 }, (_, i) => ({ patternCode: String(i + 1) }) as any);
       mockRepo.findInterpretationsByTestId.mockResolvedValue(fullInterps);
       mockRepo.update.mockResolvedValue({
         id: '1',
