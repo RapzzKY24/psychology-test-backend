@@ -15,6 +15,12 @@ import type { QueryTestDto } from '../dto/query-test.dto';
 import type { PublicTestDto } from '../dto/public-test.dto';
 import { getItemSchema } from '../../../scorers/schemas';
 
+/** Admin builder detail: full test plus its ordered items and interpretations. */
+export type TestDetail = Test & {
+  items: { id: string; order: number; content: unknown }[];
+  interpretations: { patternCode: string; title: string; body: string }[];
+};
+
 @Injectable()
 export class TestsService {
   constructor(
@@ -62,6 +68,17 @@ export class TestsService {
     const test = await this.repo.findById(id);
     if (!test) throw new NotFoundException('Test not found');
     return test;
+  }
+
+  /** Builder payload: test + ordered items + interpretations (admin detail). */
+  async findDetailById(id: string): Promise<TestDetail> {
+    const detail = await this.repo.findDetailById(id);
+    if (!detail) throw new NotFoundException('Test not found');
+    return {
+      ...detail.test,
+      items: detail.items,
+      interpretations: detail.interpretations,
+    };
   }
 
   async findManyPublic(
