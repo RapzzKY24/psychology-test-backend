@@ -31,7 +31,11 @@ export class InvoicesService {
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
         const invoice = await this.prisma.$transaction(async (tx) => {
-          await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${`INV-${year}`}))`;
+          // pg_advisory_xact_lock returns void, which Prisma cannot
+          // deserialize — and an unreferenced CTE would be pruned by
+          // Postgres without taking the lock. Reference the CTE via
+          // count(*) so the lock is acquired and a bigint is returned.
+          await tx.$queryRaw`WITH "lock" AS (SELECT pg_advisory_xact_lock(hashtext(${`INV-${year}`}))) SELECT count(*) FROM "lock"`;
           const last = await tx.invoice.findFirst({
             where: { number: { startsWith: `INV-${year}-` } },
             orderBy: { number: 'desc' },
