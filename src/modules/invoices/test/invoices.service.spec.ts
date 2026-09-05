@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { InvoicesService } from '../service/invoices.service';
 import type { InvoicesRepository } from '../repository/invoices.repository';
-import type { PrismaService } from '../../../prisma/prisma.service';
 
 describe('InvoicesService', () => {
   let service: InvoicesService;
   let mockRepo: jest.Mocked<InvoicesRepository>;
-  let mockPrisma: jest.Mocked<PrismaService>;
 
   beforeEach(() => {
     mockRepo = {
@@ -14,87 +12,41 @@ describe('InvoicesService', () => {
       findMany: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
-      findLastNumberForYear: jest.fn(),
+      institutionExists: jest.fn(),
+      createNextNumbered: jest.fn(),
     };
-    mockPrisma = {
-      institution: { findUnique: jest.fn() },
-      invoice: {
-        findFirst: jest.fn(),
-        create: jest.fn(),
-      },
-      $transaction: jest.fn(),
-    } as unknown as jest.Mocked<PrismaService>;
-    service = new InvoicesService(mockRepo, mockPrisma);
+    service = new InvoicesService(mockRepo);
   });
 
   describe('create', () => {
     it('should throw 404 if institution not found', async () => {
-      (mockPrisma.institution.findUnique as jest.Mock).mockResolvedValue(null);
+      mockRepo.institutionExists.mockResolvedValue(false);
       await expect(
         service.create({ institutionId: 'inst1', amount: 1000 }),
       ).rejects.toThrow('Institution not found');
+      expect(mockRepo.createNextNumbered).not.toHaveBeenCalled();
     });
 
-    it('should generate INV-YYYY-NNNN sequentially', async () => {
-      (mockPrisma.institution.findUnique as jest.Mock).mockResolvedValue({
-        id: 'inst1',
-      });
-      (mockPrisma.$transaction as jest.Mock).mockImplementation(
-        async (cb: never) => {
-          const tx = {
-            $queryRaw: jest.fn().mockResolvedValue([]),
-            invoice: {
-              findFirst: jest
-                .fn()
-                .mockResolvedValue({ number: 'INV-2026-0005' }),
-              create: jest.fn().mockResolvedValue({
-                id: 'inv1',
-                number: 'INV-2026-0006',
-                amount: 1000,
-              }),
-            },
-          };
-          return (cb as unknown as (tx: never) => Promise<unknown>)(
-            tx as never,
-          );
-        },
-      );
+    it('should delegate numbering to the repository with the current year', async () => {
+      mockRepo.institutionExists.mockResolvedValue(true);
+      mockRepo.createNextNumbered.mockResolvedValue({
+        id: 'inv1',
+        number: 'INV-2026-0006',
+        amount: 1000,
+      } as never);
 
       const result = await service.create({
         institutionId: 'inst1',
         amount: 1000,
       });
       expect(result.number).toBe('INV-2026-0006');
-    });
-
-    it('should start at 0001 if no prior invoice', async () => {
-      (mockPrisma.institution.findUnique as jest.Mock).mockResolvedValue({
-        id: 'inst1',
-      });
-      (mockPrisma.$transaction as jest.Mock).mockImplementation(
-        async (cb: never) => {
-          const tx = {
-            $queryRaw: jest.fn().mockResolvedValue([]),
-            invoice: {
-              findFirst: jest.fn().mockResolvedValue(null),
-              create: jest.fn().mockResolvedValue({
-                id: 'inv1',
-                number: 'INV-2026-0001',
-                amount: 1000,
-              }),
-            },
-          };
-          return (cb as unknown as (tx: never) => Promise<unknown>)(
-            tx as never,
-          );
-        },
+      expect(mockRepo.createNextNumbered).toHaveBeenCalledWith(
+        expect.objectContaining({
+          institutionId: 'inst1',
+          amount: 1000,
+          year: new Date().getFullYear(),
+        }),
       );
-
-      const result = await service.create({
-        institutionId: 'inst1',
-        amount: 1000,
-      });
-      expect(result.number).toBe('INV-2026-0001');
     });
   });
 

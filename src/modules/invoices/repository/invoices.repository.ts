@@ -12,5 +12,14 @@ export interface InvoicesRepository {
   }): Promise<{ data: Invoice[]; total: number }>;
   create(data: Prisma.InvoiceCreateInput): Promise<Invoice>;
   update(id: string, data: Prisma.InvoiceUpdateInput): Promise<Invoice>;
-  findLastNumberForYear(year: number): Promise<string | null>;
+  institutionExists(id: string): Promise<boolean>;
+  /** Create an invoice with the next INV-YYYY-NNNN number for the given year,
+   * serialized by a per-year advisory lock inside one transaction. */
+  createNextNumbered(params: {
+    institutionId: string;
+    amount: number;
+    dueDate?: Date;
+    notes?: string;
+    year: number;
+  }): Promise<Invoice>;
 }

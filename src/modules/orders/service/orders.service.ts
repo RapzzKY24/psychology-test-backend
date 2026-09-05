@@ -9,8 +9,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { ORDERS_REPOSITORY } from '../repository/orders.repository';
 import type { OrdersRepository } from '../repository/orders.repository';
-import { PrismaService } from '../../../prisma/prisma.service';
-import { generateInviteToken } from '../../sessions/utils/generate-invite-token';
 import type { Order, Prisma } from '../../../generated/prisma/client';
 import type { QueryPaymentsDto } from '../dto/query-payments.dto';
 import type { AdminPaymentListItemDto } from '../dto/admin-payment-list-item.dto';
@@ -20,7 +18,6 @@ export class OrdersService {
   constructor(
     @Inject(ORDERS_REPOSITORY)
     private readonly repo: OrdersRepository,
-    private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -202,61 +199,18 @@ export class OrdersService {
       throw new ConflictException('already_verified');
     }
 
-    let wasLate = false;
-    const result = await this.prisma.$transaction(async (tx) => {
-      const current = await tx.order.findUnique({ where: { id: orderId } });
-      if (!current) throw new NotFoundException('Order not found');
-      wasLate =
-        current.status === 'EXPIRED' ||
-        (current.status === 'PENDING' &&
-          current.expiresAt.getTime() <= Date.now());
-      if (current.status === 'PAID')
-        throw new ConflictException('already_verified');
-      if (current.status === 'CANCELLED')
-        throw new ConflictException('order_cancelled');
-      if (current.status !== 'PENDING' && current.status !== 'EXPIRED') {
-        throw new ConflictException('already_verified');
-      }
-      const updated = await tx.order.updateMany({
-        where: { id: orderId, status: { in: ['PENDING', 'EXPIRED'] } },
-        data: { status: 'PAID', verifiedById: adminId, verifiedAt: new Date() },
-      });
-      if (updated.count === 0) {
-        const cur = await tx.order.findUnique({ where: { id: orderId } });
-        if (!cur) throw new NotFoundException('Order not found');
-        if (cur.status === 'PAID')
-          throw new ConflictException('already_verified');
-        if (cur.status === 'CANCELLED')
-          throw new ConflictException('order_cancelled');
-        throw new ConflictException('already_verified');
-      }
-
-      const token = generateInviteToken();
-      const session = await tx.testSession.create({
-        data: {
-          kind: 'INDIVIDUAL',
-          title: `Order ${orderId}`,
-          token,
-          slotLimit: 1,
-          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          status: 'ACTIVE',
-        },
-      });
-      const attempt = await tx.attempt.create({
-        data: {
-          sessionId: session.id,
-          testId: current.testId,
-          userId: current.userId,
-          status: 'IN_PROGRESS',
-        },
-      });
-      return { sessionId: session.id, attemptId: attempt.id };
-    });
+    const result = await this.repo.verifyPayment(orderId, adminId);
+    if (result.outcome === 'not_found') {
+      throw new NotFoundException('Order not found');
+    }
+    if (result.outcome === 'conflict') {
+      throw new ConflictException(result.reason);
+    }
 
     return {
       orderId,
       status: 'PAID',
-      wasLate,
+      wasLate: result.wasLate,
       sessionId: result.sessionId,
       attemptId: result.attemptId,
     };

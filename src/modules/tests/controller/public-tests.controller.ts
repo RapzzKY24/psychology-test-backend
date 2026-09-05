@@ -1,10 +1,9 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { Session } from '@thallesp/nestjs-better-auth';
-import type { UserSession } from '@thallesp/nestjs-better-auth';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
 import { TestsService } from '../service/tests.service';
 import { QueryTestSchema } from '../dto/query-test.dto';
 import type { QueryTestDto } from '../dto/query-test.dto';
+import type { PublicTestDto } from '../dto/public-test.dto';
 import type {
   PaginatedResponse,
   ApiResponse,
@@ -17,19 +16,14 @@ export class PublicTestsController {
   @Get()
   async findMany(
     @Query(new ZodValidationPipe(QueryTestSchema)) query: QueryTestDto,
-    @Session() _session: UserSession,
-  ): Promise<PaginatedResponse<unknown>> {
-    void _session;
-    const result = await this.testsService.findManyPublic(query);
-    return result;
+  ): Promise<PaginatedResponse<PublicTestDto>> {
+    return this.testsService.findManyPublic(query);
   }
 
   @Get(':slug')
   async findOne(
     @Param('slug') slug: string,
-    @Session() _session: UserSession,
-  ): Promise<ApiResponse<unknown>> {
-    void _session;
+  ): Promise<ApiResponse<PublicTestDto>> {
     const data = await this.testsService.findBySlugPublic(slug);
     return { data };
   }

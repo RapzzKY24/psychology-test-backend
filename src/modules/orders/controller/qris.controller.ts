@@ -14,11 +14,11 @@ import { QrisService } from '../service/qris.service';
 import type { ApiResponse } from '../../../common/interfaces/api-response.interface';
 import type { Response } from 'express';
 
-@Controller('api/v1')
-export class QrisController {
+@Controller('api/v1/admin/payments/qris')
+export class AdminQrisController {
   constructor(private readonly qrisService: QrisService) {}
 
-  @Post('admin/payments/qris')
+  @Post()
   @Roles(['ADMIN'])
   @UseInterceptors(FileInterceptor('file'))
   async upload(
@@ -28,8 +28,13 @@ export class QrisController {
     const data = await this.qrisService.saveImage(file);
     return { data };
   }
+}
 
-  @Get('public/payments/qris-image')
+@Controller('api/v1/public/payments')
+export class PublicQrisController {
+  constructor(private readonly qrisService: QrisService) {}
+
+  @Get('qris-image')
   @AllowAnonymous()
   async stream(@Res() res: Response): Promise<void> {
     const filePath = await this.qrisService.getImagePath();

@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { PrismaOrdersRepository } from '../repository/orders.prisma-repository';
+import { PrismaQrisRepository } from '../repository/qris.prisma-repository';
 import { OrdersService } from '../service/orders.service';
 import { QrisService } from '../service/qris.service';
 import { validateQrisFile } from '../utils/validate-qris-file';
@@ -124,10 +125,12 @@ describe('Payments E2E (integ, real DB)', () => {
 
     ordersService = new OrdersService(
       new PrismaOrdersRepository(prisma),
-      prisma,
       configStub as never,
     );
-    qrisService = new QrisService(prisma, configStub as never);
+    qrisService = new QrisService(
+      new PrismaQrisRepository(prisma),
+      configStub as never,
+    );
   });
 
   afterAll(async () => {

@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import type { Order, Prisma, Test } from '../../../generated/prisma/client';
-import type { OrdersRepository } from './orders.repository';
+import type {
+  OrdersRepository,
+  VerifyPaymentResult,
+} from './orders.repository';
 import { randomInt } from 'crypto';
+import { generateInviteToken } from '../../sessions/utils/generate-invite-token';
 
 @Injectable()
 export class PrismaOrdersRepository implements OrdersRepository {
@@ -81,7 +85,7 @@ export class PrismaOrdersRepository implements OrdersRepository {
               },
             });
           },
-          { isolationLevel: 'Serializable' } as never,
+          { isolationLevel: 'Serializable' },
         );
         return order;
       } catch (error) {
@@ -117,6 +121,57 @@ export class PrismaOrdersRepository implements OrdersRepository {
       data: { status: 'CANCELLED', cancelReason: reason },
     });
     return result.count;
+  }
+
+  async verifyPayment(
+    orderId: string,
+    adminId: string,
+  ): Promise<VerifyPaymentResult> {
+    return this.prisma.$transaction(async (tx) => {
+      const current = await tx.order.findUnique({ where: { id: orderId } });
+      if (!current) return { outcome: 'not_found' };
+      if (current.status === 'PAID')
+        return { outcome: 'conflict', reason: 'already_verified' };
+      if (current.status === 'CANCELLED')
+        return { outcome: 'conflict', reason: 'order_cancelled' };
+      if (current.status !== 'PENDING' && current.status !== 'EXPIRED') {
+        return { outcome: 'conflict', reason: 'already_verified' };
+      }
+      const wasLate =
+        current.status === 'EXPIRED' ||
+        current.expiresAt.getTime() <= Date.now();
+      const updated = await tx.order.updateMany({
+        where: { id: orderId, status: { in: ['PENDING', 'EXPIRED'] } },
+        data: { status: 'PAID', verifiedById: adminId, verifiedAt: new Date() },
+      });
+      if (updated.count === 0) {
+        return { outcome: 'conflict', reason: 'already_verified' };
+      }
+      const session = await tx.testSession.create({
+        data: {
+          kind: 'INDIVIDUAL',
+          title: `Order ${orderId}`,
+          token: generateInviteToken(),
+          slotLimit: 1,
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          status: 'ACTIVE',
+        },
+      });
+      const attempt = await tx.attempt.create({
+        data: {
+          sessionId: session.id,
+          testId: current.testId,
+          userId: current.userId,
+          status: 'IN_PROGRESS',
+        },
+      });
+      return {
+        outcome: 'verified',
+        wasLate,
+        sessionId: session.id,
+        attemptId: attempt.id,
+      };
+    });
   }
 
   async updateManyToExpired(ids: string[]): Promise<number> {

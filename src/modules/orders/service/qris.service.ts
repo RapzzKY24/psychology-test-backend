@@ -1,14 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../../../prisma/prisma.service';
+import { Inject } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { randomUUID } from 'crypto';
+import { QRIS_REPOSITORY } from '../repository/qris.repository';
+import type { QrisRepository } from '../repository/qris.repository';
 
 @Injectable()
 export class QrisService {
   constructor(
-    private readonly prisma: PrismaService,
+    @Inject(QRIS_REPOSITORY)
+    private readonly repo: QrisRepository,
     private readonly configService: ConfigService,
   ) {}
 
@@ -24,16 +27,11 @@ export class QrisService {
     await fs.promises.mkdir(dir, { recursive: true });
 
     // Remove old image if exists
-    const existing = await this.prisma.setting.findUnique({
-      where: { key: 'payment.qrisImagePath' },
-    });
-    if (existing?.value) {
-      const old = (existing.value as { path?: string })?.path;
-      if (old) {
-        const oldFull = path.resolve(old);
-        if (oldFull.startsWith(path.resolve('./uploads'))) {
-          await fs.promises.unlink(oldFull).catch(() => {});
-        }
+    const existingPath = await this.repo.findQrisStoredPath();
+    if (existingPath) {
+      const oldFull = path.resolve(existingPath);
+      if (oldFull.startsWith(path.resolve('./uploads'))) {
+        await fs.promises.unlink(oldFull).catch(() => {});
       }
     }
 
@@ -43,26 +41,15 @@ export class QrisService {
     await fs.promises.writeFile(filePath, file.buffer);
 
     const relative = path.relative(process.cwd(), filePath);
-    await this.prisma.setting.upsert({
-      where: { key: 'payment.qrisImagePath' },
-      create: {
-        key: 'payment.qrisImagePath',
-        value: { path: relative },
-      },
-      update: { value: { path: relative } },
-    });
+    await this.repo.saveQrisStoredPath(relative);
 
     return { qrisImageUrl: `/api/v1/public/payments/qris-image` };
   }
 
   async getImagePath(): Promise<string> {
-    const setting = await this.prisma.setting.findUnique({
-      where: { key: 'payment.qrisImagePath' },
-    });
-    if (!setting?.value) throw new NotFoundException('qris_not_configured');
-    const p = (setting.value as { path?: string })?.path;
-    if (!p) throw new NotFoundException('qris_not_configured');
-    const full = path.resolve(p);
+    const stored = await this.repo.findQrisStoredPath();
+    if (!stored) throw new NotFoundException('qris_not_configured');
+    const full = path.resolve(stored);
     if (!fs.existsSync(full))
       throw new NotFoundException('qris_not_configured');
     return full;

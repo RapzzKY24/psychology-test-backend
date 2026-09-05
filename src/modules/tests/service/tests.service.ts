@@ -12,6 +12,7 @@ import type { UpdateTestDto } from '../dto/update-test.dto';
 import type { Test, Prisma } from '../../../generated/prisma/client';
 import type { PaginatedResponse } from '../../../common/interfaces/api-response.interface';
 import type { QueryTestDto } from '../dto/query-test.dto';
+import type { PublicTestDto } from '../dto/public-test.dto';
 import { getItemSchema } from '../../../scorers/schemas';
 
 @Injectable()
@@ -65,7 +66,7 @@ export class TestsService {
 
   async findManyPublic(
     query: QueryTestDto,
-  ): Promise<PaginatedResponse<unknown>> {
+  ): Promise<PaginatedResponse<PublicTestDto>> {
     const where: Prisma.TestWhereInput = { status: 'PUBLISHED' };
     if (query.category) where.category = query.category;
     const skip = (query.page - 1) * query.limit;
@@ -94,7 +95,7 @@ export class TestsService {
     };
   }
 
-  async findBySlugPublic(slug: string): Promise<unknown> {
+  async findBySlugPublic(slug: string): Promise<PublicTestDto> {
     const test = await this.repo.findBySlug(slug);
     if (!test || test.status !== 'PUBLISHED')
       throw new NotFoundException('Test not found');

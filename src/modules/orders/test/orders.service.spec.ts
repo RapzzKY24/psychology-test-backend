@@ -2,12 +2,10 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { OrdersService } from '../service/orders.service';
 import type { OrdersRepository } from '../repository/orders.repository';
-import type { PrismaService } from '../../../prisma/prisma.service';
 
 describe('OrdersService', () => {
   let service: OrdersService;
   let mockRepo: jest.Mocked<OrdersRepository>;
-  let mockPrisma: jest.Mocked<PrismaService>;
   let mockConfig: { get: jest.Mock };
 
   beforeEach(() => {
@@ -22,16 +20,13 @@ describe('OrdersService', () => {
       update: jest.fn(),
       updateClaimIfUnset: jest.fn(),
       cancelPayment: jest.fn(),
+      verifyPayment: jest.fn(),
       updateManyToExpired: jest.fn(),
       findMany: jest.fn(),
       findManyEnriched: jest.fn(),
     };
-    mockPrisma = {
-      order: { updateMany: jest.fn(), findUnique: jest.fn() },
-      $transaction: jest.fn(),
-    } as unknown as jest.Mocked<PrismaService>;
     mockConfig = { get: jest.fn().mockReturnValue(60) };
-    service = new OrdersService(mockRepo, mockPrisma, mockConfig as never);
+    service = new OrdersService(mockRepo, mockConfig as never);
   });
 
   describe('create', () => {
@@ -317,30 +312,19 @@ describe('OrdersService', () => {
         testId: 't1',
         userId: 'u1',
       } as never);
-      const tx = {
-        order: {
-          updateMany: jest.fn().mockResolvedValue({ count: 1 }),
-          findUnique: jest.fn().mockResolvedValue({
-            id: 'o1',
-            status: 'PENDING',
-            testId: 't1',
-            userId: 'u1',
-            expiresAt: new Date(Date.now() + 60000),
-          }),
-        },
-        testSession: { create: jest.fn().mockResolvedValue({ id: 's1' }) },
-        attempt: { create: jest.fn().mockResolvedValue({ id: 'a1' }) },
-      };
-      (mockPrisma.$transaction as jest.Mock).mockImplementation(
-        async (cb: never) =>
-          (cb as unknown as (tx: never) => Promise<unknown>)(tx as never),
-      );
+      mockRepo.verifyPayment.mockResolvedValue({
+        outcome: 'verified',
+        wasLate: false,
+        sessionId: 's1',
+        attemptId: 'a1',
+      });
 
       const result = await service.verify('o1', 'admin1');
       expect(result.status).toBe('PAID');
       expect(result.wasLate).toBe(false);
       expect(result.sessionId).toBe('s1');
       expect(result.attemptId).toBe('a1');
+      expect(mockRepo.verifyPayment).toHaveBeenCalledWith('o1', 'admin1');
     });
 
     it('should set wasLate true for EXPIRED', async () => {
@@ -350,51 +334,48 @@ describe('OrdersService', () => {
         testId: 't1',
         userId: 'u1',
       } as never);
-      const tx = {
-        order: {
-          updateMany: jest.fn().mockResolvedValue({ count: 1 }),
-          findUnique: jest.fn().mockResolvedValue({
-            id: 'o1',
-            status: 'EXPIRED',
-            testId: 't1',
-            userId: 'u1',
-            expiresAt: new Date(Date.now() - 1000),
-          }),
-        },
-        testSession: { create: jest.fn().mockResolvedValue({ id: 's1' }) },
-        attempt: { create: jest.fn().mockResolvedValue({ id: 'a1' }) },
-      };
-      (mockPrisma.$transaction as jest.Mock).mockImplementation(
-        async (cb: never) =>
-          (cb as unknown as (tx: never) => Promise<unknown>)(tx as never),
-      );
+      mockRepo.verifyPayment.mockResolvedValue({
+        outcome: 'verified',
+        wasLate: true,
+        sessionId: 's1',
+        attemptId: 'a1',
+      });
 
       const result = await service.verify('o1', 'admin1');
       expect(result.wasLate).toBe(true);
     });
 
-    it('should throw 409 on concurrent verify (count 0)', async () => {
+    it('should throw 409 when the repo reports a verify race', async () => {
       mockRepo.findById.mockResolvedValue({
         id: 'o1',
         status: 'PENDING',
         testId: 't1',
         userId: 'u1',
       } as never);
-      const tx = {
-        order: {
-          updateMany: jest.fn().mockResolvedValue({ count: 0 }),
-          findUnique: jest.fn().mockResolvedValue({ id: 'o1', status: 'PAID' }),
-        },
-        testSession: { create: jest.fn() },
-        attempt: { create: jest.fn() },
-      };
-      (mockPrisma.$transaction as jest.Mock).mockImplementation(
-        async (cb: never) =>
-          (cb as unknown as (tx: never) => Promise<unknown>)(tx as never),
-      );
+      mockRepo.verifyPayment.mockResolvedValue({
+        outcome: 'conflict',
+        reason: 'already_verified',
+      });
 
       await expect(service.verify('o1', 'admin1')).rejects.toThrow(
         'already_verified',
+      );
+    });
+
+    it('should throw 409 order_cancelled when repo reports cancellation', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: 'o1',
+        status: 'PENDING',
+        testId: 't1',
+        userId: 'u1',
+      } as never);
+      mockRepo.verifyPayment.mockResolvedValue({
+        outcome: 'conflict',
+        reason: 'order_cancelled',
+      });
+
+      await expect(service.verify('o1', 'admin1')).rejects.toThrow(
+        'order_cancelled',
       );
     });
   });
