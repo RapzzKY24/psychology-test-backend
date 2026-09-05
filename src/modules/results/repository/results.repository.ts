@@ -2,6 +2,16 @@ import type { TestResult, Prisma } from '../../../generated/prisma/client';
 
 export const RESULTS_REPOSITORY = 'ResultsRepository';
 
+/** Flat row for the participant dashboard list (feature 08 §API contract). */
+export interface ApprovedResultRow {
+  attemptId: string;
+  testName: string;
+  patternCode: string;
+  correctedPatternCode: string | null;
+  completedAt: Date | null;
+  approvedAt: Date | null;
+}
+
 export interface ResultsRepository {
   findResultByAttemptId(attemptId: string): Promise<TestResult | null>;
   findAttemptWithResult(attemptId: string): Promise<{
@@ -34,4 +44,9 @@ export interface ResultsRepository {
     take: number;
     orderBy?: Prisma.TestResultOrderByWithRelationInput;
   }): Promise<{ data: TestResult[]; total: number }>;
+  listApprovedByUser(params: {
+    userId: string;
+    skip: number;
+    take: number;
+  }): Promise<{ data: ApprovedResultRow[]; total: number }>;
 }
