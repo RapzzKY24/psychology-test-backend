@@ -170,6 +170,41 @@ export class PrismaSessionsRepository implements SessionsRepository {
     });
   }
 
+  findParticipantsBySessionId(
+    sessionId: string,
+  ): Promise<SessionParticipant[]> {
+    return this.prisma.sessionParticipant.findMany({ where: { sessionId } });
+  }
+
+  async findAttemptsByParticipantId(
+    participantId: string,
+  ): Promise<{ id: string; testId: string; testName: string }[]> {
+    const attempts = await this.prisma.attempt.findMany({
+      where: { participantId },
+      include: { test: { select: { name: true } } },
+    });
+    if (attempts.length === 0) return [];
+    const sessionTests = await this.prisma.sessionTest.findMany({
+      where: { sessionId: attempts[0].sessionId },
+      orderBy: { order: 'asc' },
+      select: { testId: true },
+    });
+    const orderMap = new Map(sessionTests.map((st, i) => [st.testId, i]));
+    return attempts
+      .sort(
+        (a, b) =>
+          (orderMap.get(a.testId) ?? 99) - (orderMap.get(b.testId) ?? 99),
+      )
+      .map((a) => ({ id: a.id, testId: a.testId, testName: a.test.name }));
+  }
+
+  async updateParticipantToken(id: string, tokenHash: string): Promise<void> {
+    await this.prisma.sessionParticipant.update({
+      where: { id },
+      data: { tokenHash },
+    });
+  }
+
   async joinSession(params: JoinSessionParams): Promise<JoinSessionResult> {
     try {
       return await this.prisma.$transaction(async (tx) => {
@@ -234,6 +269,7 @@ export class PrismaSessionsRepository implements SessionsRepository {
             testId: a.testId,
             testName: sessionTests[i].test.name,
           })),
+          resumed: false,
         };
       });
     } catch (error) {

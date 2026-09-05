@@ -157,6 +157,37 @@ export class SessionsService {
     if (session.expiresAt.getTime() <= Date.now()) {
       throw new GoneException('session_expired');
     }
+
+    // Idempotent identity join (owner decision 2026-09-06): same person in the
+    // same session resumes their participant + attempts with a re-issued token
+    // instead of creating a duplicate and burning another slot. Precedence:
+    // email → candidateNumber → exact name.
+    const sessionParticipants = await this.repo.findParticipantsBySessionId(
+      session.id,
+    );
+    const existing = sessionParticipants.find((p) =>
+      dto.email
+        ? p.email?.toLowerCase() === dto.email.toLowerCase()
+        : dto.candidateNumber
+          ? p.candidateNumber === dto.candidateNumber
+          : p.name.toLowerCase() === dto.name.toLowerCase(),
+    );
+    if (existing) {
+      const participantToken = generateParticipantToken();
+      const tokenHash = hashParticipantToken(participantToken);
+      await this.repo.updateParticipantToken(existing.id, tokenHash);
+      const attempts = await this.repo.findAttemptsByParticipantId(existing.id);
+      // Explicit shape — mirrors joinSession (tokenHash never leaves the server).
+      const participant = {
+        id: existing.id,
+        sessionId: existing.sessionId,
+        name: existing.name,
+        email: existing.email,
+        candidateNumber: existing.candidateNumber,
+        joinedAt: existing.joinedAt,
+      };
+      return { participant, participantToken, attempts, resumed: true };
+    }
     const sessionTests = await this.repo.findSessionTestsBySessionId(
       session.id,
     );
@@ -174,7 +205,7 @@ export class SessionsService {
     const participantToken = generateParticipantToken();
     const tokenHash = hashParticipantToken(participantToken);
 
-    return this.repo.joinSession({
+    const result = await this.repo.joinSession({
       sessionId: session.id,
       name: dto.name,
       email: dto.email,
@@ -182,5 +213,6 @@ export class SessionsService {
       participantToken,
       tokenHash,
     });
+    return { ...result, resumed: false };
   }
 }

@@ -30,6 +30,12 @@ describe('SessionsService', () => {
       updateStatus: jest.fn(),
       findSessionTestsBySessionId: jest.fn(),
       findParticipantByTokenHash: jest.fn(),
+      findParticipantsBySessionId: jest.fn(),
+      findAttemptsByParticipantId: jest.fn(),
+      updateParticipantToken: jest.fn(),
+      findParticipantsBySessionId: jest.fn(),
+      findAttemptsByParticipantId: jest.fn(),
+      updateParticipantToken: jest.fn(),
       joinSession: jest.fn(),
     };
     mockRepo.findByToken.mockResolvedValue(null); // no token collision by default
@@ -185,6 +191,10 @@ describe('SessionsService', () => {
   });
 
   describe('join', () => {
+    beforeEach(() => {
+      mockRepo.findParticipantsBySessionId.mockResolvedValue([]);
+    });
+
     const future = new Date(Date.now() + 60 * 60 * 1000);
     const activeSession = {
       id: 'sess-1',
@@ -200,6 +210,7 @@ describe('SessionsService', () => {
       participant: { id: 'p-1' } as any,
       participantToken: 'a'.repeat(64),
       attempts: [{ id: 'a-1', testId: 't-1', testName: 'DISC' }],
+      resumed: false,
     };
 
     it('should throw 404 when invite token is unknown', async () => {
@@ -306,5 +317,99 @@ describe('SessionsService', () => {
         service.join('tok', { name: 'Sari' } as any, '2.2.2.2'),
       ).resolves.toEqual(joinResult);
     });
+  });
+});
+
+describe('join — idempotent identity (owner decision 2026-09-06)', () => {
+  let service: SessionsService;
+  let mockRepo: jest.Mocked<SessionsRepository>;
+
+  const baseSession = {
+    id: 's1',
+    title: 'Sesi Uji',
+    status: 'ACTIVE',
+    expiresAt: new Date('2099-01-01T00:00:00Z'),
+    slotLimit: 20,
+    pinHash: null,
+  };
+
+  beforeEach(() => {
+    mockRepo = {
+      findByToken: jest.fn(),
+      findSessionTestsBySessionId: jest.fn(),
+      findParticipantsBySessionId: jest.fn(),
+      findAttemptsByParticipantId: jest.fn(),
+      updateParticipantToken: jest.fn(),
+      joinSession: jest.fn(),
+    } as unknown as jest.Mocked<SessionsRepository>;
+    service = new SessionsService(mockRepo);
+  });
+
+  it('resumes the existing participant when the identity matches (no duplicate create)', async () => {
+    mockRepo.findByToken.mockResolvedValue(baseSession as never);
+    mockRepo.findParticipantsBySessionId.mockResolvedValue([
+      {
+        id: 'p1',
+        name: 'RapzzKY',
+        email: null,
+        candidateNumber: null,
+        tokenHash: 'old',
+      } as never,
+    ]);
+    mockRepo.findAttemptsByParticipantId.mockResolvedValue([
+      { id: 'a1', testId: 't1', testName: 'DISC Form A' },
+    ]);
+
+    const result = await service.join(
+      'token-abc',
+      { name: 'RapzzKY' },
+      '1.1.1.1',
+    );
+
+    expect(mockRepo.joinSession).not.toHaveBeenCalled();
+    expect(mockRepo.updateParticipantToken).toHaveBeenCalledWith(
+      'p1',
+      expect.any(String),
+    );
+    expect(result.resumed).toBe(true);
+    expect(result.attempts).toHaveLength(1);
+  });
+
+  const publishedTests = [
+    {
+      testId: 't1',
+      testName: 'DISC Form A',
+      testStatus: 'PUBLISHED',
+      order: 1,
+    },
+  ];
+
+  it('creates a new participant when the identity is new', async () => {
+    mockRepo.findByToken.mockResolvedValue(baseSession as never);
+    mockRepo.findSessionTestsBySessionId.mockResolvedValue(publishedTests);
+    mockRepo.findParticipantsBySessionId.mockResolvedValue([
+      {
+        id: 'p1',
+        name: 'Orang Lain',
+        email: null,
+        candidateNumber: null,
+        tokenHash: 'x',
+      } as never,
+    ]);
+    mockRepo.joinSession.mockResolvedValue({
+      participant: { id: 'p2', name: 'RapzzKY', email: null } as never,
+      participantToken: 'tok',
+      attempts: [{ id: 'a2', testId: 't1', testName: 'DISC Form A' }],
+      resumed: false,
+    });
+
+    const result = await service.join(
+      'token-abc',
+      { name: 'RapzzKY' },
+      '1.1.1.1',
+    );
+
+    expect(mockRepo.joinSession).toHaveBeenCalled();
+    expect(result.resumed).toBe(false);
   });
 });

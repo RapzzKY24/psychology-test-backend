@@ -49,6 +49,8 @@ export interface JoinSessionResult {
   participant: Omit<SessionParticipant, 'tokenHash'>;
   participantToken: string;
   attempts: { id: string; testId: string; testName: string }[];
+  /** True when an existing participant resumed (token re-issued, no duplicate). */
+  resumed: boolean;
 }
 
 export interface SessionTestSummary {
@@ -71,6 +73,11 @@ export interface SessionsRepository {
   createWithTests(params: CreateSessionParams): Promise<TestSession>;
   updateStatus(id: string, status: 'ACTIVE' | 'CLOSED'): Promise<TestSession>;
   findSessionTestsBySessionId(sessionId: string): Promise<SessionTestSummary[]>;
+  findParticipantsBySessionId(sessionId: string): Promise<SessionParticipant[]>;
+  findAttemptsByParticipantId(
+    participantId: string,
+  ): Promise<{ id: string; testId: string; testName: string }[]>;
+  updateParticipantToken(id: string, tokenHash: string): Promise<void>;
   countParticipants(sessionId: string): Promise<number>;
   findParticipantByTokenHash(
     tokenHash: string,
