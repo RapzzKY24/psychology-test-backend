@@ -22,6 +22,12 @@ export interface ReviewDetail {
   items: { id: string; order: number; content: unknown }[];
   responses: { itemId: string; value: unknown }[];
   interpretation: { title: string; body: string } | null;
+  itemsDetailed: {
+    itemOrder: number;
+    words: string[];
+    most: number | null;
+    least: number | null;
+  }[];
 }
 
 export interface VerifyLookup {
