@@ -5,6 +5,7 @@ import { AttemptsPublicController } from './controller/attempts.controller';
 import { MeAttemptsController } from './controller/me-attempts.controller';
 import { SessionsService } from './service/sessions.service';
 import { AttemptsService } from './service/attempts.service';
+import { SessionsPublicService } from './service/sessions-public.service';
 import { MeAttemptsService } from './service/me-attempts.service';
 import { PrismaSessionsRepository } from './repository/sessions.prisma-repository';
 import { PrismaAttemptsRepository } from './repository/attempts.prisma-repository';
@@ -22,6 +23,7 @@ import { ATTEMPTS_REPOSITORY } from './repository/attempts.repository';
   providers: [
     SessionsService,
     AttemptsService,
+    SessionsPublicService,
     MeAttemptsService,
     ParticipantTokenGuard,
     { provide: SESSIONS_REPOSITORY, useClass: PrismaSessionsRepository },

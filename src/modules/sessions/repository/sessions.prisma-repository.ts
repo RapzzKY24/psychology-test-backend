@@ -132,6 +132,10 @@ export class PrismaSessionsRepository implements SessionsRepository {
     });
   }
 
+  countParticipants(sessionId: string): Promise<number> {
+    return this.prisma.sessionParticipant.count({ where: { sessionId } });
+  }
+
   async findSessionTestsBySessionId(
     sessionId: string,
   ): Promise<SessionTestSummary[]> {
