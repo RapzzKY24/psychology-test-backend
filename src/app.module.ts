@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import appConfig from './config/app.config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
@@ -12,9 +14,12 @@ import { ReviewsModule } from './modules/reviews/reviews.module';
 import { InstitutionsModule } from './modules/institutions/institutions.module';
 import { SessionsModule } from './modules/sessions/sessions.module';
 import { ResultsModule } from './modules/results/results.module';
+import { OrdersModule } from './modules/orders/orders.module';
+import { InvoicesModule } from './modules/invoices/invoices.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true, load: [appConfig] }),
     PrismaModule,
     HealthModule,
     AuthModule.forRoot({ auth }),
@@ -25,6 +30,8 @@ import { ResultsModule } from './modules/results/results.module';
     InstitutionsModule,
     SessionsModule,
     ResultsModule,
+    OrdersModule,
+    InvoicesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

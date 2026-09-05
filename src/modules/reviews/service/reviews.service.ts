@@ -32,6 +32,7 @@ export class ReviewsService {
   ): Promise<PaginatedResponse<ReviewListItem>> {
     const where: Prisma.TestResultWhereInput = {};
     if (query.status) where.status = query.status;
+    else where.status = { in: ['PENDING_REVIEW', 'RETURNED'] };
     if (query.sessionId) where.attempt = { sessionId: query.sessionId };
     if (query.testId) {
       where.attempt = {
@@ -119,8 +120,7 @@ export class ReviewsService {
         throw new ConflictException('result_already_approved');
       if (current.status === 'RETURNED')
         throw new ConflictException('result_returned');
-      verifyCode = generateVerifyCode();
-      attempts++;
+      throw new ConflictException('result_already_approved');
     }
     throw new ConflictException('result_already_approved');
   }

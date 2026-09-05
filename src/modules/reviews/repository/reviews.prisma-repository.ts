@@ -145,6 +145,28 @@ export class PrismaReviewsRepository implements ReviewsRepository {
       participant = user ? { name: user.name, email: user.email } : null;
     }
 
+    const responses = (
+      attempt as unknown as {
+        responses: { itemId: string; value: unknown }[];
+      }
+    ).responses;
+    const responseMap = new Map(
+      responses.map((r) => [
+        r.itemId,
+        r.value as { most?: number; least?: number },
+      ]),
+    );
+    const itemsDetailed = items.map((item) => {
+      const content = item.content as { words?: string[] };
+      const value = responseMap.get(item.id);
+      return {
+        itemOrder: item.order,
+        words: content.words ?? [],
+        most: value?.most ?? null,
+        least: value?.least ?? null,
+      };
+    });
+
     return {
       result,
       test: {
@@ -164,12 +186,9 @@ export class PrismaReviewsRepository implements ReviewsRepository {
       },
       attempt: { id: attempt.id, completedAt: attempt.completedAt },
       items,
-      responses: (
-        attempt as unknown as {
-          responses: { itemId: string; value: unknown }[];
-        }
-      ).responses,
+      responses,
       interpretation,
+      itemsDetailed,
     };
   }
 
@@ -287,21 +306,6 @@ export class PrismaReviewsRepository implements ReviewsRepository {
     if (!result || result.status !== 'APPROVED' || !result.verifyCode)
       return null;
 
-    // Fetch psychologist profile for approvedBy
-    let psychologist: {
-      fullName: string;
-      degree: string;
-      licenseNumber: string;
-    } | null = null;
-    if (result.reviewedById) {
-      const profile = await this.prisma.psychologistProfile.findUnique({
-        where: { userId: result.reviewedById },
-        select: { fullName: true, degree: true, licenseNumber: true },
-      });
-      psychologist = profile;
-    }
-
-    // For B2C, participant is user, not participant — fetch if needed
     const attemptData = (
       result as unknown as {
         attempt: {
@@ -312,13 +316,25 @@ export class PrismaReviewsRepository implements ReviewsRepository {
         };
       }
     ).attempt;
+
+    const [psychologist, user] = await Promise.all([
+      result.reviewedById
+        ? this.prisma.psychologistProfile.findUnique({
+            where: { userId: result.reviewedById },
+            select: { fullName: true, degree: true, licenseNumber: true },
+          })
+        : Promise.resolve(null),
+      !attemptData.participant?.name && attemptData.userId
+        ? this.prisma.user.findUnique({
+            where: { id: attemptData.userId },
+            select: { name: true },
+          })
+        : Promise.resolve(null),
+    ]);
+
     let participantName: string | null = attemptData.participant?.name ?? null;
-    if (!participantName && attemptData.userId) {
-      const user = await this.prisma.user.findUnique({
-        where: { id: attemptData.userId },
-        select: { name: true },
-      });
-      participantName = user?.name ?? null;
+    if (!participantName && user) {
+      participantName = user.name ?? null;
     }
 
     return {

@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { Roles, Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
+import { z } from 'zod';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
 import { QueryReviewsSchema } from '../dto/query-reviews.dto';
 import type { QueryReviewsDto } from '../dto/query-reviews.dto';
@@ -43,7 +44,9 @@ export class ReviewsController {
 
   @Get(':id')
   @Roles(['PSYCHOLOGIST'])
-  async getDetail(@Param('id') id: string): Promise<ApiResponse<ReviewDetail>> {
+  async getDetail(
+    @Param('id', new ZodValidationPipe(z.string().uuid())) id: string,
+  ): Promise<ApiResponse<ReviewDetail>> {
     const data = await this.reviewsService.getDetail(id);
     return { data };
   }
@@ -51,7 +54,7 @@ export class ReviewsController {
   @Patch(':id/notes')
   @Roles(['PSYCHOLOGIST'])
   async updateNotes(
-    @Param('id') id: string,
+    @Param('id', new ZodValidationPipe(z.string().uuid())) id: string,
     @Body(new ZodValidationPipe(UpdateNotesSchema)) dto: UpdateNotesDto,
   ): Promise<ApiResponse<TestResult>> {
     const data = await this.reviewsService.updateNotes(id, dto.notes);
@@ -61,7 +64,7 @@ export class ReviewsController {
   @Post(':id/approve')
   @Roles(['PSYCHOLOGIST'])
   async approve(
-    @Param('id') id: string,
+    @Param('id', new ZodValidationPipe(z.string().uuid())) id: string,
     @Session() session: UserSession,
   ): Promise<ApiResponse<TestResult>> {
     const data = await this.reviewsService.approve(id, session.user.id);
@@ -71,7 +74,7 @@ export class ReviewsController {
   @Post(':id/return')
   @Roles(['PSYCHOLOGIST'])
   async returnForReason(
-    @Param('id') id: string,
+    @Param('id', new ZodValidationPipe(z.string().uuid())) id: string,
     @Body(new ZodValidationPipe(ReturnReviewSchema)) dto: ReturnReviewDto,
   ): Promise<ApiResponse<TestResult>> {
     const data = await this.reviewsService.returnForReason(id, dto.reason);
@@ -81,7 +84,7 @@ export class ReviewsController {
   @Patch(':id/scores')
   @Roles(['PSYCHOLOGIST'])
   async applyCorrection(
-    @Param('id') id: string,
+    @Param('id', new ZodValidationPipe(z.string().uuid())) id: string,
     @Body(new ZodValidationPipe(CorrectionSchema)) dto: CorrectionDto,
     @Session() session: UserSession,
   ): Promise<ApiResponse<TestResult>> {

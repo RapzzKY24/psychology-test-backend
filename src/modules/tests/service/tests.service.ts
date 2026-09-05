@@ -12,6 +12,7 @@ import type { UpdateTestDto } from '../dto/update-test.dto';
 import type { Test, Prisma } from '../../../generated/prisma/client';
 import type { PaginatedResponse } from '../../../common/interfaces/api-response.interface';
 import type { QueryTestDto } from '../dto/query-test.dto';
+import type { PublicTestDto } from '../dto/public-test.dto';
 import { getItemSchema } from '../../../scorers/schemas';
 
 @Injectable()
@@ -61,6 +62,52 @@ export class TestsService {
     const test = await this.repo.findById(id);
     if (!test) throw new NotFoundException('Test not found');
     return test;
+  }
+
+  async findManyPublic(
+    query: QueryTestDto,
+  ): Promise<PaginatedResponse<PublicTestDto>> {
+    const where: Prisma.TestWhereInput = { status: 'PUBLISHED' };
+    if (query.category) where.category = query.category;
+    const skip = (query.page - 1) * query.limit;
+    const { data, total } = await this.repo.findMany({
+      skip,
+      take: query.limit,
+      where,
+    });
+    const publicData = data.map((t) => ({
+      id: t.id,
+      slug: t.slug,
+      name: t.name,
+      description: t.description,
+      category: t.category,
+      price: t.price,
+      estimatedDurationMin: t.estimatedDurationMin,
+    }));
+    return {
+      data: publicData,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        total,
+        totalPages: Math.ceil(total / query.limit),
+      },
+    };
+  }
+
+  async findBySlugPublic(slug: string): Promise<PublicTestDto> {
+    const test = await this.repo.findBySlug(slug);
+    if (!test || test.status !== 'PUBLISHED')
+      throw new NotFoundException('Test not found');
+    return {
+      id: test.id,
+      slug: test.slug,
+      name: test.name,
+      description: test.description,
+      category: test.category,
+      price: test.price,
+      estimatedDurationMin: test.estimatedDurationMin,
+    };
   }
 
   async update(id: string, dto: UpdateTestDto): Promise<Test> {
