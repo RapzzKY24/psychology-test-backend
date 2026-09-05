@@ -7,7 +7,8 @@ import { QueryPaymentsSchema } from '../dto/query-payments.dto';
 import type { QueryPaymentsDto } from '../dto/query-payments.dto';
 import { CancelPaymentSchema } from '../dto/cancel-payment.dto';
 import type { CancelPaymentDto } from '../dto/cancel-payment.dto';
-import { OrdersService } from '../service/orders.service';
+import type { AdminPaymentListItemDto } from '../dto/admin-payment-list-item.dto';
+import type { OrdersService } from '../service/orders.service';
 import type {
   ApiResponse,
   PaginatedResponse,
@@ -21,7 +22,7 @@ export class AdminPaymentsController {
   @Roles(['ADMIN'])
   async list(
     @Query(new ZodValidationPipe(QueryPaymentsSchema)) query: QueryPaymentsDto,
-  ): Promise<PaginatedResponse<unknown>> {
+  ): Promise<PaginatedResponse<AdminPaymentListItemDto>> {
     const { data, total } = await this.ordersService.listPayments(query);
     return {
       data: data,

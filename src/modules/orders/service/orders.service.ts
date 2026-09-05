@@ -13,6 +13,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { generateInviteToken } from '../../sessions/utils/generate-invite-token';
 import type { Order, Prisma } from '../../../generated/prisma/client';
 import type { QueryPaymentsDto } from '../dto/query-payments.dto';
+import type { AdminPaymentListItemDto } from '../dto/admin-payment-list-item.dto';
 
 @Injectable()
 export class OrdersService {
@@ -150,23 +151,35 @@ export class OrdersService {
     return { id: updated!.id, userClaimedAt: updated!.userClaimedAt as Date };
   }
 
-  async listPayments(query: QueryPaymentsDto): Promise<{
-    data: (Order & {
-      user: { name: string; email: string };
-      test: { name: string };
-    })[];
-    total: number;
-  }> {
+  async listPayments(
+    query: QueryPaymentsDto,
+  ): Promise<{ data: AdminPaymentListItemDto[]; total: number }> {
     await this.repo.expireStalePending();
     const where: Prisma.OrderWhereInput = {};
     if (query.status) where.status = query.status;
     if (query.amount !== undefined) where.amount = query.amount;
     const skip = (query.page - 1) * query.limit;
-    return this.repo.findManyEnriched({
+    const { data, total } = await this.repo.findManyEnriched({
       where,
       skip,
       take: query.limit,
     });
+    return {
+      data: data.map((order) => ({
+        orderId: order.id,
+        userName: order.user.name,
+        userEmail: order.user.email,
+        testName: order.test.name,
+        amount: order.amount,
+        uniqueCode: order.uniqueCode,
+        createdAt: order.createdAt.toISOString(),
+        expiresAt: order.expiresAt.toISOString(),
+        claimed: order.userClaimedAt !== null,
+        status: order.status,
+        verifiedBy: order.verifiedBy,
+      })),
+      total,
+    };
   }
 
   async verify(
@@ -262,19 +275,14 @@ export class OrdersService {
     if (order.status !== 'PENDING' && order.status !== 'EXPIRED') {
       throw new ConflictException('order_cancelled');
     }
-    const updated = await this.prisma.order.updateMany({
-      where: { id: orderId, status: { in: ['PENDING', 'EXPIRED'] } },
-      data: { status: 'CANCELLED' },
-    });
-    if (updated.count === 0) {
+    const updated = await this.repo.cancelPayment(orderId, reason);
+    if (updated === 0) {
       const current = await this.repo.findById(orderId);
       if (!current) throw new NotFoundException('Order not found');
       if (current.status === 'PAID')
         throw new ConflictException('already_verified');
       throw new ConflictException('order_cancelled');
     }
-    // Reason is for audit log; persist if column exists, otherwise ignore
-    void reason;
     return { orderId, status: 'CANCELLED' };
   }
 }

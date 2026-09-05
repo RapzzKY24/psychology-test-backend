@@ -21,6 +21,7 @@ describe('OrdersService', () => {
       createWithUniqueCheck: jest.fn(),
       update: jest.fn(),
       updateClaimIfUnset: jest.fn(),
+      cancelPayment: jest.fn(),
       updateManyToExpired: jest.fn(),
       findMany: jest.fn(),
       findManyEnriched: jest.fn(),
@@ -187,6 +188,100 @@ describe('OrdersService', () => {
     });
   });
 
+  describe('listPayments', () => {
+    const enrichedRow = {
+      id: 'o1',
+      basePrice: 200000,
+      uniqueCode: 21,
+      amount: 200021,
+      status: 'PENDING',
+      createdAt: new Date('2026-09-01T00:00:00Z'),
+      expiresAt: new Date('2026-09-01T01:00:00Z'),
+      userClaimedAt: null,
+      userId: 'u1',
+      testId: 't1',
+      verifiedById: null,
+      verifiedAt: null,
+      updatedAt: new Date('2026-09-01T00:00:00Z'),
+      user: { name: 'User A', email: 'a@example.com' },
+      test: { name: 'DISC Form A' },
+      verifiedBy: null,
+    };
+
+    beforeEach(() => {
+      mockRepo.expireStalePending.mockResolvedValue(0);
+    });
+
+    it('should return the admin payment contract shape', async () => {
+      mockRepo.findManyEnriched.mockResolvedValue({
+        data: [{ ...enrichedRow }] as never,
+        total: 1,
+      });
+
+      const result = await service.listPayments({ page: 1, limit: 10 });
+      expect(result.total).toBe(1);
+      expect(result.data[0]).toEqual({
+        orderId: 'o1',
+        userName: 'User A',
+        userEmail: 'a@example.com',
+        testName: 'DISC Form A',
+        amount: 200021,
+        uniqueCode: 21,
+        createdAt: '2026-09-01T00:00:00.000Z',
+        expiresAt: '2026-09-01T01:00:00.000Z',
+        claimed: false,
+        status: 'PENDING',
+        verifiedBy: null,
+      });
+    });
+
+    it('should map claimed and verifiedBy when the order was verified', async () => {
+      mockRepo.findManyEnriched.mockResolvedValue({
+        data: [
+          {
+            ...enrichedRow,
+            status: 'PAID',
+            userClaimedAt: new Date('2026-09-01T01:30:00Z'),
+            verifiedById: 'admin1',
+            verifiedBy: {
+              id: 'admin1',
+              name: 'Admin One',
+              email: 'admin1@example.com',
+            },
+          } as never,
+        ],
+        total: 1,
+      });
+
+      const result = await service.listPayments({ page: 1, limit: 10 });
+      expect(result.data[0].claimed).toBe(true);
+      expect(result.data[0].status).toBe('PAID');
+      expect(result.data[0].verifiedBy?.email).toBe('admin1@example.com');
+    });
+
+    it('should lazily expire stale PENDING and filter by amount/status', async () => {
+      mockRepo.findManyEnriched.mockResolvedValue({
+        data: [] as never,
+        total: 0,
+      });
+
+      await service.listPayments({
+        page: 2,
+        limit: 25,
+        amount: 200021,
+        status: 'PENDING',
+      });
+      expect(mockRepo.expireStalePending).toHaveBeenCalled();
+      expect(mockRepo.findManyEnriched).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { amount: 200021, status: 'PENDING' },
+          skip: 25,
+          take: 25,
+        }),
+      );
+    });
+  });
+
   describe('verify', () => {
     it('should throw 404 if not found', async () => {
       mockRepo.findById.mockResolvedValue(null);
@@ -305,17 +400,19 @@ describe('OrdersService', () => {
   });
 
   describe('cancel', () => {
-    it('should cancel PENDING', async () => {
+    it('should cancel PENDING and persist the reason', async () => {
       mockRepo.findById.mockResolvedValue({
         id: 'o1',
         status: 'PENDING',
       } as never);
-      (mockPrisma.order.updateMany as jest.Mock).mockResolvedValue({
-        count: 1,
-      });
+      mockRepo.cancelPayment.mockResolvedValue(1);
 
-      const result = await service.cancel('o1', 'reason');
+      const result = await service.cancel('o1', 'salah cocok mutasi');
       expect(result.status).toBe('CANCELLED');
+      expect(mockRepo.cancelPayment).toHaveBeenCalledWith(
+        'o1',
+        'salah cocok mutasi',
+      );
     });
 
     it('should throw 409 if already PAID', async () => {
@@ -323,6 +420,36 @@ describe('OrdersService', () => {
         id: 'o1',
         status: 'PAID',
       } as never);
+      await expect(service.cancel('o1', 'reason')).rejects.toThrow(
+        'already_verified',
+      );
+    });
+
+    it('should throw 409 if already CANCELLED', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: 'o1',
+        status: 'CANCELLED',
+      } as never);
+      await expect(service.cancel('o1', 'reason')).rejects.toThrow(
+        'order_cancelled',
+      );
+    });
+
+    it('should throw 409 if a concurrent verify won the race', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: 'o1',
+        status: 'PENDING',
+      } as never);
+      mockRepo.cancelPayment.mockResolvedValue(0);
+      mockRepo.findById.mockResolvedValueOnce({
+        id: 'o1',
+        status: 'PENDING',
+      } as never);
+      mockRepo.findById.mockResolvedValueOnce({
+        id: 'o1',
+        status: 'PAID',
+      } as never);
+
       await expect(service.cancel('o1', 'reason')).rejects.toThrow(
         'already_verified',
       );

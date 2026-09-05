@@ -111,6 +111,14 @@ export class PrismaOrdersRepository implements OrdersRepository {
     return result.count;
   }
 
+  async cancelPayment(id: string, reason: string): Promise<number> {
+    const result = await this.prisma.order.updateMany({
+      where: { id, status: { in: ['PENDING', 'EXPIRED'] } },
+      data: { status: 'CANCELLED', cancelReason: reason },
+    });
+    return result.count;
+  }
+
   async updateManyToExpired(ids: string[]): Promise<number> {
     if (ids.length === 0) return 0;
     const result = await this.prisma.order.updateMany({
@@ -147,6 +155,7 @@ export class PrismaOrdersRepository implements OrdersRepository {
     data: (Order & {
       user: { name: string; email: string };
       test: { name: string };
+      verifiedBy: { id: string; name: string; email: string } | null;
     })[];
     total: number;
   }> {
@@ -160,22 +169,43 @@ export class PrismaOrdersRepository implements OrdersRepository {
       }),
       this.prisma.order.count({ where: params.where }),
     ]);
-    // Fetch users in bulk
+    // Fetch owner users in bulk
     const userIds = [...new Set(data.map((o) => o.userId))];
-    const users = userIds.length
+    const verifierIds = [
+      ...new Set(
+        data.map((o) => o.verifiedById).filter((id): id is string => !!id),
+      ),
+    ];
+    const users: { id: string; name: string; email: string }[] = userIds.length
       ? await this.prisma.user.findMany({
           where: { id: { in: userIds } },
           select: { id: true, name: true, email: true },
         })
       : [];
-    const userMap = new Map(users.map((u) => [u.id, u]));
+    const verifiers: { id: string; name: string; email: string }[] =
+      verifierIds.length
+        ? await this.prisma.user.findMany({
+            where: { id: { in: verifierIds } },
+            select: { id: true, name: true, email: true },
+          })
+        : [];
+    const userMap = new Map<string, { name: string; email: string }>(
+      users.map((u) => [u.id, u]),
+    );
+    const verifierMap = new Map<
+      string,
+      { id: string; name: string; email: string }
+    >(verifiers.map((u) => [u.id, u]));
     const enriched = data.map((o) => ({
       ...o,
-      user: (userMap.get(o.userId) as { name: string; email: string }) ?? {
+      user: userMap.get(o.userId) ?? {
         name: 'Unknown',
         email: '',
       },
       test: (o as unknown as { test: { name: string } }).test,
+      verifiedBy: o.verifiedById
+        ? (verifierMap.get(o.verifiedById) ?? null)
+        : null,
     }));
     return { data: enriched, total };
   }

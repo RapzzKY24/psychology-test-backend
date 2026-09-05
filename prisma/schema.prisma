@@ -350,6 +350,7 @@ model Order {
   userClaimedAt DateTime?
   verifiedById  String?
   verifiedAt    DateTime?
+  cancelReason  String?
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
   test          Test        @relation(fields: [testId], references: [id])

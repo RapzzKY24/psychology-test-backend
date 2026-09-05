@@ -18,6 +18,8 @@ export interface OrdersRepository {
   update(id: string, data: Prisma.OrderUpdateInput): Promise<Order>;
   /** Set userClaimedAt only when it is still null — returns affected row count (0 = already claimed). */
   updateClaimIfUnset(id: string, claimedAt: Date): Promise<number>;
+  /** Cancel a PENDING/EXPIRED order, recording the audit reason. Returns affected row count (0 = raced). */
+  cancelPayment(id: string, reason: string): Promise<number>;
   updateManyToExpired(ids: string[]): Promise<number>;
   findMany(params: {
     where: Prisma.OrderWhereInput;
@@ -34,6 +36,7 @@ export interface OrdersRepository {
     data: (Order & {
       user: { name: string; email: string };
       test: { name: string };
+      verifiedBy: { id: string; name: string; email: string } | null;
     })[];
     total: number;
   }>;
