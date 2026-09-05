@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   UnprocessableEntityException,
   Inject,
@@ -62,12 +63,21 @@ export class OrdersService {
       });
     }
 
-    const order = await this.repo.createWithUniqueCheck(
-      test.price,
-      testId,
-      userId,
-      this.paymentTtlMin,
-    );
+    let order: Order;
+    try {
+      order = await this.repo.createWithUniqueCheck(
+        test.price,
+        testId,
+        userId,
+        this.paymentTtlMin,
+      );
+    } catch (error) {
+      if ((error as Error)?.message === 'code_exhausted') {
+        // Spec: "retry loop, max 5 attempts → 500 code_exhausted"
+        throw new InternalServerErrorException('code_exhausted');
+      }
+      throw error;
+    }
 
     const qrisImageUrl = await this.repo.getQrisImageUrl();
     return {
@@ -128,10 +138,16 @@ export class OrdersService {
     if (order.userClaimedAt) {
       return { id: order.id, userClaimedAt: order.userClaimedAt };
     }
-    const updated = await this.repo.update(order.id, {
-      userClaimedAt: new Date(),
-    });
-    return { id: updated.id, userClaimedAt: updated.userClaimedAt as Date };
+    const updatedCount = await this.repo.updateClaimIfUnset(
+      order.id,
+      new Date(),
+    );
+    if (updatedCount === 0) {
+      const current = await this.repo.findById(orderId);
+      return { id: orderId, userClaimedAt: current!.userClaimedAt as Date };
+    }
+    const updated = await this.repo.findById(orderId);
+    return { id: updated!.id, userClaimedAt: updated!.userClaimedAt as Date };
   }
 
   async listPayments(query: QueryPaymentsDto): Promise<{
@@ -177,7 +193,10 @@ export class OrdersService {
     const result = await this.prisma.$transaction(async (tx) => {
       const current = await tx.order.findUnique({ where: { id: orderId } });
       if (!current) throw new NotFoundException('Order not found');
-      wasLate = current.status === 'EXPIRED';
+      wasLate =
+        current.status === 'EXPIRED' ||
+        (current.status === 'PENDING' &&
+          current.expiresAt.getTime() <= Date.now());
       if (current.status === 'PAID')
         throw new ConflictException('already_verified');
       if (current.status === 'CANCELLED')

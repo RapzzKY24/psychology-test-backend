@@ -72,14 +72,13 @@ export class PrismaOrdersRepository implements OrdersRepository {
             return tx.order.create({
               data: {
                 userId,
-                testId,
                 basePrice,
                 uniqueCode,
                 amount,
                 status: 'PENDING',
                 expiresAt: new Date(Date.now() + ttlMin * 60 * 1000),
                 test: { connect: { id: testId } },
-              } as never,
+              },
             });
           },
           { isolationLevel: 'Serializable' } as never,
@@ -89,7 +88,7 @@ export class PrismaOrdersRepository implements OrdersRepository {
         const msg = (error as Error)?.message;
         if (msg === 'collision') continue;
         const code = (error as { code?: string })?.code;
-        if (code === 'P2002') continue;
+        if (code === 'P2002' || code === 'P2034' || code === '40001') continue;
         throw error;
       }
     }
@@ -102,6 +101,14 @@ export class PrismaOrdersRepository implements OrdersRepository {
 
   update(id: string, data: Prisma.OrderUpdateInput): Promise<Order> {
     return this.prisma.order.update({ where: { id }, data });
+  }
+
+  async updateClaimIfUnset(id: string, claimedAt: Date): Promise<number> {
+    const result = await this.prisma.order.updateMany({
+      where: { id, userClaimedAt: null },
+      data: { userClaimedAt: claimedAt },
+    });
+    return result.count;
   }
 
   async updateManyToExpired(ids: string[]): Promise<number> {

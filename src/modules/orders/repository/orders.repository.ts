@@ -16,6 +16,8 @@ export interface OrdersRepository {
     ttlMin: number,
   ): Promise<Order>;
   update(id: string, data: Prisma.OrderUpdateInput): Promise<Order>;
+  /** Set userClaimedAt only when it is still null — returns affected row count (0 = already claimed). */
+  updateClaimIfUnset(id: string, claimedAt: Date): Promise<number>;
   updateManyToExpired(ids: string[]): Promise<number>;
   findMany(params: {
     where: Prisma.OrderWhereInput;

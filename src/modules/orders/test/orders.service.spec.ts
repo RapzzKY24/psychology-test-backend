@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/unbound-method */
+/* eslint-disable @typescript-eslint/unbound-method */
+import { InternalServerErrorException } from '@nestjs/common';
 import { OrdersService } from '../service/orders.service';
 import type { OrdersRepository } from '../repository/orders.repository';
 import type { PrismaService } from '../../../prisma/prisma.service';
@@ -19,6 +20,7 @@ describe('OrdersService', () => {
       create: jest.fn(),
       createWithUniqueCheck: jest.fn(),
       update: jest.fn(),
+      updateClaimIfUnset: jest.fn(),
       updateManyToExpired: jest.fn(),
       findMany: jest.fn(),
       findManyEnriched: jest.fn(),
@@ -72,7 +74,7 @@ describe('OrdersService', () => {
       );
     });
 
-    it('should propagate code_exhausted from repo', async () => {
+    it('should map code_exhausted from repo to 500', async () => {
       mockRepo.findTestById.mockResolvedValue({
         id: 't1',
         price: 200000,
@@ -82,9 +84,9 @@ describe('OrdersService', () => {
         new Error('code_exhausted'),
       );
 
-      await expect(service.create('t1', 'u1')).rejects.toThrow(
-        'code_exhausted',
-      );
+      const promise = service.create('t1', 'u1');
+      await expect(promise).rejects.toThrow(InternalServerErrorException);
+      await expect(promise).rejects.toThrow('code_exhausted');
     });
   });
 
@@ -162,22 +164,25 @@ describe('OrdersService', () => {
     });
 
     it('should set userClaimedAt once', async () => {
-      mockRepo.findById.mockResolvedValue({
-        id: 'o1',
-        userId: 'u1',
-        userClaimedAt: null,
-      } as never);
       const now = new Date();
-      mockRepo.update.mockResolvedValue({
-        id: 'o1',
-        userClaimedAt: now,
-      } as never);
+      mockRepo.findById
+        .mockResolvedValueOnce({
+          id: 'o1',
+          userId: 'u1',
+          userClaimedAt: null,
+        } as never)
+        .mockResolvedValueOnce({
+          id: 'o1',
+          userId: 'u1',
+          userClaimedAt: now,
+        } as never);
+      mockRepo.updateClaimIfUnset.mockResolvedValue(1);
 
       const result = await service.claim('o1', 'u1');
       expect(result.userClaimedAt).toBe(now);
-      expect(mockRepo.update).toHaveBeenCalledWith(
+      expect(mockRepo.updateClaimIfUnset).toHaveBeenCalledWith(
         'o1',
-        expect.objectContaining({ userClaimedAt: expect.any(Date) }),
+        expect.any(Date),
       );
     });
   });
@@ -225,6 +230,7 @@ describe('OrdersService', () => {
             status: 'PENDING',
             testId: 't1',
             userId: 'u1',
+            expiresAt: new Date(Date.now() + 60000),
           }),
         },
         testSession: { create: jest.fn().mockResolvedValue({ id: 's1' }) },
@@ -257,6 +263,7 @@ describe('OrdersService', () => {
             status: 'EXPIRED',
             testId: 't1',
             userId: 'u1',
+            expiresAt: new Date(Date.now() - 1000),
           }),
         },
         testSession: { create: jest.fn().mockResolvedValue({ id: 's1' }) },

@@ -27,28 +27,41 @@ export class InvoicesService {
     if (!institution) throw new NotFoundException('Institution not found');
 
     const year = new Date().getFullYear();
-    const invoice = await this.prisma.$transaction(async (tx) => {
-      // Lock per-year invoice rows to prevent duplicate numbers under concurrency
-      await tx.$queryRaw`SELECT id FROM "invoices" WHERE number LIKE ${`INV-${year}-%`} FOR UPDATE`;
-      const last = await tx.invoice.findFirst({
-        where: { number: { startsWith: `INV-${year}-` } },
-        orderBy: { number: 'desc' },
-        select: { number: true },
-      });
-      const seq = last ? parseInt(last.number.split('-')[2], 10) + 1 : 1;
-      const number = generateInvoiceNumber(year, seq);
-      return tx.invoice.create({
-        data: {
-          institutionId: dto.institutionId,
-          amount: dto.amount,
-          number,
-          dueDate: dto.dueDate,
-          notes: dto.notes,
-          status: 'UNPAID',
-        },
-      });
-    });
-    return invoice;
+    let lastError: Error | null = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const invoice = await this.prisma.$transaction(async (tx) => {
+          await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${`INV-${year}`}))`;
+          const last = await tx.invoice.findFirst({
+            where: { number: { startsWith: `INV-${year}-` } },
+            orderBy: { number: 'desc' },
+            select: { number: true },
+          });
+          const seq = last ? parseInt(last.number.split('-')[2], 10) + 1 : 1;
+          const number = generateInvoiceNumber(year, seq);
+          return tx.invoice.create({
+            data: {
+              institutionId: dto.institutionId,
+              amount: dto.amount,
+              number,
+              dueDate: dto.dueDate,
+              notes: dto.notes,
+              status: 'UNPAID',
+            },
+          });
+        });
+        return invoice;
+      } catch (error) {
+        const code = (error as { code?: string })?.code;
+        if (code === 'P2002') {
+          lastError =
+            error instanceof Error ? error : new Error('invoice_create_failed');
+          continue;
+        }
+        throw error;
+      }
+    }
+    throw lastError ?? new Error('invoice_create_failed');
   }
 
   async findMany(
