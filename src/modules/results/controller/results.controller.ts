@@ -10,6 +10,7 @@ import type {
   PaginatedResponse,
 } from '../../../common/interfaces/api-response.interface';
 import type { TestResult } from '../../../generated/prisma/client';
+import type { AdminResultListItemDto } from '../dto/admin-result-list-item.dto';
 import type { Request } from 'express';
 
 @Controller('api/v1')
@@ -62,7 +63,7 @@ export class ResultsController {
   @Roles(['ADMIN'])
   async listResults(
     @Query(new ZodValidationPipe(QueryResultsSchema)) query: QueryResultsDto,
-  ): Promise<PaginatedResponse<TestResult>> {
+  ): Promise<PaginatedResponse<AdminResultListItemDto>> {
     return this.resultsService.listResults(query);
   }
 }

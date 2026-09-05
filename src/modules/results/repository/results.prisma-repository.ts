@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import type { TestResult, Prisma } from '../../../generated/prisma/client';
 import type {
+  AdminResultRow,
   ResultsRepository,
   ApprovedResultRow,
 } from './results.repository';
@@ -91,18 +92,54 @@ export class PrismaResultsRepository implements ResultsRepository {
     where: Prisma.TestResultWhereInput;
     skip: number;
     take: number;
-    orderBy?: Prisma.TestResultOrderByWithRelationInput;
-  }): Promise<{ data: TestResult[]; total: number }> {
-    const [data, total] = await Promise.all([
+  }): Promise<{ data: AdminResultRow[]; total: number }> {
+    const [rows, total] = await Promise.all([
       this.prisma.testResult.findMany({
         where: params.where,
         skip: params.skip,
         take: params.take,
-        orderBy: params.orderBy ?? { computedAt: 'desc' },
+        orderBy: { computedAt: 'desc' },
+        include: {
+          attempt: {
+            include: {
+              test: { select: { name: true } },
+              session: { select: { title: true } },
+              // Attempt has no User relation — user names resolved separately.
+              participant: { select: { name: true } },
+            },
+          },
+        },
       }),
       this.prisma.testResult.count({ where: params.where }),
     ]);
-    return { data, total };
+    // Resolve account-owner names for user-owned attempts in one query.
+    const userIds = rows
+      .map((row) => row.attempt.userId)
+      .filter((id): id is string => Boolean(id));
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: userIds } },
+      select: { id: true, name: true },
+    });
+    const userNameById = new Map(users.map((user) => [user.id, user.name]));
+
+    return {
+      data: rows.map((row) => ({
+        id: row.id,
+        attemptId: row.attemptId,
+        testName: row.attempt.test.name,
+        sessionTitle: row.attempt.session.title,
+        // Admin monitor: unmasked (ops needs to identify people).
+        participantName:
+          row.attempt.participant?.name ??
+          userNameById.get(row.attempt.userId ?? '') ??
+          'Unknown',
+        status: row.status,
+        patternCode: row.patternCode,
+        correctedPatternCode: row.correctedPatternCode,
+        completedAt: row.attempt.completedAt,
+      })),
+      total,
+    };
   }
 
   async listApprovedByUser(params: {

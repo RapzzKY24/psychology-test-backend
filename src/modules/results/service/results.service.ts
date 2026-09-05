@@ -7,6 +7,7 @@ import {
 import { RESULTS_REPOSITORY } from '../repository/results.repository';
 import type { ResultsRepository } from '../repository/results.repository';
 import type { QueryResultsDto } from '../dto/query-results.dto';
+import type { AdminResultListItemDto } from '../dto/admin-result-list-item.dto';
 import type { PaginatedResponse } from '../../../common/interfaces/api-response.interface';
 import type { TestResult } from '../../../generated/prisma/client';
 import type { Prisma } from '../../../generated/prisma/client';
@@ -101,7 +102,7 @@ export class ResultsService {
 
   async listResults(
     query: QueryResultsDto,
-  ): Promise<PaginatedResponse<TestResult & { participantName?: string }>> {
+  ): Promise<PaginatedResponse<AdminResultListItemDto>> {
     const where: Prisma.TestResultWhereInput = {};
     if (query.status) where.status = query.status;
     if (query.sessionId) {
@@ -114,7 +115,7 @@ export class ResultsService {
       take: query.limit,
     });
     return {
-      data: data,
+      data,
       meta: {
         page: query.page,
         limit: query.limit,

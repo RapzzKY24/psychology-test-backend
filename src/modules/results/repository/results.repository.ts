@@ -2,6 +2,20 @@ import type { TestResult, Prisma } from '../../../generated/prisma/client';
 
 export const RESULTS_REPOSITORY = 'ResultsRepository';
 
+/** Flattened admin monitor row (GET /api/v1/admin/results). */
+export interface AdminResultRow {
+  id: string;
+  attemptId: string;
+  testName: string;
+  sessionTitle: string;
+  /** Always resolved server-side (participant name → account name → "Unknown"). */
+  participantName: string;
+  status: string;
+  patternCode: string | null;
+  correctedPatternCode: string | null;
+  completedAt: Date | null;
+}
+
 /** Flat row for the participant dashboard list (feature 08 §API contract). */
 export interface ApprovedResultRow {
   attemptId: string;
@@ -42,8 +56,7 @@ export interface ResultsRepository {
     where: Prisma.TestResultWhereInput;
     skip: number;
     take: number;
-    orderBy?: Prisma.TestResultOrderByWithRelationInput;
-  }): Promise<{ data: TestResult[]; total: number }>;
+  }): Promise<{ data: AdminResultRow[]; total: number }>;
   listApprovedByUser(params: {
     userId: string;
     skip: number;
