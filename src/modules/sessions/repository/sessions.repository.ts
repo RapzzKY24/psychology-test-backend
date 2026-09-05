@@ -65,6 +65,7 @@ export interface SessionsRepository {
   createWithTests(params: CreateSessionParams): Promise<TestSession>;
   updateStatus(id: string, status: 'ACTIVE' | 'CLOSED'): Promise<TestSession>;
   findSessionTestsBySessionId(sessionId: string): Promise<SessionTestSummary[]>;
+  countParticipants(sessionId: string): Promise<number>;
   findParticipantByTokenHash(
     tokenHash: string,
   ): Promise<SessionParticipant | null>;
