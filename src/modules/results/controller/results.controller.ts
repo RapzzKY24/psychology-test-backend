@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query, Req } from '@nestjs/common';
-import { Roles, Session } from '@thallesp/nestjs-better-auth';
+import { AllowAnonymous, Roles, Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
 import { QueryResultsSchema } from '../dto/query-results.dto';
@@ -18,6 +18,7 @@ export class ResultsController {
 
   // Public: owner only (user cookie or x-participant-token), 403 until APPROVED
   @Get('public/attempts/:id/result')
+  @AllowAnonymous()
   async getPublicResult(
     @Param('id') id: string,
     @Session() session: UserSession | null,

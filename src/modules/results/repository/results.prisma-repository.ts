@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import type { TestResult, Prisma } from '../../../generated/prisma/client';
-import type { ResultsRepository } from './results.repository';
+import type {
+  ResultsRepository,
+  ApprovedResultRow,
+} from './results.repository';
 
 @Injectable()
 export class PrismaResultsRepository implements ResultsRepository {
@@ -100,5 +103,48 @@ export class PrismaResultsRepository implements ResultsRepository {
       this.prisma.testResult.count({ where: params.where }),
     ]);
     return { data, total };
+  }
+
+  async listApprovedByUser(params: {
+    userId: string;
+    skip: number;
+    take: number;
+  }): Promise<{ data: ApprovedResultRow[]; total: number }> {
+    const where: Prisma.TestResultWhereInput = {
+      status: 'APPROVED',
+      attempt: { userId: params.userId },
+    };
+    const [rows, total] = await Promise.all([
+      this.prisma.testResult.findMany({
+        where,
+        skip: params.skip,
+        take: params.take,
+        orderBy: { reviewedAt: 'desc' },
+        select: {
+          attemptId: true,
+          patternCode: true,
+          correctedPatternCode: true,
+          reviewedAt: true,
+          attempt: {
+            select: {
+              completedAt: true,
+              test: { select: { name: true } },
+            },
+          },
+        },
+      }),
+      this.prisma.testResult.count({ where }),
+    ]);
+    return {
+      data: rows.map((row) => ({
+        attemptId: row.attemptId,
+        testName: row.attempt.test.name,
+        patternCode: row.patternCode,
+        correctedPatternCode: row.correctedPatternCode,
+        completedAt: row.attempt.completedAt,
+        approvedAt: row.reviewedAt,
+      })),
+      total,
+    };
   }
 }

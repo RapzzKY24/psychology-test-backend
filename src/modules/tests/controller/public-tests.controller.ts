@@ -1,4 +1,5 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
+import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
 import { TestsService } from '../service/tests.service';
 import { QueryTestSchema } from '../dto/query-test.dto';
@@ -10,6 +11,7 @@ import type {
 } from '../../../common/interfaces/api-response.interface';
 
 @Controller('api/v1/tests')
+@AllowAnonymous()
 export class PublicTestsController {
   constructor(private readonly testsService: TestsService) {}
 

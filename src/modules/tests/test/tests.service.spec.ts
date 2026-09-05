@@ -121,6 +121,79 @@ describe('TestsService', () => {
     });
   });
 
+  describe('findManyPublic', () => {
+    it('should only expose PUBLISHED tests with pagination meta', async () => {
+      mockRepo.findMany.mockResolvedValue({
+        data: [{ id: '1', slug: 'disc' } as any],
+        total: 0,
+      });
+      const result = await service.findManyPublic({
+        page: 1,
+        limit: 10,
+      });
+      expect(mockRepo.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { status: 'PUBLISHED' } }),
+      );
+      expect(result.meta).toEqual({
+        page: 1,
+        limit: 10,
+        total: 0,
+        totalPages: 0,
+      });
+    });
+
+    it('should filter by category when provided', async () => {
+      mockRepo.findMany.mockResolvedValue({ data: [], total: 0 });
+      await service.findManyPublic({
+        page: 1,
+        limit: 10,
+        category: 'PERSONALITY',
+      } as any);
+      expect(mockRepo.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { status: 'PUBLISHED', category: 'PERSONALITY' },
+        }),
+      );
+    });
+  });
+
+  describe('findBySlugPublic', () => {
+    it('should return the public-safe shape for a PUBLISHED test', async () => {
+      mockRepo.findBySlug.mockResolvedValue({
+        id: '1',
+        slug: 'disc',
+        name: 'DISC Form A',
+        description: 'Desc',
+        category: 'PERSONALITY',
+        price: 100,
+        estimatedDurationMin: 10,
+        status: 'PUBLISHED',
+        internalField: 'secret',
+      } as any);
+      const result = await service.findBySlugPublic('disc');
+      expect(result).toEqual({
+        id: '1',
+        slug: 'disc',
+        name: 'DISC Form A',
+        description: 'Desc',
+        category: 'PERSONALITY',
+        price: 100,
+        estimatedDurationMin: 10,
+      });
+    });
+
+    it('should throw 404 when slug is unknown or not PUBLISHED', async () => {
+      mockRepo.findBySlug.mockResolvedValue(null);
+      await expect(service.findBySlugPublic('nope')).rejects.toThrow(
+        'Test not found',
+      );
+      mockRepo.findBySlug.mockResolvedValue({ status: 'DRAFT' } as any);
+      await expect(service.findBySlugPublic('draft')).rejects.toThrow(
+        'Test not found',
+      );
+    });
+  });
+
   describe('putItems', () => {
     it('should throw 404 if test not found', async () => {
       mockRepo.findById.mockResolvedValue(null);
