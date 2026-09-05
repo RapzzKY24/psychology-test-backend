@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/unbound-method */
+import { NotFoundException } from '@nestjs/common';
 import { TestsService } from '../service/tests.service';
 import type { TestsRepository } from '../repository/tests.repository';
 
