@@ -14,7 +14,13 @@ export interface SessionTestsSummary {
 export interface SessionDetail {
   session: TestSession;
   tests: { id: string; testId: string; testName: string; order: number }[];
-  participants: number;
+  participants: Array<{
+    id: string;
+    name: string;
+    email: string | null;
+    candidateNumber: string | null;
+    joinedAt: Date;
+  }>;
   attempts: SessionTestsSummary;
 }
 
