@@ -9,6 +9,7 @@ describe('TestsService', () => {
   beforeEach(() => {
     mockRepo = {
       findById: jest.fn(),
+      findDetailById: jest.fn(),
       findBySlug: jest.fn(),
       findMany: jest.fn(),
       create: jest.fn(),
@@ -266,5 +267,42 @@ describe('TestsService', () => {
         expect.any(Array),
       );
     });
+  });
+});
+
+describe('TestsService.findDetailById', () => {
+  let service: TestsService;
+  let mockRepo: jest.Mocked<TestsRepository>;
+
+  beforeEach(() => {
+    mockRepo = {
+      findDetailById: jest.fn(),
+    } as unknown as jest.Mocked<TestsRepository>;
+    service = new TestsService(mockRepo);
+  });
+
+  it('returns the test with ordered items and interpretations', async () => {
+    mockRepo.findDetailById.mockResolvedValue({
+      test: { id: 't1', name: 'DISC Form A', slug: 'disc-form-a' } as any,
+      items: [
+        { id: 'i1', order: 1, content: { words: ['a', 'b', 'c', 'd'] } },
+        { id: 'i2', order: 2, content: { words: ['e', 'f', 'g', 'h'] } },
+      ],
+      interpretations: [{ patternCode: '1', title: 'T', body: 'B' }],
+    });
+
+    const detail = await service.findDetailById('t1');
+
+    expect(detail.id).toBe('t1');
+    expect(detail.items).toHaveLength(2);
+    expect(detail.items[0]?.order).toBe(1);
+    expect(detail.interpretations).toHaveLength(1);
+  });
+
+  it('throws NotFound when the test does not exist', async () => {
+    mockRepo.findDetailById.mockResolvedValue(null);
+    await expect(service.findDetailById('missing')).rejects.toThrow(
+      NotFoundException,
+    );
   });
 });

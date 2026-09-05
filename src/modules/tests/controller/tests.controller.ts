@@ -27,6 +27,7 @@ import type {
   ApiResponse,
 } from '../../../common/interfaces/api-response.interface';
 import type { Test } from '../../../generated/prisma/client';
+import type { TestDetail } from '../service/tests.service';
 
 @Controller('api/v1/admin/tests')
 export class TestsController {
@@ -54,7 +55,7 @@ export class TestsController {
 
   @Get(':id')
   @Roles(['ADMIN'])
-  async findOne(@Param('id') id: string): Promise<ApiResponse<Test>> {
+  async findOne(@Param('id') id: string): Promise<ApiResponse<TestDetail>> {
     const data = await this.testsService.findById(id);
     return { data };
   }

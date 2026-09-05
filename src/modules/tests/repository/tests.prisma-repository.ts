@@ -10,6 +10,26 @@ export class PrismaTestsRepository implements TestsRepository {
   findById(id: string): Promise<Test | null> {
     return this.prisma.test.findUnique({ where: { id } });
   }
+  async findDetailById(id: string): Promise<{
+    test: Test;
+    items: { id: string; order: number; content: unknown }[];
+    interpretations: { patternCode: string; title: string; body: string }[];
+  } | null> {
+    const test = await this.prisma.test.findUnique({ where: { id } });
+    if (!test) return null;
+    const [items, interpretations] = await Promise.all([
+      this.prisma.testItem.findMany({
+        where: { testId: id },
+        orderBy: { order: 'asc' },
+        select: { id: true, order: true, content: true },
+      }),
+      this.prisma.interpretation.findMany({
+        where: { testId: id },
+        select: { patternCode: true, title: true, body: true },
+      }),
+    ]);
+    return { test, items, interpretations };
+  }
 
   findBySlug(slug: string): Promise<Test | null> {
     return this.prisma.test.findUnique({ where: { slug } });

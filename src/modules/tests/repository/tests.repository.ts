@@ -4,6 +4,12 @@ export const TESTS_REPOSITORY = 'TestsRepository';
 
 export interface TestsRepository {
   findById(id: string): Promise<Test | null>;
+  /** Full builder payload: test + ordered items + interpretations. */
+  findDetailById(id: string): Promise<{
+    test: Test;
+    items: { id: string; order: number; content: unknown }[];
+    interpretations: { patternCode: string; title: string; body: string }[];
+  } | null>;
   findBySlug(slug: string): Promise<Test | null>;
   findMany(params: {
     skip: number;
