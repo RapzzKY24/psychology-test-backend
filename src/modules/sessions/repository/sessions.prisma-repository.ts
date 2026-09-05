@@ -34,7 +34,7 @@ export class PrismaSessionsRepository implements SessionsRepository {
 
     const [
       sessionTests,
-      participants,
+      participantRows,
       attemptsTotal,
       attemptsInProgress,
       attemptsCompleted,
@@ -44,7 +44,17 @@ export class PrismaSessionsRepository implements SessionsRepository {
         orderBy: { order: 'asc' },
         include: { test: { select: { name: true } } },
       }),
-      this.prisma.sessionParticipant.count({ where: { sessionId: id } }),
+      this.prisma.sessionParticipant.findMany({
+        where: { sessionId: id },
+        orderBy: { joinedAt: 'asc' },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          candidateNumber: true,
+          joinedAt: true,
+        },
+      }),
       this.prisma.attempt.count({ where: { sessionId: id } }),
       this.prisma.attempt.count({
         where: { sessionId: id, status: 'IN_PROGRESS' },
@@ -62,17 +72,7 @@ export class PrismaSessionsRepository implements SessionsRepository {
         testName: st.test.name,
         order: st.order,
       })),
-      participants: await this.prisma.sessionParticipant.findMany({
-        where: { sessionId: id },
-        orderBy: { joinedAt: 'asc' },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          candidateNumber: true,
-          joinedAt: true,
-        },
-      }),
+      participants: participantRows,
       attempts: {
         total: attemptsTotal,
         inProgress: attemptsInProgress,
