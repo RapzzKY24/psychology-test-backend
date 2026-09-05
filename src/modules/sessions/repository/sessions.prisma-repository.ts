@@ -62,7 +62,17 @@ export class PrismaSessionsRepository implements SessionsRepository {
         testName: st.test.name,
         order: st.order,
       })),
-      participants,
+      participants: await this.prisma.sessionParticipant.findMany({
+        where: { sessionId: id },
+        orderBy: { joinedAt: 'asc' },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          candidateNumber: true,
+          joinedAt: true,
+        },
+      }),
       attempts: {
         total: attemptsTotal,
         inProgress: attemptsInProgress,
