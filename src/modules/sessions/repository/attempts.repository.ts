@@ -24,6 +24,25 @@ export interface CompleteAttemptParams {
   patternCode: string;
 }
 
+/** Flattened row for the participant attempts dashboard (userId-owned only). */
+export interface AttemptListItemRow {
+  id: string;
+  testId: string;
+  testName: string;
+  status: string;
+  startedAt: Date;
+  completedAt: Date | null;
+  sessionId: string;
+  sessionTitle: string;
+  resultStatus: string | null;
+}
+
+export interface ListAttemptsByUserParams {
+  userId: string;
+  skip: number;
+  take: number;
+}
+
 export interface AttemptsRepository {
   findAccessDetail(id: string): Promise<AttemptAccessDetail | null>;
   upsertResponse(
@@ -33,4 +52,8 @@ export interface AttemptsRepository {
   ): Promise<void>;
   findResultByAttemptId(attemptId: string): Promise<TestResult | null>;
   completeAndCreateResult(params: CompleteAttemptParams): Promise<TestResult>;
+  listByUser(params: ListAttemptsByUserParams): Promise<{
+    data: AttemptListItemRow[];
+    total: number;
+  }>;
 }

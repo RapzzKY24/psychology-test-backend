@@ -5,6 +5,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import type {
   AttemptsRepository,
   AttemptAccessDetail,
+  AttemptListItemRow,
   CompleteAttemptParams,
 } from './attempts.repository';
 
@@ -101,5 +102,47 @@ export class PrismaAttemptsRepository implements AttemptsRepository {
       }
       throw error;
     }
+  }
+
+  async listByUser(params: {
+    userId: string;
+    skip: number;
+    take: number;
+  }): Promise<{ data: AttemptListItemRow[]; total: number }> {
+    const where = { userId: params.userId };
+    const [rows, total] = await Promise.all([
+      this.prisma.attempt.findMany({
+        where,
+        orderBy: [{ startedAt: 'desc' }, { id: 'desc' }],
+        skip: params.skip,
+        take: params.take,
+        select: {
+          id: true,
+          testId: true,
+          status: true,
+          startedAt: true,
+          completedAt: true,
+          sessionId: true,
+          test: { select: { name: true } },
+          session: { select: { title: true } },
+          result: { select: { status: true } },
+        },
+      }),
+      this.prisma.attempt.count({ where }),
+    ]);
+    return {
+      data: rows.map((row) => ({
+        id: row.id,
+        testId: row.testId,
+        testName: row.test.name,
+        status: row.status,
+        startedAt: row.startedAt,
+        completedAt: row.completedAt,
+        sessionId: row.sessionId,
+        sessionTitle: row.session.title,
+        resultStatus: row.result?.status ?? null,
+      })),
+      total,
+    };
   }
 }
