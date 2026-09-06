@@ -14,7 +14,6 @@ import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
 import { PaginationSchema } from '../../../common/dto/pagination.dto';
 import type { PaginationDto } from '../../../common/dto/pagination.dto';
 import { InstansiParticipantsService } from '../service/instansi-participants.service';
-import { PrismaService } from '../../../prisma/prisma.service';
 import type { InstitutionParticipant } from '../../../generated/prisma/client';
 import type {
   ApiResponse,
@@ -34,24 +33,16 @@ import type {
 export class InstansiParticipantsController {
   constructor(
     private readonly participantsService: InstansiParticipantsService,
-    private readonly prisma: PrismaService,
   ) {}
-
-  /** Resolves institutionId from the session user (Institution.ownerUserId unique). */
-  private async resolveInstitutionId(userId: string): Promise<string> {
-    const institution = await this.prisma.institution.findFirst({
-      where: { ownerUserId: userId },
-      select: { id: true },
-    });
-    return institution?.id ?? '';
-  }
 
   @Get()
   async list(
     @Session() session: UserSession,
     @Query(new ZodValidationPipe(PaginationSchema)) query: PaginationDto,
   ): Promise<PaginatedResponse<InstitutionParticipant>> {
-    const institutionId = await this.resolveInstitutionId(session.user.id);
+    const institutionId = await this.participantsService.resolveInstitutionId(
+      session.user.id,
+    );
     return this.participantsService.list(institutionId, query);
   }
 
@@ -60,7 +51,9 @@ export class InstansiParticipantsController {
     @Session() session: UserSession,
     @Param('id') id: string,
   ): Promise<ApiResponse<InstitutionParticipant>> {
-    const institutionId = await this.resolveInstitutionId(session.user.id);
+    const institutionId = await this.participantsService.resolveInstitutionId(
+      session.user.id,
+    );
     return this.participantsService.get(id, institutionId);
   }
 
@@ -70,7 +63,9 @@ export class InstansiParticipantsController {
     @Body(new ZodValidationPipe(CreateInstansiParticipantSchema))
     dto: CreateInstansiParticipantDto,
   ): Promise<ApiResponse<InstitutionParticipant>> {
-    const institutionId = await this.resolveInstitutionId(session.user.id);
+    const institutionId = await this.participantsService.resolveInstitutionId(
+      session.user.id,
+    );
     return this.participantsService.create(institutionId, {
       ...dto,
       birthDate: dto.birthDate ? new Date(dto.birthDate) : undefined,
@@ -84,7 +79,9 @@ export class InstansiParticipantsController {
     @Body(new ZodValidationPipe(UpdateInstansiParticipantSchema))
     dto: UpdateInstansiParticipantDto,
   ): Promise<ApiResponse<InstitutionParticipant>> {
-    const institutionId = await this.resolveInstitutionId(session.user.id);
+    const institutionId = await this.participantsService.resolveInstitutionId(
+      session.user.id,
+    );
     return this.participantsService.update(id, institutionId, {
       ...dto,
       birthDate: dto.birthDate ? new Date(dto.birthDate) : undefined,
@@ -96,8 +93,10 @@ export class InstansiParticipantsController {
     @Session() session: UserSession,
     @Param('id') id: string,
   ): Promise<ApiResponse<{ id: string }>> {
-    const institutionId = await this.resolveInstitutionId(session.user.id);
+    const institutionId = await this.participantsService.resolveInstitutionId(
+      session.user.id,
+    );
     await this.participantsService.remove(id, institutionId);
-    return { data: { id }, message: 'Participant deleted' };
+    return { data: { id }, message: 'participant_deleted' };
   }
 }

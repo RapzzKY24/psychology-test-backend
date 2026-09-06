@@ -153,14 +153,23 @@ describe('InstansiParticipantsPrismaRepository', () => {
   });
 
   describe('delete', () => {
-    it('uses deleteMany with composite scoping', async () => {
+    it('uses deleteMany with composite scoping and returns the count', async () => {
       prisma.institutionParticipant.deleteMany.mockResolvedValue({ count: 1 });
 
-      await repo.delete('r1', INSTITUTION_ID);
+      const result = await repo.delete('r1', INSTITUTION_ID);
 
       expect(prisma.institutionParticipant.deleteMany).toHaveBeenCalledWith({
         where: { id: 'r1', institutionId: INSTITUTION_ID },
       });
+      expect(result).toEqual({ count: 1 });
+    });
+
+    it('returns count 0 for a foreign id (service maps to 404)', async () => {
+      prisma.institutionParticipant.deleteMany.mockResolvedValue({ count: 0 });
+
+      const result = await repo.delete('foreign-id', INSTITUTION_ID);
+
+      expect(result).toEqual({ count: 0 });
     });
   });
 });

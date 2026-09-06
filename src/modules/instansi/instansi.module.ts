@@ -3,6 +3,8 @@ import { InstansiParticipantsController } from './controller/instansi-participan
 import { InstansiParticipantsService } from './service/instansi-participants.service';
 import { InstansiParticipantsPrismaRepository } from './repository/instansi-participants.prisma-repository';
 import { INSTANSI_PARTICIPANTS_REPOSITORY } from './repository/instansi-participants.repository';
+import { PrismaInstitutionsRepository } from '../institutions/repository/institutions.prisma-repository';
+import { INSTITUTIONS_REPOSITORY } from '../institutions/repository/institutions.repository';
 
 @Module({
   controllers: [InstansiParticipantsController],
@@ -11,6 +13,10 @@ import { INSTANSI_PARTICIPANTS_REPOSITORY } from './repository/instansi-particip
     {
       provide: INSTANSI_PARTICIPANTS_REPOSITORY,
       useClass: InstansiParticipantsPrismaRepository,
+    },
+    {
+      provide: INSTITUTIONS_REPOSITORY,
+      useClass: PrismaInstitutionsRepository,
     },
   ],
 })

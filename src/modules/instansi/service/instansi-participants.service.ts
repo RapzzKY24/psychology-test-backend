@@ -6,6 +6,8 @@ import {
 } from '@nestjs/common';
 import { INSTANSI_PARTICIPANTS_REPOSITORY } from '../repository/instansi-participants.repository';
 import type { InstansiParticipantsRepository } from '../repository/instansi-participants.repository';
+import { INSTITUTIONS_REPOSITORY } from '../../institutions/repository/institutions.repository';
+import type { InstitutionsRepository } from '../../institutions/repository/institutions.repository';
 import type {
   InstitutionParticipant,
   IdType,
@@ -43,7 +45,20 @@ export class InstansiParticipantsService {
   constructor(
     @Inject(INSTANSI_PARTICIPANTS_REPOSITORY)
     private readonly repo: InstansiParticipantsRepository,
+    @Inject(INSTITUTIONS_REPOSITORY)
+    private readonly institutionsRepo: InstitutionsRepository,
   ) {}
+
+  /**
+   * Resolves institutionId from the session user via
+   * Institution.ownerUserId (unique). Users without an institution
+   * (e.g. stale accounts) get 404 — never an empty-string scope.
+   */
+  async resolveInstitutionId(userId: string): Promise<string> {
+    const institution = await this.institutionsRepo.findByOwnerUserId(userId);
+    if (!institution) throw new NotFoundException('Institution not found');
+    return institution.id;
+  }
 
   async list(
     institutionId: string,
@@ -86,11 +101,21 @@ export class InstansiParticipantsService {
     if (existing) {
       throw new ConflictException('duplicate_id_number');
     }
-    const created = await this.repo.create({
-      institutionId,
-      ...data,
-    });
-    return { data: created, message: 'Participant created' };
+    try {
+      const created = await this.repo.create({
+        institutionId,
+        ...data,
+      });
+      return { data: created, message: 'participant_created' };
+    } catch (error) {
+      // Race: two concurrent creates with the same idNumber both pass the
+      // pre-check — the unique (institutionId, idNumber) constraint wins.
+      const code = (error as { code?: string })?.code;
+      if (code === 'P2002') {
+        throw new ConflictException('duplicate_id_number');
+      }
+      throw error;
+    }
   }
 
   async update(
@@ -100,10 +125,12 @@ export class InstansiParticipantsService {
   ): Promise<ApiResponse<InstitutionParticipant>> {
     const updated = await this.repo.update(id, institutionId, data);
     if (!updated) throw new NotFoundException('Participant not found');
-    return { data: updated, message: 'Participant updated' };
+    return { data: updated, message: 'participant_updated' };
   }
 
   async remove(id: string, institutionId: string): Promise<void> {
-    await this.repo.delete(id, institutionId);
+    const result = await this.repo.delete(id, institutionId);
+    if (result.count === 0)
+      throw new NotFoundException('Participant not found');
   }
 }

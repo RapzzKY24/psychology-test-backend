@@ -56,5 +56,5 @@ export interface InstansiParticipantsRepository {
     institutionId: string,
     data: UpdateInstansiParticipantParams,
   ): Promise<InstitutionParticipant | null>;
-  delete(id: string, institutionId: string): Promise<void>;
+  delete(id: string, institutionId: string): Promise<{ count: number }>;
 }

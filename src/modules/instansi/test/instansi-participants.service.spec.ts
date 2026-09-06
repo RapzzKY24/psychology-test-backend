@@ -13,6 +13,9 @@ describe('InstansiParticipantsService', () => {
     update: jest.Mock;
     delete: jest.Mock;
   };
+  let mockInstitutionsRepo: {
+    findByOwnerUserId: jest.Mock;
+  };
 
   const INSTITUTION_ID = 'inst-1';
   const FOREIGN_ID = 'foreign-id';
@@ -40,7 +43,36 @@ describe('InstansiParticipantsService', () => {
       update: jest.fn(),
       delete: jest.fn(),
     };
-    service = new InstansiParticipantsService(mockRepo);
+    mockInstitutionsRepo = {
+      findByOwnerUserId: jest.fn(),
+    };
+    service = new InstansiParticipantsService(
+      mockRepo,
+      mockInstitutionsRepo as never,
+    );
+  });
+
+  describe('resolveInstitutionId', () => {
+    it('returns the institution id for the owner', async () => {
+      mockInstitutionsRepo.findByOwnerUserId.mockResolvedValue({
+        id: INSTITUTION_ID,
+      });
+
+      const result = await service.resolveInstitutionId('user-1');
+
+      expect(result).toBe(INSTITUTION_ID);
+      expect(mockInstitutionsRepo.findByOwnerUserId).toHaveBeenCalledWith(
+        'user-1',
+      );
+    });
+
+    it('throws 404 for a user without an institution', async () => {
+      mockInstitutionsRepo.findByOwnerUserId.mockResolvedValue(null);
+
+      await expect(service.resolveInstitutionId('user-1')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
   });
 
   describe('list', () => {
@@ -118,6 +150,21 @@ describe('InstansiParticipantsService', () => {
         }),
       ).rejects.toThrow(ConflictException);
     });
+
+    it('maps a P2002 race on create to duplicate_id_number', async () => {
+      mockRepo.findByIdNumber.mockResolvedValue(null);
+      const p2002 = Object.assign(new Error('unique'), { code: 'P2002' });
+      mockRepo.create.mockRejectedValue(p2002);
+
+      await expect(
+        service.create(INSTITUTION_ID, {
+          name: 'Budi Tiga',
+          destinationCountry: 'Belanda',
+          idType: 'NIK',
+          idNumber: '3201234567890001',
+        }),
+      ).rejects.toThrow('duplicate_id_number');
+    });
   });
 
   describe('update', () => {
@@ -132,11 +179,19 @@ describe('InstansiParticipantsService', () => {
 
   describe('remove', () => {
     it('delegates to repo delete', async () => {
-      mockRepo.delete.mockResolvedValue(undefined);
+      mockRepo.delete.mockResolvedValue({ count: 1 });
 
       await service.remove('r1', INSTITUTION_ID);
 
       expect(mockRepo.delete).toHaveBeenCalledWith('r1', INSTITUTION_ID);
+    });
+
+    it('throws NotFound for a foreign id (count 0, anti-leak 404)', async () => {
+      mockRepo.delete.mockResolvedValue({ count: 0 });
+
+      await expect(service.remove(FOREIGN_ID, INSTITUTION_ID)).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

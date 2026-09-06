@@ -80,9 +80,10 @@ export class InstansiParticipantsPrismaRepository implements InstansiParticipant
     });
   }
 
-  async delete(id: string, institutionId: string): Promise<void> {
-    await this.prisma.institutionParticipant.deleteMany({
+  async delete(id: string, institutionId: string): Promise<{ count: number }> {
+    const result = await this.prisma.institutionParticipant.deleteMany({
       where: { id, institutionId },
     });
+    return { count: result.count };
   }
 }
