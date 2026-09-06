@@ -32,9 +32,7 @@ describe('SessionsService', () => {
       findParticipantByTokenHash: jest.fn(),
       findParticipantsBySessionId: jest.fn(),
       countResponsesByParticipantId: jest.fn(),
-      findAttemptsByParticipantId: jest.fn(),
-      updateParticipantToken: jest.fn(),
-      findParticipantsBySessionId: jest.fn(),
+      countParticipants: jest.fn(),
       findAttemptsByParticipantId: jest.fn(),
       updateParticipantToken: jest.fn(),
       joinSession: jest.fn(),
@@ -133,7 +131,7 @@ describe('SessionsService', () => {
       const detail = {
         session: { id: 'sess-1' } as any,
         tests: [],
-        participants: 3,
+        participants: [],
         attempts: { total: 6, inProgress: 2, completed: 4 },
       };
       mockRepo.findDetailById.mockResolvedValue(detail);
@@ -360,7 +358,12 @@ describe('join — idempotent identity (owner decision 2026-09-06)', () => {
       } as never,
     ]);
     mockRepo.findAttemptsByParticipantId.mockResolvedValue([
-      { id: 'a1', testId: 't1', testName: 'DISC Form A' },
+      {
+        id: 'a1',
+        testId: 't1',
+        testName: 'DISC Form A',
+        startedAt: new Date(),
+      },
     ]);
 
     const result = await service.join(
@@ -419,7 +422,12 @@ describe('join — idempotent identity (owner decision 2026-09-06)', () => {
       } as never,
     ]);
     mockRepo.findAttemptsByParticipantId.mockResolvedValue([
-      { id: 'a1', testId: 't1', testName: 'DISC Form A' },
+      {
+        id: 'a1',
+        testId: 't1',
+        testName: 'DISC Form A',
+        startedAt: new Date(),
+      },
     ]);
 
     const result = await service.join(

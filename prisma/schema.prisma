@@ -12,6 +12,7 @@ enum UserRole {
   ADMIN
   PSYCHOLOGIST
   PARTICIPANT
+  INSTANSI
 }
 
 enum ResultStatus {
@@ -97,6 +98,7 @@ model User {
   banExpires    DateTime?
   sessions      Session[]
   accounts      Account[]
+  institutions  Institution[]
 
   @@map("user")
 }
@@ -199,7 +201,10 @@ model Institution {
   contactName  String
   contactEmail String
   phone        String?
+  address      String?
   notes        String?
+  ownerUserId  String?       @unique
+  ownerUser    User?         @relation(fields: [ownerUserId], references: [id], onDelete: Restrict)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   sessions     TestSession[]

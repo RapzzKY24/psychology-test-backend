@@ -35,7 +35,7 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       role: {
-        type: ['PARTICIPANT', 'ADMIN', 'PSYCHOLOGIST'],
+        type: ['PARTICIPANT', 'ADMIN', 'PSYCHOLOGIST', 'INSTANSI'],
         required: false,
         defaultValue: 'PARTICIPANT',
         input: false,

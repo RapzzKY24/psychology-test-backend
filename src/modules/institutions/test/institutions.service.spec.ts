@@ -9,9 +9,12 @@ describe('InstitutionsService', () => {
   beforeEach(() => {
     mockRepo = {
       findById: jest.fn(),
+      findByOwnerUserId: jest.fn(),
       findMany: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      promoteUserAndCreateInstitution: jest.fn(),
+      deleteUserById: jest.fn(),
     };
     service = new InstitutionsService(mockRepo);
   });
