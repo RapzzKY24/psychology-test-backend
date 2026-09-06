@@ -125,10 +125,19 @@ export class PrismaSessionsRepository implements SessionsRepository {
         pinHash: params.pinHash,
         slotLimit: params.slotLimit,
         expiresAt: params.expiresAt,
+        joinMode: params.joinMode,
         sessionTests: {
           create: params.tests.map((t) => ({
             testId: t.testId,
             order: t.order,
+          })),
+        },
+        // Roster sessions: pre-created participant rows (tokenHash null until
+        // a kid claims; claimedAt null until they start).
+        participants: {
+          create: params.roster.map((r) => ({
+            name: r.name,
+            candidateNumber: r.candidateNumber,
           })),
         },
       },
@@ -233,6 +242,7 @@ export class PrismaSessionsRepository implements SessionsRepository {
             sessionId: params.sessionId,
             name: params.name,
             email: params.email,
+            phone: params.phone,
             candidateNumber: params.candidateNumber,
             tokenHash: params.tokenHash,
           },
@@ -244,7 +254,9 @@ export class PrismaSessionsRepository implements SessionsRepository {
           sessionId: participantRow.sessionId,
           name: participantRow.name,
           email: participantRow.email,
+          phone: participantRow.phone,
           candidateNumber: participantRow.candidateNumber,
+          claimedAt: participantRow.claimedAt,
           joinedAt: participantRow.joinedAt,
         };
 

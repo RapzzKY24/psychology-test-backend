@@ -345,7 +345,64 @@ describe('join — idempotent identity (owner decision 2026-09-06)', () => {
     service = new SessionsService(mockRepo);
   });
 
-  it('resumes the existing participant when the identity matches (no duplicate create)', async () => {
+  it('auto-resumes on strong identity match (email), no duplicate create', async () => {
+    mockRepo.findByToken.mockResolvedValue(baseSession as never);
+    mockRepo.findParticipantsBySessionId.mockResolvedValue([
+      {
+        id: 'p1',
+        name: 'RapzzKY',
+        email: 'kid@mail.com',
+        candidateNumber: null,
+        tokenHash: 'old',
+      } as never,
+    ]);
+    mockRepo.findAttemptsByParticipantId.mockResolvedValue([
+      { id: 'a1', testId: 't1', testName: 'DISC Form A' },
+    ]);
+
+    const result = await service.join(
+      'token-abc',
+      { name: 'RapzzKY', email: 'kid@mail.com' },
+      '1.1.1.1',
+    );
+
+    expect(mockRepo.joinSession).not.toHaveBeenCalled();
+    expect(mockRepo.updateParticipantToken).toHaveBeenCalledWith(
+      'p1',
+      expect.any(String),
+      expect.any(Date),
+    );
+    expect(result.resumed).toBe(true);
+    expect(result.attempts).toHaveLength(1);
+  });
+
+  it('returns needs_confirmation for a name-only match (never silent-merges)', async () => {
+    mockRepo.findByToken.mockResolvedValue(baseSession as never);
+    mockRepo.findParticipantsBySessionId.mockResolvedValue([
+      {
+        id: 'p1',
+        name: 'RapzzKY',
+        email: null,
+        candidateNumber: null,
+        tokenHash: 'old',
+      } as never,
+    ]);
+
+    const result = await service.join(
+      'token-abc',
+      { name: 'RapzzKY' },
+      '1.1.1.1',
+    );
+
+    expect(mockRepo.joinSession).not.toHaveBeenCalled();
+    expect(mockRepo.updateParticipantToken).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      status: 'needs_confirmation',
+      matches: [{ id: 'p1', name: 'RapzzKY' }],
+    });
+  });
+
+  it('resumes via confirmParticipantId after the FE confirmation step', async () => {
     mockRepo.findByToken.mockResolvedValue(baseSession as never);
     mockRepo.findParticipantsBySessionId.mockResolvedValue([
       {
@@ -362,7 +419,7 @@ describe('join — idempotent identity (owner decision 2026-09-06)', () => {
 
     const result = await service.join(
       'token-abc',
-      { name: 'RapzzKY' },
+      { name: 'RapzzKY', confirmParticipantId: 'p1' },
       '1.1.1.1',
     );
 
@@ -370,9 +427,9 @@ describe('join — idempotent identity (owner decision 2026-09-06)', () => {
     expect(mockRepo.updateParticipantToken).toHaveBeenCalledWith(
       'p1',
       expect.any(String),
+      expect.any(Date),
     );
     expect(result.resumed).toBe(true);
-    expect(result.attempts).toHaveLength(1);
   });
 
   const publishedTests = [

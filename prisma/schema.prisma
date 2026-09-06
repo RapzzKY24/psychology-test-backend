@@ -44,6 +44,11 @@ enum TestStatus {
   ARCHIVED
 }
 
+enum JoinMode {
+  OPEN
+  ROSTER
+}
+
 enum SessionKind {
   INDIVIDUAL
   GROUP
@@ -214,6 +219,7 @@ model TestSession {
   slotLimit     Int
   expiresAt     DateTime
   status        SessionStatus        @default(ACTIVE)
+  joinMode      JoinMode             @default(OPEN)
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt
   institution   Institution?         @relation(fields: [institutionId], references: [id])
@@ -257,7 +263,9 @@ model SessionParticipant {
   name            String
   email           String?
   candidateNumber String?
-  tokenHash       String   @unique
+  tokenHash       String?  @unique
+  claimedAt       DateTime?
+  phone           String?
   joinedAt        DateTime @default(now())
   session         TestSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   attempts        Attempt[]

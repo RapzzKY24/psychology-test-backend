@@ -87,6 +87,11 @@ export class SessionsService {
           pinHash,
           slotLimit: dto.slotLimit,
           expiresAt: dto.expiresAt,
+          joinMode: dto.roster && dto.roster.length > 0 ? 'ROSTER' : 'OPEN',
+          roster: (dto.roster ?? []).map((r) => ({
+            name: r.name,
+            candidateNumber: r.candidateNumber ?? null,
+          })),
           tests: dto.testIds.map((testId, index) => ({
             testId,
             order: index + 1,
@@ -158,35 +163,50 @@ export class SessionsService {
       throw new GoneException('session_expired');
     }
 
-    // Idempotent identity join (owner decision 2026-09-06): same person in the
-    // same session resumes their participant + attempts with a re-issued token
-    // instead of creating a duplicate and burning another slot. Precedence:
-    // email → candidateNumber → exact name.
+    // Two-tier identity match (owner decision 2026-09-06): strong identity
+    // (email → phone → candidateNumber) resumes silently; name-only match
+    // requires explicit confirmation so different people never merge.
     const sessionParticipants = await this.repo.findParticipantsBySessionId(
       session.id,
     );
-    const existing = sessionParticipants.find((p) =>
+    const trimLower = (v: string) => v.trim().toLowerCase();
+    const strongMatch = sessionParticipants.find((p) =>
       dto.email
-        ? p.email?.toLowerCase() === dto.email.toLowerCase()
-        : dto.candidateNumber
-          ? p.candidateNumber === dto.candidateNumber
-          : p.name.toLowerCase() === dto.name.toLowerCase(),
+        ? p.email?.toLowerCase() === trimLower(dto.email)
+        : dto.phone
+          ? p.phone === dto.phone
+          : dto.candidateNumber
+            ? p.candidateNumber === dto.candidateNumber
+            : false,
     );
-    if (existing) {
+    if (strongMatch) {
       const participantToken = generateParticipantToken();
       const tokenHash = hashParticipantToken(participantToken);
-      await this.repo.updateParticipantToken(existing.id, tokenHash);
-      const attempts = await this.repo.findAttemptsByParticipantId(existing.id);
-      // Explicit shape — mirrors joinSession (tokenHash never leaves the server).
-      const participant = {
-        id: existing.id,
-        sessionId: existing.sessionId,
-        name: existing.name,
-        email: existing.email,
-        candidateNumber: existing.candidateNumber,
-        joinedAt: existing.joinedAt,
-      };
-      return { participant, participantToken, attempts, resumed: true };
+      return this.resumeParticipant(strongMatch, participantToken, tokenHash);
+    }
+
+    if (dto.confirmParticipantId) {
+      const confirmed = sessionParticipants.find(
+        (p) => p.id === dto.confirmParticipantId,
+      );
+      if (!confirmed) throw new NotFoundException('Participant not found');
+      const participantToken = generateParticipantToken();
+      const tokenHash = hashParticipantToken(participantToken);
+      return this.resumeParticipant(confirmed, participantToken, tokenHash);
+    }
+
+    // Name-only (no strong identity) never silently merges — the FE shows a
+    // context confirmation first; the confirm path above completes the resume.
+    if (dto.name && !dto.email && !dto.phone && !dto.candidateNumber) {
+      const nameMatches = sessionParticipants.filter(
+        (p) => p.name.trim().toLowerCase() === trimLower(dto.name),
+      );
+      if (nameMatches.length > 0) {
+        return {
+          status: 'needs_confirmation' as const,
+          matches: nameMatches.map((p) => ({ id: p.id, name: p.name })),
+        } as unknown as JoinSessionResult;
+      }
     }
     const sessionTests = await this.repo.findSessionTestsBySessionId(
       session.id,
@@ -209,10 +229,46 @@ export class SessionsService {
       sessionId: session.id,
       name: dto.name,
       email: dto.email,
+      phone: dto.phone,
       candidateNumber: dto.candidateNumber,
       participantToken,
       tokenHash,
     });
     return { ...result, resumed: false };
+  }
+
+  /** Re-issues the token for an existing participant and returns their attempts. */
+  private async resumeParticipant(
+    match: {
+      id: string;
+      sessionId: string;
+      name: string;
+      email: string | null;
+      phone: string | null;
+      candidateNumber: string | null;
+      claimedAt: Date | null;
+      joinedAt: Date;
+    },
+    participantToken: string,
+    tokenHash: string,
+  ): Promise<JoinSessionResult> {
+    await this.repo.updateParticipantToken(
+      match.id,
+      tokenHash,
+      match.claimedAt ?? new Date(),
+    );
+    const attempts = await this.repo.findAttemptsByParticipantId(match.id);
+    // Explicit shape — mirrors joinSession (tokenHash never leaves the server).
+    const participant = {
+      id: match.id,
+      sessionId: match.sessionId,
+      name: match.name,
+      email: match.email,
+      phone: match.phone,
+      candidateNumber: match.candidateNumber,
+      claimedAt: match.claimedAt ?? new Date(),
+      joinedAt: match.joinedAt,
+    };
+    return { participant, participantToken, attempts, resumed: true };
   }
 }

@@ -15,6 +15,16 @@ export const CreateSessionSchema = z
       message: 'expiresAt must be in the future',
     }),
     pin: z.string().min(4).max(8).optional(),
+    // Roster sessions: pre-created participant rows; join becomes name-pick.
+    roster: z
+      .array(
+        z.object({
+          name: z.string().min(1).max(200),
+          candidateNumber: z.string().max(50).optional(),
+        }),
+      )
+      .max(1000)
+      .optional(),
   })
   .strict();
 
