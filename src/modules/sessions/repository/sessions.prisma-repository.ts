@@ -138,6 +138,7 @@ export class PrismaSessionsRepository implements SessionsRepository {
           create: params.roster.map((r) => ({
             name: r.name,
             candidateNumber: r.candidateNumber,
+            institutionParticipantId: r.institutionParticipantId ?? null,
           })),
         },
       },
@@ -270,6 +271,7 @@ export class PrismaSessionsRepository implements SessionsRepository {
           phone: participantRow.phone,
           candidateNumber: participantRow.candidateNumber,
           claimedAt: participantRow.claimedAt,
+          institutionParticipantId: participantRow.institutionParticipantId,
           joinedAt: participantRow.joinedAt,
         };
 

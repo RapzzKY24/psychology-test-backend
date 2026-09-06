@@ -233,6 +233,8 @@ model InstitutionParticipant {
   updatedAt          DateTime    @updatedAt
   institution        Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
 
+  seats           SessionParticipant[]
+
   @@unique([institutionId, idNumber])
   @@index([institutionId])
   @@map("institution_participants")
@@ -296,10 +298,13 @@ model SessionParticipant {
   tokenHash       String?  @unique
   claimedAt       DateTime?
   phone           String?
+  institutionParticipantId String? @db.Uuid
   joinedAt        DateTime @default(now())
   session         TestSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  institutionParticipant InstitutionParticipant? @relation(fields: [institutionParticipantId], references: [id], onDelete: SetNull)
   attempts        Attempt[]
 
+  @@index([institutionParticipantId])
   @@map("session_participants")
 }
 

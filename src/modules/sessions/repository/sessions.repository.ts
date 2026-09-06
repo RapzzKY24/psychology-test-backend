@@ -35,7 +35,11 @@ export interface CreateSessionParams {
   expiresAt: Date;
   joinMode: 'OPEN' | 'ROSTER';
   tests: { testId: string; order: number }[];
-  roster: { name: string; candidateNumber: string | null }[];
+  roster: {
+    name: string;
+    candidateNumber: string | null;
+    institutionParticipantId?: string | null;
+  }[];
 }
 
 export interface JoinSessionParams {

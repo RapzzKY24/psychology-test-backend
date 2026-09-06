@@ -29,6 +29,11 @@ import { ATTEMPTS_REPOSITORY } from './repository/attempts.repository';
     { provide: SESSIONS_REPOSITORY, useClass: PrismaSessionsRepository },
     { provide: ATTEMPTS_REPOSITORY, useClass: PrismaAttemptsRepository },
   ],
-  exports: [SESSIONS_REPOSITORY, ATTEMPTS_REPOSITORY, ParticipantTokenGuard],
+  exports: [
+    SESSIONS_REPOSITORY,
+    ATTEMPTS_REPOSITORY,
+    ParticipantTokenGuard,
+    SessionsService,
+  ],
 })
 export class SessionsModule {}
