@@ -187,7 +187,9 @@ export class PrismaSessionsRepository implements SessionsRepository {
 
   async findAttemptsByParticipantId(
     participantId: string,
-  ): Promise<{ id: string; testId: string; testName: string }[]> {
+  ): Promise<
+    { id: string; testId: string; testName: string; startedAt: Date | null }[]
+  > {
     const attempts = await this.prisma.attempt.findMany({
       where: { participantId },
       include: { test: { select: { name: true } } },
@@ -204,7 +206,18 @@ export class PrismaSessionsRepository implements SessionsRepository {
         (a, b) =>
           (orderMap.get(a.testId) ?? 99) - (orderMap.get(b.testId) ?? 99),
       )
-      .map((a) => ({ id: a.id, testId: a.testId, testName: a.test.name }));
+      .map((a) => ({
+        id: a.id,
+        testId: a.testId,
+        testName: a.test.name,
+        startedAt: a.startedAt,
+      }));
+  }
+
+  countResponsesByParticipantId(participantId: string): Promise<number> {
+    return this.prisma.response.count({
+      where: { attempt: { participantId } },
+    });
   }
 
   async updateParticipantToken(id: string, tokenHash: string): Promise<void> {

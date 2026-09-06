@@ -76,9 +76,13 @@ export class SessionsPublicService {
   ): Promise<{
     participant: {
       id: string;
+      sessionId: string;
       name: string;
       email: string | null;
+      phone: string | null;
       candidateNumber: string | null;
+      claimedAt: Date | null;
+      joinedAt: Date;
     };
     participantToken: string;
     attempts: { id: string; testId: string; testName: string }[];
@@ -112,9 +116,13 @@ export class SessionsPublicService {
     const attempts = await this.repo.findAttemptsByParticipantId(match.id);
     const participant = {
       id: match.id,
+      sessionId: match.sessionId,
       name: match.name,
       email: match.email,
+      phone: match.phone,
       candidateNumber: match.candidateNumber,
+      claimedAt: match.claimedAt ?? new Date(),
+      joinedAt: match.joinedAt,
     };
     return { participant, participantToken, attempts, resumed: true };
   }

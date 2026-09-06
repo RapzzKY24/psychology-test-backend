@@ -3,6 +3,8 @@ import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
 import { JoinSessionSchema } from '../dto/join-session.dto';
 import type { JoinSessionDto } from '../dto/join-session.dto';
+import { ClaimSessionSchema } from '../dto/claim-session.dto';
+import type { ClaimSessionDto } from '../dto/claim-session.dto';
 import { SessionsService } from '../service/sessions.service';
 import { SessionsPublicService } from '../service/sessions-public.service';
 import type { ApiResponse } from '../../../common/interfaces/api-response.interface';
@@ -35,5 +37,21 @@ export class SessionsPublicController {
   ): Promise<ApiResponse<JoinSessionResult>> {
     const data = await this.sessionsService.join(token, dto, ip);
     return { data, message: 'Joined session' };
+  }
+
+  // Roster claim: pick a pre-created participant row, get a working token.
+  @Post(':token/claim')
+  @AllowAnonymous()
+  async claim(
+    @Ip() ip: string,
+    @Param('token') token: string,
+    @Body(new ZodValidationPipe(ClaimSessionSchema)) dto: ClaimSessionDto,
+  ) {
+    const data = await this.sessionsPublicService.claim(
+      token,
+      dto.participantId,
+      ip,
+    );
+    return { data, message: 'Token issued' };
   }
 }

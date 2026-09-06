@@ -202,9 +202,26 @@ export class SessionsService {
         (p) => p.name.trim().toLowerCase() === trimLower(dto.name),
       );
       if (nameMatches.length > 0) {
+        // Context for the confirmation screen: when they started + how far
+        // they got, so the right person picks the right row.
+        const matches = await Promise.all(
+          nameMatches.map(async (p) => {
+            const attempts =
+              (await this.repo.findAttemptsByParticipantId(p.id)) ?? [];
+            const answeredCount = await this.repo.countResponsesByParticipantId(
+              p.id,
+            );
+            return {
+              id: p.id,
+              name: p.name,
+              startedAt: attempts[0]?.startedAt ?? null,
+              answeredCount,
+            };
+          }),
+        );
         return {
           status: 'needs_confirmation' as const,
-          matches: nameMatches.map((p) => ({ id: p.id, name: p.name })),
+          matches,
         } as unknown as JoinSessionResult;
       }
     }

@@ -31,6 +31,7 @@ describe('SessionsService', () => {
       findSessionTestsBySessionId: jest.fn(),
       findParticipantByTokenHash: jest.fn(),
       findParticipantsBySessionId: jest.fn(),
+      countResponsesByParticipantId: jest.fn(),
       findAttemptsByParticipantId: jest.fn(),
       updateParticipantToken: jest.fn(),
       findParticipantsBySessionId: jest.fn(),
@@ -193,6 +194,7 @@ describe('SessionsService', () => {
   describe('join', () => {
     beforeEach(() => {
       mockRepo.findParticipantsBySessionId.mockResolvedValue([]);
+      mockRepo.countResponsesByParticipantId.mockResolvedValue(0);
     });
 
     const future = new Date(Date.now() + 60 * 60 * 1000);
@@ -340,6 +342,7 @@ describe('join — idempotent identity (owner decision 2026-09-06)', () => {
       findParticipantsBySessionId: jest.fn(),
       findAttemptsByParticipantId: jest.fn(),
       updateParticipantToken: jest.fn(),
+      countResponsesByParticipantId: jest.fn().mockResolvedValue(0),
       joinSession: jest.fn(),
     } as unknown as jest.Mocked<SessionsRepository>;
     service = new SessionsService(mockRepo);
@@ -398,7 +401,9 @@ describe('join — idempotent identity (owner decision 2026-09-06)', () => {
     expect(mockRepo.updateParticipantToken).not.toHaveBeenCalled();
     expect(result).toEqual({
       status: 'needs_confirmation',
-      matches: [{ id: 'p1', name: 'RapzzKY' }],
+      matches: [
+        { id: 'p1', name: 'RapzzKY', startedAt: null, answeredCount: 0 },
+      ],
     });
   });
 

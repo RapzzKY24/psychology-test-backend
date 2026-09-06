@@ -79,7 +79,10 @@ export interface SessionsRepository {
   findParticipantsBySessionId(sessionId: string): Promise<SessionParticipant[]>;
   findAttemptsByParticipantId(
     participantId: string,
-  ): Promise<{ id: string; testId: string; testName: string }[]>;
+  ): Promise<
+    { id: string; testId: string; testName: string; startedAt: Date | null }[]
+  >;
+  countResponsesByParticipantId(participantId: string): Promise<number>;
   updateParticipantToken(
     id: string,
     tokenHash: string,
