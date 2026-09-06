@@ -125,10 +125,19 @@ export class PrismaSessionsRepository implements SessionsRepository {
         pinHash: params.pinHash,
         slotLimit: params.slotLimit,
         expiresAt: params.expiresAt,
+        joinMode: params.joinMode,
         sessionTests: {
           create: params.tests.map((t) => ({
             testId: t.testId,
             order: t.order,
+          })),
+        },
+        // Roster sessions: pre-created participant rows (tokenHash null until
+        // a kid claims; claimedAt null until they start).
+        participants: {
+          create: params.roster.map((r) => ({
+            name: r.name,
+            candidateNumber: r.candidateNumber,
           })),
         },
       },
@@ -178,7 +187,9 @@ export class PrismaSessionsRepository implements SessionsRepository {
 
   async findAttemptsByParticipantId(
     participantId: string,
-  ): Promise<{ id: string; testId: string; testName: string }[]> {
+  ): Promise<
+    { id: string; testId: string; testName: string; startedAt: Date | null }[]
+  > {
     const attempts = await this.prisma.attempt.findMany({
       where: { participantId },
       include: { test: { select: { name: true } } },
@@ -195,7 +206,18 @@ export class PrismaSessionsRepository implements SessionsRepository {
         (a, b) =>
           (orderMap.get(a.testId) ?? 99) - (orderMap.get(b.testId) ?? 99),
       )
-      .map((a) => ({ id: a.id, testId: a.testId, testName: a.test.name }));
+      .map((a) => ({
+        id: a.id,
+        testId: a.testId,
+        testName: a.test.name,
+        startedAt: a.startedAt,
+      }));
+  }
+
+  countResponsesByParticipantId(participantId: string): Promise<number> {
+    return this.prisma.response.count({
+      where: { attempt: { participantId } },
+    });
   }
 
   async updateParticipantToken(id: string, tokenHash: string): Promise<void> {
@@ -233,6 +255,7 @@ export class PrismaSessionsRepository implements SessionsRepository {
             sessionId: params.sessionId,
             name: params.name,
             email: params.email,
+            phone: params.phone,
             candidateNumber: params.candidateNumber,
             tokenHash: params.tokenHash,
           },
@@ -244,7 +267,9 @@ export class PrismaSessionsRepository implements SessionsRepository {
           sessionId: participantRow.sessionId,
           name: participantRow.name,
           email: participantRow.email,
+          phone: participantRow.phone,
           candidateNumber: participantRow.candidateNumber,
+          claimedAt: participantRow.claimedAt,
           joinedAt: participantRow.joinedAt,
         };
 

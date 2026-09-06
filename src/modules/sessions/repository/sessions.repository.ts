@@ -33,13 +33,16 @@ export interface CreateSessionParams {
   pinHash?: string;
   slotLimit: number;
   expiresAt: Date;
+  joinMode: 'OPEN' | 'ROSTER';
   tests: { testId: string; order: number }[];
+  roster: { name: string; candidateNumber: string | null }[];
 }
 
 export interface JoinSessionParams {
   sessionId: string;
   name: string;
   email?: string;
+  phone?: string;
   candidateNumber?: string;
   participantToken: string;
   tokenHash: string;
@@ -76,8 +79,15 @@ export interface SessionsRepository {
   findParticipantsBySessionId(sessionId: string): Promise<SessionParticipant[]>;
   findAttemptsByParticipantId(
     participantId: string,
-  ): Promise<{ id: string; testId: string; testName: string }[]>;
-  updateParticipantToken(id: string, tokenHash: string): Promise<void>;
+  ): Promise<
+    { id: string; testId: string; testName: string; startedAt: Date | null }[]
+  >;
+  countResponsesByParticipantId(participantId: string): Promise<number>;
+  updateParticipantToken(
+    id: string,
+    tokenHash: string,
+    claimedAt?: Date,
+  ): Promise<void>;
   countParticipants(sessionId: string): Promise<number>;
   findParticipantByTokenHash(
     tokenHash: string,

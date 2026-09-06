@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { GoneException, NotFoundException } from '@nestjs/common';
 import { SessionsPublicService } from '../service/sessions-public.service';
 import type { SessionsRepository } from '../repository/sessions.repository';
 
@@ -7,52 +7,143 @@ describe('SessionsPublicService', () => {
   let mockRepo: jest.Mocked<
     Pick<
       SessionsRepository,
-      'findByToken' | 'findSessionTestsBySessionId' | 'countParticipants'
+      | 'findByToken'
+      | 'findSessionTestsBySessionId'
+      | 'findParticipantsBySessionId'
+      | 'findAttemptsByParticipantId'
+      | 'updateParticipantToken'
     >
   >;
 
+  const sessionRow = {
+    id: 's1',
+    title: 'Rekrutmen Batch Sep',
+    status: 'ACTIVE',
+    expiresAt: new Date('2026-09-10T00:00:00Z'),
+    slotLimit: 20,
+    pinHash: 'hashed',
+    joinMode: 'OPEN',
+  };
+
   beforeEach(() => {
     mockRepo = {
-      findByToken: jest.fn(),
-      findSessionTestsBySessionId: jest.fn(),
-      countParticipants: jest.fn(),
+      findByToken: jest.fn().mockResolvedValue(sessionRow),
+      findSessionTestsBySessionId: jest.fn().mockResolvedValue([
+        {
+          testId: 't1',
+          testName: 'DISC Form A',
+          testStatus: 'PUBLISHED',
+          order: 1,
+        },
+      ]),
+      findParticipantsBySessionId: jest.fn().mockResolvedValue([]),
+      findAttemptsByParticipantId: jest.fn().mockResolvedValue([]),
+      updateParticipantToken: jest.fn(),
     };
     service = new SessionsPublicService(
       mockRepo as unknown as SessionsRepository,
     );
   });
 
-  it('returns a public-safe preview for a known token', async () => {
-    mockRepo.findByToken.mockResolvedValue({
-      id: 's1',
-      title: 'Rekrutmen Batch Sep',
-      status: 'ACTIVE',
-      expiresAt: new Date('2026-09-10T00:00:00Z'),
-      slotLimit: 20,
-      pinHash: 'hashed',
-    } as never);
-    mockRepo.findSessionTestsBySessionId.mockResolvedValue([
-      {
-        testId: 't1',
-        testName: 'DISC Form A',
-        testStatus: 'PUBLISHED',
-        order: 1,
-      },
-    ]);
-    mockRepo.countParticipants.mockResolvedValue(8);
+  describe('getPreviewByToken', () => {
+    it('returns a public-safe preview with sessionId for an open session', async () => {
+      const preview = await service.getPreviewByToken('token-abc');
 
-    const preview = await service.getPreviewByToken('token-abc');
+      expect(preview.sessionId).toBe('s1');
+      expect(preview.title).toBe('Rekrutmen Batch Sep');
+      expect(preview.joinMode).toBe('OPEN');
+      expect(preview.roster).toBeUndefined();
+      expect(preview.tests).toEqual([{ order: 1, testName: 'DISC Form A' }]);
+      expect(preview.slotsUsed).toBe(0);
+      expect(preview.requiresPin).toBe(true);
+    });
 
-    expect(preview.title).toBe('Rekrutmen Batch Sep');
-    expect(preview.tests).toEqual([{ order: 1, testName: 'DISC Form A' }]);
-    expect(preview.slotsUsed).toBe(8);
-    expect(preview.requiresPin).toBe(true);
+    it('includes roster rows with claimed state for roster sessions', async () => {
+      const rosterSession = {
+        ...sessionRow,
+        id: 's2',
+        joinMode: 'ROSTER',
+      };
+      mockRepo.findByToken.mockResolvedValue(rosterSession);
+      mockRepo.findParticipantsBySessionId.mockResolvedValue([
+        {
+          id: 'r1',
+          name: 'Budi Santoso',
+          email: null,
+          candidateNumber: '3',
+          claimedAt: new Date('2026-09-06T02:00:00Z'),
+          joinedAt: new Date('2026-09-06T02:00:00Z'),
+        },
+        {
+          id: 'r2',
+          name: 'Siti Aminah',
+          email: null,
+          candidateNumber: '4',
+          claimedAt: null,
+          joinedAt: new Date('2026-09-06T02:00:00Z'),
+        },
+      ] as never);
+
+      const preview = await service.getPreviewByToken('token-abc');
+
+      expect(preview.joinMode).toBe('ROSTER');
+      expect(preview.roster).toEqual([
+        { id: 'r1', name: 'Budi Santoso', candidateNumber: '3', claimed: true },
+        { id: 'r2', name: 'Siti Aminah', candidateNumber: '4', claimed: false },
+      ]);
+    });
+
+    it('throws NotFound for an unknown token (no session detail leak)', async () => {
+      mockRepo.findByToken.mockResolvedValue(null);
+      await expect(service.getPreviewByToken('nope')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
   });
 
-  it('throws NotFound for an unknown token (no session detail leak)', async () => {
-    mockRepo.findByToken.mockResolvedValue(null);
-    await expect(service.getPreviewByToken('nope')).rejects.toThrow(
-      NotFoundException,
-    );
+  describe('claim', () => {
+    it('issues a fresh token for a roster participant', async () => {
+      mockRepo.findParticipantsBySessionId.mockResolvedValue([
+        {
+          id: 'r1',
+          name: 'Budi Santoso',
+          email: null,
+          candidateNumber: '3',
+          claimedAt: null,
+          joinedAt: new Date('2026-09-06T02:00:00Z'),
+          tokenHash: null,
+        } as never,
+      ]);
+      mockRepo.findAttemptsByParticipantId.mockResolvedValue([
+        { id: 'a1', testId: 't1', testName: 'DISC Form A' },
+      ]);
+
+      const result = await service.claim('token-abc', 'r1', '1.1.1.1');
+
+      expect(mockRepo.updateParticipantToken).toHaveBeenCalledWith(
+        'r1',
+        expect.any(String),
+        expect.any(Date),
+      );
+      expect(result.resumed).toBe(true);
+      expect(result.participant.id).toBe('r1');
+      expect(result.attempts).toHaveLength(1);
+    });
+
+    it('throws Gone for an expired session and 404 for a foreign participantId', async () => {
+      mockRepo.findByToken.mockResolvedValue({
+        ...sessionRow,
+        expiresAt: new Date('2020-01-01T00:00:00Z'),
+      });
+      await expect(service.claim('token-abc', 'r1', '1.1.1.1')).rejects.toThrow(
+        GoneException,
+      );
+
+      mockRepo.findByToken.mockResolvedValue(sessionRow);
+      mockRepo.findParticipantsBySessionId.mockResolvedValue([]);
+      await expect(
+        service.claim('token-abc', 'ghost', '1.1.1.1'),
+      ).rejects.toThrow(NotFoundException);
+    });
   });
 });

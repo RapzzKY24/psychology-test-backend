@@ -7,6 +7,7 @@ import { z } from 'zod';
  * to join (title, ordered test names, expiry, slot usage, PIN requirement).
  */
 export const PublicSessionPreviewSchema = z.object({
+  sessionId: z.string(),
   title: z.string(),
   status: z.enum(['ACTIVE', 'CLOSED']),
   expiresAt: z.date(),
@@ -19,6 +20,17 @@ export const PublicSessionPreviewSchema = z.object({
   slotLimit: z.number().int(),
   slotsUsed: z.number().int(),
   requiresPin: z.boolean(),
+  joinMode: z.enum(['OPEN', 'ROSTER']),
+  roster: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        candidateNumber: z.string().nullable(),
+        claimed: z.boolean(),
+      }),
+    )
+    .optional(),
 });
 
 export type PublicSessionPreviewDto = z.infer<
