@@ -20,10 +20,9 @@ export class RegisterInstitutionController {
     dto: RegisterInstitutionDto,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const { headers, user, institution } =
+    const { cookies, user, institution } =
       await this.registerInstitutionService.register(dto);
 
-    const cookies: string[] = headers.getSetCookie();
     for (const cookie of cookies) {
       response.append('set-cookie', cookie);
     }

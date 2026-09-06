@@ -17,7 +17,10 @@ const signUpEmail = auth.api.signUpEmail as unknown as jest.Mock;
 describe('RegisterInstitutionService', () => {
   let service: RegisterInstitutionService;
   let mockPrisma: {
-    user: { update: jest.Mock };
+    user: {
+      update: jest.Mock;
+      delete: jest.Mock;
+    };
     institution: { create: jest.Mock };
   };
 
@@ -32,7 +35,10 @@ describe('RegisterInstitutionService', () => {
 
   beforeEach(() => {
     mockPrisma = {
-      user: { update: jest.fn() },
+      user: {
+        update: jest.fn(),
+        delete: jest.fn().mockResolvedValue(undefined),
+      },
       institution: { create: jest.fn() },
     };
     signUpEmail.mockReset();
@@ -80,7 +86,7 @@ describe('RegisterInstitutionService', () => {
     expect(result.institution.ownerUserId).toBe('u1');
   });
 
-  it('maps better-auth duplicate email to ConflictException', async () => {
+  it('maps duplicate email to ConflictException', async () => {
     signUpEmail.mockImplementation(() => {
       const error = new Error('User already exists. Use another email.');
       (error as { status?: number }).status = 422;
@@ -89,5 +95,19 @@ describe('RegisterInstitutionService', () => {
 
     await expect(service.register(dto)).rejects.toThrow(ConflictException);
     expect(mockPrisma.institution.create).not.toHaveBeenCalled();
+  });
+
+  it('rolls back the user when institution creation fails', async () => {
+    signUpEmail.mockResolvedValue({
+      response: { token: 'tok', user: { id: 'u1', email: dto.email } },
+      headers: new Headers(),
+    });
+    mockPrisma.user.update.mockResolvedValue({ id: 'u1', role: 'INSTANSI' });
+    mockPrisma.institution.create.mockRejectedValue(new Error('DB error'));
+
+    await expect(service.register(dto)).rejects.toThrow();
+    expect(mockPrisma.user.delete).toHaveBeenCalledWith({
+      where: { id: 'u1' },
+    });
   });
 });
