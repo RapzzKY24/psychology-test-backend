@@ -78,6 +78,11 @@ enum DeliveryChannel {
   EMAIL
 }
 
+enum IdType {
+  NIK
+  PASPOR
+}
+
 enum DeliveryStatus {
   SENT
   FAILED
@@ -209,8 +214,28 @@ model Institution {
   updatedAt    DateTime      @updatedAt
   sessions     TestSession[]
   invoices     Invoice[]
+  institutionParticipants InstitutionParticipant[]
 
   @@map("institutions")
+}
+
+model InstitutionParticipant {
+  id                 String      @id @default(uuid()) @db.Uuid
+  institutionId      String      @db.Uuid
+  name               String
+  destinationCountry String
+  idType             IdType
+  idNumber           String
+  birthDate          DateTime?
+  phone              String?
+  notes              String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  institution        Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+
+  @@unique([institutionId, idNumber])
+  @@index([institutionId])
+  @@map("institution_participants")
 }
 
 model TestSession {
