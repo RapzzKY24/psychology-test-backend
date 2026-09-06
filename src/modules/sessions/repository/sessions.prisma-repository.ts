@@ -12,6 +12,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import type {
   SessionsRepository,
   SessionDetail,
+  SessionTestsSummary,
   CreateSessionParams,
   JoinSessionParams,
   JoinSessionResult,
@@ -94,6 +95,45 @@ export class PrismaSessionsRepository implements SessionsRepository {
       this.prisma.testSession.count(),
     ]);
     return { data, total };
+  }
+
+  async findManyByInstitution(
+    institutionId: string,
+    params: { skip: number; take: number },
+  ): Promise<{ data: TestSession[]; total: number }> {
+    const where = { institutionId };
+    const [data, total] = await Promise.all([
+      this.prisma.testSession.findMany({
+        where,
+        skip: params.skip,
+        take: params.take,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.testSession.count({ where }),
+    ]);
+    return { data, total };
+  }
+
+  countSessionsByInstitution(institutionId: string): Promise<number> {
+    return this.prisma.testSession.count({ where: { institutionId } });
+  }
+
+  async getAttemptStatsByInstitution(
+    institutionId: string,
+  ): Promise<SessionTestsSummary> {
+    const groups = await this.prisma.attempt.groupBy({
+      by: ['status'],
+      where: { session: { institutionId } },
+      _count: { _all: true },
+    });
+    const countOf = (status: string): number =>
+      groups.find((g) => g.status === status)?._count._all ?? 0;
+    const total = groups.reduce((sum, g) => sum + g._count._all, 0);
+    return {
+      total,
+      inProgress: countOf('IN_PROGRESS'),
+      completed: countOf('COMPLETED'),
+    };
   }
 
   findByToken(token: string): Promise<TestSession | null> {

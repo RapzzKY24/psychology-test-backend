@@ -8,6 +8,7 @@ describe('InstansiParticipantsService', () => {
   let mockRepo: {
     findMany: jest.Mock;
     findById: jest.Mock;
+    findManyByIds: jest.Mock;
     findByIdNumber: jest.Mock;
     create: jest.Mock;
     update: jest.Mock;
@@ -38,6 +39,7 @@ describe('InstansiParticipantsService', () => {
     mockRepo = {
       findMany: jest.fn(),
       findById: jest.fn(),
+      findManyByIds: jest.fn(),
       findByIdNumber: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),

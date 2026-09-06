@@ -91,6 +91,7 @@ export class SessionsService {
           roster: (dto.roster ?? []).map((r) => ({
             name: r.name,
             candidateNumber: r.candidateNumber ?? null,
+            institutionParticipantId: r.institutionParticipantId ?? null,
           })),
           tests: dto.testIds.map((testId, index) => ({
             testId,

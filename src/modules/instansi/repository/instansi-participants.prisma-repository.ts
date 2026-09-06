@@ -39,6 +39,16 @@ export class InstansiParticipantsPrismaRepository implements InstansiParticipant
     });
   }
 
+  async findManyByIds(
+    institutionId: string,
+    ids: string[],
+  ): Promise<InstitutionParticipant[]> {
+    if (ids.length === 0) return [];
+    return this.prisma.institutionParticipant.findMany({
+      where: { institutionId, id: { in: ids } },
+    });
+  }
+
   async findByIdNumber(
     institutionId: string,
     idNumber: string,

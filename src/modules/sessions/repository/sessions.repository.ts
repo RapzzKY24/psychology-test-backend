@@ -74,6 +74,14 @@ export interface SessionsRepository {
     skip: number;
     take: number;
   }): Promise<{ data: TestSession[]; total: number }>;
+  findManyByInstitution(
+    institutionId: string,
+    params: { skip: number; take: number },
+  ): Promise<{ data: TestSession[]; total: number }>;
+  countSessionsByInstitution(institutionId: string): Promise<number>;
+  getAttemptStatsByInstitution(
+    institutionId: string,
+  ): Promise<SessionTestsSummary>;
   findByToken(token: string): Promise<TestSession | null>;
   findTestsByIds(ids: string[]): Promise<{ id: string; status: string }[]>;
   findInstitutionById(id: string): Promise<{ id: string } | null>;
