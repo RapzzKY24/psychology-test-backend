@@ -30,19 +30,27 @@ export class InstansiParticipantsPrismaRepository implements InstansiParticipant
     return { data, total };
   }
 
-  async findById(id: string, institutionId: string): Promise<InstitutionParticipant | null> {
+  async findById(
+    id: string,
+    institutionId: string,
+  ): Promise<InstitutionParticipant | null> {
     return this.prisma.institutionParticipant.findFirst({
       where: { id, institutionId },
     });
   }
 
-  async findByIdNumber(institutionId: string, idNumber: string): Promise<InstitutionParticipant | null> {
+  async findByIdNumber(
+    institutionId: string,
+    idNumber: string,
+  ): Promise<InstitutionParticipant | null> {
     return this.prisma.institutionParticipant.findFirst({
       where: { institutionId, idNumber },
     });
   }
 
-  async create(params: CreateInstansiParticipantParams): Promise<InstitutionParticipant> {
+  async create(
+    params: CreateInstansiParticipantParams,
+  ): Promise<InstitutionParticipant> {
     return this.prisma.institutionParticipant.create({
       data: {
         institutionId: params.institutionId,

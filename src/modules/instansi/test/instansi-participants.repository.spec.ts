@@ -1,4 +1,4 @@
-import { InstitutionParticipant, IdType } from '../../../generated/prisma/client';
+import { IdType } from '../../../generated/prisma/client';
 import { InstansiParticipantsPrismaRepository } from '../repository/instansi-participants.prisma-repository';
 import type { PrismaService } from '../../../prisma/prisma.service';
 
@@ -99,6 +99,7 @@ describe('InstansiParticipantsPrismaRepository', () => {
         phone: '0812',
       };
       const created = { id: 'new-1', institutionId: INSTITUTION_ID, ...data };
+
       prisma.institutionParticipant.create.mockResolvedValue(created);
 
       const result = await repo.create({
@@ -108,6 +109,7 @@ describe('InstansiParticipantsPrismaRepository', () => {
 
       expect(prisma.institutionParticipant.create).toHaveBeenCalledWith(
         expect.objectContaining({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           data: expect.objectContaining({
             institutionId: INSTITUTION_ID,
             name: 'Budi',

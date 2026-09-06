@@ -1,6 +1,10 @@
-import type { InstitutionParticipant, IdType } from '../../../generated/prisma/client';
+import type {
+  InstitutionParticipant,
+  IdType,
+} from '../../../generated/prisma/client';
 
-export const INSTANSI_PARTICIPANTS_REPOSITORY = 'InstansiParticipantsRepository';
+export const INSTANSI_PARTICIPANTS_REPOSITORY =
+  'InstansiParticipantsRepository';
 
 /** Flat row returned by the prisma repo (strips relation fields). */
 export type InstansiParticipantRow = InstitutionParticipant;
@@ -36,9 +40,17 @@ export interface InstansiParticipantsRepository {
     data: InstitutionParticipant[];
     total: number;
   }>;
-  findById(id: string, institutionId: string): Promise<InstitutionParticipant | null>;
-  findByIdNumber(institutionId: string, idNumber: string): Promise<InstitutionParticipant | null>;
-  create(params: CreateInstansiParticipantParams): Promise<InstitutionParticipant>;
+  findById(
+    id: string,
+    institutionId: string,
+  ): Promise<InstitutionParticipant | null>;
+  findByIdNumber(
+    institutionId: string,
+    idNumber: string,
+  ): Promise<InstitutionParticipant | null>;
+  create(
+    params: CreateInstansiParticipantParams,
+  ): Promise<InstitutionParticipant>;
   update(
     id: string,
     institutionId: string,
