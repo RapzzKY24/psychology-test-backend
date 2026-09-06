@@ -12,7 +12,7 @@ jest.mock('../../auth/auth', () => ({
 
 import { auth } from '../../auth/auth';
 
-const signUpEmail = auth.api.signUpEmail as jest.Mock;
+const signUpEmail = auth.api.signUpEmail as unknown as jest.Mock;
 
 describe('RegisterInstitutionService', () => {
   let service: RegisterInstitutionService;
@@ -70,6 +70,7 @@ describe('RegisterInstitutionService', () => {
       data: { role: 'INSTANSI' },
     });
     expect(mockPrisma.institution.create).toHaveBeenCalledWith({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       data: expect.objectContaining({
         name: dto.companyName,
         ownerUserId: 'u1',

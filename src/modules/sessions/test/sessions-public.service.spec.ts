@@ -64,7 +64,7 @@ describe('SessionsPublicService', () => {
         id: 's2',
         joinMode: 'ROSTER',
       };
-      mockRepo.findByToken.mockResolvedValue(rosterSession);
+      mockRepo.findByToken.mockResolvedValue(rosterSession as never);
       mockRepo.findParticipantsBySessionId.mockResolvedValue([
         {
           id: 'r1',
@@ -115,7 +115,12 @@ describe('SessionsPublicService', () => {
         } as never,
       ]);
       mockRepo.findAttemptsByParticipantId.mockResolvedValue([
-        { id: 'a1', testId: 't1', testName: 'DISC Form A' },
+        {
+          id: 'a1',
+          testId: 't1',
+          testName: 'DISC Form A',
+          startedAt: new Date(),
+        },
       ]);
 
       const result = await service.claim('token-abc', 'r1', '1.1.1.1');
@@ -134,13 +139,13 @@ describe('SessionsPublicService', () => {
       mockRepo.findByToken.mockResolvedValue({
         ...sessionRow,
         expiresAt: new Date('2020-01-01T00:00:00Z'),
-      });
+      } as never);
       await expect(service.claim('token-abc', 'r1', '1.1.1.1')).rejects.toThrow(
         GoneException,
       );
 
-      mockRepo.findByToken.mockResolvedValue(sessionRow);
-      mockRepo.findParticipantsBySessionId.mockResolvedValue([]);
+      mockRepo.findByToken.mockResolvedValue(sessionRow as never);
+      mockRepo.findParticipantsBySessionId.mockResolvedValue([] as never);
       await expect(
         service.claim('token-abc', 'ghost', '1.1.1.1'),
       ).rejects.toThrow(NotFoundException);

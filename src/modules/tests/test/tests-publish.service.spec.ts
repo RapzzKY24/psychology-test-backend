@@ -18,6 +18,7 @@ describe('TestsPublishService', () => {
       replaceInterpretations: jest.fn(),
       findItemsByTestId: jest.fn(),
       findInterpretationsByTestId: jest.fn(),
+      findDetailById: jest.fn(),
     };
     service = new TestsPublishService(mockRepo);
   });

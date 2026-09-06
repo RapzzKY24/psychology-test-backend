@@ -20,7 +20,7 @@ export class RegisterInstitutionService {
   async register(dto: RegisterInstitutionDto): Promise<{
     headers: Headers;
     user: { id: string; email: string; role: string };
-    institution: { id: string; name: string; ownerUserId: string };
+    institution: { id: string; name: string; ownerUserId: string | null };
   }> {
     let signUp: SignUpResult;
     try {

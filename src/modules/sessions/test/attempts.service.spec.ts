@@ -68,6 +68,7 @@ describe('AttemptsService', () => {
       upsertResponse: jest.fn(),
       findResultByAttemptId: jest.fn(),
       completeAndCreateResult: jest.fn(),
+      listByUser: jest.fn(),
     };
     service = new AttemptsService(mockRepo);
   });
