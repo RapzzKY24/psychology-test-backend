@@ -196,6 +196,23 @@ export class PrismaSessionsRepository implements SessionsRepository {
     return this.prisma.sessionParticipant.count({ where: { sessionId } });
   }
 
+  async createAttempt(params: {
+    sessionId: string;
+    testId: string;
+    participantId: string;
+  }): Promise<{ id: string; testId: string }> {
+    const attempt = await this.prisma.attempt.create({
+      data: {
+        sessionId: params.sessionId,
+        testId: params.testId,
+        participantId: params.participantId,
+        status: 'IN_PROGRESS',
+      },
+      select: { id: true, testId: true },
+    });
+    return attempt;
+  }
+
   async findSessionTestsBySessionId(
     sessionId: string,
   ): Promise<SessionTestSummary[]> {

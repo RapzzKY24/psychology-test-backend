@@ -113,7 +113,28 @@ export class SessionsPublicService {
       match.claimedAt ?? new Date(),
     );
 
-    const attempts = await this.repo.findAttemptsByParticipantId(match.id);
+    let attempts = await this.repo.findAttemptsByParticipantId(match.id);
+    if (attempts.length === 0) {
+      // Roster seats have no attempts until first claim — create one
+      // IN_PROGRESS attempt per session test (mirrors joinSession).
+      const sessionTests = await this.repo.findSessionTestsBySessionId(
+        session.id,
+      );
+      attempts = [];
+      for (const st of sessionTests) {
+        const created = await this.repo.createAttempt({
+          sessionId: session.id,
+          testId: st.testId,
+          participantId: match.id,
+        });
+        attempts.push({
+          id: created.id,
+          testId: created.testId,
+          testName: st.testName,
+          startedAt: null,
+        });
+      }
+    }
     const participant = {
       id: match.id,
       sessionId: match.sessionId,

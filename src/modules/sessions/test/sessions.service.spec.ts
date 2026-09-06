@@ -38,6 +38,7 @@ describe('SessionsService', () => {
       countParticipants: jest.fn(),
       findAttemptsByParticipantId: jest.fn(),
       updateParticipantToken: jest.fn(),
+      createAttempt: jest.fn(),
       joinSession: jest.fn(),
     };
     mockRepo.findByToken.mockResolvedValue(null); // no token collision by default
@@ -343,6 +344,7 @@ describe('join — idempotent identity (owner decision 2026-09-06)', () => {
       findParticipantsBySessionId: jest.fn(),
       findAttemptsByParticipantId: jest.fn(),
       updateParticipantToken: jest.fn(),
+      createAttempt: jest.fn(),
       countResponsesByParticipantId: jest.fn().mockResolvedValue(0),
       joinSession: jest.fn(),
     } as unknown as jest.Mocked<SessionsRepository>;

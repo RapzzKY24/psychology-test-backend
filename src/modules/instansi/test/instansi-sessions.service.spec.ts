@@ -47,6 +47,7 @@ describe('InstansiSessionsService', () => {
       countResponsesByParticipantId: jest.fn(),
       countParticipants: jest.fn(),
       updateParticipantToken: jest.fn(),
+      createAttempt: jest.fn(),
       joinSession: jest.fn(),
     };
     mockParticipantsRepo = {

@@ -101,6 +101,11 @@ export interface SessionsRepository {
     claimedAt?: Date,
   ): Promise<void>;
   countParticipants(sessionId: string): Promise<number>;
+  createAttempt(params: {
+    sessionId: string;
+    testId: string;
+    participantId: string;
+  }): Promise<{ id: string; testId: string }>;
   findParticipantByTokenHash(
     tokenHash: string,
   ): Promise<SessionParticipant | null>;
