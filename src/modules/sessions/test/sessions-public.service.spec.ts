@@ -11,7 +11,7 @@ describe('SessionsPublicService', () => {
       | 'findSessionTestsBySessionId'
       | 'findParticipantsBySessionId'
       | 'findAttemptsByParticipantId'
-      | 'updateParticipantToken'
+      | 'claimSeatWithAttempts'
     >
   >;
 
@@ -38,7 +38,7 @@ describe('SessionsPublicService', () => {
       ]),
       findParticipantsBySessionId: jest.fn().mockResolvedValue([]),
       findAttemptsByParticipantId: jest.fn().mockResolvedValue([]),
-      updateParticipantToken: jest.fn(),
+      claimSeatWithAttempts: jest.fn(),
     };
     service = new SessionsPublicService(
       mockRepo as unknown as SessionsRepository,
@@ -102,7 +102,13 @@ describe('SessionsPublicService', () => {
   });
 
   describe('claim', () => {
+    const rosterSession = {
+      ...sessionRow,
+      joinMode: 'ROSTER',
+    };
+
     it('issues a fresh token for a roster participant', async () => {
+      mockRepo.findByToken.mockResolvedValue(rosterSession as never);
       mockRepo.findParticipantsBySessionId.mockResolvedValue([
         {
           id: 'r1',
@@ -125,26 +131,54 @@ describe('SessionsPublicService', () => {
 
       const result = await service.claim('token-abc', 'r1', '1.1.1.1');
 
-      expect(mockRepo.updateParticipantToken).toHaveBeenCalledWith(
-        'r1',
-        expect.any(String),
-        expect.any(Date),
+      expect(mockRepo.claimSeatWithAttempts).toHaveBeenCalledWith(
+        expect.objectContaining({
+          seatId: 'r1',
+          tokenHash: expect.any(String),
+          claimedAt: expect.any(Date),
+          sessionId: 's1',
+          testIds: ['t1'],
+        }),
       );
       expect(result.resumed).toBe(true);
       expect(result.participant.id).toBe('r1');
       expect(result.attempts).toHaveLength(1);
     });
 
+    it('throws 404 for an OPEN session (roster claim only)', async () => {
+      mockRepo.findByToken.mockResolvedValue(sessionRow as never);
+
+      await expect(service.claim('token-abc', 'r1', '1.1.1.1')).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(mockRepo.claimSeatWithAttempts).not.toHaveBeenCalled();
+    });
+
+    it('maps a vanished seat (P2025) to 404', async () => {
+      mockRepo.findByToken.mockResolvedValue(rosterSession as never);
+      mockRepo.findParticipantsBySessionId.mockResolvedValue([
+        { id: 'r1', claimedAt: null },
+      ] as never);
+      const p2025 = Object.assign(new Error('record not found'), {
+        code: 'P2025',
+      });
+      mockRepo.claimSeatWithAttempts.mockRejectedValue(p2025);
+
+      await expect(service.claim('token-abc', 'r1', '1.1.1.1')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
     it('throws Gone for an expired session and 404 for a foreign participantId', async () => {
       mockRepo.findByToken.mockResolvedValue({
-        ...sessionRow,
+        ...rosterSession,
         expiresAt: new Date('2020-01-01T00:00:00Z'),
       } as never);
       await expect(service.claim('token-abc', 'r1', '1.1.1.1')).rejects.toThrow(
         GoneException,
       );
 
-      mockRepo.findByToken.mockResolvedValue(sessionRow as never);
+      mockRepo.findByToken.mockResolvedValue(rosterSession as never);
       mockRepo.findParticipantsBySessionId.mockResolvedValue([] as never);
       await expect(
         service.claim('token-abc', 'ghost', '1.1.1.1'),

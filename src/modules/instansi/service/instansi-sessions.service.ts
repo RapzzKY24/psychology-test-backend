@@ -1,4 +1,9 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { SESSIONS_REPOSITORY } from '../../sessions/repository/sessions.repository';
 import type {
   SessionsRepository,
@@ -34,6 +39,15 @@ export class InstansiSessionsService {
   ): Promise<TestSession> {
     const institutionId =
       await this.participantsService.resolveInstitutionId(userId);
+
+    if (dto.employeeIds.length > dto.slotLimit) {
+      throw new UnprocessableEntityException({
+        message: 'validation_failed',
+        details: [
+          `employeeIds: ${dto.employeeIds.length} employees exceed slotLimit ${dto.slotLimit}`,
+        ],
+      });
+    }
 
     const employees = await this.participantsRepo.findManyByIds(
       institutionId,
@@ -90,12 +104,10 @@ export class InstansiSessionsService {
   async getDetail(userId: string, sessionId: string): Promise<SessionDetail> {
     const institutionId =
       await this.participantsService.resolveInstitutionId(userId);
-    const session = await this.sessionsRepo.findById(sessionId);
-    if (!session || session.institutionId !== institutionId) {
+    const detail = await this.sessionsRepo.findDetailById(sessionId);
+    if (!detail || detail.session.institutionId !== institutionId) {
       throw new NotFoundException('Session not found');
     }
-    const detail = await this.sessionsRepo.findDetailById(sessionId);
-    if (!detail) throw new NotFoundException('Session not found');
     return detail;
   }
 

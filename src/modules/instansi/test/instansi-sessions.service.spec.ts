@@ -47,7 +47,7 @@ describe('InstansiSessionsService', () => {
       countResponsesByParticipantId: jest.fn(),
       countParticipants: jest.fn(),
       updateParticipantToken: jest.fn(),
-      createAttempt: jest.fn(),
+      claimSeatWithAttempts: jest.fn(),
       joinSession: jest.fn(),
     };
     mockParticipantsRepo = {
@@ -94,6 +94,14 @@ describe('InstansiSessionsService', () => {
       );
     });
 
+    it('throws 422 when employees exceed slotLimit', async () => {
+      await expect(
+        service.create(USER_ID, { ...dto, slotLimit: 1 }),
+      ).rejects.toThrow('validation_failed');
+      expect(mockParticipantsRepo.findManyByIds).not.toHaveBeenCalled();
+      expect(mockSessionsService.create).not.toHaveBeenCalled();
+    });
+
     it('throws 404 when an employee belongs to another institution', async () => {
       mockParticipantsRepo.findManyByIds.mockResolvedValue([
         employees[0],
@@ -130,29 +138,26 @@ describe('InstansiSessionsService', () => {
 
   describe('getDetail', () => {
     it('throws 404 for another institution session', async () => {
-      mockSessionsRepo.findById.mockResolvedValue({
-        id: 's1',
-        institutionId: 'other-inst',
+      mockSessionsRepo.findDetailById.mockResolvedValue({
+        session: { id: 's1', institutionId: 'other-inst' },
       } as never);
 
       await expect(service.getDetail(USER_ID, 's1')).rejects.toThrow(
         NotFoundException,
       );
-      expect(mockSessionsRepo.findDetailById).not.toHaveBeenCalled();
+      expect(mockSessionsRepo.findById).not.toHaveBeenCalled();
     });
 
     it('returns detail for own session', async () => {
-      mockSessionsRepo.findById.mockResolvedValue({
-        id: 's1',
-        institutionId: INSTITUTION_ID,
-      } as never);
       mockSessionsRepo.findDetailById.mockResolvedValue({
-        session: { id: 's1' },
+        session: { id: 's1', institutionId: INSTITUTION_ID },
       } as never);
 
       const result = await service.getDetail(USER_ID, 's1');
 
-      expect(result).toEqual({ session: { id: 's1' } });
+      expect(result).toEqual({
+        session: { id: 's1', institutionId: INSTITUTION_ID },
+      });
     });
   });
 

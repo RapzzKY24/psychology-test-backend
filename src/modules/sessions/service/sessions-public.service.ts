@@ -95,6 +95,9 @@ export class SessionsPublicService {
     if (session.status === 'CLOSED') {
       throw new NotFoundException('Session not found');
     }
+    if (session.joinMode !== 'ROSTER') {
+      throw new NotFoundException('Session not found');
+    }
     if (session.expiresAt.getTime() <= Date.now()) {
       throw new GoneException('session_expired');
     }
@@ -107,34 +110,28 @@ export class SessionsPublicService {
 
     const participantToken = generateParticipantToken();
     const tokenHash = hashParticipantToken(participantToken);
-    await this.repo.updateParticipantToken(
-      match.id,
-      tokenHash,
-      match.claimedAt ?? new Date(),
-    );
-
-    let attempts = await this.repo.findAttemptsByParticipantId(match.id);
-    if (attempts.length === 0) {
-      // Roster seats have no attempts until first claim — create one
-      // IN_PROGRESS attempt per session test (mirrors joinSession).
+    const claimedAt = match.claimedAt ?? new Date();
+    try {
+      // Atomic: lock the seat, persist token + claimedAt, and create one
+      // IN_PROGRESS attempt per session test when the seat has none.
       const sessionTests = await this.repo.findSessionTestsBySessionId(
         session.id,
       );
-      attempts = [];
-      for (const st of sessionTests) {
-        const created = await this.repo.createAttempt({
-          sessionId: session.id,
-          testId: st.testId,
-          participantId: match.id,
-        });
-        attempts.push({
-          id: created.id,
-          testId: created.testId,
-          testName: st.testName,
-          startedAt: null,
-        });
-      }
+      await this.repo.claimSeatWithAttempts({
+        seatId: match.id,
+        tokenHash,
+        claimedAt,
+        sessionId: session.id,
+        testIds: sessionTests.map((st) => st.testId),
+      });
+    } catch (error) {
+      const code = (error as { code?: string })?.code;
+      if (code === 'P2025')
+        throw new NotFoundException('Participant not found');
+      throw error;
     }
+
+    const attempts = await this.repo.findAttemptsByParticipantId(match.id);
     const participant = {
       id: match.id,
       sessionId: match.sessionId,
@@ -142,7 +139,7 @@ export class SessionsPublicService {
       email: match.email,
       phone: match.phone,
       candidateNumber: match.candidateNumber,
-      claimedAt: match.claimedAt ?? new Date(),
+      claimedAt,
       joinedAt: match.joinedAt,
     };
     return { participant, participantToken, attempts, resumed: true };
