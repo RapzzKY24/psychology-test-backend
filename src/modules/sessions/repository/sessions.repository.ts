@@ -35,7 +35,11 @@ export interface CreateSessionParams {
   expiresAt: Date;
   joinMode: 'OPEN' | 'ROSTER';
   tests: { testId: string; order: number }[];
-  roster: { name: string; candidateNumber: string | null }[];
+  roster: {
+    name: string;
+    candidateNumber: string | null;
+    institutionParticipantId?: string | null;
+  }[];
 }
 
 export interface JoinSessionParams {
@@ -70,6 +74,14 @@ export interface SessionsRepository {
     skip: number;
     take: number;
   }): Promise<{ data: TestSession[]; total: number }>;
+  findManyByInstitution(
+    institutionId: string,
+    params: { skip: number; take: number },
+  ): Promise<{ data: TestSession[]; total: number }>;
+  countSessionsByInstitution(institutionId: string): Promise<number>;
+  getAttemptStatsByInstitution(
+    institutionId: string,
+  ): Promise<SessionTestsSummary>;
   findByToken(token: string): Promise<TestSession | null>;
   findTestsByIds(ids: string[]): Promise<{ id: string; status: string }[]>;
   findInstitutionById(id: string): Promise<{ id: string } | null>;
@@ -89,6 +101,13 @@ export interface SessionsRepository {
     claimedAt?: Date,
   ): Promise<void>;
   countParticipants(sessionId: string): Promise<number>;
+  claimSeatWithAttempts(params: {
+    seatId: string;
+    tokenHash: string;
+    claimedAt: Date;
+    sessionId: string;
+    testIds: string[];
+  }): Promise<void>;
   findParticipantByTokenHash(
     tokenHash: string,
   ): Promise<SessionParticipant | null>;

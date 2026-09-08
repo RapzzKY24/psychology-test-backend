@@ -12,6 +12,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import type {
   SessionsRepository,
   SessionDetail,
+  SessionTestsSummary,
   CreateSessionParams,
   JoinSessionParams,
   JoinSessionResult,
@@ -96,6 +97,45 @@ export class PrismaSessionsRepository implements SessionsRepository {
     return { data, total };
   }
 
+  async findManyByInstitution(
+    institutionId: string,
+    params: { skip: number; take: number },
+  ): Promise<{ data: TestSession[]; total: number }> {
+    const where = { institutionId };
+    const [data, total] = await Promise.all([
+      this.prisma.testSession.findMany({
+        where,
+        skip: params.skip,
+        take: params.take,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.testSession.count({ where }),
+    ]);
+    return { data, total };
+  }
+
+  countSessionsByInstitution(institutionId: string): Promise<number> {
+    return this.prisma.testSession.count({ where: { institutionId } });
+  }
+
+  async getAttemptStatsByInstitution(
+    institutionId: string,
+  ): Promise<SessionTestsSummary> {
+    const groups = await this.prisma.attempt.groupBy({
+      by: ['status'],
+      where: { session: { institutionId } },
+      _count: { _all: true },
+    });
+    const countOf = (status: string): number =>
+      groups.find((g) => g.status === status)?._count._all ?? 0;
+    const total = groups.reduce((sum, g) => sum + g._count._all, 0);
+    return {
+      total,
+      inProgress: countOf('IN_PROGRESS'),
+      completed: countOf('COMPLETED'),
+    };
+  }
+
   findByToken(token: string): Promise<TestSession | null> {
     return this.prisma.testSession.findUnique({ where: { token } });
   }
@@ -138,6 +178,7 @@ export class PrismaSessionsRepository implements SessionsRepository {
           create: params.roster.map((r) => ({
             name: r.name,
             candidateNumber: r.candidateNumber,
+            institutionParticipantId: r.institutionParticipantId ?? null,
           })),
         },
       },
@@ -220,10 +261,47 @@ export class PrismaSessionsRepository implements SessionsRepository {
     });
   }
 
-  async updateParticipantToken(id: string, tokenHash: string): Promise<void> {
+  async updateParticipantToken(
+    id: string,
+    tokenHash: string,
+    claimedAt?: Date,
+  ): Promise<void> {
     await this.prisma.sessionParticipant.update({
       where: { id },
-      data: { tokenHash },
+      data: { tokenHash, ...(claimedAt ? { claimedAt } : {}) },
+    });
+  }
+
+  async claimSeatWithAttempts(params: {
+    seatId: string;
+    tokenHash: string;
+    claimedAt: Date;
+    sessionId: string;
+    testIds: string[];
+  }): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      // Row lock serializes concurrent claims on the same seat.
+      await tx.$queryRaw`SELECT id FROM "session_participants" WHERE id = ${params.seatId}::uuid FOR UPDATE`;
+      await tx.sessionParticipant.update({
+        where: { id: params.seatId },
+        data: { tokenHash: params.tokenHash, claimedAt: params.claimedAt },
+      });
+      const existing = await tx.attempt.findMany({
+        where: { participantId: params.seatId },
+        select: { testId: true },
+      });
+      const have = new Set(existing.map((a) => a.testId));
+      const missing = params.testIds.filter((t) => !have.has(t));
+      if (missing.length > 0) {
+        await tx.attempt.createMany({
+          data: missing.map((testId) => ({
+            sessionId: params.sessionId,
+            testId,
+            participantId: params.seatId,
+            status: 'IN_PROGRESS',
+          })),
+        });
+      }
     });
   }
 
@@ -270,6 +348,7 @@ export class PrismaSessionsRepository implements SessionsRepository {
           phone: participantRow.phone,
           candidateNumber: participantRow.candidateNumber,
           claimedAt: participantRow.claimedAt,
+          institutionParticipantId: participantRow.institutionParticipantId,
           joinedAt: participantRow.joinedAt,
         };
 

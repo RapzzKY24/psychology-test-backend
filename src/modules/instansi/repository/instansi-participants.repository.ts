@@ -44,6 +44,10 @@ export interface InstansiParticipantsRepository {
     id: string,
     institutionId: string,
   ): Promise<InstitutionParticipant | null>;
+  findManyByIds(
+    institutionId: string,
+    ids: string[],
+  ): Promise<InstitutionParticipant[]>;
   findByIdNumber(
     institutionId: string,
     idNumber: string,

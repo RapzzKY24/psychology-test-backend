@@ -91,6 +91,7 @@ export class SessionsService {
           roster: (dto.roster ?? []).map((r) => ({
             name: r.name,
             candidateNumber: r.candidateNumber ?? null,
+            institutionParticipantId: r.institutionParticipantId ?? null,
           })),
           tests: dto.testIds.map((testId, index) => ({
             testId,
@@ -264,6 +265,7 @@ export class SessionsService {
       phone: string | null;
       candidateNumber: string | null;
       claimedAt: Date | null;
+      institutionParticipantId: string | null;
       joinedAt: Date;
     },
     participantToken: string,
@@ -284,6 +286,7 @@ export class SessionsService {
       phone: match.phone,
       candidateNumber: match.candidateNumber,
       claimedAt: match.claimedAt ?? new Date(),
+      institutionParticipantId: match.institutionParticipantId,
       joinedAt: match.joinedAt,
     };
     return { participant, participantToken, attempts, resumed: true };
