@@ -397,6 +397,32 @@ describe('join — idempotent identity (owner decision 2026-09-06)', () => {
     expect(result.attempts).toHaveLength(1);
   });
 
+  it('rejects resume on a PIN session without the PIN (no bypass via email match)', async () => {
+    mockRepo.findByToken.mockResolvedValue({
+      ...baseSession,
+      pinHash: 'stored-hash',
+    } as never);
+    mockRepo.findParticipantsBySessionId.mockResolvedValue([
+      {
+        id: 'p1',
+        name: 'RapzzKY',
+        email: 'kid@mail.com',
+        candidateNumber: null,
+        tokenHash: 'old',
+      } as never,
+    ]);
+    jest.mocked(verifyPin).mockResolvedValue(false);
+    await expect(
+      service.join(
+        'token-abc',
+        { name: 'RapzzKY', email: 'kid@mail.com' },
+        '1.1.1.1',
+      ),
+    ).rejects.toThrow('invalid_pin');
+    expect(mockRepo.joinSession).not.toHaveBeenCalled();
+    expect(mockRepo.updateParticipantToken).not.toHaveBeenCalled();
+  });
+
   it('returns needs_confirmation for a name-only match (never silent-merges)', async () => {
     mockRepo.findByToken.mockResolvedValue(baseSession as never);
     mockRepo.findParticipantsBySessionId.mockResolvedValue([

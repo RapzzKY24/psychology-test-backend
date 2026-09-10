@@ -75,7 +75,7 @@ export class RegisterInstitutionService {
           err.message ?? '',
         )
       ) {
-        throw new ConflictException('Email sudah terdaftar — silakan masuk.');
+        throw new ConflictException('duplicate_email');
       }
       throw error;
     }

@@ -62,35 +62,38 @@ export class AdminService {
     const hashedPassword = await hashPassword(dto.password);
     const userId = randomUUID();
 
-    const user = await this.prisma.user.create({
-      data: {
-        id: userId,
-        name: dto.name,
-        email: dto.email,
-        emailVerified: true,
-        role: dto.role,
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        createdAt: true,
-      },
-    });
+    // Atomic: a failed account insert must not leave an orphan login-less user.
+    return this.prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          id: userId,
+          name: dto.name,
+          email: dto.email,
+          emailVerified: true,
+          role: dto.role,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          createdAt: true,
+        },
+      });
 
-    await this.prisma.account.create({
-      data: {
-        id: randomUUID(),
-        accountId: userId,
-        providerId: 'credential',
-        issuer: 'local:credential',
-        userId,
-        password: hashedPassword,
-      },
-    });
+      await tx.account.create({
+        data: {
+          id: randomUUID(),
+          accountId: userId,
+          providerId: 'credential',
+          issuer: 'local:credential',
+          userId,
+          password: hashedPassword,
+        },
+      });
 
-    return user;
+      return user;
+    });
   }
 
   async updateRole(userId: string, role: string, currentUserId: string) {

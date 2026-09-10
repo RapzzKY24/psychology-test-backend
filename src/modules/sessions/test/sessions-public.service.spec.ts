@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { GoneException, NotFoundException } from '@nestjs/common';
 import { SessionsPublicService } from '../service/sessions-public.service';
 import type { SessionsRepository } from '../repository/sessions.repository';

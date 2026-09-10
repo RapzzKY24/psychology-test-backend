@@ -49,8 +49,11 @@ export class QrisService {
   async getImagePath(): Promise<string> {
     const stored = await this.repo.findQrisStoredPath();
     if (!stored) throw new NotFoundException('qris_not_configured');
+    // Jail to the QRIS upload dir: the stored path comes from the DB and
+    // must never resolve outside it (path traversal → arbitrary file read).
+    const base = `${this.getUploadDir()}${path.sep}`;
     const full = path.resolve(stored);
-    if (!fs.existsSync(full))
+    if (!full.startsWith(base) || !fs.existsSync(full))
       throw new NotFoundException('qris_not_configured');
     return full;
   }

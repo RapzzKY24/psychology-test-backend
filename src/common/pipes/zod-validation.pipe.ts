@@ -1,4 +1,4 @@
-import { PipeTransform, BadRequestException } from '@nestjs/common';
+import { PipeTransform, UnprocessableEntityException } from '@nestjs/common';
 import { ZodSchema } from 'zod';
 
 export class ZodValidationPipe implements PipeTransform {
@@ -7,7 +7,9 @@ export class ZodValidationPipe implements PipeTransform {
   transform(value: unknown) {
     const result = this.schema.safeParse(value);
     if (!result.success) {
-      throw new BadRequestException({
+      // 422 (not 400): HttpExceptionFilter derives the HTTP status from
+      // getStatus(), so the exception class must match the contract.
+      throw new UnprocessableEntityException({
         statusCode: 422,
         message: 'validation_failed',
         error: 'Unprocessable Entity',
