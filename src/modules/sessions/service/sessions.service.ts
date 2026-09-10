@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
@@ -162,6 +163,11 @@ export class SessionsService {
     }
     if (session.expiresAt.getTime() <= Date.now()) {
       throw new GoneException('session_expired');
+    }
+    if (session.joinMode === 'ROSTER') {
+      // Roster seats may only be claimed via POST :token/claim — free-form
+      // join would create unlinked seats and corrupt the employee roster.
+      throw new ConflictException('session_roster_only');
     }
 
     // Two-tier identity match (owner decision 2026-09-06): strong identity

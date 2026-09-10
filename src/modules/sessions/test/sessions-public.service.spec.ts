@@ -19,7 +19,7 @@ describe('SessionsPublicService', () => {
     id: 's1',
     title: 'Rekrutmen Batch Sep',
     status: 'ACTIVE',
-    expiresAt: new Date('2026-09-10T00:00:00Z'),
+    expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     slotLimit: 20,
     pinHash: 'hashed',
     joinMode: 'OPEN',

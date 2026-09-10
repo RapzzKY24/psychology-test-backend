@@ -244,6 +244,16 @@ describe('SessionsService', () => {
       ).rejects.toThrow('session_expired');
     });
 
+    it('should throw 409 session_roster_only when joining a ROSTER session', async () => {
+      mockRepo.findByToken.mockResolvedValue({
+        ...activeSession,
+        joinMode: 'ROSTER',
+      });
+      await expect(
+        service.join('tok', { name: 'Budi' } as any, '1.1.1.1'),
+      ).rejects.toThrow('session_roster_only');
+    });
+
     it('should throw 410 test_archived when a session test is not PUBLISHED', async () => {
       mockRepo.findByToken.mockResolvedValue(activeSession);
       mockRepo.findSessionTestsBySessionId.mockResolvedValue([
