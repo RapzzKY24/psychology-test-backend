@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return */
 import { ConflictException } from '@nestjs/common';
+import { Prisma } from '../../../generated/prisma/client';
 
 // better-auth/crypto is ESM-only; mock before the service import.
 jest.mock('better-auth/crypto', () => ({
@@ -67,22 +68,54 @@ describe('AdminService.createPsychologist', () => {
     expect(result.user).toEqual({ id: 'u1', role: 'PSYCHOLOGIST' });
   });
 
-  it('should throw 409 when email is taken', async () => {
+  it('should throw 409 duplicate_email when email is taken', async () => {
     mockPrisma.user.findUnique.mockResolvedValue({ id: 'other' });
 
     await expect(service.createPsychologist(dto)).rejects.toThrow(
-      ConflictException,
+      'duplicate_email',
     );
     expect(mockPrisma.$transaction).not.toHaveBeenCalled();
   });
 
-  it('should throw 409 when NIK is taken', async () => {
+  it('should throw 409 duplicate_nik when NIK is taken', async () => {
     mockPrisma.user.findUnique.mockResolvedValue(null);
     mockPrisma.psychologistProfile.findUnique.mockResolvedValue({ id: 'p9' });
 
     await expect(service.createPsychologist(dto)).rejects.toThrow(
-      ConflictException,
+      'duplicate_nik',
     );
     expect(mockPrisma.$transaction).not.toHaveBeenCalled();
+  });
+
+  it('should map a concurrent NIK collision (P2002) to 409 instead of 500', async () => {
+    mockPrisma.user.findUnique.mockResolvedValue(null);
+    mockPrisma.psychologistProfile.findUnique.mockResolvedValue(null);
+    mockPrisma.$transaction.mockRejectedValue(
+      new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
+        code: 'P2002',
+        clientVersion: 'test',
+        meta: { target: ['psychologist_profiles_nik_key'] },
+      }),
+    );
+
+    await expect(service.createPsychologist(dto)).rejects.toThrow(
+      'duplicate_nik',
+    );
+  });
+
+  it('should map a concurrent email collision (P2002) to 409 instead of 500', async () => {
+    mockPrisma.user.findUnique.mockResolvedValue(null);
+    mockPrisma.psychologistProfile.findUnique.mockResolvedValue(null);
+    mockPrisma.$transaction.mockRejectedValue(
+      new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
+        code: 'P2002',
+        clientVersion: 'test',
+        meta: { target: ['email'] },
+      }),
+    );
+
+    await expect(service.createPsychologist(dto)).rejects.toThrow(
+      'duplicate_email',
+    );
   });
 });
