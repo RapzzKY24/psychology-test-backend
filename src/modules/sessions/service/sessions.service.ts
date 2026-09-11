@@ -169,6 +169,12 @@ export class SessionsService {
       // join would create unlinked seats and corrupt the employee roster.
       throw new ConflictException('session_roster_only');
     }
+    if (session.pinHash) {
+      // PIN is verified BEFORE any resume path: otherwise knowing a
+      // victim's email/phone would issue a fresh token without the PIN.
+      const pinOk = dto.pin ? await verifyPin(dto.pin, session.pinHash) : false;
+      if (!pinOk) throw new UnauthorizedException('invalid_pin');
+    }
 
     // Two-tier identity match (owner decision 2026-09-06): strong identity
     // (email → phone → candidateNumber) resumes silently; name-only match
@@ -240,10 +246,6 @@ export class SessionsService {
     );
     if (notPublished.length > 0) {
       throw new GoneException('test_archived');
-    }
-    if (session.pinHash) {
-      const pinOk = dto.pin ? await verifyPin(dto.pin, session.pinHash) : false;
-      if (!pinOk) throw new UnauthorizedException('invalid_pin');
     }
 
     const participantToken = generateParticipantToken();

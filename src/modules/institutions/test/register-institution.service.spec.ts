@@ -106,7 +106,7 @@ describe('RegisterInstitutionService', () => {
     });
 
     await expect(service.register(dto, '1.1.1.1')).rejects.toThrow(
-      'Email sudah terdaftar — silakan masuk.',
+      'duplicate_email',
     );
     expect(mockRepo.promoteUserAndCreateInstitution).not.toHaveBeenCalled();
   });
@@ -119,7 +119,7 @@ describe('RegisterInstitutionService', () => {
     });
 
     await expect(service.register(dto, '1.1.1.1')).rejects.toThrow(
-      'Email sudah terdaftar — silakan masuk.',
+      'duplicate_email',
     );
   });
 
