@@ -8,7 +8,10 @@ import type { ClaimSessionDto } from '../dto/claim-session.dto';
 import { SessionsService } from '../service/sessions.service';
 import { SessionsPublicService } from '../service/sessions-public.service';
 import type { ApiResponse } from '../../../common/interfaces/api-response.interface';
-import type { JoinSessionResult } from '../repository/sessions.repository';
+import type {
+  JoinSessionResult,
+  NeedsConfirmationResult,
+} from '../repository/sessions.repository';
 import type { PublicSessionPreviewDto } from '../dto/public-session-preview.dto';
 
 @Controller('api/v1/public/sessions')
@@ -34,7 +37,7 @@ export class SessionsPublicController {
     @Ip() ip: string,
     @Param('token') token: string,
     @Body(new ZodValidationPipe(JoinSessionSchema)) dto: JoinSessionDto,
-  ): Promise<ApiResponse<JoinSessionResult>> {
+  ): Promise<ApiResponse<JoinSessionResult | NeedsConfirmationResult>> {
     const data = await this.sessionsService.join(token, dto, ip);
     return { data, message: 'Joined session' };
   }

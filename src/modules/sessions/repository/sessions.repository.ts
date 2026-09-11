@@ -60,6 +60,16 @@ export interface JoinSessionResult {
   resumed: boolean;
 }
 
+export interface NeedsConfirmationResult {
+  status: 'needs_confirmation';
+  matches: {
+    id: string;
+    name: string;
+    startedAt: Date | null;
+    answeredCount: number;
+  }[];
+}
+
 export interface SessionTestSummary {
   testId: string;
   testName: string;

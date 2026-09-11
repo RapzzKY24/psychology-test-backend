@@ -13,6 +13,7 @@ import type {
   SessionsRepository,
   SessionDetail,
   JoinSessionResult,
+  NeedsConfirmationResult,
 } from '../repository/sessions.repository';
 import type { CreateSessionDto } from '../dto/create-session.dto';
 import type { JoinSessionDto } from '../dto/join-session.dto';
@@ -151,7 +152,7 @@ export class SessionsService {
     token: string,
     dto: JoinSessionDto,
     ip: string,
-  ): Promise<JoinSessionResult> {
+  ): Promise<JoinSessionResult | NeedsConfirmationResult> {
     // Rate limit first — protects the PIN check from brute force.
     this.joinLimiter.check(ip);
 
@@ -233,9 +234,9 @@ export class SessionsService {
           }),
         );
         return {
-          status: 'needs_confirmation' as const,
+          status: 'needs_confirmation',
           matches,
-        } as unknown as JoinSessionResult;
+        } satisfies NeedsConfirmationResult;
       }
     }
     const sessionTests = await this.repo.findSessionTestsBySessionId(

@@ -8,9 +8,21 @@ jest.mock('../utils/verify-pin', () => ({
 }));
 
 import { SessionsService } from '../service/sessions.service';
-import type { SessionsRepository } from '../repository/sessions.repository';
+import type {
+  JoinSessionResult,
+  NeedsConfirmationResult,
+  SessionsRepository,
+} from '../repository/sessions.repository';
 import { hashPin } from '../utils/hash-pin';
 import { verifyPin } from '../utils/verify-pin';
+
+function assertJoined(
+  result: JoinSessionResult | NeedsConfirmationResult,
+): asserts result is JoinSessionResult {
+  if (!('participantToken' in result)) {
+    throw new Error('expected JoinSessionResult, got needs_confirmation');
+  }
+}
 
 describe('SessionsService', () => {
   let service: SessionsService;
@@ -299,6 +311,7 @@ describe('SessionsService', () => {
         { name: 'Budi', email: 'budi@mail.com', candidateNumber: '007' },
         '1.1.1.1',
       );
+      assertJoined(result);
 
       expect(result.participantToken).toMatch(/^[0-9a-f]{64}$/); // 32-byte hex
       expect(mockRepo.joinSession).toHaveBeenCalledWith(
@@ -386,6 +399,7 @@ describe('join — idempotent identity (owner decision 2026-09-06)', () => {
       { name: 'RapzzKY', email: 'kid@mail.com' },
       '1.1.1.1',
     );
+    assertJoined(result);
 
     expect(mockRepo.joinSession).not.toHaveBeenCalled();
     expect(mockRepo.updateParticipantToken).toHaveBeenCalledWith(
@@ -476,6 +490,7 @@ describe('join — idempotent identity (owner decision 2026-09-06)', () => {
       { name: 'RapzzKY', confirmParticipantId: 'p1' },
       '1.1.1.1',
     );
+    assertJoined(result);
 
     expect(mockRepo.joinSession).not.toHaveBeenCalled();
     expect(mockRepo.updateParticipantToken).toHaveBeenCalledWith(
@@ -519,6 +534,7 @@ describe('join — idempotent identity (owner decision 2026-09-06)', () => {
       { name: 'RapzzKY' },
       '1.1.1.1',
     );
+    assertJoined(result);
 
     expect(mockRepo.joinSession).toHaveBeenCalled();
     expect(result.resumed).toBe(false);

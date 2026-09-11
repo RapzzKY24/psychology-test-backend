@@ -1,4 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PSYCHOLOGIST_PROFILE_REPO } from '../repository/psychologist-profile.repository';
 import type { PsychologistProfileRepository } from '../repository/psychologist-profile.repository';
 import type { PsychologistProfile } from '../../../generated/prisma/client';
@@ -15,6 +16,7 @@ export class PsychologistService {
   constructor(
     @Inject(PSYCHOLOGIST_PROFILE_REPO)
     private readonly repo: PsychologistProfileRepository,
+    private readonly configService: ConfigService,
   ) {}
 
   async getProfile(
@@ -49,7 +51,10 @@ export class PsychologistService {
     file: Express.Multer.File,
   ): Promise<PsychologistProfile> {
     validateImageFile(file);
-    const uploadDir = process.env.UPLOAD_DIR || './uploads';
+    const uploadDir = this.configService.get<string>(
+      'app.uploadDir',
+      './uploads',
+    );
     await ensureUploadDir(uploadDir);
     const filename = generateSignatureFilename(
       file.originalname,

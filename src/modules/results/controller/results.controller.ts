@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Req } from '@nestjs/common';
+import { Controller, Get, Headers, Param, Query } from '@nestjs/common';
 import { AllowAnonymous, Roles, Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
@@ -11,7 +11,6 @@ import type {
 } from '../../../common/interfaces/api-response.interface';
 import type { TestResult } from '../../../generated/prisma/client';
 import type { AdminResultListItemDto } from '../dto/admin-result-list-item.dto';
-import type { Request } from 'express';
 
 @Controller('api/v1')
 export class ResultsController {
@@ -23,7 +22,7 @@ export class ResultsController {
   async getPublicResult(
     @Param('id') id: string,
     @Session() session: UserSession | null,
-    @Req() req: Request,
+    @Headers('x-participant-token') participantToken?: string,
   ): Promise<
     ApiResponse<{
       patternCode: string;
@@ -32,11 +31,8 @@ export class ResultsController {
       completedAt: Date | null;
     }>
   > {
-    const participantToken = req.headers['x-participant-token'] as
-      string | undefined;
     const owner = {
-      userId: (session as unknown as { user?: { id: string } } | null)?.user
-        ?.id,
+      userId: session?.user.id,
       participantToken,
     };
     // If no owner at all, treat as not found (anti-leak) — service will throw 404

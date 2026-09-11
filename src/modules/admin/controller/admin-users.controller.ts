@@ -17,13 +17,14 @@ import type { UpdateRoleDto } from '../dto/update-role.dto';
 import { AdminService } from '../service/admin.service';
 import { z } from 'zod';
 import type { PaginationDto } from '../../../common/dto/pagination.dto';
-import type { UserRole } from '../../../generated/prisma/client';
+import { UserRole } from '../../../generated/prisma/client';
+import type { UserRole as UserRoleType } from '../../../generated/prisma/client';
 import type { PaginatedResponse } from '../../../common/interfaces/api-response.interface';
 
 const PaginationQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(10),
-  role: z.enum(['PARTICIPANT', 'ADMIN', 'PSYCHOLOGIST']).optional(),
+  role: z.nativeEnum(UserRole).optional(),
 });
 
 @Controller('api/v1/admin/users')
@@ -34,7 +35,7 @@ export class AdminUsersController {
   @Roles(['ADMIN'])
   async listUsers(
     @Query(new ZodValidationPipe(PaginationQuerySchema))
-    query: PaginationDto & { role?: UserRole },
+    query: PaginationDto & { role?: UserRoleType },
   ): Promise<
     PaginatedResponse<{
       id: string;
