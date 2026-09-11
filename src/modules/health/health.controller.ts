@@ -1,7 +1,7 @@
-import { Controller, Get, Res } from '@nestjs/common';
-import type { Response } from 'express';
+import { Controller, Get, ServiceUnavailableException } from '@nestjs/common';
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 import { HealthService } from './health.service';
+import type { ApiResponse } from '../../common/interfaces/api-response.interface';
 
 @Controller('api/v1/health')
 export class HealthController {
@@ -9,12 +9,11 @@ export class HealthController {
 
   @Get()
   @AllowAnonymous()
-  async check(@Res() res: Response): Promise<void> {
+  async check(): Promise<ApiResponse<{ status: string; db: string }>> {
     const isUp = await this.healthService.isDbUp();
-    if (isUp) {
-      res.status(200).json({ status: 'ok', db: 'up' });
-      return;
+    if (!isUp) {
+      throw new ServiceUnavailableException('Database unreachable');
     }
-    res.status(503).json({ status: 'error', db: 'down' });
+    return { data: { status: 'ok', db: 'up' } };
   }
 }

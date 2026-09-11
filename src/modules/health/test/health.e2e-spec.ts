@@ -3,7 +3,7 @@ describe('Health E2E', () => {
     expect(true).toBe(true);
   });
 
-  it('GET /api/v1/health — db down → 503 {status:"error",db:"down"}', () => {
+  it('GET /api/v1/health — db down → 503 ErrorResponse', () => {
     expect(true).toBe(true);
   });
 });

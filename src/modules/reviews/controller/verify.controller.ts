@@ -1,7 +1,6 @@
-import { Controller, Get, Param, Req } from '@nestjs/common';
+import { Controller, Get, Ip, Param } from '@nestjs/common';
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 import { ReviewsService } from '../service/reviews.service';
-import type { Request } from 'express';
 
 @Controller('api/v1/public/verify')
 export class VerifyController {
@@ -9,12 +8,8 @@ export class VerifyController {
 
   @Get(':code')
   @AllowAnonymous()
-  async verify(@Param('code') code: string, @Req() req: Request) {
-    const ip =
-      (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
-      req.ip ||
-      'unknown';
-    const result = await this.reviewsService.verify(code, ip);
+  async verify(@Param('code') code: string, @Ip() ip: string) {
+    const result = await this.reviewsService.verify(code, ip || 'unknown');
     return result;
   }
 }
