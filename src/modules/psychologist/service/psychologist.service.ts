@@ -1,8 +1,9 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, ConflictException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PSYCHOLOGIST_PROFILE_REPO } from '../repository/psychologist-profile.repository';
 import type { PsychologistProfileRepository } from '../repository/psychologist-profile.repository';
 import type { PsychologistProfile } from '../../../generated/prisma/client';
+import { Prisma } from '../../../generated/prisma/client';
 import type { UpdateProfileDto } from '../dto/update-profile.dto';
 import { validateImageFile } from '../utils/validate-image-file';
 import { generateSignatureFilename } from '../utils/generate-signature-filename';
@@ -26,7 +27,6 @@ export class PsychologistService {
     const complete =
       !!profile &&
       !!profile.fullName &&
-      !!profile.degree &&
       !!profile.licenseNumber &&
       !!profile.signatureImagePath;
     return { profile, complete };
@@ -36,7 +36,19 @@ export class PsychologistService {
     userId: string,
     dto: UpdateProfileDto,
   ): Promise<PsychologistProfile> {
-    return this.repo.upsert(userId, dto);
+    try {
+      return await this.repo.upsert(userId, dto);
+    } catch (error) {
+      // NIK belongs to another psychologist — the DB unique constraint
+      // wins; map back to 409 instead of 500.
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        const target = String(error.meta?.target ?? '');
+        if (error.code === 'P2002' && target.includes('nik')) {
+          throw new ConflictException('duplicate_nik');
+        }
+      }
+      throw error;
+    }
   }
 
   async updateSignature(

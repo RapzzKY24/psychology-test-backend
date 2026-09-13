@@ -41,7 +41,6 @@ export class PsychologistProfileController {
     );
     const complete =
       !!profile.fullName &&
-      !!profile.degree &&
       !!profile.licenseNumber &&
       !!profile.signatureImagePath;
     return { data: profile, complete };
@@ -62,7 +61,6 @@ export class PsychologistProfileController {
     );
     const complete =
       !!profile.fullName &&
-      !!profile.degree &&
       !!profile.licenseNumber &&
       !!profile.signatureImagePath;
     return {
