@@ -12,6 +12,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Roles, Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
+import type { ErrorResponse } from '../../../common/interfaces/api-response.interface';
 import { UpdateProfileSchema } from '../dto/update-profile.dto';
 import type { UpdateProfileDto } from '../dto/update-profile.dto';
 import { PsychologistService } from '../service/psychologist.service';
@@ -56,7 +57,19 @@ export class PsychologistProfileController {
     const filePath = await this.psychologistService.getSignaturePath(
       session.user.id,
     );
-    res.sendFile(filePath);
+    // Callback: the file passed existsSync but can vanish before send
+    // (TOCTOU). Without this, @Res() bypasses the exception filter and the
+    // request hangs instead of returning the shaped 404.
+    res.sendFile(filePath, (err: unknown) => {
+      if (err && !res.headersSent) {
+        const body: ErrorResponse = {
+          statusCode: 404,
+          message: 'signature_not_found',
+          error: 'NotFoundException',
+        };
+        res.status(404).json(body);
+      }
+    });
   }
 
   @Post('signature')
