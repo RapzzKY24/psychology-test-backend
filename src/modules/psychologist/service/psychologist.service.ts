@@ -11,6 +11,7 @@ import type { PsychologistProfile } from '../../../generated/prisma/client';
 import { Prisma } from '../../../generated/prisma/client';
 import type { UpdateProfileDto } from '../dto/update-profile.dto';
 import { validateImageFile } from '../utils/validate-image-file';
+import { isProfileComplete } from '../utils/is-profile-complete';
 import { generateSignatureFilename } from '../utils/generate-signature-filename';
 import { ensureUploadDir } from '../utils/ensure-upload-dir';
 import * as fs from 'fs';
@@ -29,11 +30,7 @@ export class PsychologistService {
     userId: string,
   ): Promise<{ profile: PsychologistProfile | null; complete: boolean }> {
     const profile = await this.repo.findByUserId(userId);
-    const complete =
-      !!profile &&
-      !!profile.fullName &&
-      !!profile.licenseNumber &&
-      !!profile.signatureImagePath;
+    const complete = !!profile && isProfileComplete(profile);
     return { profile, complete };
   }
 

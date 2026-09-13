@@ -111,6 +111,8 @@ describe('PsychologistService.getProfile completeness', () => {
       fullName: 'Budi',
       degree: '',
       licenseNumber: 'SIPP-123',
+      nik: '3201010101010001',
+      institutionName: 'RS Harapan',
       signatureImagePath: 'uploads/sig.png',
     });
 
@@ -124,6 +126,38 @@ describe('PsychologistService.getProfile completeness', () => {
       fullName: 'Budi',
       degree: 'Psikolog',
       licenseNumber: '',
+      nik: '3201010101010001',
+      institutionName: 'RS Harapan',
+      signatureImagePath: 'uploads/sig.png',
+    });
+
+    const { complete } = await service.getProfile('u1');
+
+    expect(complete).toBe(false);
+  });
+
+  it('should be incomplete when the NIK is missing', async () => {
+    mockRepo.findByUserId.mockResolvedValue({
+      fullName: 'Budi',
+      degree: 'Psikolog',
+      licenseNumber: 'SIPP-123',
+      nik: null,
+      institutionName: 'RS Harapan',
+      signatureImagePath: 'uploads/sig.png',
+    });
+
+    const { complete } = await service.getProfile('u1');
+
+    expect(complete).toBe(false);
+  });
+
+  it('should be incomplete when the institution is missing', async () => {
+    mockRepo.findByUserId.mockResolvedValue({
+      fullName: 'Budi',
+      degree: 'Psikolog',
+      licenseNumber: 'SIPP-123',
+      nik: '3201010101010001',
+      institutionName: null,
       signatureImagePath: 'uploads/sig.png',
     });
 

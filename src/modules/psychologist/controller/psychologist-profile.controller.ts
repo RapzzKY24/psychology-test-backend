@@ -12,6 +12,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Roles, Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
+import { isProfileComplete } from '../utils/is-profile-complete';
 import type { ErrorResponse } from '../../../common/interfaces/api-response.interface';
 import { UpdateProfileSchema } from '../dto/update-profile.dto';
 import type { UpdateProfileDto } from '../dto/update-profile.dto';
@@ -41,10 +42,7 @@ export class PsychologistProfileController {
       session.user.id,
       dto,
     );
-    const complete =
-      !!profile.fullName &&
-      !!profile.licenseNumber &&
-      !!profile.signatureImagePath;
+    const complete = isProfileComplete(profile);
     return { data: profile, complete };
   }
 
@@ -85,10 +83,7 @@ export class PsychologistProfileController {
       session.user.id,
       file,
     );
-    const complete =
-      !!profile.fullName &&
-      !!profile.licenseNumber &&
-      !!profile.signatureImagePath;
+    const complete = isProfileComplete(profile);
     return {
       data: { signatureImagePath: profile.signatureImagePath },
       complete,
