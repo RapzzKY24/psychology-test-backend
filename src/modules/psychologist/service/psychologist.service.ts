@@ -42,8 +42,13 @@ export class PsychologistService {
       // NIK belongs to another psychologist — the DB unique constraint
       // wins; map back to 409 instead of 500.
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        const target = String(error.meta?.target ?? '');
-        if (error.code === 'P2002' && target.includes('nik')) {
+        const rawTarget = error.meta?.target;
+        const targetText = Array.isArray(rawTarget)
+          ? rawTarget
+              .filter((entry): entry is string => typeof entry === 'string')
+              .join(' ')
+          : '';
+        if (error.code === 'P2002' && targetText.includes('nik')) {
           throw new ConflictException('duplicate_nik');
         }
       }
