@@ -1,4 +1,9 @@
-import { Injectable, Inject, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PSYCHOLOGIST_PROFILE_REPO } from '../repository/psychologist-profile.repository';
 import type { PsychologistProfileRepository } from '../repository/psychologist-profile.repository';
@@ -61,6 +66,23 @@ export class PsychologistService {
     signatureImagePath: string,
   ): Promise<PsychologistProfile> {
     return this.repo.updateSignature(userId, signatureImagePath);
+  }
+
+  async getSignaturePath(userId: string): Promise<string> {
+    const profile = await this.repo.findByUserId(userId);
+    const stored = profile?.signatureImagePath;
+    if (!stored) throw new NotFoundException('signature_not_found');
+    // Jail to the upload dir: the stored path comes from the DB and
+    // must never resolve outside it (path traversal → arbitrary file read).
+    const uploadDir = this.configService.get<string>(
+      'app.uploadDir',
+      './uploads',
+    );
+    const base = `${path.resolve(uploadDir)}${path.sep}`;
+    const full = path.resolve(stored);
+    if (!full.startsWith(base) || !fs.existsSync(full))
+      throw new NotFoundException('signature_not_found');
+    return full;
   }
 
   async saveSignature(

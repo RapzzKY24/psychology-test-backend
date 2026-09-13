@@ -6,6 +6,7 @@ import {
   Body,
   UseInterceptors,
   UploadedFile,
+  Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Roles, Session } from '@thallesp/nestjs-better-auth';
@@ -14,7 +15,7 @@ import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
 import { UpdateProfileSchema } from '../dto/update-profile.dto';
 import type { UpdateProfileDto } from '../dto/update-profile.dto';
 import { PsychologistService } from '../service/psychologist.service';
-import type { Express } from 'express';
+import type { Express, Response } from 'express';
 
 @Controller('api/v1/psychologist/me')
 export class PsychologistProfileController {
@@ -44,6 +45,18 @@ export class PsychologistProfileController {
       !!profile.licenseNumber &&
       !!profile.signatureImagePath;
     return { data: profile, complete };
+  }
+
+  @Get('signature-image')
+  @Roles(['PSYCHOLOGIST'])
+  async streamSignature(
+    @Session() session: UserSession,
+    @Res() res: Response,
+  ): Promise<void> {
+    const filePath = await this.psychologistService.getSignaturePath(
+      session.user.id,
+    );
+    res.sendFile(filePath);
   }
 
   @Post('signature')

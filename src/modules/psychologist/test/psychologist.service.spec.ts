@@ -1,7 +1,15 @@
-import { ConflictException } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+import { ConflictException, NotFoundException } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
 import { Prisma } from '../../../generated/prisma/client';
 import { UpdateProfileSchema } from '../dto/update-profile.dto';
 import { PsychologistService } from '../service/psychologist.service';
+
+jest.mock('fs', () => ({
+  ...jest.requireActual('fs'),
+  existsSync: jest.fn(),
+}));
 
 describe('PsychologistService.updateProfile', () => {
   let service: PsychologistService;
@@ -122,5 +130,74 @@ describe('PsychologistService.getProfile completeness', () => {
     const { complete } = await service.getProfile('u1');
 
     expect(complete).toBe(false);
+  });
+});
+
+describe('PsychologistService.getSignaturePath', () => {
+  let service: PsychologistService;
+  let mockRepo: {
+    findByUserId: jest.Mock;
+    upsert: jest.Mock;
+    updateSignature: jest.Mock;
+  };
+  let mockConfig: { get: jest.Mock };
+
+  beforeEach(() => {
+    mockRepo = {
+      findByUserId: jest.fn(),
+      upsert: jest.fn(),
+      updateSignature: jest.fn(),
+    };
+    mockConfig = { get: jest.fn().mockReturnValue('./uploads') };
+    service = new PsychologistService(mockRepo, mockConfig as never);
+    jest.mocked(fs.existsSync).mockReset();
+  });
+
+  it('should return the resolved path when the file exists', async () => {
+    mockRepo.findByUserId.mockResolvedValue({
+      signatureImagePath: 'uploads/sig.png',
+    });
+    jest.mocked(fs.existsSync).mockReturnValue(true);
+
+    const result = await service.getSignaturePath('u1');
+
+    expect(result).toBe(path.resolve('uploads/sig.png'));
+  });
+
+  it('should throw 404 when no signature is stored', async () => {
+    mockRepo.findByUserId.mockResolvedValue({ signatureImagePath: '' });
+
+    await expect(service.getSignaturePath('u1')).rejects.toThrow(
+      'signature_not_found',
+    );
+  });
+
+  it('should throw 404 when the profile is missing', async () => {
+    mockRepo.findByUserId.mockResolvedValue(null);
+
+    await expect(service.getSignaturePath('u1')).rejects.toThrow(
+      NotFoundException,
+    );
+  });
+
+  it('should throw 404 for a path escaping the upload dir', async () => {
+    mockRepo.findByUserId.mockResolvedValue({
+      signatureImagePath: '../etc/passwd',
+    });
+
+    await expect(service.getSignaturePath('u1')).rejects.toThrow(
+      'signature_not_found',
+    );
+  });
+
+  it('should throw 404 when the file is gone from disk', async () => {
+    mockRepo.findByUserId.mockResolvedValue({
+      signatureImagePath: 'uploads/sig.png',
+    });
+    jest.mocked(fs.existsSync).mockReturnValue(false);
+
+    await expect(service.getSignaturePath('u1')).rejects.toThrow(
+      'signature_not_found',
+    );
   });
 });
