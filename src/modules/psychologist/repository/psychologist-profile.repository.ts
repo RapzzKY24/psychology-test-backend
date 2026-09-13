@@ -8,7 +8,13 @@ export interface PsychologistProfileRepository {
   findByUserId(userId: string): Promise<PsychologistProfile | null>;
   upsert(
     userId: string,
-    data: { fullName: string; degree: string; licenseNumber: string },
+    data: {
+      fullName: string;
+      degree: string;
+      licenseNumber: string;
+      nik: string;
+      institutionName: string;
+    },
   ): Promise<PsychologistProfile>;
   updateSignature(
     userId: string,
@@ -26,7 +32,13 @@ export class PrismaPsychologistProfileRepository implements PsychologistProfileR
 
   async upsert(
     userId: string,
-    data: { fullName: string; degree: string; licenseNumber: string },
+    data: {
+      fullName: string;
+      degree: string;
+      licenseNumber: string;
+      nik: string;
+      institutionName: string;
+    },
   ): Promise<PsychologistProfile> {
     return this.prisma.psychologistProfile.upsert({
       where: { userId },

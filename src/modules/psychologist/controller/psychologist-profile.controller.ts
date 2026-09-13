@@ -6,15 +6,18 @@ import {
   Body,
   UseInterceptors,
   UploadedFile,
+  Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Roles, Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
+import { isProfileComplete } from '../utils/is-profile-complete';
+import type { ErrorResponse } from '../../../common/interfaces/api-response.interface';
 import { UpdateProfileSchema } from '../dto/update-profile.dto';
 import type { UpdateProfileDto } from '../dto/update-profile.dto';
 import { PsychologistService } from '../service/psychologist.service';
-import type { Express } from 'express';
+import type { Express, Response } from 'express';
 
 @Controller('api/v1/psychologist/me')
 export class PsychologistProfileController {
@@ -39,12 +42,32 @@ export class PsychologistProfileController {
       session.user.id,
       dto,
     );
-    const complete =
-      !!profile.fullName &&
-      !!profile.degree &&
-      !!profile.licenseNumber &&
-      !!profile.signatureImagePath;
+    const complete = isProfileComplete(profile);
     return { data: profile, complete };
+  }
+
+  @Get('signature-image')
+  @Roles(['PSYCHOLOGIST'])
+  async streamSignature(
+    @Session() session: UserSession,
+    @Res() res: Response,
+  ): Promise<void> {
+    const filePath = await this.psychologistService.getSignaturePath(
+      session.user.id,
+    );
+    // Callback: the file passed existsSync but can vanish before send
+    // (TOCTOU). Without this, @Res() bypasses the exception filter and the
+    // request hangs instead of returning the shaped 404.
+    res.sendFile(filePath, (err: unknown) => {
+      if (err && !res.headersSent) {
+        const body: ErrorResponse = {
+          statusCode: 404,
+          message: 'signature_not_found',
+          error: 'NotFoundException',
+        };
+        res.status(404).json(body);
+      }
+    });
   }
 
   @Post('signature')
@@ -60,11 +83,7 @@ export class PsychologistProfileController {
       session.user.id,
       file,
     );
-    const complete =
-      !!profile.fullName &&
-      !!profile.degree &&
-      !!profile.licenseNumber &&
-      !!profile.signatureImagePath;
+    const complete = isProfileComplete(profile);
     return {
       data: { signatureImagePath: profile.signatureImagePath },
       complete,
