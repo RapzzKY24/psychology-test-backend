@@ -10,6 +10,8 @@ import type {
   SessionDetail,
 } from '../../sessions/repository/sessions.repository';
 import { SessionsService } from '../../sessions/service/sessions.service';
+import { TESTS_REPOSITORY } from '../../tests/repository/tests.repository';
+import type { TestsRepository } from '../../tests/repository/tests.repository';
 import { INSTANSI_PARTICIPANTS_REPOSITORY } from '../repository/instansi-participants.repository';
 import type { InstansiParticipantsRepository } from '../repository/instansi-participants.repository';
 import { InstansiParticipantsService } from './instansi-participants.service';
@@ -29,6 +31,8 @@ export class InstansiSessionsService {
     private readonly sessionsRepo: SessionsRepository,
     @Inject(INSTANSI_PARTICIPANTS_REPOSITORY)
     private readonly participantsRepo: InstansiParticipantsRepository,
+    @Inject(TESTS_REPOSITORY)
+    private readonly testsRepo: TestsRepository,
     private readonly participantsService: InstansiParticipantsService,
     private readonly sessionsService: SessionsService,
   ) {}
@@ -39,6 +43,20 @@ export class InstansiSessionsService {
   ): Promise<TestSession> {
     const institutionId =
       await this.participantsService.resolveInstitutionId(userId);
+
+    // WPT hidden from instansi — only CPMI (and existing non-WPT tests) allowed
+    const tests = await this.testsRepo.findMany({
+      skip: 0,
+      take: dto.testIds.length,
+      where: { id: { in: dto.testIds } },
+    });
+    const wptTests = tests.data.filter((t) => t.slug === 'wpt');
+    if (wptTests.length > 0) {
+      throw new UnprocessableEntityException({
+        message: 'validation_failed',
+        details: [`instansi cannot use WPT directly, use CPMI`],
+      });
+    }
 
     if (dto.employeeIds.length > dto.slotLimit) {
       throw new UnprocessableEntityException({

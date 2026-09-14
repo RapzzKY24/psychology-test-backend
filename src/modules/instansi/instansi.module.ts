@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { SessionsModule } from '../sessions/sessions.module';
+import { TestsModule } from '../tests/tests.module';
 import { InstansiParticipantsController } from './controller/instansi-participants.controller';
 import { InstansiSessionsController } from './controller/instansi-sessions.controller';
 import { InstansiOverviewController } from './controller/instansi-overview.controller';
+import { InstansiTestsController } from './controller/instansi-tests.controller';
 import { InstansiParticipantsService } from './service/instansi-participants.service';
 import { InstansiSessionsService } from './service/instansi-sessions.service';
 import { InstansiOverviewService } from './service/instansi-overview.service';
@@ -12,11 +14,12 @@ import { PrismaInstitutionsRepository } from '../institutions/repository/institu
 import { INSTITUTIONS_REPOSITORY } from '../institutions/repository/institutions.repository';
 
 @Module({
-  imports: [SessionsModule],
+  imports: [SessionsModule, TestsModule],
   controllers: [
     InstansiParticipantsController,
     InstansiSessionsController,
     InstansiOverviewController,
+    InstansiTestsController,
   ],
   providers: [
     InstansiParticipantsService,

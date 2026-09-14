@@ -3,6 +3,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { PrismaSessionsRepository } from '../../sessions/repository/sessions.prisma-repository';
 import { InstansiParticipantsPrismaRepository } from '../repository/instansi-participants.prisma-repository';
 import { PrismaInstitutionsRepository } from '../../institutions/repository/institutions.prisma-repository';
+import { PrismaTestsRepository } from '../../tests/repository/tests.prisma-repository';
 import { SessionsService } from '../../sessions/service/sessions.service';
 import { SessionsPublicService } from '../../sessions/service/sessions-public.service';
 import { InstansiParticipantsService } from '../service/instansi-participants.service';
@@ -34,6 +35,7 @@ describe('Instansi flow (integration, DB real)', () => {
     const sessionsRepo = new PrismaSessionsRepository(prisma);
     const participantsRepo = new InstansiParticipantsPrismaRepository(prisma);
     const institutionsRepo = new PrismaInstitutionsRepository(prisma);
+    const testsRepo = new PrismaTestsRepository(prisma);
     const participantsService = new InstansiParticipantsService(
       participantsRepo,
       institutionsRepo,
@@ -41,6 +43,7 @@ describe('Instansi flow (integration, DB real)', () => {
     sessionsService = new InstansiSessionsService(
       sessionsRepo,
       participantsRepo,
+      testsRepo as never,
       participantsService,
       new SessionsService(sessionsRepo),
     );

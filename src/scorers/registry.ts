@@ -12,6 +12,7 @@ import {
 } from './schemas/right-wrong-norm';
 import { scoreDisc } from './disc-scorer';
 import { scoreRightWrongNorm } from './right-wrong-norm';
+import { sanitizeRightWrongItem } from './sanitize-right-wrong-item';
 
 export interface ScorerOutput {
   scores: Record<string, unknown>;
@@ -52,13 +53,7 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     type: 'RIGHT_WRONG_NORM',
     itemSchema: RightWrongItemContentSchema,
     responseSchema: RightWrongResponseSchema,
-    sanitize: (content) => {
-      const parsed = RightWrongItemContentSchema.safeParse(content);
-      if (!parsed.success) return {};
-      const { correctIndex, ...rest } = parsed.data;
-      void correctIndex;
-      return rest;
-    },
+    sanitize: sanitizeRightWrongItem,
     patternCatalog: [...RIGHT_WRONG_PATTERN_CATALOG],
     score: (input) =>
       Promise.resolve(

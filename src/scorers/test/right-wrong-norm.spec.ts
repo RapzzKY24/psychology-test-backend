@@ -38,11 +38,14 @@ describe('RightWrongNormScorer (T1)', () => {
     ).toEqual({ question: 'Q1', options: ['a', 'b'] });
     expect(
       scorer.sanitize({
-        imageUrl: '/uploads/test-items/x.png',
+        imageUrl: '/uploads/test-items/550e8400-e29b-41d4-a716-446655440000.png',
         options: ['a', 'b'],
         correctIndex: 1,
       }),
-    ).toEqual({ imageUrl: '/uploads/test-items/x.png', options: ['a', 'b'] });
+    ).toEqual({
+      imageUrl: '/uploads/test-items/550e8400-e29b-41d4-a716-446655440000.png',
+      options: ['a', 'b'],
+    });
   });
 
   it('validates item and response schemas', () => {
@@ -60,11 +63,18 @@ describe('RightWrongNormScorer (T1)', () => {
     ).toBe(true);
     expect(
       scorer.itemSchema.safeParse({
-        imageUrl: '/uploads/x.png',
+        imageUrl: '/uploads/test-items/550e8400-e29b-41d4-a716-446655440000.png',
         options: ['a', 'b'],
         correctIndex: 0,
       }).success,
     ).toBe(true);
+    expect(
+      scorer.itemSchema.safeParse({
+        imageUrl: '/uploads/x.png',
+        options: ['a', 'b'],
+        correctIndex: 0,
+      }).success,
+    ).toBe(false);
     expect(
       scorer.itemSchema.safeParse({
         question: 'Q1',

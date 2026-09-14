@@ -27,6 +27,16 @@ export const RightWrongItemContentSchema = z
         path: ['correctIndex'],
       });
     }
+    if (
+      data.imageUrl &&
+      !/^\/uploads\/test-items\/[a-f0-9-]+\.(png|jpg)$/.test(data.imageUrl)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'imageUrl must be a generated upload path',
+        path: ['imageUrl'],
+      });
+    }
   });
 
 export type RightWrongItemContent = z.infer<typeof RightWrongItemContentSchema>;
