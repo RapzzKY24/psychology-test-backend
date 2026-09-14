@@ -2,61 +2,379 @@
   "test": {
     "slug": "wpt",
     "name": "WPT",
-    "description": "WPT — WPT wrapped untuk karyawan (RIGHT_WRONG_NORM raw, 5 soal contoh)",
+    "description": "WPT — 20 soal pilihan ganda simple (RIGHT_WRONG_NORM raw)",
     "category": "COGNITIVE",
     "scorerType": "RIGHT_WRONG_NORM",
     "price": 0,
-    "estimatedDurationMin": 30
+    "estimatedDurationMin": 20
   },
   "items": [
     {
       "order": 1,
       "content": {
-        "question": "Buku : Membaca = Pisau : ?",
-        "options": ["Memotong", "Menulis", "Menggambar", "Memasak"],
-        "correctIndex": 0
+        "question": "2 + 3 = ?",
+        "options": [
+          "4",
+          "5",
+          "6",
+          "7"
+        ],
+        "correctIndex": 1
       }
     },
     {
       "order": 2,
       "content": {
-        "question": "Jika semua A adalah B dan beberapa B adalah C, maka ...",
-        "options": ["Semua A adalah C", "Beberapa A adalah C", "Tidak dapat disimpulkan", "Semua C adalah A"],
-        "correctIndex": 2
+        "question": "Lawan kata 'Besar' adalah",
+        "options": [
+          "Kecil",
+          "Luas",
+          "Tinggi",
+          "Lebar"
+        ],
+        "correctIndex": 0
       }
     },
     {
       "order": 3,
       "content": {
-        "question": "Lengkapi deret: 2, 4, 8, 16, ...",
-        "options": ["20", "24", "32", "30"],
-        "correctIndex": 2
+        "question": "5 x 4 = ?",
+        "options": [
+          "15",
+          "20",
+          "25",
+          "30"
+        ],
+        "correctIndex": 1
       }
     },
     {
       "order": 4,
       "content": {
-        "question": "Pilih gambar yang melengkapi pola",
-        "imageUrl": "/uploads/test-items/550e8400-e29b-41d4-a716-446655440001.png",
-        "options": ["A", "B", "C", "D"],
+        "question": "Ibukota Indonesia adalah",
+        "options": [
+          "Bali",
+          "Jakarta",
+          "Surabaya",
+          "Medan"
+        ],
         "correctIndex": 1
       }
     },
     {
       "order": 5,
       "content": {
-        "question": "Sinonim dari 'Efisien' adalah ...",
-        "options": ["Boros", "Hemat", "Cepat", "Tepat guna"],
-        "correctIndex": 3
+        "question": "3, 6, 9, 12, ...",
+        "options": [
+          "13",
+          "15",
+          "14",
+          "18"
+        ],
+        "correctIndex": 1
+      }
+    },
+    {
+      "order": 6,
+      "content": {
+        "question": "Sinonim 'Cepat' adalah",
+        "options": [
+          "Lambat",
+          "Gesit",
+          "Berat",
+          "Kuat"
+        ],
+        "correctIndex": 1
+      }
+    },
+    {
+      "order": 7,
+      "content": {
+        "question": "10 - 7 = ?",
+        "options": [
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "correctIndex": 1
+      }
+    },
+    {
+      "order": 8,
+      "content": {
+        "question": "Warna bendera Indonesia",
+        "options": [
+          "Merah Putih",
+          "Biru Putih",
+          "Hijau Kuning",
+          "Hitam Putih"
+        ],
+        "correctIndex": 0
+      }
+    },
+    {
+      "order": 9,
+      "content": {
+        "question": "Jika A lebih tinggi dari B, B lebih tinggi dari C, maka A ... C",
+        "options": [
+          "Lebih tinggi dari",
+          "Lebih pendek dari",
+          "Sama dengan",
+          "Tidak dapat ditentukan"
+        ],
+        "correctIndex": 0
+      }
+    },
+    {
+      "order": 10,
+      "content": {
+        "question": "12 : 4 = ?",
+        "options": [
+          "2",
+          "3",
+          "4",
+          "6"
+        ],
+        "correctIndex": 1
+      }
+    },
+    {
+      "order": 11,
+      "content": {
+        "question": "Antonim 'Panas' adalah",
+        "options": [
+          "Hangat",
+          "Dingin",
+          "Terik",
+          "Gersang"
+        ],
+        "correctIndex": 1
+      }
+    },
+    {
+      "order": 12,
+      "content": {
+        "question": "7 + 8 = ?",
+        "options": [
+          "14",
+          "15",
+          "16",
+          "13"
+        ],
+        "correctIndex": 1
+      }
+    },
+    {
+      "order": 13,
+      "content": {
+        "question": "Hewan berkaki 4",
+        "options": [
+          "Ayam",
+          "Kucing",
+          "Ular",
+          "Ikan"
+        ],
+        "correctIndex": 1
+      }
+    },
+    {
+      "order": 14,
+      "content": {
+        "question": "20% dari 100 adalah",
+        "options": [
+          "10",
+          "20",
+          "25",
+          "30"
+        ],
+        "correctIndex": 1
+      }
+    },
+    {
+      "order": 15,
+      "content": {
+        "question": "Lengkapi: Senin, Selasa, Rabu, ...",
+        "options": [
+          "Kamis",
+          "Jumat",
+          "Sabtu",
+          "Minggu"
+        ],
+        "correctIndex": 0
+      }
+    },
+    {
+      "order": 16,
+      "content": {
+        "question": "9 x 3 = ?",
+        "options": [
+          "26",
+          "27",
+          "28",
+          "29"
+        ],
+        "correctIndex": 1
+      }
+    },
+    {
+      "order": 17,
+      "content": {
+        "question": "Lawan 'Benar' adalah",
+        "options": [
+          "Salah",
+          "Baik",
+          "Tepat",
+          "Lurus"
+        ],
+        "correctIndex": 0
+      }
+    },
+    {
+      "order": 18,
+      "content": {
+        "question": "4, 8, 12, 16, ...",
+        "options": [
+          "18",
+          "20",
+          "22",
+          "24"
+        ],
+        "correctIndex": 1
+      }
+    },
+    {
+      "order": 19,
+      "content": {
+        "question": "Ibukota Jawa Barat",
+        "options": [
+          "Bandung",
+          "Semarang",
+          "Surabaya",
+          "Jakarta"
+        ],
+        "correctIndex": 0
+      }
+    },
+    {
+      "order": 20,
+      "content": {
+        "question": "15 + 15 = ?",
+        "options": [
+          "25",
+          "30",
+          "35",
+          "40"
+        ],
+        "correctIndex": 1
       }
     }
   ],
   "interpretations": [
-    { "patternCode": "RAW_0", "title": "0 benar", "body": "Perlu pembinaan." },
-    { "patternCode": "RAW_1", "title": "1 benar", "body": "Perlu pembinaan." },
-    { "patternCode": "RAW_2", "title": "2 benar", "body": "Cukup." },
-    { "patternCode": "RAW_3", "title": "3 benar", "body": "Baik." },
-    { "patternCode": "RAW_4", "title": "4 benar", "body": "Baik sekali." },
-    { "patternCode": "RAW_5", "title": "5 benar", "body": "Sempurna." }
+    {
+      "patternCode": "RAW_0",
+      "title": "0 benar",
+      "body": "Skor 0 dari 20"
+    },
+    {
+      "patternCode": "RAW_1",
+      "title": "1 benar",
+      "body": "Skor 1 dari 20"
+    },
+    {
+      "patternCode": "RAW_2",
+      "title": "2 benar",
+      "body": "Skor 2 dari 20"
+    },
+    {
+      "patternCode": "RAW_3",
+      "title": "3 benar",
+      "body": "Skor 3 dari 20"
+    },
+    {
+      "patternCode": "RAW_4",
+      "title": "4 benar",
+      "body": "Skor 4 dari 20"
+    },
+    {
+      "patternCode": "RAW_5",
+      "title": "5 benar",
+      "body": "Skor 5 dari 20"
+    },
+    {
+      "patternCode": "RAW_6",
+      "title": "6 benar",
+      "body": "Skor 6 dari 20"
+    },
+    {
+      "patternCode": "RAW_7",
+      "title": "7 benar",
+      "body": "Skor 7 dari 20"
+    },
+    {
+      "patternCode": "RAW_8",
+      "title": "8 benar",
+      "body": "Skor 8 dari 20"
+    },
+    {
+      "patternCode": "RAW_9",
+      "title": "9 benar",
+      "body": "Skor 9 dari 20"
+    },
+    {
+      "patternCode": "RAW_10",
+      "title": "10 benar",
+      "body": "Skor 10 dari 20"
+    },
+    {
+      "patternCode": "RAW_11",
+      "title": "11 benar",
+      "body": "Skor 11 dari 20"
+    },
+    {
+      "patternCode": "RAW_12",
+      "title": "12 benar",
+      "body": "Skor 12 dari 20"
+    },
+    {
+      "patternCode": "RAW_13",
+      "title": "13 benar",
+      "body": "Skor 13 dari 20"
+    },
+    {
+      "patternCode": "RAW_14",
+      "title": "14 benar",
+      "body": "Skor 14 dari 20"
+    },
+    {
+      "patternCode": "RAW_15",
+      "title": "15 benar",
+      "body": "Skor 15 dari 20"
+    },
+    {
+      "patternCode": "RAW_16",
+      "title": "16 benar",
+      "body": "Skor 16 dari 20"
+    },
+    {
+      "patternCode": "RAW_17",
+      "title": "17 benar",
+      "body": "Skor 17 dari 20"
+    },
+    {
+      "patternCode": "RAW_18",
+      "title": "18 benar",
+      "body": "Skor 18 dari 20"
+    },
+    {
+      "patternCode": "RAW_19",
+      "title": "19 benar",
+      "body": "Skor 19 dari 20"
+    },
+    {
+      "patternCode": "RAW_20",
+      "title": "20 benar",
+      "body": "Skor 20 dari 20"
+    }
   ]
 }
