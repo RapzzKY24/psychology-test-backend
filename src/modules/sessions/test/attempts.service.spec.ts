@@ -101,6 +101,7 @@ describe('AttemptsService', () => {
         { itemId: 'it-1', value: { most: 0, least: 1 } },
       ]);
       expect(out.testName).toBe('DISC');
+      expect(out.scorerType).toBe('FORCED_CHOICE_DISC');
     });
   });
 

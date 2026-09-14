@@ -59,6 +59,7 @@ export class AttemptsService {
       sessionId: detail.attempt.sessionId,
       testId: detail.attempt.testId,
       testName: detail.test.name,
+      scorerType: detail.test.scorerType,
       status: detail.attempt.status,
       startedAt: detail.attempt.startedAt,
       completedAt: detail.attempt.completedAt,

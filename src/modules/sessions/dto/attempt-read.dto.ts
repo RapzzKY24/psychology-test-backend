@@ -16,6 +16,7 @@ export interface AttemptReadDto {
   sessionId: string;
   testId: string;
   testName: string;
+  scorerType: string;
   status: string;
   startedAt: Date;
   completedAt: Date | null;
