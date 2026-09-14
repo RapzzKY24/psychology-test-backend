@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "ScorerType" ADD VALUE 'RIGHT_WRONG_NORM';
