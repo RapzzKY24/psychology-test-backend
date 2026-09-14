@@ -8,6 +8,10 @@ export interface ReviewListItem {
   testName: string;
   sessionTitle: string;
   participantName: string;
+  participantEmail: string | null;
+  institutionName: string | null;
+  scores: unknown;
+  patternCode: string;
   completedAt: Date | null;
   status: string;
   reviewNote: string | null;

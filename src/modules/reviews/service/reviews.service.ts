@@ -32,7 +32,7 @@ export class ReviewsService {
   ): Promise<PaginatedResponse<ReviewListItem>> {
     const where: Prisma.TestResultWhereInput = {};
     if (query.status) where.status = query.status;
-    else where.status = { in: ['PENDING_REVIEW', 'RETURNED'] };
+    else where.status = { in: ['PENDING_REVIEW', 'RETURNED', 'APPROVED'] };
     if (query.sessionId) where.attempt = { sessionId: query.sessionId };
     if (query.testId) {
       where.attempt = {
