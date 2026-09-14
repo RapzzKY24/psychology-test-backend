@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/unbound-method */
 import { HttpException } from '@nestjs/common';
+import { QueryReviewsSchema } from '../dto/query-reviews.dto';
 import { ReviewsService } from '../service/reviews.service';
 import type {
   ReviewsRepository,
@@ -46,6 +47,52 @@ describe('ReviewsService', () => {
       expect(mockRepo.listReviews).toHaveBeenCalledWith(
         expect.objectContaining({ where: { status: 'PENDING_REVIEW' } }),
       );
+    });
+
+    it('should allow APPROVED status', async () => {
+      expect(
+        QueryReviewsSchema.safeParse({
+          page: 1,
+          limit: 10,
+          status: 'APPROVED',
+        }).success,
+      ).toBe(true);
+      mockRepo.listReviews.mockResolvedValue({
+        data: [{ resultId: '1', status: 'APPROVED' } as any],
+        total: 1,
+      });
+      const result = await service.listReviews({
+        page: 1,
+        limit: 10,
+        status: 'APPROVED',
+      } as any);
+      expect(result.data[0].status).toBe('APPROVED');
+      expect(mockRepo.listReviews).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { status: 'APPROVED' } }),
+      );
+    });
+
+    it('should pass through enriched fields from repository', async () => {
+      mockRepo.listReviews.mockResolvedValue({
+        data: [
+          {
+            resultId: 'r1',
+            institutionName: 'RS Harapan',
+            scores: { D: 1 },
+            patternCode: 'DISC-D',
+            participantEmail: 'a@example.com',
+          } as any,
+        ],
+        total: 1,
+      });
+      const result = await service.listReviews({
+        page: 1,
+        limit: 10,
+        status: 'APPROVED',
+      } as any);
+      expect(result.data[0].institutionName).toBe('RS Harapan');
+      expect(result.data[0].patternCode).toBe('DISC-D');
+      expect(result.data[0].participantEmail).toBe('a@example.com');
     });
   });
 
