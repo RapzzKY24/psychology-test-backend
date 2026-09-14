@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const RightWrongItemContentSchema = z
   .object({
     question: z.string().trim().min(1).max(2000).optional(),
-    imageUrl: z.string().trim().min(1).max(2048).optional(),
+    imageUrl: z.string().trim().min(1).max(2048).optional().nullable(),
     options: z.array(z.string().trim().min(1).max(500)).min(2).max(6),
     correctIndex: z.number().int().min(0),
     subtest: z.string().trim().min(1).max(100).optional(),
