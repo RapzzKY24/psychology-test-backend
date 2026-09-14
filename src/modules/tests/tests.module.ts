@@ -13,5 +13,6 @@ import { TESTS_REPOSITORY } from './repository/tests.repository';
     TestsPublishService,
     { provide: TESTS_REPOSITORY, useClass: PrismaTestsRepository },
   ],
+  exports: [TestsService, TESTS_REPOSITORY],
 })
 export class TestsModule {}

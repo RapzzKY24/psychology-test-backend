@@ -49,17 +49,18 @@ export class TestsPublishService {
     }
 
     const interpretations = await this.repo.findInterpretationsByTestId(testId);
-    const existingCodes = new Set(
-      interpretations.map((interp) => interp.patternCode),
-    );
-    const missing = scorer
-      ? scorer.patternCatalog.filter((code) => !existingCodes.has(code))
-      : [];
-    if (missing.length > 0) {
-      throw new UnprocessableEntityException({
-        message: 'validation_failed',
-        details: [`missing pattern codes: ${missing.join(', ')}`],
-      });
+    // RIGHT_WRONG_NORM raw-only: interpretations optional, no catalog coverage required
+    if (scorer && scorer.type !== 'RIGHT_WRONG_NORM') {
+      const existingCodes = new Set(
+        interpretations.map((interp) => interp.patternCode),
+      );
+      const missing = scorer.patternCatalog.filter((code) => !existingCodes.has(code));
+      if (missing.length > 0) {
+        throw new UnprocessableEntityException({
+          message: 'validation_failed',
+          details: [`missing pattern codes: ${missing.join(', ')}`],
+        });
+      }
     }
 
     return this.repo.update(testId, { status: 'PUBLISHED' });

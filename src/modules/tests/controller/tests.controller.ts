@@ -7,9 +7,19 @@ import {
   Param,
   Query,
   Body,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Roles } from '@thallesp/nestjs-better-auth';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
+import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs';
+import * as path from 'path';
+import type { Express } from 'express';
+import { validateItemImageFile } from '../utils/validate-item-image-file';
+import { generateItemImageFilename } from '../utils/generate-item-image-filename';
+import { ensureUploadDir } from '../../../lib/fs/ensure-upload-dir';
 import { CreateTestSchema } from '../dto/create-test.dto';
 import type { CreateTestDto } from '../dto/create-test.dto';
 import { UpdateTestSchema } from '../dto/update-test.dto';
@@ -34,6 +44,7 @@ export class TestsController {
   constructor(
     private readonly testsService: TestsService,
     private readonly publishService: TestsPublishService,
+    private readonly configService: ConfigService,
   ) {}
 
   @Post()
@@ -68,6 +79,32 @@ export class TestsController {
   ): Promise<ApiResponse<Test>> {
     const data = await this.testsService.update(id, dto);
     return { data };
+  }
+
+  @Post(':id/items/image')
+  @Roles(['ADMIN'])
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadItemImage(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<ApiResponse<{ imageUrl: string }>> {
+    // Ensure test exists — 404 if not
+    await this.testsService.findById(id);
+    validateItemImageFile(file);
+    const uploadDir = this.configService.get<string>(
+      'app.uploadDir',
+      './uploads',
+    );
+    const itemDir = path.join(uploadDir, 'test-items');
+    await ensureUploadDir(itemDir);
+    const filename = generateItemImageFilename(
+      file.originalname,
+      file.mimetype,
+    );
+    const filepath = path.join(itemDir, filename);
+    await fs.promises.writeFile(filepath, file.buffer);
+    const imageUrl = `/uploads/test-items/${filename}`;
+    return { data: { imageUrl } };
   }
 
   @Put(':id/items')

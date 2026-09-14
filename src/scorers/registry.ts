@@ -5,7 +5,14 @@ import {
   DiscResponseSchema,
   DISC_PATTERN_CATALOG,
 } from './schemas/forced-choice-disc';
+import {
+  RightWrongItemContentSchema,
+  RightWrongResponseSchema,
+  RIGHT_WRONG_PATTERN_CATALOG,
+} from './schemas/right-wrong-norm';
 import { scoreDisc } from './disc-scorer';
+import { scoreRightWrongNorm } from './right-wrong-norm';
+import { sanitizeRightWrongItem } from './sanitize-right-wrong-item';
 
 export interface ScorerOutput {
   scores: Record<string, unknown>;
@@ -39,6 +46,19 @@ export const SCORERS: Record<ScorerType, Scorer> = {
       Promise.resolve(
         scoreDisc(
           input as unknown as Parameters<typeof scoreDisc>[0],
+        ) as unknown as ScorerOutput,
+      ),
+  },
+  RIGHT_WRONG_NORM: {
+    type: 'RIGHT_WRONG_NORM',
+    itemSchema: RightWrongItemContentSchema,
+    responseSchema: RightWrongResponseSchema,
+    sanitize: sanitizeRightWrongItem,
+    patternCatalog: [...RIGHT_WRONG_PATTERN_CATALOG],
+    score: (input) =>
+      Promise.resolve(
+        scoreRightWrongNorm(
+          input as unknown as Parameters<typeof scoreRightWrongNorm>[0],
         ) as unknown as ScorerOutput,
       ),
   },

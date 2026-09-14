@@ -8,6 +8,7 @@ describe('InstansiSessionsService', () => {
   let service: InstansiSessionsService;
   let mockSessionsRepo: jest.Mocked<SessionsRepository>;
   let mockParticipantsRepo: jest.Mocked<InstansiParticipantsRepository>;
+  let mockTestsRepo: { findMany: jest.Mock };
   let mockParticipantsService: { resolveInstitutionId: jest.Mock };
   let mockSessionsService: { create: jest.Mock; close: jest.Mock };
 
@@ -61,12 +62,14 @@ describe('InstansiSessionsService', () => {
     };
     mockParticipantsService = { resolveInstitutionId: jest.fn() };
     mockSessionsService = { create: jest.fn(), close: jest.fn() };
+    mockTestsRepo = { findMany: jest.fn().mockResolvedValue({ data: [{ slug: 'cpmi' }], total: 1 }) };
     mockParticipantsService.resolveInstitutionId.mockResolvedValue(
       INSTITUTION_ID,
     );
     service = new InstansiSessionsService(
       mockSessionsRepo,
       mockParticipantsRepo,
+      mockTestsRepo as never,
       mockParticipantsService as never,
       mockSessionsService as never,
     );
