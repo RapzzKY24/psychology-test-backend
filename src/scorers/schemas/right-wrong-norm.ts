@@ -9,7 +9,9 @@ export const RightWrongItemContentSchema = z
     subtest: z.string().trim().min(1).max(100).optional(),
   })
   .superRefine((data, ctx) => {
-    const hasQuestion = Boolean(data.question && data.question.trim().length > 0);
+    const hasQuestion = Boolean(
+      data.question && data.question.trim().length > 0,
+    );
     const hasImage = Boolean(data.imageUrl && data.imageUrl.trim().length > 0);
     if (!hasQuestion && !hasImage) {
       ctx.addIssue({

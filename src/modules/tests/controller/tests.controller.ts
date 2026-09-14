@@ -91,10 +91,16 @@ export class TestsController {
     // Ensure test exists — 404 if not
     await this.testsService.findById(id);
     validateItemImageFile(file);
-    const uploadDir = this.configService.get<string>('app.uploadDir', './uploads');
+    const uploadDir = this.configService.get<string>(
+      'app.uploadDir',
+      './uploads',
+    );
     const itemDir = path.join(uploadDir, 'test-items');
     await ensureUploadDir(itemDir);
-    const filename = generateItemImageFilename(file.originalname, file.mimetype);
+    const filename = generateItemImageFilename(
+      file.originalname,
+      file.mimetype,
+    );
     const filepath = path.join(itemDir, filename);
     await fs.promises.writeFile(filepath, file.buffer);
     const imageUrl = `/uploads/test-items/${filename}`;

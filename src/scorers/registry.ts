@@ -57,7 +57,7 @@ export const SCORERS: Record<ScorerType, Scorer> = {
       if (!parsed.success) return {};
       const { correctIndex, ...rest } = parsed.data;
       void correctIndex;
-      return rest as Record<string, unknown>;
+      return rest;
     },
     patternCatalog: [...RIGHT_WRONG_PATTERN_CATALOG],
     score: (input) =>

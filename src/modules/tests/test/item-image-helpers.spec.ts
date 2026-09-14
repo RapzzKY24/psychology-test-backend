@@ -40,7 +40,9 @@ describe('validateItemImageFile', () => {
   });
 
   it('should reject missing file', () => {
-    expect(() => validateItemImageFile(null as never)).toThrow('file is required');
+    expect(() => validateItemImageFile(null as never)).toThrow(
+      'file is required',
+    );
   });
 });
 

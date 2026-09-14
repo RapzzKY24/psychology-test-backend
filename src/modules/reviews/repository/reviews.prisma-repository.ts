@@ -116,7 +116,8 @@ export class PrismaReviewsRepository implements ReviewsRepository {
       };
       const sessionInst = attempt.session.institution?.name?.trim() || null;
       const participantInst =
-        attempt.participant?.institutionParticipant?.institution?.name?.trim() || null;
+        attempt.participant?.institutionParticipant?.institution?.name?.trim() ||
+        null;
       let institutionName: string | null = null;
       if (sessionInst && participantInst && sessionInst !== participantInst) {
         institutionName = `${sessionInst} / ${participantInst}`;
