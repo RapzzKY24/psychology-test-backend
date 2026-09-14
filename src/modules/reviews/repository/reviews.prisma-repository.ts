@@ -29,14 +29,33 @@ export class PrismaReviewsRepository implements ReviewsRepository {
           status: true,
           reviewNote: true,
           computedAt: true,
+          patternCode: true,
+          scores: true,
+          correctedPatternCode: true,
+          correctedScores: true,
           attempt: {
             select: {
               id: true,
               completedAt: true,
               userId: true,
               test: { select: { name: true } },
-              session: { select: { title: true } },
-              participant: { select: { name: true } },
+              session: {
+                select: {
+                  title: true,
+                  institution: { select: { name: true } },
+                },
+              },
+              participant: {
+                select: {
+                  name: true,
+                  email: true,
+                  institutionParticipant: {
+                    select: {
+                      institution: { select: { name: true } },
+                    },
+                  },
+                },
+              },
             },
           },
         },
@@ -73,13 +92,37 @@ export class PrismaReviewsRepository implements ReviewsRepository {
         r as unknown as {
           attempt: {
             test: { name: string };
-            session: { title: string };
-            participant?: { name: string } | null;
+            session: {
+              title: string;
+              institution?: { name: string } | null;
+            };
+            participant?: {
+              name: string;
+              email: string | null;
+              institutionParticipant?: {
+                institution?: { name: string } | null;
+              } | null;
+            } | null;
             userId: string | null;
             completedAt: Date | null;
           };
         }
       ).attempt;
+      const raw = r as unknown as {
+        patternCode: string;
+        scores: unknown;
+        correctedPatternCode: string | null;
+        correctedScores: unknown | null;
+      };
+      const sessionInst = attempt.session.institution?.name ?? null;
+      const participantInst =
+        attempt.participant?.institutionParticipant?.institution?.name ?? null;
+      let institutionName: string | null = null;
+      if (sessionInst && participantInst && sessionInst !== participantInst) {
+        institutionName = `${sessionInst} / ${participantInst}`;
+      } else {
+        institutionName = sessionInst ?? participantInst ?? null;
+      }
       return {
         resultId: r.id,
         testName: attempt.test.name,
@@ -89,6 +132,10 @@ export class PrismaReviewsRepository implements ReviewsRepository {
           (attempt.userId
             ? (userMap.get(attempt.userId) ?? 'Unknown')
             : 'Unknown'),
+        participantEmail: attempt.participant?.email ?? null,
+        institutionName,
+        scores: raw.correctedScores ?? raw.scores,
+        patternCode: raw.correctedPatternCode ?? raw.patternCode,
         completedAt: attempt.completedAt,
         status: r.status,
         reviewNote: r.reviewNote,
