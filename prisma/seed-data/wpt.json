@@ -1,0 +1,62 @@
+{
+  "test": {
+    "slug": "wpt",
+    "name": "WPT",
+    "description": "WPT — WPT wrapped untuk karyawan (RIGHT_WRONG_NORM raw, 5 soal contoh)",
+    "category": "COGNITIVE",
+    "scorerType": "RIGHT_WRONG_NORM",
+    "price": 0,
+    "estimatedDurationMin": 30
+  },
+  "items": [
+    {
+      "order": 1,
+      "content": {
+        "question": "Buku : Membaca = Pisau : ?",
+        "options": ["Memotong", "Menulis", "Menggambar", "Memasak"],
+        "correctIndex": 0
+      }
+    },
+    {
+      "order": 2,
+      "content": {
+        "question": "Jika semua A adalah B dan beberapa B adalah C, maka ...",
+        "options": ["Semua A adalah C", "Beberapa A adalah C", "Tidak dapat disimpulkan", "Semua C adalah A"],
+        "correctIndex": 2
+      }
+    },
+    {
+      "order": 3,
+      "content": {
+        "question": "Lengkapi deret: 2, 4, 8, 16, ...",
+        "options": ["20", "24", "32", "30"],
+        "correctIndex": 2
+      }
+    },
+    {
+      "order": 4,
+      "content": {
+        "question": "Pilih gambar yang melengkapi pola",
+        "imageUrl": "/uploads/test-items/550e8400-e29b-41d4-a716-446655440001.png",
+        "options": ["A", "B", "C", "D"],
+        "correctIndex": 1
+      }
+    },
+    {
+      "order": 5,
+      "content": {
+        "question": "Sinonim dari 'Efisien' adalah ...",
+        "options": ["Boros", "Hemat", "Cepat", "Tepat guna"],
+        "correctIndex": 3
+      }
+    }
+  ],
+  "interpretations": [
+    { "patternCode": "RAW_0", "title": "0 benar", "body": "Perlu pembinaan." },
+    { "patternCode": "RAW_1", "title": "1 benar", "body": "Perlu pembinaan." },
+    { "patternCode": "RAW_2", "title": "2 benar", "body": "Cukup." },
+    { "patternCode": "RAW_3", "title": "3 benar", "body": "Baik." },
+    { "patternCode": "RAW_4", "title": "4 benar", "body": "Baik sekali." },
+    { "patternCode": "RAW_5", "title": "5 benar", "body": "Sempurna." }
+  ]
+}

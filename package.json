@@ -23,7 +23,9 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "node --experimental-vm-modules ./node_modules/.bin/jest --config ./test/jest-e2e.json",
     "seed:admin": "tsx src/scripts/seed-admin.ts",
-    "seed:disc": "tsx src/scripts/seed-disc.ts"
+    "seed:disc": "tsx src/scripts/seed-disc.ts",
+    "seed:cpmi": "tsx src/scripts/seed-cpmi.ts",
+    "seed:wpt": "tsx src/scripts/seed-wpt.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
