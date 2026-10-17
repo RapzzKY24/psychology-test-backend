@@ -10,6 +10,8 @@ describe('PaymentsRecoveryService', () => {
       | 'recoverStaleCallbacks'
       | 'recoverStaleProvisioning'
       | 'reconcilePendingVas'
+      | 'recoverStaleInvoiceProvisioning'
+      | 'reconcileUnsettledInvoiceVas'
     >
   >;
   let config: { get: jest.Mock };
@@ -21,6 +23,12 @@ describe('PaymentsRecoveryService', () => {
         .fn()
         .mockResolvedValue({ checked: 0, provisioned: 0 }),
       reconcilePendingVas: jest
+        .fn()
+        .mockResolvedValue({ checked: 0, settled: 0 }),
+      recoverStaleInvoiceProvisioning: jest
+        .fn()
+        .mockResolvedValue({ checked: 0, provisioned: 0 }),
+      reconcileUnsettledInvoiceVas: jest
         .fn()
         .mockResolvedValue({ checked: 0, settled: 0 }),
     };

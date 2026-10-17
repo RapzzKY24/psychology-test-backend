@@ -61,4 +61,15 @@ export interface InvoicesRepository {
   ): Promise<ConfirmInvoicePaymentResult>;
   /** Recompute the invoice amount (batch roster changed while UNPAID). */
   regenerateAmount(invoiceId: string, amount: number): Promise<Invoice>;
+  /** UNPAID invoices with no VA yet, created before `createdBefore` (recovery). */
+  findUnpaidWithoutVa(params: {
+    createdBefore: Date;
+    limit: number;
+  }): Promise<Invoice[]>;
+  /** UNPAID VA invoices past expiry, for reconciliation against the gateway. */
+  findUnsettledVaInvoices(params: {
+    dueBefore: Date;
+    notBefore: Date;
+    limit: number;
+  }): Promise<Invoice[]>;
 }

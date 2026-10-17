@@ -1,3 +1,4 @@
+import { BadGatewayException } from '@nestjs/common';
 import { PaymentsService } from '../service/payments.service';
 import { GDC_ACK } from '../constants/payments';
 import { GdcApiError } from '../../gdc/errors/gdc-api.error';
@@ -5,6 +6,7 @@ import type { EventLogService } from '../../event-log/service/event-log.service'
 import type { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import type { OrdersService } from '../../orders/service/orders.service';
 import type { InvoicesService } from '../../invoices/service/invoices.service';
+import type { InvoiceVaService } from '../../invoices/service/invoice-va.service';
 import type { GdcClient } from '../../gdc/client/gdc.client';
 import type { ConfigService } from '@nestjs/config';
 
@@ -34,8 +36,15 @@ describe('PaymentsService', () => {
     Pick<IdempotencyService, 'begin' | 'complete' | 'fail'>
   >;
   let invoices: jest.Mocked<
-    Pick<InvoicesService, 'findByVaNumber' | 'confirmPaymentWithActivation'>
+    Pick<
+      InvoicesService,
+      | 'findByVaNumber'
+      | 'confirmPaymentWithActivation'
+      | 'findUnpaidWithoutVa'
+      | 'findUnsettledVaInvoices'
+    >
   >;
+  let invoiceVa: jest.Mocked<Pick<InvoiceVaService, 'isEnabled' | 'provision'>>;
   let gdc: jest.Mocked<Pick<GdcClient, 'inquiryVaStatus'>>;
   let config: { get: jest.Mock };
 
@@ -82,6 +91,12 @@ describe('PaymentsService', () => {
     invoices = {
       findByVaNumber: jest.fn().mockResolvedValue(null),
       confirmPaymentWithActivation: jest.fn(),
+      findUnpaidWithoutVa: jest.fn().mockResolvedValue([]),
+      findUnsettledVaInvoices: jest.fn().mockResolvedValue([]),
+    };
+    invoiceVa = {
+      isEnabled: jest.fn().mockReturnValue(true),
+      provision: jest.fn(),
     };
     gdc = { inquiryVaStatus: jest.fn() };
     config = {
@@ -105,6 +120,7 @@ describe('PaymentsService', () => {
     service = new PaymentsService(
       orders as never,
       invoices as never,
+      invoiceVa as never,
       eventLog as never,
       idempotency as never,
       gdc as never,
@@ -415,6 +431,85 @@ describe('PaymentsService', () => {
       const result = await service.reconcilePendingVas();
 
       expect(result).toEqual({ checked: 1, settled: 0 });
+    });
+  });
+
+  describe('recoverStaleInvoiceProvisioning', () => {
+    it('skips entirely when no VA gateway is enabled', async () => {
+      invoiceVa.isEnabled.mockReturnValue(false);
+
+      const result = await service.recoverStaleInvoiceProvisioning();
+
+      expect(result).toEqual({ checked: 0, provisioned: 0 });
+      expect(invoices.findUnpaidWithoutVa).not.toHaveBeenCalled();
+    });
+
+    it('retries provisioning for an UNPAID invoice with no VA', async () => {
+      invoices.findUnpaidWithoutVa.mockResolvedValue([
+        { id: 'inv1', number: 'INV-1' } as never,
+      ]);
+      invoiceVa.provision.mockResolvedValue({ vaNumber: '8801' } as never);
+
+      const result = await service.recoverStaleInvoiceProvisioning();
+
+      expect(result).toEqual({ checked: 1, provisioned: 1 });
+      expect(invoiceVa.provision).toHaveBeenCalledWith('inv1', 'INV-1');
+    });
+
+    it('continues when a provisioning retry fails', async () => {
+      invoices.findUnpaidWithoutVa.mockResolvedValue([
+        { id: 'inv1', number: 'INV-1' } as never,
+      ]);
+      invoiceVa.provision.mockRejectedValue(new BadGatewayException('boom'));
+
+      const result = await service.recoverStaleInvoiceProvisioning();
+
+      expect(result).toEqual({ checked: 1, provisioned: 0 });
+    });
+  });
+
+  describe('reconcileUnsettledInvoiceVas', () => {
+    const vaInvoice = {
+      id: 'inv1',
+      amount: 200000,
+      vaNumber: '8801',
+      gdcTrxId: 'inv1',
+      gdcExternalId: 'inv1',
+      gdcReferenceNo: null,
+    };
+
+    it('activates an invoice GDC reports as paid', async () => {
+      invoices.findUnsettledVaInvoices.mockResolvedValue([vaInvoice] as never);
+      gdc.inquiryVaStatus.mockResolvedValue({
+        virtualAccountNo: '8801',
+        paymentFlagStatus: '00',
+        totalAmount: { value: '200000.00', currency: 'IDR' },
+      });
+      invoices.confirmPaymentWithActivation.mockResolvedValue({
+        outcome: 'confirmed',
+        invoice: vaInvoice as never,
+      });
+
+      const result = await service.reconcileUnsettledInvoiceVas();
+
+      expect(result).toEqual({ checked: 1, settled: 1 });
+      expect(invoices.confirmPaymentWithActivation).toHaveBeenCalledWith(
+        'inv1',
+        expect.objectContaining({ paidAmount: 200000 }),
+      );
+    });
+
+    it('skips an invoice GDC still reports as unpaid', async () => {
+      invoices.findUnsettledVaInvoices.mockResolvedValue([vaInvoice] as never);
+      gdc.inquiryVaStatus.mockResolvedValue({
+        virtualAccountNo: '8801',
+        paymentFlagStatus: '03',
+      });
+
+      const result = await service.reconcileUnsettledInvoiceVas();
+
+      expect(result).toEqual({ checked: 1, settled: 0 });
+      expect(invoices.confirmPaymentWithActivation).not.toHaveBeenCalled();
     });
   });
 });

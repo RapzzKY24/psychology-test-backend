@@ -65,6 +65,21 @@ export class InvoicesService {
     return this.repo.regenerateAmount(invoiceId, amount);
   }
 
+  findUnpaidWithoutVa(params: {
+    createdBefore: Date;
+    limit: number;
+  }): Promise<Invoice[]> {
+    return this.repo.findUnpaidWithoutVa(params);
+  }
+
+  findUnsettledVaInvoices(params: {
+    dueBefore: Date;
+    notBefore: Date;
+    limit: number;
+  }): Promise<Invoice[]> {
+    return this.repo.findUnsettledVaInvoices(params);
+  }
+
   async findMany(
     query: QueryInvoicesDto,
   ): Promise<{ data: Invoice[]; total: number }> {

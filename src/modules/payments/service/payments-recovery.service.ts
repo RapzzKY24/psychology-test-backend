@@ -44,6 +44,8 @@ export class PaymentsRecoveryService implements OnModuleInit, OnModuleDestroy {
       await this.payments.recoverStaleCallbacks();
       await this.payments.recoverStaleProvisioning();
       await this.payments.reconcilePendingVas();
+      await this.payments.recoverStaleInvoiceProvisioning();
+      await this.payments.reconcileUnsettledInvoiceVas();
     } catch (error) {
       this.logger.warn(
         `VA recovery pass failed: ${error instanceof Error ? error.message : 'unknown'}`,

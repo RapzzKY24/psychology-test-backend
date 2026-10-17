@@ -4,6 +4,7 @@ import { EventLogService } from '../../event-log/service/event-log.service';
 import { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import { OrdersService } from '../../orders/service/orders.service';
 import { InvoicesService } from '../../invoices/service/invoices.service';
+import { InvoiceVaService } from '../../invoices/service/invoice-va.service';
 import type { Invoice, Order } from '../../../generated/prisma/client';
 import { GdcClient } from '../../gdc/client/gdc.client';
 import { GdcApiError } from '../../gdc/errors/gdc-api.error';
@@ -33,6 +34,7 @@ export class PaymentsService {
   constructor(
     private readonly orders: OrdersService,
     private readonly invoices: InvoicesService,
+    private readonly invoiceVa: InvoiceVaService,
     private readonly eventLog: EventLogService,
     private readonly idempotency: IdempotencyService,
     private readonly gdc: GdcClient,
@@ -201,6 +203,90 @@ export class PaymentsService {
    * Resolve the payment target for a VA callback: a gateway order first, then a
    * session invoice. An unknown VA is recorded and rejected (but still acked).
    */
+  /**
+   * Retry VA provisioning for session invoices whose create-va call failed
+   * (UNPAID, no `vaNumber`). Reuses the invoice id as the external id, so a
+   * duplicate at the gateway is deduped by the idempotency layer.
+   */
+  async recoverStaleInvoiceProvisioning(): Promise<{
+    checked: number;
+    provisioned: number;
+  }> {
+    if (!this.invoiceVa.isEnabled()) return { checked: 0, provisioned: 0 };
+    const due = await this.invoices.findUnpaidWithoutVa({
+      createdBefore: new Date(Date.now() - this.staleAfterMs),
+      limit: this.batchSize,
+    });
+    let provisioned = 0;
+    for (const invoice of due) {
+      try {
+        const updated = await this.invoiceVa.provision(
+          invoice.id,
+          invoice.number,
+        );
+        if (updated?.vaNumber) provisioned += 1;
+      } catch (error) {
+        if (
+          error instanceof GdcApiError ||
+          error instanceof BadGatewayException
+        ) {
+          this.logger.warn(
+            `invoice reprovision ${invoice.id} failed: ${error.message}`,
+          );
+          continue;
+        }
+        throw error;
+      }
+    }
+    return { checked: due.length, provisioned };
+  }
+
+  /** Poll GDC for invoice VAs still unsettled after expiry and unlock any that were paid. */
+  async reconcileUnsettledInvoiceVas(): Promise<{
+    checked: number;
+    settled: number;
+  }> {
+    if (!this.invoiceVa.isEnabled()) return { checked: 0, settled: 0 };
+    const now = new Date();
+    const due = await this.invoices.findUnsettledVaInvoices({
+      dueBefore: now,
+      notBefore: new Date(now.getTime() - this.lookbackMs),
+      limit: this.batchSize,
+    });
+    let checked = 0;
+    let settled = 0;
+    for (const invoice of due) {
+      if (!invoice.vaNumber) continue;
+      checked += 1;
+      let status: Awaited<ReturnType<GdcClient['inquiryVaStatus']>>;
+      try {
+        status = await this.gdc.inquiryVaStatus(
+          {
+            virtualAccountNo: invoice.vaNumber,
+            paymentRequestId: invoice.gdcTrxId ?? invoice.id,
+          },
+          invoice.gdcExternalId ?? invoice.id,
+        );
+      } catch (error) {
+        if (error instanceof GdcApiError) continue;
+        throw error;
+      }
+      if (status.paymentFlagStatus !== VA_INQUIRY_PAID_STATUS) continue;
+      if (!amountMatches(status.totalAmount?.value, invoice.amount)) continue;
+      const result = await this.invoices.confirmPaymentWithActivation(
+        invoice.id,
+        {
+          paidAmount: invoice.amount,
+          verifiedBySource: 'GDC',
+          gdcTrxId: invoice.gdcTrxId,
+          gdcReferenceNo: invoice.gdcReferenceNo,
+        },
+      );
+      if (result.outcome === 'confirmed') settled += 1;
+    }
+    return { checked, settled };
+  }
+
   private async applyCallback(
     payload: VaCallback,
     eventId: string,

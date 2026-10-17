@@ -155,6 +155,10 @@ describe('Payments E2E (integ, real DB)', () => {
     paymentsService = new PaymentsService(
       ordersService,
       new InvoicesService(new PrismaInvoicesRepository(prisma)),
+      {
+        isEnabled: () => false,
+        provision: () => Promise.resolve(null),
+      } as never,
       new EventLogService(new PrismaEventLogRepository(prisma)),
       new IdempotencyService(new PrismaIdempotencyRepository(prisma)),
       {} as never,

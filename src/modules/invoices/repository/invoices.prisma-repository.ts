@@ -144,6 +144,38 @@ export class PrismaInvoicesRepository implements InvoicesRepository {
     });
   }
 
+  findUnpaidWithoutVa(params: {
+    createdBefore: Date;
+    limit: number;
+  }): Promise<Invoice[]> {
+    return this.prisma.invoice.findMany({
+      where: {
+        status: 'UNPAID',
+        vaNumber: null,
+        sessionId: { not: null },
+        createdAt: { lt: params.createdBefore },
+      },
+      orderBy: { createdAt: 'asc' },
+      take: params.limit,
+    });
+  }
+
+  findUnsettledVaInvoices(params: {
+    dueBefore: Date;
+    notBefore: Date;
+    limit: number;
+  }): Promise<Invoice[]> {
+    return this.prisma.invoice.findMany({
+      where: {
+        status: 'UNPAID',
+        vaNumber: { not: null },
+        expiresAt: { lt: params.dueBefore, gte: params.notBefore },
+      },
+      orderBy: { expiresAt: 'asc' },
+      take: params.limit,
+    });
+  }
+
   private async createNumbered(params: {
     institutionId: string;
     amount: number;
