@@ -4,6 +4,7 @@ import { GdcApiError } from '../../gdc/errors/gdc-api.error';
 import type { EventLogService } from '../../event-log/service/event-log.service';
 import type { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import type { OrdersService } from '../../orders/service/orders.service';
+import type { InvoicesService } from '../../invoices/service/invoices.service';
 import type { GdcClient } from '../../gdc/client/gdc.client';
 import type { ConfigService } from '@nestjs/config';
 
@@ -32,10 +33,14 @@ describe('PaymentsService', () => {
   let idempotency: jest.Mocked<
     Pick<IdempotencyService, 'begin' | 'complete' | 'fail'>
   >;
+  let invoices: jest.Mocked<
+    Pick<InvoicesService, 'findByVaNumber' | 'confirmPaymentWithActivation'>
+  >;
   let gdc: jest.Mocked<Pick<GdcClient, 'inquiryVaStatus'>>;
   let config: { get: jest.Mock };
 
   const order = { id: 'o1', amount: 200000 };
+  const invoice = { id: 'inv1', amount: 300000, sessionId: 's1' };
 
   const callback = {
     partnerServiceId: '   GDC',
@@ -74,6 +79,10 @@ describe('PaymentsService', () => {
       findStaleForRecovery: jest.fn(),
     };
     idempotency = { begin: jest.fn(), complete: jest.fn(), fail: jest.fn() };
+    invoices = {
+      findByVaNumber: jest.fn().mockResolvedValue(null),
+      confirmPaymentWithActivation: jest.fn(),
+    };
     gdc = { inquiryVaStatus: jest.fn() };
     config = {
       get: jest.fn((key: string, fallback?: unknown) => {
@@ -95,6 +104,7 @@ describe('PaymentsService', () => {
 
     service = new PaymentsService(
       orders as never,
+      invoices as never,
       eventLog as never,
       idempotency as never,
       gdc as never,
@@ -148,12 +158,78 @@ describe('PaymentsService', () => {
 
     expect(ack).toEqual(GDC_ACK);
     expect(eventLog.markFailed).toHaveBeenCalledWith('ev1', {
-      errorMessage: 'order_not_found',
+      errorMessage: 'payment_not_found',
     });
     expect(idempotency.fail).toHaveBeenCalledWith('idem1', {
-      errorMessage: 'order_not_found',
+      errorMessage: 'payment_not_found',
     });
     expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
+  });
+
+  it('settles a paid session invoice and activates its session', async () => {
+    idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
+    orders.findByVaNumber.mockResolvedValue(null);
+    invoices.findByVaNumber.mockResolvedValue(invoice as never);
+    invoices.confirmPaymentWithActivation.mockResolvedValue({
+      outcome: 'confirmed',
+      invoice: invoice as never,
+    });
+
+    const ack = await service.handleVaCallback({
+      ...callback,
+      totalAmount: { value: '300000.00', currency: 'IDR' },
+    });
+
+    expect(ack).toEqual(GDC_ACK);
+    expect(invoices.confirmPaymentWithActivation).toHaveBeenCalledWith('inv1', {
+      paidAmount: 300000,
+      verifiedBySource: 'GDC',
+      gdcTrxId: 'o1',
+      gdcReferenceNo: 'ref-1',
+    });
+    expect(eventLog.markProcessed).toHaveBeenCalledWith('ev1', {
+      response: { invoiceId: 'inv1', sessionId: 's1' },
+    });
+    expect(idempotency.complete).toHaveBeenCalled();
+  });
+
+  it('treats a duplicate invoice callback as already settled', async () => {
+    idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
+    orders.findByVaNumber.mockResolvedValue(null);
+    invoices.findByVaNumber.mockResolvedValue(invoice as never);
+    invoices.confirmPaymentWithActivation.mockResolvedValue({
+      outcome: 'already_paid',
+      invoice: invoice as never,
+    });
+
+    await service.handleVaCallback({
+      ...callback,
+      totalAmount: { value: '300000.00', currency: 'IDR' },
+    });
+
+    expect(eventLog.markProcessed).toHaveBeenCalledWith('ev1', {
+      response: { alreadySettled: true, invoiceId: 'inv1' },
+    });
+    expect(eventLog.markFailed).not.toHaveBeenCalled();
+  });
+
+  it('rejects a paid invoice callback whose amount is wrong', async () => {
+    idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
+    orders.findByVaNumber.mockResolvedValue(null);
+    invoices.findByVaNumber.mockResolvedValue(invoice as never);
+    invoices.confirmPaymentWithActivation.mockResolvedValue({
+      outcome: 'amount_mismatch',
+    });
+
+    await service.handleVaCallback({
+      ...callback,
+      totalAmount: { value: '299999.00', currency: 'IDR' },
+    });
+
+    expect(eventLog.markFailed).toHaveBeenCalledWith('ev1', {
+      errorMessage: 'settle_amount_mismatch',
+    });
+    expect(idempotency.fail).toHaveBeenCalled();
   });
 
   it('rejects an amount mismatch without settling', async () => {

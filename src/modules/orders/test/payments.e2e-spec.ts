@@ -11,6 +11,14 @@ import { OrdersService } from '../service/orders.service';
 import { OrderVaService } from '../service/order-va.service';
 import { QrisService } from '../service/qris.service';
 import { validateQrisFile } from '../utils/validate-qris-file';
+import { PrismaInvoicesRepository } from '../../invoices/repository/invoices.prisma-repository';
+import { InvoicesService } from '../../invoices/service/invoices.service';
+import { PrismaEventLogRepository } from '../../event-log/repository/event-log.prisma-repository';
+import { EventLogService } from '../../event-log/service/event-log.service';
+import { PrismaIdempotencyRepository } from '../../idempotency/repository/idempotency.prisma-repository';
+import { IdempotencyService } from '../../idempotency/service/idempotency.service';
+import { PaymentsService } from '../../payments/service/payments.service';
+import { GDC_ACK } from '../../payments/constants/payments';
 
 /**
  * Feature 07 integration tests against the real DB
@@ -33,12 +41,15 @@ describe('Payments E2E (integ, real DB)', () => {
   let prisma: PrismaService;
   let ordersService: OrdersService;
   let qrisService: QrisService;
+  let paymentsService: PaymentsService;
 
   const userIds: string[] = [];
   const orderIds: string[] = [];
   const sessionIds: string[] = [];
   const attemptIds: string[] = [];
   const qrisFiles: string[] = [];
+  const invoiceIds: string[] = [];
+  const institutionIds: string[] = [];
   let testId: string;
   let itemIds: string[] = [];
   let originalQrisSetting: { key: string; value: { path?: string } } | null =
@@ -141,6 +152,14 @@ describe('Payments E2E (integ, real DB)', () => {
       new PrismaQrisRepository(prisma),
       configStub as never,
     );
+    paymentsService = new PaymentsService(
+      ordersService,
+      new InvoicesService(new PrismaInvoicesRepository(prisma)),
+      new EventLogService(new PrismaEventLogRepository(prisma)),
+      new IdempotencyService(new PrismaIdempotencyRepository(prisma)),
+      {} as never,
+      configStub as never,
+    );
   });
 
   afterAll(async () => {
@@ -169,12 +188,16 @@ describe('Payments E2E (integ, real DB)', () => {
       where: { attemptId: { in: allAttemptIds } },
     });
     await prisma.attempt.deleteMany({ where: { id: { in: allAttemptIds } } });
+    await prisma.invoice.deleteMany({ where: { id: { in: invoiceIds } } });
     await prisma.testSession.deleteMany({
       where: { id: { in: allSessionIds } },
     });
     await prisma.order.deleteMany({ where: { id: { in: orderIds } } });
     await prisma.testItem.deleteMany({ where: { testId } });
     await prisma.test.deleteMany({ where: { id: testId } });
+    await prisma.institution.deleteMany({
+      where: { id: { in: institutionIds } },
+    });
     await prisma.user.deleteMany({ where: { id: { in: userIds } } });
 
     // Remove files written by the QRIS test (uploaded under ./uploads/qris)
@@ -396,6 +419,117 @@ describe('Payments E2E (integ, real DB)', () => {
         name: 'E2E Admin',
         email: adminEmail,
       });
+    });
+  });
+
+  describe('session invoice VA callback (T11)', () => {
+    async function seedPendingInvoice() {
+      const invoiceVa = `88${Math.floor(Math.random() * 1e9)
+        .toString()
+        .padStart(9, '0')}`;
+      const owner = await prisma.user.create({
+        data: {
+          id: `${prefix}-inv-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
+          name: 'Invoice Owner',
+          email: `${prefix}-inv-${Math.random().toString(36).slice(2, 7)}@test.local`,
+          emailVerified: true,
+        },
+      });
+      userIds.push(owner.id);
+      const institution = await prisma.institution.create({
+        data: {
+          name: `${prefix} Invoice Corp`,
+          contactName: 'Invoice Owner',
+          contactEmail: `${owner.id}@test.local`,
+          ownerUserId: owner.id,
+        },
+      });
+      institutionIds.push(institution.id);
+      const session = await prisma.testSession.create({
+        data: {
+          title: `${prefix} Invoice Sesi`,
+          kind: 'GROUP',
+          token: `${prefix}-inv-token-${Math.random().toString(36).slice(2, 6)}`,
+          slotLimit: 5,
+          expiresAt: new Date(Date.now() + 3600_000),
+          joinMode: 'ROSTER',
+          status: 'PENDING_PAYMENT',
+          institutionId: institution.id,
+        },
+      });
+      sessionIds.push(session.id);
+      const invoice = await prisma.invoice.create({
+        data: {
+          number: `${prefix}-INV-${Math.random().toString(36).slice(2, 6)}`,
+          institutionId: institution.id,
+          amount: 200000,
+          status: 'UNPAID',
+          sessionId: session.id,
+          vaNumber: invoiceVa,
+          gdcExternalId: session.id,
+          paymentProvider: 'GDC_VA',
+          expiresAt: new Date(Date.now() + 3600_000),
+        },
+      });
+      invoiceIds.push(invoice.id);
+      return { session, invoice, invoiceVa };
+    }
+
+    const callbackFor = (virtualAccountNo: string) => ({
+      partnerServiceId: '   GDC',
+      customerNo: '12345',
+      virtualAccountNo,
+      virtualAccountName: 'INV',
+      trxId: 'trxCb',
+      paymentRequestId: 'prCb',
+      sourceBankCode: '014',
+      paidAmount: { value: '200000.00', currency: 'IDR' },
+      totalAmount: { value: '200000.00', currency: 'IDR' },
+      trxDateTime: '2026-10-17T06:00:00+07:00',
+      referenceNo: 'ref-cb',
+      additionalInfo: {
+        paymentDate: '2026-10-17T06:00:00+07:00',
+        paymentMethod: 'TRANSFER',
+        transactionType: 'C',
+        latestTransactionStatus: '00',
+        transactionStatusDesc: 'Success',
+      },
+    });
+
+    it('settles the invoice, activates the session, and acks', async () => {
+      const { session, invoice, invoiceVa } = await seedPendingInvoice();
+
+      const ack = await paymentsService.handleVaCallback(
+        callbackFor(invoiceVa),
+      );
+      expect(ack).toEqual(GDC_ACK);
+
+      const paid = await prisma.invoice.findUniqueOrThrow({
+        where: { id: invoice.id },
+      });
+      expect(paid.status).toBe('PAID');
+      expect(paid.verifiedBySource).toBe('GDC');
+
+      const activated = await prisma.testSession.findUniqueOrThrow({
+        where: { id: session.id },
+      });
+      expect(activated.status).toBe('ACTIVE');
+    });
+
+    it('is idempotent on duplicate delivery (no double activation)', async () => {
+      const { session, invoice, invoiceVa } = await seedPendingInvoice();
+
+      await paymentsService.handleVaCallback(callbackFor(invoiceVa));
+      await paymentsService.handleVaCallback(callbackFor(invoiceVa));
+
+      const paid = await prisma.invoice.findUniqueOrThrow({
+        where: { id: invoice.id },
+      });
+      expect(paid.status).toBe('PAID');
+      const activated = await prisma.testSession.findUniqueOrThrow({
+        where: { id: session.id },
+      });
+      expect(activated.status).toBe('ACTIVE');
     });
   });
 

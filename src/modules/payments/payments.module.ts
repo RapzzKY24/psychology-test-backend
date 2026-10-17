@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { OrdersModule } from '../orders/orders.module';
+import { InvoicesModule } from '../invoices/invoices.module';
 import { EventLogModule } from '../event-log/event-log.module';
 import { IdempotencyModule } from '../idempotency/idempotency.module';
 import { GdcModule } from '../gdc/gdc.module';
@@ -8,7 +9,13 @@ import { PaymentsService } from './service/payments.service';
 import { PaymentsRecoveryService } from './service/payments-recovery.service';
 
 @Module({
-  imports: [OrdersModule, EventLogModule, IdempotencyModule, GdcModule],
+  imports: [
+    OrdersModule,
+    InvoicesModule,
+    EventLogModule,
+    IdempotencyModule,
+    GdcModule,
+  ],
   controllers: [GdcWebhookController],
   providers: [PaymentsService, PaymentsRecoveryService],
 })

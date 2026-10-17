@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import { EventLogService } from '../../event-log/service/event-log.service';
 import { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import { OrdersService } from '../../orders/service/orders.service';
+import { InvoicesService } from '../../invoices/service/invoices.service';
+import type { Invoice, Order } from '../../../generated/prisma/client';
 import { GdcClient } from '../../gdc/client/gdc.client';
 import { GdcApiError } from '../../gdc/errors/gdc-api.error';
 import { VaCallbackSchema } from '../../gdc/dto/gdc.dto';
@@ -30,6 +32,7 @@ export class PaymentsService {
 
   constructor(
     private readonly orders: OrdersService,
+    private readonly invoices: InvoicesService,
     private readonly eventLog: EventLogService,
     private readonly idempotency: IdempotencyService,
     private readonly gdc: GdcClient,
@@ -194,18 +197,33 @@ export class PaymentsService {
     return { checked, settled };
   }
 
+  /**
+   * Resolve the payment target for a VA callback: a gateway order first, then a
+   * session invoice. An unknown VA is recorded and rejected (but still acked).
+   */
   private async applyCallback(
     payload: VaCallback,
     eventId: string,
   ): Promise<CallbackOutcome> {
     const order = await this.orders.findByVaNumber(payload.virtualAccountNo);
-    if (!order) {
-      await this.eventLog.markFailed(eventId, {
-        errorMessage: 'order_not_found',
-      });
-      return { kind: 'rejected', reason: 'order_not_found' };
-    }
+    if (order) return this.applyOrderCallback(order, payload, eventId);
 
+    const invoice = await this.invoices.findByVaNumber(
+      payload.virtualAccountNo,
+    );
+    if (invoice) return this.applyInvoiceCallback(invoice, payload, eventId);
+
+    await this.eventLog.markFailed(eventId, {
+      errorMessage: 'payment_not_found',
+    });
+    return { kind: 'rejected', reason: 'payment_not_found' };
+  }
+
+  private async applyOrderCallback(
+    order: Order,
+    payload: VaCallback,
+    eventId: string,
+  ): Promise<CallbackOutcome> {
     if (
       payload.additionalInfo.latestTransactionStatus !== VA_CALLBACK_PAID_STATUS
     ) {
@@ -241,6 +259,51 @@ export class PaymentsService {
         orderId: order.id,
         sessionId: result.sessionId,
         wasLate: result.wasLate,
+      },
+    });
+    return { kind: 'settled' };
+  }
+
+  private async applyInvoiceCallback(
+    invoice: Invoice,
+    payload: VaCallback,
+    eventId: string,
+  ): Promise<CallbackOutcome> {
+    if (
+      payload.additionalInfo.latestTransactionStatus !== VA_CALLBACK_PAID_STATUS
+    ) {
+      await this.eventLog.markProcessed(eventId, {
+        response: { ignored: payload.additionalInfo.latestTransactionStatus },
+      });
+      return { kind: 'ignored', reason: 'non_paid_status' };
+    }
+
+    const result = await this.invoices.confirmPaymentWithActivation(
+      invoice.id,
+      {
+        paidAmount: Number(payload.totalAmount.value),
+        verifiedBySource: 'GDC',
+        gdcTrxId: payload.trxId,
+        gdcReferenceNo: payload.referenceNo,
+      },
+    );
+    if (result.outcome === 'already_paid') {
+      await this.eventLog.markProcessed(eventId, {
+        response: { alreadySettled: true, invoiceId: invoice.id },
+      });
+      return { kind: 'ignored', reason: 'already_settled' };
+    }
+    if (result.outcome !== 'confirmed') {
+      await this.eventLog.markFailed(eventId, {
+        errorMessage: `settle_${result.outcome}`,
+      });
+      return { kind: 'rejected', reason: `settle_${result.outcome}` };
+    }
+
+    await this.eventLog.markProcessed(eventId, {
+      response: {
+        invoiceId: invoice.id,
+        sessionId: invoice.sessionId,
       },
     });
     return { kind: 'settled' };
