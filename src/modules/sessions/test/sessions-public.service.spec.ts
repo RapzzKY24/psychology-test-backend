@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { GoneException, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  GoneException,
+  NotFoundException,
+} from '@nestjs/common';
 import { SessionsPublicService } from '../service/sessions-public.service';
 import type { SessionsRepository } from '../repository/sessions.repository';
 
@@ -57,6 +61,19 @@ describe('SessionsPublicService', () => {
       expect(preview.tests).toEqual([{ order: 1, testName: 'DISC Form A' }]);
       expect(preview.slotsUsed).toBe(0);
       expect(preview.requiresPin).toBe(true);
+      expect(preview.active).toBe(true);
+    });
+
+    it('reports active:false for an unpaid (PENDING_PAYMENT) session', async () => {
+      mockRepo.findByToken.mockResolvedValue({
+        ...sessionRow,
+        status: 'PENDING_PAYMENT',
+      } as never);
+
+      const preview = await service.getPreviewByToken('token-abc');
+
+      expect(preview.status).toBe('PENDING_PAYMENT');
+      expect(preview.active).toBe(false);
     });
 
     it('includes roster rows with claimed state for roster sessions', async () => {
@@ -144,6 +161,18 @@ describe('SessionsPublicService', () => {
       expect(result.resumed).toBe(true);
       expect(result.participant.id).toBe('r1');
       expect(result.attempts).toHaveLength(1);
+    });
+
+    it('throws 403 session_unpaid for a PENDING_PAYMENT session', async () => {
+      mockRepo.findByToken.mockResolvedValue({
+        ...rosterSession,
+        status: 'PENDING_PAYMENT',
+      } as never);
+
+      await expect(service.claim('token-abc', 'r1', '1.1.1.1')).rejects.toThrow(
+        ForbiddenException,
+      );
+      expect(mockRepo.claimSeatWithAttempts).not.toHaveBeenCalled();
     });
 
     it('throws 404 for an OPEN session (roster claim only)', async () => {

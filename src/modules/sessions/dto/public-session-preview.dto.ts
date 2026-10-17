@@ -10,6 +10,8 @@ export const PublicSessionPreviewSchema = z.object({
   sessionId: z.string(),
   title: z.string(),
   status: z.enum(['PENDING_PAYMENT', 'ACTIVE', 'CLOSED']),
+  // Convenience flag for the join page: the link only works when ACTIVE.
+  active: z.boolean(),
   expiresAt: z.date(),
   tests: z.array(
     z.object({

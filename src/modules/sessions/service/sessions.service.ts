@@ -5,6 +5,7 @@ import {
   UnprocessableEntityException,
   GoneException,
   UnauthorizedException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { Inject } from '@nestjs/common';
 import { Prisma } from '../../../generated/prisma/client';
@@ -162,6 +163,10 @@ export class SessionsService {
     if (!session) throw new NotFoundException('Session not found');
     if (session.status === 'CLOSED') {
       throw new GoneException('session_closed');
+    }
+    if (session.status === 'PENDING_PAYMENT') {
+      // Batch session not yet paid — the join link must not open.
+      throw new ForbiddenException('session_unpaid');
     }
     if (session.expiresAt.getTime() <= Date.now()) {
       throw new GoneException('session_expired');

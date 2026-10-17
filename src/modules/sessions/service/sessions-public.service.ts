@@ -3,6 +3,7 @@ import {
   Inject,
   NotFoundException,
   GoneException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { SESSIONS_REPOSITORY } from '../repository/sessions.repository';
 import type { SessionsRepository } from '../repository/sessions.repository';
@@ -43,6 +44,7 @@ export class SessionsPublicService {
       sessionId: session.id,
       title: session.title,
       status: session.status,
+      active: session.status === 'ACTIVE',
       expiresAt: session.expiresAt,
       tests: tests.map((test) => ({
         order: test.order,
@@ -94,6 +96,9 @@ export class SessionsPublicService {
     if (!session) throw new NotFoundException('Session not found');
     if (session.status === 'CLOSED') {
       throw new NotFoundException('Session not found');
+    }
+    if (session.status === 'PENDING_PAYMENT') {
+      throw new ForbiddenException('session_unpaid');
     }
     if (session.joinMode !== 'ROSTER') {
       throw new NotFoundException('Session not found');
