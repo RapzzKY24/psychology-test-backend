@@ -8,9 +8,10 @@ import { GdcClient } from '../../gdc/client/gdc.client';
 import { GdcApiError } from '../../gdc/errors/gdc-api.error';
 import { VaCallbackSchema } from '../../gdc/dto/gdc.dto';
 import type { VaCallback } from '../../gdc/dto/gdc.dto';
+import { MS_PER_MINUTE } from '../../../common/constants/time';
+import { amountMatches } from '../utils/amount-matches';
 import {
   GDC_ACK,
-  MS_PER_MINUTE,
   VA_CALLBACK_EVENT_TYPE,
   VA_CALLBACK_KEY_PREFIX,
   VA_CALLBACK_PAID_STATUS,
@@ -138,8 +139,7 @@ export class PaymentsService {
         throw error;
       }
       if (status.paymentFlagStatus !== VA_INQUIRY_PAID_STATUS) continue;
-      const paidAmount = Number(status.totalAmount?.value);
-      if (!Number.isFinite(paidAmount) || paidAmount !== order.amount) continue;
+      if (!amountMatches(status.totalAmount?.value, order.amount)) continue;
       const result = await this.orders.confirmExternalPayment(order.id);
       if (result.outcome === 'verified') settled += 1;
     }
@@ -167,8 +167,7 @@ export class PaymentsService {
       return { kind: 'ignored', reason: 'non_paid_status' };
     }
 
-    const paidAmount = Number(payload.totalAmount.value);
-    if (!Number.isFinite(paidAmount) || paidAmount !== order.amount) {
+    if (!amountMatches(payload.totalAmount.value, order.amount)) {
       await this.eventLog.markFailed(eventId, {
         errorMessage: 'amount_mismatch',
       });

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PaymentsService } from './payments.service';
-import { MS_PER_MINUTE } from '../constants/payments';
+import { MS_PER_MINUTE } from '../../../common/constants/time';
 
 /**
  * Periodically replays stale inbound callbacks and reconciles unsettled VA

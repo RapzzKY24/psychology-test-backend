@@ -7,10 +7,8 @@ import type {
   FailIdempotencyInput,
 } from '../dto/idempotency.dto';
 import { parseOrThrow } from '../../../common/utils/zod-parse';
-import {
-  IDEMPOTENCY_DEFAULT_RESPONSE_STATUS,
-  MS_PER_MINUTE,
-} from '../constants/idempotency';
+import { MS_PER_MINUTE } from '../../../common/constants/time';
+import { IDEMPOTENCY_DEFAULT_RESPONSE_STATUS } from '../constants/idempotency';
 import { IDEMPOTENCY_REPOSITORY } from '../repository/idempotency.repository';
 import type {
   IdempotencyRecord,

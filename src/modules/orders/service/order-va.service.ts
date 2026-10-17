@@ -17,6 +17,14 @@ import {
 
 const VA_CREATE_SCOPE = 'gdc.va.create';
 
+interface VaProvisionFields {
+  vaNumber: string;
+  vaBankCode: string;
+  gdcTrxId: string;
+  gdcReferenceNo: string | null;
+  gdcExternalId: string;
+}
+
 @Injectable()
 export class OrderVaService {
   constructor(
@@ -61,13 +69,7 @@ export class OrderVaService {
   private async provision(
     order: Order,
     virtualAccountName: string,
-  ): Promise<{
-    vaNumber: string;
-    vaBankCode: string;
-    gdcTrxId: string;
-    gdcReferenceNo: string | null;
-    gdcExternalId: string;
-  }> {
+  ): Promise<VaProvisionFields> {
     const externalId = order.id;
     const claim = await this.idempotency.begin({
       scope: VA_CREATE_SCOPE,
@@ -79,7 +81,7 @@ export class OrderVaService {
       claim.existing.status === 'COMPLETED' &&
       claim.existing.responseBody !== null
     ) {
-      return this.toFields(
+      return this.toVaColumns(
         externalId,
         claim.existing.responseBody as unknown as CreateVirtualAccountResult,
       );
@@ -130,19 +132,13 @@ export class OrderVaService {
       responseStatus: 200,
       responseBody: result,
     });
-    return this.toFields(externalId, result);
+    return this.toVaColumns(externalId, result);
   }
 
-  private toFields(
+  private toVaColumns(
     externalId: string,
     result: CreateVirtualAccountResult,
-  ): {
-    vaNumber: string;
-    vaBankCode: string;
-    gdcTrxId: string;
-    gdcReferenceNo: string | null;
-    gdcExternalId: string;
-  } {
+  ): VaProvisionFields {
     return {
       vaNumber: result.virtualAccountNo,
       vaBankCode: DEFAULT_VA_BANK_CODE,
