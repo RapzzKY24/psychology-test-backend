@@ -12,6 +12,7 @@ export interface IdempotencyRecord {
   status: IdempotencyRecordStatus;
   responseStatus: number | null;
   responseBody: Prisma.JsonValue | null;
+  errorMessage: string | null;
   lockedAt: Date | null;
   expiresAt: Date | null;
   createdAt: Date;
@@ -25,13 +26,19 @@ export interface CreateIdempotencyInput {
   expiresAt?: Date;
 }
 
+export interface CompleteResultInput {
+  responseStatus: number;
+  responseBody?: unknown;
+}
+
+export interface FailResultInput {
+  errorMessage: string;
+}
+
 export interface IdempotencyRepository {
   /** Insert a new guard row. Throws Prisma P2002 when the key already exists. */
   create(input: CreateIdempotencyInput): Promise<IdempotencyRecord>;
   findByKey(key: string): Promise<IdempotencyRecord | null>;
-  complete(
-    id: string,
-    result: { responseStatus: number; responseBody?: unknown },
-  ): Promise<void>;
-  fail(id: string): Promise<void>;
+  complete(id: string, result: CompleteResultInput): Promise<void>;
+  fail(id: string, result: FailResultInput): Promise<void>;
 }

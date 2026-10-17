@@ -1,9 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { IdempotencyInProgressError } from '../errors/idempotency.error';
 import { BeginIdempotencySchema } from '../dto/idempotency.dto';
 import type {
   BeginIdempotencyInput,
   CompleteIdempotencyInput,
+  FailIdempotencyInput,
 } from '../dto/idempotency.dto';
+import { parseOrThrow } from '../../../common/utils/zod-parse';
+import {
+  IDEMPOTENCY_DEFAULT_RESPONSE_STATUS,
+  MS_PER_MINUTE,
+} from '../constants/idempotency';
 import { IDEMPOTENCY_REPOSITORY } from '../repository/idempotency.repository';
 import type {
   IdempotencyRecord,
@@ -30,9 +37,9 @@ export class IdempotencyService {
    * (Prisma P2002) ⇒ `acquired: false` with the existing claim.
    */
   async begin(input: BeginIdempotencyInput): Promise<BeginResult> {
-    const parsed = BeginIdempotencySchema.parse(input);
+    const parsed = parseOrThrow(BeginIdempotencySchema, input);
     const expiresAt = parsed.ttlMinutes
-      ? new Date(Date.now() + parsed.ttlMinutes * 60 * 1000)
+      ? new Date(Date.now() + parsed.ttlMinutes * MS_PER_MINUTE)
       : undefined;
     try {
       const record = await this.repo.create({
@@ -54,7 +61,36 @@ export class IdempotencyService {
     return this.repo.complete(id, result);
   }
 
-  fail(id: string): Promise<void> {
-    return this.repo.fail(id);
+  fail(id: string, result: FailIdempotencyInput): Promise<void> {
+    return this.repo.fail(id, result);
+  }
+
+  /**
+   * Claim, run, and record. On a duplicate key returns the stored result of the
+   * first successful run; on a duplicate that never completed it throws
+   * `IdempotencyInProgressError`. `fn` runs at most once.
+   */
+  async run<T>(input: BeginIdempotencyInput, fn: () => Promise<T>): Promise<T> {
+    const claim = await this.begin(input);
+    if (!claim.acquired) {
+      const { existing } = claim;
+      if (existing.status === 'COMPLETED' && existing.responseBody !== null) {
+        return existing.responseBody as T;
+      }
+      throw new IdempotencyInProgressError(existing.key);
+    }
+    try {
+      const value = await fn();
+      await this.complete(claim.id, {
+        responseStatus: IDEMPOTENCY_DEFAULT_RESPONSE_STATUS,
+        responseBody: value,
+      });
+      return value;
+    } catch (error) {
+      await this.fail(claim.id, {
+        errorMessage: error instanceof Error ? error.message : 'unknown_error',
+      });
+      throw error;
+    }
   }
 }

@@ -19,6 +19,7 @@ describe('PrismaIdempotencyRepository', () => {
     status: 'IN_PROGRESS',
     responseStatus: null,
     responseBody: null,
+    errorMessage: null,
     lockedAt: now,
     expiresAt: null,
     createdAt: now,
@@ -62,6 +63,7 @@ describe('PrismaIdempotencyRepository', () => {
       status: 'IN_PROGRESS',
       responseStatus: null,
       responseBody: null,
+      errorMessage: null,
       lockedAt: now,
       expiresAt: null,
       createdAt: now,
@@ -101,14 +103,14 @@ describe('PrismaIdempotencyRepository', () => {
     expect(arg.data).not.toHaveProperty('responseBody');
   });
 
-  it('marks the row FAILED', async () => {
+  it('marks the row FAILED and stores the error message', async () => {
     model.update.mockResolvedValue(row);
 
-    await repo.fail('rec1');
+    await repo.fail('rec1', { errorMessage: 'boom' });
 
     expect(model.update).toHaveBeenCalledWith({
       where: { id: 'rec1' },
-      data: { status: 'FAILED' },
+      data: { status: 'FAILED', errorMessage: 'boom' },
     });
   });
 });

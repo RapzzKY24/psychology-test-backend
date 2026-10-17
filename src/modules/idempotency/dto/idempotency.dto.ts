@@ -13,3 +13,7 @@ export interface CompleteIdempotencyInput {
   responseStatus: number;
   responseBody?: unknown;
 }
+
+export interface FailIdempotencyInput {
+  errorMessage: string;
+}

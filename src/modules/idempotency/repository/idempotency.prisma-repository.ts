@@ -2,7 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import type { IdempotencyKey, Prisma } from '../../../generated/prisma/client';
 import type {
+  CompleteResultInput,
   CreateIdempotencyInput,
+  FailResultInput,
   IdempotencyRecord,
   IdempotencyRepository,
 } from './idempotency.repository';
@@ -16,6 +18,7 @@ function toRecord(model: IdempotencyKey): IdempotencyRecord {
     status: model.status,
     responseStatus: model.responseStatus,
     responseBody: model.responseBody,
+    errorMessage: model.errorMessage,
     lockedAt: model.lockedAt,
     expiresAt: model.expiresAt,
     createdAt: model.createdAt,
@@ -48,10 +51,7 @@ export class PrismaIdempotencyRepository implements IdempotencyRepository {
     return model ? toRecord(model) : null;
   }
 
-  async complete(
-    id: string,
-    result: { responseStatus: number; responseBody?: unknown },
-  ): Promise<void> {
+  async complete(id: string, result: CompleteResultInput): Promise<void> {
     const data: Prisma.IdempotencyKeyUpdateInput = {
       status: 'COMPLETED',
       responseStatus: result.responseStatus,
@@ -62,10 +62,10 @@ export class PrismaIdempotencyRepository implements IdempotencyRepository {
     await this.prisma.idempotencyKey.update({ where: { id }, data });
   }
 
-  async fail(id: string): Promise<void> {
+  async fail(id: string, result: FailResultInput): Promise<void> {
     await this.prisma.idempotencyKey.update({
       where: { id },
-      data: { status: 'FAILED' },
+      data: { status: 'FAILED', errorMessage: result.errorMessage },
     });
   }
 }

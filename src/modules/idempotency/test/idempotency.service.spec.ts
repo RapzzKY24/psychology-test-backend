@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { IdempotencyService } from '../service/idempotency.service';
+import { IdempotencyInProgressError } from '../errors/idempotency.error';
 import type {
   IdempotencyRecord,
   IdempotencyRepository,
@@ -17,6 +18,7 @@ describe('IdempotencyService', () => {
     status: 'IN_PROGRESS',
     responseStatus: null,
     responseBody: null,
+    errorMessage: null,
     lockedAt: new Date(),
     expiresAt: null,
     createdAt: new Date(),
@@ -114,11 +116,77 @@ describe('IdempotencyService', () => {
     });
   });
 
-  it('fail delegates to the repository', async () => {
+  it('fail delegates to the repository with the reason', async () => {
     mockRepo.fail.mockResolvedValue(undefined);
 
-    await service.fail('rec1');
+    await service.fail('rec1', { errorMessage: 'boom' });
 
-    expect(mockRepo.fail).toHaveBeenCalledWith('rec1');
+    expect(mockRepo.fail).toHaveBeenCalledWith('rec1', {
+      errorMessage: 'boom',
+    });
+  });
+
+  describe('run', () => {
+    it('runs fn once and marks the key completed', async () => {
+      mockRepo.create.mockResolvedValue(record);
+      mockRepo.complete.mockResolvedValue(undefined);
+      const fn = jest.fn().mockResolvedValue({ ok: true });
+
+      const value = await service.run(
+        { scope: 'gdc.va.create', key: 'ext1' },
+        fn,
+      );
+
+      expect(value).toEqual({ ok: true });
+      expect(fn).toHaveBeenCalledTimes(1);
+      expect(mockRepo.complete).toHaveBeenCalledWith('rec1', {
+        responseStatus: 200,
+        responseBody: { ok: true },
+      });
+    });
+
+    it('returns the stored result on a completed duplicate', async () => {
+      const dup = Object.assign(new Error('unique'), { code: 'P2002' });
+      mockRepo.create.mockRejectedValue(dup);
+      mockRepo.findByKey.mockResolvedValue({
+        ...record,
+        status: 'COMPLETED',
+        responseBody: { ok: 'first' },
+      });
+      const fn = jest.fn();
+
+      const value = await service.run(
+        { scope: 'gdc.va.create', key: 'ext1' },
+        fn,
+      );
+
+      expect(value).toEqual({ ok: 'first' });
+      expect(fn).not.toHaveBeenCalled();
+    });
+
+    it('throws IdempotencyInProgressError on an incomplete duplicate', async () => {
+      const dup = Object.assign(new Error('unique'), { code: 'P2002' });
+      mockRepo.create.mockRejectedValue(dup);
+      mockRepo.findByKey.mockResolvedValue(record);
+
+      await expect(
+        service.run({ scope: 'gdc.va.create', key: 'ext1' }, jest.fn()),
+      ).rejects.toBeInstanceOf(IdempotencyInProgressError);
+    });
+
+    it('marks the key failed and rethrows when fn throws', async () => {
+      mockRepo.create.mockResolvedValue(record);
+      mockRepo.fail.mockResolvedValue(undefined);
+
+      await expect(
+        service.run({ scope: 'gdc.va.create', key: 'ext1' }, () =>
+          Promise.reject(new Error('boom')),
+        ),
+      ).rejects.toThrow('boom');
+
+      expect(mockRepo.fail).toHaveBeenCalledWith('rec1', {
+        errorMessage: 'boom',
+      });
+    });
   });
 });
