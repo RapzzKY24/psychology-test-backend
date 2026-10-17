@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import type { EventLog, Prisma } from '../../../generated/prisma/client';
+import type { MarkFailedInput, MarkProcessedInput } from '../dto/event-log.dto';
+import { EVENT_INITIAL_ATTEMPTS } from '../constants/event-log';
 import type {
   CreateEventInput,
   EventLogRecord,
@@ -40,7 +42,7 @@ export class PrismaEventLogRepository implements EventLogRepository {
         direction: input.direction,
         type: input.type,
         status: 'RECEIVED',
-        attempts: 1,
+        attempts: EVENT_INITIAL_ATTEMPTS,
         aggregateType: input.aggregateType,
         aggregateId: input.aggregateId,
         reference: input.reference,
@@ -58,10 +60,7 @@ export class PrismaEventLogRepository implements EventLogRepository {
     });
   }
 
-  async markProcessed(
-    id: string,
-    result: { response?: unknown; httpStatus?: number },
-  ): Promise<void> {
+  async markProcessed(id: string, result: MarkProcessedInput): Promise<void> {
     const data: Prisma.EventLogUpdateInput = {
       status: 'PROCESSED',
       processedAt: new Date(),
@@ -75,10 +74,7 @@ export class PrismaEventLogRepository implements EventLogRepository {
     await this.prisma.eventLog.update({ where: { id }, data });
   }
 
-  async markFailed(
-    id: string,
-    result: { errorMessage: string },
-  ): Promise<void> {
+  async markFailed(id: string, result: MarkFailedInput): Promise<void> {
     await this.prisma.eventLog.update({
       where: { id },
       data: {

@@ -1,4 +1,5 @@
 import type { Prisma } from '../../../generated/prisma/client';
+import type { MarkFailedInput, MarkProcessedInput } from '../dto/event-log.dto';
 
 export const EVENT_LOG_REPOSITORY = 'EventLogRepository';
 
@@ -42,11 +43,8 @@ export interface EventLogRepository {
   /** Append a new event with status RECEIVED, attempts = 1. */
   create(input: CreateEventInput): Promise<EventLogRecord>;
   markProcessing(id: string): Promise<void>;
-  markProcessed(
-    id: string,
-    result: { response?: unknown; httpStatus?: number },
-  ): Promise<void>;
-  markFailed(id: string, result: { errorMessage: string }): Promise<void>;
+  markProcessed(id: string, result: MarkProcessedInput): Promise<void>;
+  markFailed(id: string, result: MarkFailedInput): Promise<void>;
   /** Events still awaiting processing (RECEIVED/PROCESSING) older than a cutoff. */
   findStaleForRecovery(params: {
     olderThan: Date;

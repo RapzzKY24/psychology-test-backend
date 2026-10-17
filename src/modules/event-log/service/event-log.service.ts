@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { RecordEventSchema } from '../dto/event-log.dto';
+import { parseOrThrow } from '../../../common/utils/zod-parse';
 import type {
   FindStaleInput,
   MarkFailedInput,
@@ -20,7 +21,7 @@ export class EventLogService {
   ) {}
 
   async record(input: RecordEventInput): Promise<EventLogRecord> {
-    return this.repo.create(RecordEventSchema.parse(input));
+    return this.repo.create(parseOrThrow(RecordEventSchema, input));
   }
 
   markProcessing(id: string): Promise<void> {
