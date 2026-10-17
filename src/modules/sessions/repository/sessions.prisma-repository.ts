@@ -317,14 +317,17 @@ export class PrismaSessionsRepository implements SessionsRepository {
     claimedAt: Date;
     sessionId: string;
     testIds: string[];
-  }): Promise<void> {
-    await this.prisma.$transaction(async (tx) => {
+  }): Promise<boolean> {
+    return this.prisma.$transaction(async (tx) => {
       // Row lock serializes concurrent claims on the same seat.
       await tx.$queryRaw`SELECT id FROM "session_participants" WHERE id = ${params.seatId}::uuid FOR UPDATE`;
-      await tx.sessionParticipant.update({
-        where: { id: params.seatId },
+      // Conditional lock: only win the seat if it is still unclaimed.
+      const won = await tx.sessionParticipant.updateMany({
+        where: { id: params.seatId, tokenHash: null },
         data: { tokenHash: params.tokenHash, claimedAt: params.claimedAt },
       });
+      if (won.count === 0) return false;
+
       const existing = await tx.attempt.findMany({
         where: { participantId: params.seatId },
         select: { testId: true },
@@ -341,6 +344,7 @@ export class PrismaSessionsRepository implements SessionsRepository {
           })),
         });
       }
+      return true;
     });
   }
 

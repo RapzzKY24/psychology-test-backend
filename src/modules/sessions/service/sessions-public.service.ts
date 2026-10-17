@@ -4,6 +4,7 @@ import {
   NotFoundException,
   GoneException,
   ForbiddenException,
+  ConflictException,
 } from '@nestjs/common';
 import { SESSIONS_REPOSITORY } from '../repository/sessions.repository';
 import type { SessionsRepository } from '../repository/sessions.repository';
@@ -60,7 +61,7 @@ export class SessionsPublicService {
               id: p.id,
               name: p.name,
               candidateNumber: p.candidateNumber,
-              claimed: p.claimedAt != null,
+              claimed: p.tokenHash != null,
             }))
           : undefined,
     };
@@ -116,25 +117,19 @@ export class SessionsPublicService {
     const participantToken = generateParticipantToken();
     const tokenHash = hashParticipantToken(participantToken);
     const claimedAt = match.claimedAt ?? new Date();
-    try {
-      // Atomic: lock the seat, persist token + claimedAt, and create one
-      // IN_PROGRESS attempt per session test when the seat has none.
-      const sessionTests = await this.repo.findSessionTestsBySessionId(
-        session.id,
-      );
-      await this.repo.claimSeatWithAttempts({
-        seatId: match.id,
-        tokenHash,
-        claimedAt,
-        sessionId: session.id,
-        testIds: sessionTests.map((st) => st.testId),
-      });
-    } catch (error) {
-      const code = (error as { code?: string })?.code;
-      if (code === 'P2025')
-        throw new NotFoundException('Participant not found');
-      throw error;
-    }
+    // Atomic: win the seat only if still unlocked, persist token + claimedAt,
+    // and create one IN_PROGRESS attempt per session test when the seat has none.
+    const sessionTests = await this.repo.findSessionTestsBySessionId(
+      session.id,
+    );
+    const won = await this.repo.claimSeatWithAttempts({
+      seatId: match.id,
+      tokenHash,
+      claimedAt,
+      sessionId: session.id,
+      testIds: sessionTests.map((st) => st.testId),
+    });
+    if (!won) throw new ConflictException('seat_claimed');
 
     const attempts = await this.repo.findAttemptsByParticipantId(match.id);
     const participant = {

@@ -125,13 +125,14 @@ export interface SessionsRepository {
     data: { name?: string; institutionParticipantId?: string | null },
   ): Promise<SessionParticipant>;
   deleteParticipant(id: string): Promise<void>;
+  /** Returns false when the seat was already locked by another device. */
   claimSeatWithAttempts(params: {
     seatId: string;
     tokenHash: string;
     claimedAt: Date;
     sessionId: string;
     testIds: string[];
-  }): Promise<void>;
+  }): Promise<boolean>;
   findParticipantByTokenHash(
     tokenHash: string,
   ): Promise<SessionParticipant | null>;
