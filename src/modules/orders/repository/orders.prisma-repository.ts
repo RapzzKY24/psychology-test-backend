@@ -166,6 +166,22 @@ export class PrismaOrdersRepository implements OrdersRepository {
     });
   }
 
+  findPendingVaOrdersWithoutNumber(params: {
+    createdBefore: Date;
+    limit: number;
+  }): Promise<Order[]> {
+    return this.prisma.order.findMany({
+      where: {
+        status: 'PENDING',
+        paymentProvider: 'GDC_VA',
+        vaNumber: null,
+        createdAt: { lt: params.createdBefore },
+      },
+      orderBy: { createdAt: 'asc' },
+      take: params.limit,
+    });
+  }
+
   private async settleOrder(
     orderId: string,
     attrs: {

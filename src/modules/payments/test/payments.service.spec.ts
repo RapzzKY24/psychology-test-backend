@@ -12,7 +12,11 @@ describe('PaymentsService', () => {
   let orders: jest.Mocked<
     Pick<
       OrdersService,
-      'findByVaNumber' | 'confirmExternalPayment' | 'findUnsettledVaOrders'
+      | 'findByVaNumber'
+      | 'confirmExternalPayment'
+      | 'findUnsettledVaOrders'
+      | 'findPendingVaOrdersWithoutNumber'
+      | 'reprovision'
     >
   >;
   let eventLog: jest.Mocked<
@@ -59,6 +63,8 @@ describe('PaymentsService', () => {
       findByVaNumber: jest.fn(),
       confirmExternalPayment: jest.fn(),
       findUnsettledVaOrders: jest.fn(),
+      findPendingVaOrdersWithoutNumber: jest.fn(),
+      reprovision: jest.fn(),
     };
     eventLog = {
       record: jest.fn(),
@@ -182,6 +188,49 @@ describe('PaymentsService', () => {
     expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
     expect(eventLog.markProcessed).toHaveBeenCalled();
     expect(idempotency.complete).toHaveBeenCalled();
+  });
+
+  it('still acks and records a failed event when the body is unparsable', async () => {
+    eventLog.record.mockResolvedValue({ id: 'ev1' } as never);
+
+    const ack = await service.handleVaCallback({ unexpected: true });
+
+    expect(ack).toEqual(GDC_ACK);
+    expect(idempotency.begin).not.toHaveBeenCalled();
+    expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
+    expect(eventLog.markFailed).toHaveBeenCalledWith('ev1', {
+      errorMessage: 'unparsable_payload',
+    });
+  });
+
+  describe('recoverStaleProvisioning', () => {
+    it('reprovisions a gateway order that never got a VA', async () => {
+      orders.findPendingVaOrdersWithoutNumber.mockResolvedValue([
+        { id: 'o1' } as never,
+      ]);
+      orders.reprovision.mockResolvedValue({
+        id: 'o1',
+        vaNumber: '19008172',
+      } as never);
+
+      const result = await service.recoverStaleProvisioning();
+
+      expect(result).toEqual({ checked: 1, provisioned: 1 });
+      expect(orders.reprovision).toHaveBeenCalledWith('o1');
+    });
+
+    it('continues when a reprovision attempt fails', async () => {
+      orders.findPendingVaOrdersWithoutNumber.mockResolvedValue([
+        { id: 'o1' } as never,
+      ]);
+      orders.reprovision.mockRejectedValue(
+        new GdcApiError('request_failed', 'boom', 500, '/p'),
+      );
+
+      const result = await service.recoverStaleProvisioning();
+
+      expect(result).toEqual({ checked: 1, provisioned: 0 });
+    });
   });
 
   it('treats an already-settled order as processed, not failed', async () => {

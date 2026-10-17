@@ -57,27 +57,28 @@ export const VaStatusResponseSchema = z.object({
 });
 export type VaStatusResponse = z.infer<typeof VaStatusResponseSchema>;
 
-export const VaCallbackSchema = z.object({
-  partnerServiceId: z.string(),
-  customerNo: z.string(),
-  virtualAccountNo: z.string(),
-  virtualAccountName: z.string(),
-  trxId: z.string(),
-  paymentRequestId: z.string(),
-  sourceBankCode: z.string(),
-  paidAmount: AmountSchema,
-  totalAmount: AmountSchema,
-  trxDateTime: z.string(),
-  referenceNo: z.string(),
-  additionalInfo: z.object({
-    paymentDate: z.string(),
-    paymentMethod: z.string(),
-    remarks: z.string().optional(),
-    transactionType: z.string(),
-    latestTransactionStatus: z.string(),
-    transactionStatusDesc: z.string(),
-  }),
-});
+/**
+ * GDC's callback body varies between environments, so only the fields our
+ * settlement logic depends on are required; everything else is tolerated.
+ */
+export const VaCallbackSchema = z
+  .object({
+    virtualAccountNo: z.string(),
+    referenceNo: z.string(),
+    totalAmount: AmountSchema,
+    additionalInfo: z
+      .object({ latestTransactionStatus: z.string() })
+      .passthrough(),
+    partnerServiceId: z.string().optional(),
+    customerNo: z.string().optional(),
+    virtualAccountName: z.string().optional(),
+    trxId: z.string().optional(),
+    paymentRequestId: z.string().optional(),
+    sourceBankCode: z.string().optional(),
+    paidAmount: AmountSchema.optional(),
+    trxDateTime: z.string().optional(),
+  })
+  .passthrough();
 export type VaCallback = z.infer<typeof VaCallbackSchema>;
 
 export interface CreateVirtualAccountInput {

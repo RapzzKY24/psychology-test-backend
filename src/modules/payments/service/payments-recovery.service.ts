@@ -42,6 +42,7 @@ export class PaymentsRecoveryService implements OnModuleInit, OnModuleDestroy {
     this.running = true;
     try {
       await this.payments.recoverStaleCallbacks();
+      await this.payments.recoverStaleProvisioning();
       await this.payments.reconcilePendingVas();
     } catch (error) {
       this.logger.warn(

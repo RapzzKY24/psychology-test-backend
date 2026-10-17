@@ -44,6 +44,11 @@ export interface OrdersRepository {
     notBefore: Date;
     limit: number;
   }): Promise<Order[]>;
+  /** Gateway orders still PENDING without a VA, older than `createdBefore` — retry provisioning. */
+  findPendingVaOrdersWithoutNumber(params: {
+    createdBefore: Date;
+    limit: number;
+  }): Promise<Order[]>;
   updateManyToExpired(ids: string[]): Promise<number>;
   findMany(params: {
     where: Prisma.OrderWhereInput;

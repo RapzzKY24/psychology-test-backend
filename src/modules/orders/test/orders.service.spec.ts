@@ -7,7 +7,11 @@ describe('OrdersService', () => {
   let service: OrdersService;
   let mockRepo: jest.Mocked<OrdersRepository>;
   let mockConfig: { get: jest.Mock };
-  let mockOrderVa: { isEnabled: jest.Mock; createVaOrder: jest.Mock };
+  let mockOrderVa: {
+    isEnabled: jest.Mock;
+    createVaOrder: jest.Mock;
+    reprovision: jest.Mock;
+  };
 
   beforeEach(() => {
     mockRepo = {
@@ -25,6 +29,7 @@ describe('OrdersService', () => {
       findByVaNumber: jest.fn(),
       confirmExternalPayment: jest.fn(),
       findUnsettledVaOrders: jest.fn(),
+      findPendingVaOrdersWithoutNumber: jest.fn(),
       updateManyToExpired: jest.fn(),
       findMany: jest.fn(),
       findManyEnriched: jest.fn(),
@@ -33,6 +38,7 @@ describe('OrdersService', () => {
     mockOrderVa = {
       isEnabled: jest.fn().mockReturnValue(false),
       createVaOrder: jest.fn(),
+      reprovision: jest.fn(),
     };
     service = new OrdersService(
       mockRepo,

@@ -1,6 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { BadGatewayException, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { parseOrThrow } from '../../../common/utils/zod-parse';
 import { EventLogService } from '../../event-log/service/event-log.service';
 import { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import { OrdersService } from '../../orders/service/orders.service';
@@ -27,6 +26,8 @@ type CallbackOutcome =
 
 @Injectable()
 export class PaymentsService {
+  private readonly logger = new Logger(PaymentsService.name);
+
   constructor(
     private readonly orders: OrdersService,
     private readonly eventLog: EventLogService,
@@ -57,7 +58,22 @@ export class PaymentsService {
    * envelope so the gateway does not retry on our business-level outcomes.
    */
   async handleVaCallback(body: unknown): Promise<GdcAck> {
-    const payload = parseOrThrow(VaCallbackSchema, body);
+    const parsed = VaCallbackSchema.safeParse(body);
+    if (!parsed.success) {
+      // Never let a schema mismatch turn into a 422 retry storm: record it for
+      // investigation and still acknowledge.
+      const event = await this.eventLog.record({
+        source: 'GDC',
+        direction: 'INBOUND',
+        type: VA_CALLBACK_EVENT_TYPE,
+        payload: { raw: body },
+      });
+      await this.eventLog.markFailed(event.id, {
+        errorMessage: 'unparsable_payload',
+      });
+      return GDC_ACK;
+    }
+    const payload = parsed.data;
     const key = `${VA_CALLBACK_KEY_PREFIX}${payload.virtualAccountNo}:${payload.referenceNo}`;
 
     const claim = await this.idempotency.begin({
@@ -110,6 +126,38 @@ export class PaymentsService {
       replayed += 1;
     }
     return replayed;
+  }
+
+  /**
+   * Retry VA provisioning for gateway orders whose create-va call failed
+   * (PENDING, no `vaNumber`). Reuses `order.id` as the external id, so a
+   * duplicate at GDC is deduped and no second VA is issued.
+   */
+  async recoverStaleProvisioning(): Promise<{
+    checked: number;
+    provisioned: number;
+  }> {
+    const due = await this.orders.findPendingVaOrdersWithoutNumber({
+      createdBefore: new Date(Date.now() - this.staleAfterMs),
+      limit: this.batchSize,
+    });
+    let provisioned = 0;
+    for (const order of due) {
+      try {
+        const updated = await this.orders.reprovision(order.id);
+        if (updated?.vaNumber) provisioned += 1;
+      } catch (error) {
+        if (
+          error instanceof GdcApiError ||
+          error instanceof BadGatewayException
+        ) {
+          this.logger.warn(`reprovision ${order.id} failed: ${error.message}`);
+          continue;
+        }
+        throw error;
+      }
+    }
+    return { checked: due.length, provisioned };
   }
 
   /** Poll GDC for VA orders still unsettled after expiry and unlock any that were paid. */

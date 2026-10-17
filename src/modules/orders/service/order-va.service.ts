@@ -62,6 +62,18 @@ export class OrderVaService {
     return this.repo.update(order.id, va);
   }
 
+  /**
+   * Retry provisioning for a gateway order that has no VA yet. Reuses
+   * `order.id` as the external id, so GDC/idempotency dedupes a retry.
+   */
+  async reprovision(orderId: string): Promise<Order | null> {
+    const order = await this.repo.findById(orderId);
+    if (!order || order.vaNumber) return order;
+    const test = await this.repo.findTestById(order.testId);
+    const va = await this.provision(order, test?.name ?? `Order ${order.id}`);
+    return this.repo.update(order.id, va);
+  }
+
   private get paymentTtlMin(): number {
     return this.config.get<number>('app.paymentTtlMin', 60);
   }

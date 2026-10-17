@@ -267,6 +267,18 @@ export class OrdersService {
     return this.repo.findUnsettledVaOrders(params);
   }
 
+  findPendingVaOrdersWithoutNumber(params: {
+    createdBefore: Date;
+    limit: number;
+  }): Promise<Order[]> {
+    return this.repo.findPendingVaOrdersWithoutNumber(params);
+  }
+
+  /** Retry create-va for an order that never got a VA (same external id). */
+  reprovision(orderId: string): Promise<Order | null> {
+    return this.orderVa.reprovision(orderId);
+  }
+
   async cancel(
     orderId: string,
     reason: string,

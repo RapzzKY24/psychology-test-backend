@@ -5,13 +5,21 @@ import type { ConfigService } from '@nestjs/config';
 describe('PaymentsRecoveryService', () => {
   let service: PaymentsRecoveryService;
   let payments: jest.Mocked<
-    Pick<PaymentsService, 'recoverStaleCallbacks' | 'reconcilePendingVas'>
+    Pick<
+      PaymentsService,
+      | 'recoverStaleCallbacks'
+      | 'recoverStaleProvisioning'
+      | 'reconcilePendingVas'
+    >
   >;
   let config: { get: jest.Mock };
 
   beforeEach(() => {
     payments = {
       recoverStaleCallbacks: jest.fn().mockResolvedValue(0),
+      recoverStaleProvisioning: jest
+        .fn()
+        .mockResolvedValue({ checked: 0, provisioned: 0 }),
       reconcilePendingVas: jest
         .fn()
         .mockResolvedValue({ checked: 0, settled: 0 }),
@@ -46,6 +54,7 @@ describe('PaymentsRecoveryService', () => {
   it('runs both recovery passes', async () => {
     await service.runOnce();
     expect(payments.recoverStaleCallbacks).toHaveBeenCalled();
+    expect(payments.recoverStaleProvisioning).toHaveBeenCalled();
     expect(payments.reconcilePendingVas).toHaveBeenCalled();
   });
 

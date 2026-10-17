@@ -9,7 +9,9 @@ import type { ConfigService } from '@nestjs/config';
 
 describe('OrderVaService', () => {
   let service: OrderVaService;
-  let repo: jest.Mocked<Pick<OrdersRepository, 'create' | 'update'>>;
+  let repo: jest.Mocked<
+    Pick<OrdersRepository, 'create' | 'update' | 'findById' | 'findTestById'>
+  >;
   let idempotency: jest.Mocked<
     Pick<IdempotencyService, 'begin' | 'complete' | 'fail'>
   >;
@@ -36,7 +38,12 @@ describe('OrderVaService', () => {
   };
 
   beforeEach(() => {
-    repo = { create: jest.fn(), update: jest.fn() };
+    repo = {
+      create: jest.fn(),
+      update: jest.fn(),
+      findById: jest.fn(),
+      findTestById: jest.fn(),
+    };
     idempotency = { begin: jest.fn(), complete: jest.fn(), fail: jest.fn() };
     eventLog = { record: jest.fn(), markProcessed: jest.fn() };
     gdc = { createVirtualAccount: jest.fn() };
@@ -132,6 +139,40 @@ describe('OrderVaService', () => {
       'o1',
       expect.objectContaining({ vaNumber: '19008172' }),
     );
+  });
+
+  it('reprovisions an order that has no VA yet', async () => {
+    repo.findById.mockResolvedValue({ ...baseOrder, vaNumber: null } as never);
+    repo.findTestById.mockResolvedValue({ name: 'DISC Form A' } as never);
+    idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
+    eventLog.record.mockResolvedValue({ id: 'ev1' } as never);
+    gdc.createVirtualAccount.mockResolvedValue(vaResult);
+    eventLog.markProcessed.mockResolvedValue(undefined);
+    idempotency.complete.mockResolvedValue(undefined);
+    repo.update.mockResolvedValue({
+      ...baseOrder,
+      vaNumber: vaResult.virtualAccountNo,
+    } as never);
+
+    const order = await service.reprovision('o1');
+
+    expect(gdc.createVirtualAccount).toHaveBeenCalledWith(
+      expect.objectContaining({ virtualAccountName: 'DISC Form A' }),
+      'o1',
+    );
+    expect(order?.vaNumber).toBe('19008172');
+  });
+
+  it('reprovision is a no-op once a VA exists', async () => {
+    repo.findById.mockResolvedValue({
+      ...baseOrder,
+      vaNumber: '19008172',
+    } as never);
+
+    await service.reprovision('o1');
+
+    expect(gdc.createVirtualAccount).not.toHaveBeenCalled();
+    expect(repo.update).not.toHaveBeenCalled();
   });
 
   it('maps a GDC failure to 502 and leaves the event for recovery', async () => {
