@@ -1,6 +1,24 @@
-import type { Invoice, Prisma } from '../../../generated/prisma/client';
+import type {
+  Invoice,
+  PaymentVerifiedBySource,
+  Prisma,
+} from '../../../generated/prisma/client';
 
 export const INVOICES_REPOSITORY = 'InvoicesRepository';
+
+export type ConfirmInvoicePaymentResult =
+  | { outcome: 'confirmed'; invoice: Invoice }
+  | { outcome: 'already_paid'; invoice: Invoice }
+  | { outcome: 'amount_mismatch' }
+  | { outcome: 'conflict'; reason: 'invoice_cancelled' }
+  | { outcome: 'not_found' };
+
+export interface ConfirmInvoicePaymentParams {
+  paidAmount: number;
+  verifiedBySource: PaymentVerifiedBySource;
+  gdcTrxId?: string | null;
+  gdcReferenceNo?: string | null;
+}
 
 export interface InvoicesRepository {
   findById(id: string): Promise<Invoice | null>;
@@ -22,4 +40,25 @@ export interface InvoicesRepository {
     notes?: string;
     year: number;
   }): Promise<Invoice>;
+  /** Numbered invoice linked to a test session (the instansi batch payment gate). */
+  createForSession(params: {
+    institutionId: string;
+    amount: number;
+    sessionId: string;
+    expiresAt?: Date;
+    notes?: string;
+  }): Promise<Invoice>;
+  findBySessionId(sessionId: string): Promise<Invoice | null>;
+  findByVaNumber(vaNumber: string): Promise<Invoice | null>;
+  /**
+   * Exactly-once settlement: in one transaction mark the invoice PAID (payment
+   * columns set) and activate its session (`PENDING_PAYMENT → ACTIVE`).
+   * Idempotent — a re-run on a PAID invoice changes nothing.
+   */
+  confirmPaymentWithActivation(
+    invoiceId: string,
+    params: ConfirmInvoicePaymentParams,
+  ): Promise<ConfirmInvoicePaymentResult>;
+  /** Recompute the invoice amount (batch roster changed while UNPAID). */
+  regenerateAmount(invoiceId: string, amount: number): Promise<Invoice>;
 }

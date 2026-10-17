@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import type { Invoice, Prisma } from '../../../generated/prisma/client';
-import type { InvoicesRepository } from './invoices.repository';
+import type {
+  ConfirmInvoicePaymentParams,
+  ConfirmInvoicePaymentResult,
+  InvoicesRepository,
+} from './invoices.repository';
 import { generateInvoiceNumber } from '../utils/generate-invoice-number';
 
 @Injectable()
@@ -46,12 +50,106 @@ export class PrismaInvoicesRepository implements InvoicesRepository {
     return institution !== null;
   }
 
-  async createNextNumbered(params: {
+  createNextNumbered(params: {
     institutionId: string;
     amount: number;
     dueDate?: Date;
     notes?: string;
     year: number;
+  }): Promise<Invoice> {
+    return this.createNumbered(params);
+  }
+
+  createForSession(params: {
+    institutionId: string;
+    amount: number;
+    sessionId: string;
+    expiresAt?: Date;
+    notes?: string;
+  }): Promise<Invoice> {
+    return this.createNumbered({
+      institutionId: params.institutionId,
+      amount: params.amount,
+      sessionId: params.sessionId,
+      expiresAt: params.expiresAt,
+      notes: params.notes,
+      year: new Date().getFullYear(),
+    });
+  }
+
+  findBySessionId(sessionId: string): Promise<Invoice | null> {
+    return this.prisma.invoice.findUnique({ where: { sessionId } });
+  }
+
+  findByVaNumber(vaNumber: string): Promise<Invoice | null> {
+    return this.prisma.invoice.findUnique({ where: { vaNumber } });
+  }
+
+  async confirmPaymentWithActivation(
+    invoiceId: string,
+    params: ConfirmInvoicePaymentParams,
+  ): Promise<ConfirmInvoicePaymentResult> {
+    return this.prisma.$transaction(async (tx) => {
+      const invoice = await tx.invoice.findUnique({ where: { id: invoiceId } });
+      if (!invoice) return { outcome: 'not_found' };
+      if (invoice.status === 'PAID') {
+        return { outcome: 'already_paid', invoice };
+      }
+      if (invoice.status === 'CANCELLED') {
+        return { outcome: 'conflict', reason: 'invoice_cancelled' };
+      }
+      if (params.paidAmount !== invoice.amount) {
+        return { outcome: 'amount_mismatch' };
+      }
+
+      // Guarded update = exactly-once even under concurrent callbacks.
+      const updated = await tx.invoice.updateMany({
+        where: { id: invoiceId, status: 'UNPAID' },
+        data: {
+          status: 'PAID',
+          verifiedBySource: params.verifiedBySource,
+          verifiedAt: new Date(),
+          gdcTrxId: params.gdcTrxId ?? undefined,
+          gdcReferenceNo: params.gdcReferenceNo ?? undefined,
+        },
+      });
+      if (updated.count === 0) {
+        const current = await tx.invoice.findUnique({ where: { id: invoiceId } });
+        if (current?.status === 'PAID') {
+          return { outcome: 'already_paid', invoice: current };
+        }
+        return { outcome: 'conflict', reason: 'invoice_cancelled' };
+      }
+
+      if (invoice.sessionId) {
+        await tx.testSession.updateMany({
+          where: { id: invoice.sessionId, status: 'PENDING_PAYMENT' },
+          data: { status: 'ACTIVE' },
+        });
+      }
+
+      const settled = await tx.invoice.findUniqueOrThrow({
+        where: { id: invoiceId },
+      });
+      return { outcome: 'confirmed', invoice: settled };
+    });
+  }
+
+  regenerateAmount(invoiceId: string, amount: number): Promise<Invoice> {
+    return this.prisma.invoice.update({
+      where: { id: invoiceId },
+      data: { amount },
+    });
+  }
+
+  private async createNumbered(params: {
+    institutionId: string;
+    amount: number;
+    dueDate?: Date;
+    notes?: string;
+    year: number;
+    sessionId?: string;
+    expiresAt?: Date;
   }): Promise<Invoice> {
     let lastError: Error | null = null;
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -76,6 +174,8 @@ export class PrismaInvoicesRepository implements InvoicesRepository {
               number,
               dueDate: params.dueDate,
               notes: params.notes,
+              sessionId: params.sessionId,
+              expiresAt: params.expiresAt,
               status: 'UNPAID',
             },
           });
