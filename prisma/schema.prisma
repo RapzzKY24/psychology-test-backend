@@ -57,6 +57,7 @@ enum SessionKind {
 }
 
 enum SessionStatus {
+  PENDING_PAYMENT
   ACTIVE
   CLOSED
 }
@@ -293,6 +294,7 @@ model TestSession {
   sessionTests  SessionTest[]
   participants  SessionParticipant[]
   attempts      Attempt[]
+  invoice       Invoice?
 
   @@map("test_sessions")
 }
@@ -403,17 +405,28 @@ model TestResult {
 }
 
 model Invoice {
-  id            String        @id @default(uuid()) @db.Uuid
-  institutionId String        @db.Uuid
-  number        String        @unique
-  amount        Int
-  status        InvoiceStatus @default(UNPAID)
-  issuedAt      DateTime      @default(now())
-  dueDate       DateTime?
-  notes         String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  institution   Institution   @relation(fields: [institutionId], references: [id])
+  id               String                    @id @default(uuid()) @db.Uuid
+  institutionId    String                    @db.Uuid
+  number           String                    @unique
+  amount           Int
+  status           InvoiceStatus             @default(UNPAID)
+  issuedAt         DateTime                  @default(now())
+  dueDate          DateTime?
+  notes            String?
+  sessionId        String?                   @unique @db.Uuid
+  expiresAt        DateTime?
+  paymentProvider  PaymentProvider?
+  vaNumber         String?                   @unique
+  vaBankCode       String?
+  gdcTrxId         String?
+  gdcReferenceNo   String?
+  gdcExternalId    String?
+  verifiedBySource PaymentVerifiedBySource?
+  verifiedAt       DateTime?
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
+  institution      Institution               @relation(fields: [institutionId], references: [id])
+  session          TestSession?              @relation(fields: [sessionId], references: [id])
 
   @@map("invoices")
 }
