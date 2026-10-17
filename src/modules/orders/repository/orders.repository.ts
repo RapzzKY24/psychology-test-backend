@@ -35,6 +35,15 @@ export interface OrdersRepository {
   findByVaNumber(vaNumber: string): Promise<Order | null>;
   /** Same exactly-once unlock as `verifyPayment`, but sourced from the gateway (verifiedBySource = GDC). */
   confirmExternalPayment(orderId: string): Promise<VerifyPaymentResult>;
+  /**
+   * Unsettled VA orders whose `expiresAt` fell in `[notBefore, dueBefore]` —
+   * candidates for gateway status reconciliation.
+   */
+  findUnsettledVaOrders(params: {
+    dueBefore: Date;
+    notBefore: Date;
+    limit: number;
+  }): Promise<Order[]>;
   updateManyToExpired(ids: string[]): Promise<number>;
   findMany(params: {
     where: Prisma.OrderWhereInput;

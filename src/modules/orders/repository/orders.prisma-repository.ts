@@ -149,6 +149,23 @@ export class PrismaOrdersRepository implements OrdersRepository {
     });
   }
 
+  findUnsettledVaOrders(params: {
+    dueBefore: Date;
+    notBefore: Date;
+    limit: number;
+  }): Promise<Order[]> {
+    return this.prisma.order.findMany({
+      where: {
+        status: { in: ['PENDING', 'EXPIRED'] },
+        paymentProvider: 'GDC_VA',
+        vaNumber: { not: null },
+        expiresAt: { lte: params.dueBefore, gte: params.notBefore },
+      },
+      orderBy: { expiresAt: 'asc' },
+      take: params.limit,
+    });
+  }
+
   private async settleOrder(
     orderId: string,
     attrs: {

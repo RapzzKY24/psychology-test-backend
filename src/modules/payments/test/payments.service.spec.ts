@@ -1,20 +1,35 @@
 import { PaymentsService } from '../service/payments.service';
 import { GDC_ACK } from '../constants/payments';
+import { GdcApiError } from '../../gdc/errors/gdc-api.error';
 import type { EventLogService } from '../../event-log/service/event-log.service';
 import type { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import type { OrdersService } from '../../orders/service/orders.service';
+import type { GdcClient } from '../../gdc/client/gdc.client';
+import type { ConfigService } from '@nestjs/config';
 
 describe('PaymentsService', () => {
   let service: PaymentsService;
   let orders: jest.Mocked<
-    Pick<OrdersService, 'findByVaNumber' | 'confirmExternalPayment'>
+    Pick<
+      OrdersService,
+      'findByVaNumber' | 'confirmExternalPayment' | 'findUnsettledVaOrders'
+    >
   >;
   let eventLog: jest.Mocked<
-    Pick<EventLogService, 'record' | 'markProcessed' | 'markFailed'>
+    Pick<
+      EventLogService,
+      | 'record'
+      | 'markProcessed'
+      | 'markFailed'
+      | 'markProcessing'
+      | 'findStaleForRecovery'
+    >
   >;
   let idempotency: jest.Mocked<
     Pick<IdempotencyService, 'begin' | 'complete' | 'fail'>
   >;
+  let gdc: jest.Mocked<Pick<GdcClient, 'inquiryVaStatus'>>;
+  let config: { get: jest.Mock };
 
   const order = { id: 'o1', amount: 200000 };
 
@@ -40,17 +55,35 @@ describe('PaymentsService', () => {
   };
 
   beforeEach(() => {
-    orders = { findByVaNumber: jest.fn(), confirmExternalPayment: jest.fn() };
+    orders = {
+      findByVaNumber: jest.fn(),
+      confirmExternalPayment: jest.fn(),
+      findUnsettledVaOrders: jest.fn(),
+    };
     eventLog = {
       record: jest.fn(),
       markProcessed: jest.fn(),
       markFailed: jest.fn(),
+      markProcessing: jest.fn(),
+      findStaleForRecovery: jest.fn(),
     };
     idempotency = { begin: jest.fn(), complete: jest.fn(), fail: jest.fn() };
+    gdc = { inquiryVaStatus: jest.fn() };
+    config = {
+      get: jest.fn((key: string, fallback?: unknown) => {
+        const map: Record<string, unknown> = {
+          'app.recovery.staleAfterMin': 5,
+          'app.recovery.lookbackMin': 1440,
+          'app.recovery.batchSize': 50,
+        };
+        return map[key] ?? fallback;
+      }),
+    };
 
     eventLog.record.mockResolvedValue({ id: 'ev1' } as never);
     eventLog.markProcessed.mockResolvedValue(undefined);
     eventLog.markFailed.mockResolvedValue(undefined);
+    eventLog.markProcessing.mockResolvedValue(undefined);
     idempotency.complete.mockResolvedValue(undefined);
     idempotency.fail.mockResolvedValue(undefined);
 
@@ -58,6 +91,8 @@ describe('PaymentsService', () => {
       orders as never,
       eventLog as never,
       idempotency as never,
+      gdc as never,
+      config as unknown as ConfigService,
     );
   });
 
@@ -147,5 +182,114 @@ describe('PaymentsService', () => {
     expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
     expect(eventLog.markProcessed).toHaveBeenCalled();
     expect(idempotency.complete).toHaveBeenCalled();
+  });
+
+  it('treats an already-settled order as processed, not failed', async () => {
+    idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
+    orders.findByVaNumber.mockResolvedValue(order as never);
+    orders.confirmExternalPayment.mockResolvedValue({
+      outcome: 'conflict',
+      reason: 'already_verified',
+    });
+
+    await service.handleVaCallback(callback);
+
+    expect(eventLog.markProcessed).toHaveBeenCalled();
+    expect(eventLog.markFailed).not.toHaveBeenCalled();
+    expect(idempotency.complete).toHaveBeenCalled();
+  });
+
+  describe('recoverStaleCallbacks', () => {
+    it('replays stale VA callbacks and settles them', async () => {
+      eventLog.findStaleForRecovery.mockResolvedValue([
+        {
+          id: 'ev9',
+          type: 'VA_CALLBACK_RECEIVED',
+          payload: callback,
+        } as never,
+      ]);
+      orders.findByVaNumber.mockResolvedValue(order as never);
+      orders.confirmExternalPayment.mockResolvedValue({
+        outcome: 'verified',
+        wasLate: true,
+        sessionId: 's1',
+        attemptId: 'a1',
+      });
+
+      const replayed = await service.recoverStaleCallbacks();
+
+      expect(replayed).toBe(1);
+      expect(eventLog.markProcessing).toHaveBeenCalledWith('ev9');
+      expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1');
+      expect(eventLog.markProcessed).toHaveBeenCalledWith(
+        'ev9',
+        expect.anything(),
+      );
+    });
+
+    it('marks an unparsable stale payload as failed', async () => {
+      eventLog.findStaleForRecovery.mockResolvedValue([
+        {
+          id: 'ev9',
+          type: 'VA_CALLBACK_RECEIVED',
+          payload: { bad: true },
+        } as never,
+      ]);
+
+      const replayed = await service.recoverStaleCallbacks();
+
+      expect(replayed).toBe(0);
+      expect(eventLog.markFailed).toHaveBeenCalledWith('ev9', {
+        errorMessage: 'unparsable_payload',
+      });
+    });
+  });
+
+  describe('reconcilePendingVas', () => {
+    const vaOrder = { id: 'o1', amount: 200000, vaNumber: '19008172' };
+
+    it('unlocks an order GDC reports as paid', async () => {
+      orders.findUnsettledVaOrders.mockResolvedValue([vaOrder] as never);
+      gdc.inquiryVaStatus.mockResolvedValue({
+        virtualAccountNo: '19008172',
+        paymentFlagStatus: '00',
+        totalAmount: { value: '200000.00', currency: 'IDR' },
+      });
+      orders.confirmExternalPayment.mockResolvedValue({
+        outcome: 'verified',
+        wasLate: true,
+        sessionId: 's1',
+        attemptId: 'a1',
+      });
+
+      const result = await service.reconcilePendingVas();
+
+      expect(result).toEqual({ checked: 1, settled: 1 });
+      expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1');
+    });
+
+    it('skips orders GDC still reports as unpaid', async () => {
+      orders.findUnsettledVaOrders.mockResolvedValue([vaOrder] as never);
+      gdc.inquiryVaStatus.mockResolvedValue({
+        virtualAccountNo: '19008172',
+        paymentFlagStatus: '03',
+      });
+
+      const result = await service.reconcilePendingVas();
+
+      expect(result).toEqual({ checked: 1, settled: 0 });
+      expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
+    });
+
+    it('continues when the gateway call fails', async () => {
+      orders.findUnsettledVaOrders.mockResolvedValue([vaOrder] as never);
+      gdc.inquiryVaStatus.mockRejectedValue(
+        new GdcApiError('request_failed', 'boom', 500, '/p'),
+      );
+
+      const result = await service.reconcilePendingVas();
+
+      expect(result).toEqual({ checked: 1, settled: 0 });
+    });
   });
 });

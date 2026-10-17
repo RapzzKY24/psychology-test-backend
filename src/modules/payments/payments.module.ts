@@ -5,10 +5,11 @@ import { IdempotencyModule } from '../idempotency/idempotency.module';
 import { GdcModule } from '../gdc/gdc.module';
 import { GdcWebhookController } from './controller/gdc-webhook.controller';
 import { PaymentsService } from './service/payments.service';
+import { PaymentsRecoveryService } from './service/payments-recovery.service';
 
 @Module({
   imports: [OrdersModule, EventLogModule, IdempotencyModule, GdcModule],
   controllers: [GdcWebhookController],
-  providers: [PaymentsService],
+  providers: [PaymentsService, PaymentsRecoveryService],
 })
 export class PaymentsModule {}

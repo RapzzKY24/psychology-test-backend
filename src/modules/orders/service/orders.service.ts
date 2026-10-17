@@ -259,6 +259,14 @@ export class OrdersService {
     return this.repo.confirmExternalPayment(orderId);
   }
 
+  findUnsettledVaOrders(params: {
+    dueBefore: Date;
+    notBefore: Date;
+    limit: number;
+  }): Promise<Order[]> {
+    return this.repo.findUnsettledVaOrders(params);
+  }
+
   async cancel(
     orderId: string,
     reason: string,
