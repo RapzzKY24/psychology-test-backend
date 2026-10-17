@@ -32,6 +32,9 @@ export interface OrdersRepository {
   cancelPayment(id: string, reason: string): Promise<number>;
   /** Transactional exactly-once verify: PAID + verifiedBy + INDIVIDUAL session + attempt. */
   verifyPayment(orderId: string, adminId: string): Promise<VerifyPaymentResult>;
+  findByVaNumber(vaNumber: string): Promise<Order | null>;
+  /** Same exactly-once unlock as `verifyPayment`, but sourced from the gateway (verifiedBySource = GDC). */
+  confirmExternalPayment(orderId: string): Promise<VerifyPaymentResult>;
   updateManyToExpired(ids: string[]): Promise<number>;
   findMany(params: {
     where: Prisma.OrderWhereInput;

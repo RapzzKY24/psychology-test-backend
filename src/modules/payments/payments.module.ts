@@ -1,0 +1,14 @@
+import { Module } from '@nestjs/common';
+import { OrdersModule } from '../orders/orders.module';
+import { EventLogModule } from '../event-log/event-log.module';
+import { IdempotencyModule } from '../idempotency/idempotency.module';
+import { GdcModule } from '../gdc/gdc.module';
+import { GdcWebhookController } from './controller/gdc-webhook.controller';
+import { PaymentsService } from './service/payments.service';
+
+@Module({
+  imports: [OrdersModule, EventLogModule, IdempotencyModule, GdcModule],
+  controllers: [GdcWebhookController],
+  providers: [PaymentsService],
+})
+export class PaymentsModule {}

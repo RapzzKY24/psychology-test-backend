@@ -8,7 +8,10 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ORDERS_REPOSITORY } from '../repository/orders.repository';
-import type { OrdersRepository } from '../repository/orders.repository';
+import type {
+  OrdersRepository,
+  VerifyPaymentResult,
+} from '../repository/orders.repository';
 import type {
   Order,
   PaymentProvider,
@@ -245,6 +248,15 @@ export class OrdersService {
       sessionId: result.sessionId,
       attemptId: result.attemptId,
     };
+  }
+
+  findByVaNumber(vaNumber: string): Promise<Order | null> {
+    return this.repo.findByVaNumber(vaNumber);
+  }
+
+  /** Gateway-sourced unlock; the repository re-checks status transactionally (exactly-once). */
+  confirmExternalPayment(orderId: string): Promise<VerifyPaymentResult> {
+    return this.repo.confirmExternalPayment(orderId);
   }
 
   async cancel(

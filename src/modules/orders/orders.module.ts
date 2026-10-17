@@ -29,5 +29,6 @@ import { QRIS_REPOSITORY } from './repository/qris.repository';
     { provide: ORDERS_REPOSITORY, useClass: PrismaOrdersRepository },
     { provide: QRIS_REPOSITORY, useClass: PrismaQrisRepository },
   ],
+  exports: [OrdersService],
 })
 export class OrdersModule {}

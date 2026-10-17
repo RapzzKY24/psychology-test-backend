@@ -20,6 +20,7 @@ import { InvoicesModule } from './modules/invoices/invoices.module';
 import { IdempotencyModule } from './modules/idempotency/idempotency.module';
 import { EventLogModule } from './modules/event-log/event-log.module';
 import { GdcModule } from './modules/gdc/gdc.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { GdcModule } from './modules/gdc/gdc.module';
     IdempotencyModule,
     EventLogModule,
     GdcModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
