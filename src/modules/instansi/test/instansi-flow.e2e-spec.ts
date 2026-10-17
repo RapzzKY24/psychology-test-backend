@@ -52,6 +52,10 @@ describe('Instansi flow (integration, DB real)', () => {
       participantsService,
       new SessionsService(sessionsRepo),
       invoicesService,
+      {
+        isEnabled: () => true,
+        provision: () => Promise.resolve(null),
+      } as never,
     );
     publicService = new SessionsPublicService(sessionsRepo);
     overviewService = new InstansiOverviewService(

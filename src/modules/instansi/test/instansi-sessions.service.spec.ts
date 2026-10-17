@@ -16,6 +16,7 @@ describe('InstansiSessionsService', () => {
     findBySessionId: jest.Mock;
     regenerateAmount: jest.Mock;
   };
+  let mockInvoiceVaService: { isEnabled: jest.Mock; provision: jest.Mock };
 
   const USER_ID = 'user-1';
   const INSTITUTION_ID = 'inst-1';
@@ -76,6 +77,10 @@ describe('InstansiSessionsService', () => {
       findBySessionId: jest.fn(),
       regenerateAmount: jest.fn(),
     };
+    mockInvoiceVaService = {
+      isEnabled: jest.fn().mockReturnValue(true),
+      provision: jest.fn().mockResolvedValue(null),
+    };
     mockTestsRepo = {
       findMany: jest.fn().mockResolvedValue({
         data: [{ slug: 'cpmi', price: 50000 }],
@@ -92,6 +97,7 @@ describe('InstansiSessionsService', () => {
       mockParticipantsService as never,
       mockSessionsService as never,
       mockInvoicesService as never,
+      mockInvoiceVaService as never,
     );
   });
 
@@ -137,6 +143,20 @@ describe('InstansiSessionsService', () => {
           amount: 100000,
         }),
       );
+      expect(mockInvoiceVaService.provision).toHaveBeenCalledWith(
+        'inv1',
+        dto.title,
+      );
+    });
+
+    it('fails fast with 503 when no VA gateway is configured', async () => {
+      mockInvoiceVaService.isEnabled.mockReturnValue(false);
+
+      await expect(service.create(USER_ID, dto)).rejects.toThrow(
+        'payment_gateway_unavailable',
+      );
+      expect(mockSessionsService.create).not.toHaveBeenCalled();
+      expect(mockInvoicesService.createForSession).not.toHaveBeenCalled();
     });
 
     it('prices the batch as the sum of test prices times the seat count', async () => {
