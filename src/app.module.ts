@@ -17,6 +17,9 @@ import { SessionsModule } from './modules/sessions/sessions.module';
 import { ResultsModule } from './modules/results/results.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { InvoicesModule } from './modules/invoices/invoices.module';
+import { IdempotencyModule } from './modules/idempotency/idempotency.module';
+import { EventLogModule } from './modules/event-log/event-log.module';
+import { GdcModule } from './modules/gdc/gdc.module';
 
 @Module({
   imports: [
@@ -34,6 +37,9 @@ import { InvoicesModule } from './modules/invoices/invoices.module';
     ResultsModule,
     OrdersModule,
     InvoicesModule,
+    IdempotencyModule,
+    EventLogModule,
+    GdcModule,
   ],
   controllers: [AppController],
   providers: [AppService],
