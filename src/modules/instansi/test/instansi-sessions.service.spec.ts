@@ -11,7 +11,11 @@ describe('InstansiSessionsService', () => {
   let mockTestsRepo: { findMany: jest.Mock };
   let mockParticipantsService: { resolveInstitutionId: jest.Mock };
   let mockSessionsService: { create: jest.Mock; close: jest.Mock };
-  let mockInvoicesService: { createForSession: jest.Mock };
+  let mockInvoicesService: {
+    createForSession: jest.Mock;
+    findBySessionId: jest.Mock;
+    regenerateAmount: jest.Mock;
+  };
 
   const USER_ID = 'user-1';
   const INSTITUTION_ID = 'inst-1';
@@ -51,6 +55,9 @@ describe('InstansiSessionsService', () => {
       updateParticipantToken: jest.fn(),
       claimSeatWithAttempts: jest.fn(),
       joinSession: jest.fn(),
+      createParticipants: jest.fn(),
+      updateParticipant: jest.fn(),
+      deleteParticipant: jest.fn(),
     };
     mockParticipantsRepo = {
       findMany: jest.fn(),
@@ -63,7 +70,11 @@ describe('InstansiSessionsService', () => {
     };
     mockParticipantsService = { resolveInstitutionId: jest.fn() };
     mockSessionsService = { create: jest.fn(), close: jest.fn() };
-    mockInvoicesService = { createForSession: jest.fn() };
+    mockInvoicesService = {
+      createForSession: jest.fn(),
+      findBySessionId: jest.fn(),
+      regenerateAmount: jest.fn(),
+    };
     mockTestsRepo = {
       findMany: jest.fn().mockResolvedValue({
         data: [{ slug: 'cpmi', price: 50000 }],
@@ -243,6 +254,126 @@ describe('InstansiSessionsService', () => {
 
       expect(mockSessionsService.close).toHaveBeenCalledWith('s1');
       expect(result).toEqual({ id: 's1', status: 'CLOSED' });
+    });
+  });
+
+  describe('roster edits (UNPAID only)', () => {
+    const batchSession = {
+      id: 's1',
+      institutionId: INSTITUTION_ID,
+      slotLimit: 10,
+    };
+    const unpaidInvoice = { id: 'inv1', status: 'UNPAID', amount: 50000 };
+
+    const givenUnpaidBatch = () => {
+      mockSessionsRepo.findById.mockResolvedValue(batchSession as never);
+      mockInvoicesService.findBySessionId.mockResolvedValue(unpaidInvoice);
+      mockSessionsRepo.findSessionTestsBySessionId.mockResolvedValue([
+        { testId: 't1', testName: 'DISC', testStatus: 'PUBLISHED', order: 1 },
+      ] as never);
+    };
+
+    beforeEach(givenUnpaidBatch);
+
+    it('adds participants and regenerates the amount per new seat', async () => {
+      mockSessionsRepo.findParticipantsBySessionId.mockResolvedValue([
+        { id: 'p1', institutionParticipantId: 'emp-1', name: 'A' },
+        { id: 'p2', institutionParticipantId: 'emp-2', name: 'B' },
+      ] as never);
+      mockParticipantsRepo.findManyByIds.mockResolvedValue([
+        { id: 'emp-3', name: 'C' },
+      ] as never);
+      mockInvoicesService.regenerateAmount.mockResolvedValue({
+        id: 'inv1',
+        amount: 150000,
+        status: 'UNPAID',
+      });
+
+      await service.addParticipants(USER_ID, 's1', { employeeIds: ['emp-3'] });
+
+      expect(mockSessionsRepo.createParticipants).toHaveBeenCalledWith('s1', [
+        { name: 'C', institutionParticipantId: 'emp-3' },
+      ]);
+      // 50000 per seat × 3 seats
+      expect(mockInvoicesService.regenerateAmount).toHaveBeenCalledWith(
+        'inv1',
+        150000,
+      );
+    });
+
+    it('rejects adding beyond slotLimit with 422 and no change', async () => {
+      mockSessionsRepo.findById.mockResolvedValue({
+        ...batchSession,
+        slotLimit: 2,
+      } as never);
+      mockSessionsRepo.findParticipantsBySessionId.mockResolvedValue([
+        { id: 'p1', institutionParticipantId: 'emp-1', name: 'A' },
+        { id: 'p2', institutionParticipantId: 'emp-2', name: 'B' },
+      ] as never);
+
+      await expect(
+        service.addParticipants(USER_ID, 's1', { employeeIds: ['emp-3'] }),
+      ).rejects.toThrow('validation_failed');
+      expect(mockSessionsRepo.createParticipants).not.toHaveBeenCalled();
+      expect(mockInvoicesService.regenerateAmount).not.toHaveBeenCalled();
+    });
+
+    it('removes a participant and lowers the amount by one share', async () => {
+      mockSessionsRepo.findParticipantsBySessionId.mockResolvedValue([
+        { id: 'p1', institutionParticipantId: 'emp-1', name: 'A' },
+        { id: 'p2', institutionParticipantId: 'emp-2', name: 'B' },
+        { id: 'p3', institutionParticipantId: 'emp-3', name: 'C' },
+      ] as never);
+      mockInvoicesService.regenerateAmount.mockResolvedValue({
+        id: 'inv1',
+        amount: 100000,
+        status: 'UNPAID',
+      });
+
+      await service.removeParticipant(USER_ID, 's1', 'p3');
+
+      expect(mockSessionsRepo.deleteParticipant).toHaveBeenCalledWith('p3');
+      expect(mockInvoicesService.regenerateAmount).toHaveBeenCalledWith(
+        'inv1',
+        100000,
+      );
+    });
+
+    it('swaps the seat employee without changing the amount', async () => {
+      mockSessionsRepo.findParticipantsBySessionId.mockResolvedValue([
+        { id: 'p1', institutionParticipantId: 'emp-1', name: 'A' },
+      ] as never);
+      mockParticipantsRepo.findManyByIds.mockResolvedValue([
+        { id: 'emp-9', name: 'Z' },
+      ] as never);
+
+      await service.swapParticipant(USER_ID, 's1', 'p1', {
+        employeeId: 'emp-9',
+      });
+
+      expect(mockSessionsRepo.updateParticipant).toHaveBeenCalledWith('p1', {
+        name: 'Z',
+        institutionParticipantId: 'emp-9',
+      });
+      expect(mockInvoicesService.regenerateAmount).not.toHaveBeenCalled();
+    });
+
+    it('rejects every edit with 409 batch_locked once the invoice is PAID', async () => {
+      mockInvoicesService.findBySessionId.mockResolvedValue({
+        id: 'inv1',
+        status: 'PAID',
+      });
+
+      await expect(
+        service.addParticipants(USER_ID, 's1', { employeeIds: ['emp-3'] }),
+      ).rejects.toThrow('batch_locked');
+      await expect(
+        service.swapParticipant(USER_ID, 's1', 'p1', { employeeId: 'emp-9' }),
+      ).rejects.toThrow('batch_locked');
+      await expect(
+        service.removeParticipant(USER_ID, 's1', 'p1'),
+      ).rejects.toThrow('batch_locked');
+      expect(mockSessionsRepo.createParticipants).not.toHaveBeenCalled();
     });
   });
 });

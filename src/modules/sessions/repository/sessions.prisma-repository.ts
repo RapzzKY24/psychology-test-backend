@@ -197,6 +197,44 @@ export class PrismaSessionsRepository implements SessionsRepository {
     return this.prisma.sessionParticipant.count({ where: { sessionId } });
   }
 
+  async createParticipants(
+    sessionId: string,
+    rows: {
+      name: string;
+      candidateNumber?: string | null;
+      institutionParticipantId?: string | null;
+    }[],
+  ): Promise<number> {
+    const result = await this.prisma.sessionParticipant.createMany({
+      data: rows.map((r) => ({
+        sessionId,
+        name: r.name,
+        candidateNumber: r.candidateNumber ?? null,
+        institutionParticipantId: r.institutionParticipantId ?? null,
+      })),
+    });
+    return result.count;
+  }
+
+  updateParticipant(
+    id: string,
+    data: { name?: string; institutionParticipantId?: string | null },
+  ): Promise<SessionParticipant> {
+    return this.prisma.sessionParticipant.update({
+      where: { id },
+      data: {
+        ...(data.name !== undefined ? { name: data.name } : {}),
+        ...(data.institutionParticipantId !== undefined
+          ? { institutionParticipantId: data.institutionParticipantId }
+          : {}),
+      },
+    });
+  }
+
+  async deleteParticipant(id: string): Promise<void> {
+    await this.prisma.sessionParticipant.delete({ where: { id } });
+  }
+
   async findSessionTestsBySessionId(
     sessionId: string,
   ): Promise<SessionTestSummary[]> {

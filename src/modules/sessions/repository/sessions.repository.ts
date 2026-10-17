@@ -112,6 +112,19 @@ export interface SessionsRepository {
     claimedAt?: Date,
   ): Promise<void>;
   countParticipants(sessionId: string): Promise<number>;
+  createParticipants(
+    sessionId: string,
+    rows: {
+      name: string;
+      candidateNumber?: string | null;
+      institutionParticipantId?: string | null;
+    }[],
+  ): Promise<number>;
+  updateParticipant(
+    id: string,
+    data: { name?: string; institutionParticipantId?: string | null },
+  ): Promise<SessionParticipant>;
+  deleteParticipant(id: string): Promise<void>;
   claimSeatWithAttempts(params: {
     seatId: string;
     tokenHash: string;
