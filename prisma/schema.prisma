@@ -441,7 +441,6 @@ model Order {
   createdAt         DateTime                   @default(now())
   updatedAt         DateTime                   @updatedAt
   test              Test                       @relation(fields: [testId], references: [id])
-  paymentEvents     EventLog[]
 
   @@index([userId])
   @@index([status, amount])
@@ -488,7 +487,6 @@ model EventLog {
   createdAt      DateTime       @default(now())
   processedAt    DateTime?
   updatedAt      DateTime       @updatedAt
-  order          Order?         @relation(fields: [aggregateId], references: [id])
 
   @@index([aggregateType, aggregateId])
   @@index([status, createdAt])
@@ -504,6 +502,7 @@ model IdempotencyKey {
   status         IdempotencyStatus @default(IN_PROGRESS)
   responseStatus Int?
   responseBody   Json?
+  errorMessage   String?
   lockedAt       DateTime?
   expiresAt      DateTime?
   createdAt      DateTime          @default(now())
