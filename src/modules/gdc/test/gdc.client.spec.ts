@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/require-await */
 import { generateKeyPairSync } from 'node:crypto';
 import { GdcClient } from '../client/gdc.client';
+import { GdcTokenProvider } from '../client/gdc-token.provider';
+import { GdcApiError } from '../errors/gdc-api.error';
 import type { ConfigService } from '@nestjs/config';
 
 describe('GdcClient', () => {
@@ -42,29 +44,34 @@ describe('GdcClient', () => {
     const config = {
       get: jest.fn().mockReturnValue(cfg),
     } as unknown as ConfigService;
-    client = new GdcClient(config);
+    const tokens = new GdcTokenProvider(config);
+    client = new GdcClient(config, tokens);
   });
 
   afterEach(() => jest.restoreAllMocks());
 
   it('obtains and caches the access token', async () => {
     fetchMock.mockResolvedValueOnce(tokenResponse());
+    const tokens = new GdcTokenProvider({
+      get: jest.fn().mockReturnValue(cfg),
+    } as unknown as ConfigService);
 
-    expect(await client.getAccessToken()).toBe('tok');
-    expect(await client.getAccessToken()).toBe('tok');
+    expect(await tokens.getAccessToken()).toBe('tok');
+    expect(await tokens.getAccessToken()).toBe('tok');
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it('throws gdc_access_token_failed on a non-ok token response', async () => {
+  it('throws GdcApiError on a non-ok token response', async () => {
     fetchMock.mockResolvedValueOnce({
       ok: false,
       status: 502,
       json: async () => ({}),
     });
+    const tokens = new GdcTokenProvider({
+      get: jest.fn().mockReturnValue(cfg),
+    } as unknown as ConfigService);
 
-    await expect(client.getAccessToken()).rejects.toThrow(
-      'gdc_access_token_failed',
-    );
+    await expect(tokens.getAccessToken()).rejects.toBeInstanceOf(GdcApiError);
   });
 
   it('creates a virtual account with the SNAP headers', async () => {
@@ -111,7 +118,7 @@ describe('GdcClient', () => {
     expect(JSON.parse(init.body as string).additionalInfo.bankCode).toBe('014');
   });
 
-  it('inquiries VA status and returns virtualAccountData', async () => {
+  it('inquiries VA status reusing the caller-supplied external id', async () => {
     fetchMock.mockResolvedValueOnce(tokenResponse()).mockResolvedValueOnce({
       ok: true,
       status: 200,
@@ -126,13 +133,31 @@ describe('GdcClient', () => {
       }),
     });
 
-    const data = await client.inquiryVaStatus({
-      virtualAccountNo: '1900',
-      paymentRequestId: 'pr-1',
-    });
+    const data = await client.inquiryVaStatus(
+      { virtualAccountNo: '1900', paymentRequestId: 'pr-1' },
+      'ext-retry-1',
+    );
 
     expect(data.paymentFlagStatus).toBe('00');
-    const [url] = fetchMock.mock.calls[1];
+    const [url, init] = fetchMock.mock.calls[1];
     expect(url).toBe('https://sandbox/snap/v1.0/transfer-va/status');
+    expect((init.headers as Record<string, string>)['X-EXTERNAL-ID']).toBe(
+      'ext-retry-1',
+    );
+  });
+
+  it('throws GdcApiError on a non-ok signed request', async () => {
+    fetchMock.mockResolvedValueOnce(tokenResponse()).mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      json: async () => ({}),
+    });
+
+    await expect(
+      client.inquiryVaStatus(
+        { virtualAccountNo: '1900', paymentRequestId: 'pr-1' },
+        'ext-1',
+      ),
+    ).rejects.toBeInstanceOf(GdcApiError);
   });
 });
