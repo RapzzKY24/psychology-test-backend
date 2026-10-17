@@ -8,6 +8,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { PrismaOrdersRepository } from '../repository/orders.prisma-repository';
 import { PrismaQrisRepository } from '../repository/qris.prisma-repository';
 import { OrdersService } from '../service/orders.service';
+import { OrderVaService } from '../service/order-va.service';
 import { QrisService } from '../service/qris.service';
 import { validateQrisFile } from '../utils/validate-qris-file';
 
@@ -123,9 +124,18 @@ describe('Payments E2E (integ, real DB)', () => {
       })
     ).map((it) => it.id);
 
-    ordersService = new OrdersService(
-      new PrismaOrdersRepository(prisma),
+    const ordersRepository = new PrismaOrdersRepository(prisma);
+    const orderVaStub = new OrderVaService(
+      ordersRepository,
+      {} as never,
+      {} as never,
+      {} as never,
       configStub as never,
+    );
+    ordersService = new OrdersService(
+      ordersRepository,
+      configStub as never,
+      orderVaStub,
     );
     qrisService = new QrisService(
       new PrismaQrisRepository(prisma),
