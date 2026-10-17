@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { InvoicesController } from './controller/invoices.controller';
 import { InvoicesService } from './service/invoices.service';
 import { InvoiceVaService } from './service/invoice-va.service';
+import { AdminInvoicesService } from './service/admin-invoices.service';
 import { PrismaInvoicesRepository } from './repository/invoices.prisma-repository';
 import { INVOICES_REPOSITORY } from './repository/invoices.repository';
 import { GdcModule } from '../gdc/gdc.module';
@@ -18,6 +19,7 @@ import { StubVaProvider } from './gateway/stub-va.provider';
   controllers: [InvoicesController],
   providers: [
     InvoicesService,
+    AdminInvoicesService,
     InvoiceVaService,
     { provide: INVOICES_REPOSITORY, useClass: PrismaInvoicesRepository },
     {
