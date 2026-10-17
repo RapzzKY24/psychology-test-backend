@@ -15,5 +15,6 @@ import { SessionsModule } from '../sessions/sessions.module';
     MeResultsService,
     { provide: RESULTS_REPOSITORY, useClass: PrismaResultsRepository },
   ],
+  exports: [RESULTS_REPOSITORY],
 })
 export class ResultsModule {}
