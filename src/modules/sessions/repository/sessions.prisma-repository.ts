@@ -235,6 +235,13 @@ export class PrismaSessionsRepository implements SessionsRepository {
     await this.prisma.sessionParticipant.delete({ where: { id } });
   }
 
+  resetParticipantToken(id: string): Promise<SessionParticipant> {
+    return this.prisma.sessionParticipant.update({
+      where: { id },
+      data: { tokenHash: null },
+    });
+  }
+
   async findSessionTestsBySessionId(
     sessionId: string,
   ): Promise<SessionTestSummary[]> {

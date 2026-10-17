@@ -55,6 +55,7 @@ describe('SessionsService', () => {
       createParticipants: jest.fn(),
       updateParticipant: jest.fn(),
       deleteParticipant: jest.fn(),
+      resetParticipantToken: jest.fn(),
     };
     mockRepo.findByToken.mockResolvedValue(null); // no token collision by default
     service = new SessionsService(mockRepo);

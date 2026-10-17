@@ -182,6 +182,22 @@ describe('Instansi flow (integration, DB real)', () => {
     expect(claimed.participantToken).toBeDefined();
     expect(claimed.attempts).toHaveLength(1);
 
+    // A locked seat cannot be claimed from another device
+    await expect(
+      publicService.claim(session.token, seats[0].id, '127.0.0.2'),
+    ).rejects.toThrow('seat_claimed');
+
+    // Operator reset releases the lock; the candidate re-claims from a new
+    // device and keeps their progress (attempts are not duplicated).
+    await sessionsService.resetParticipant(userId, sessionId, seats[0].id);
+    const reclaimed = await publicService.claim(
+      session.token,
+      seats[0].id,
+      '127.0.0.3',
+    );
+    expect(reclaimed.participantToken).toBeDefined();
+    expect(reclaimed.attempts).toHaveLength(1);
+
     // Then: overview rekap reflects it
     const overview = await overviewService.getOverview(userId);
     expect(overview).toEqual({

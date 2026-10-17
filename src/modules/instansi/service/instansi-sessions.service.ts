@@ -32,6 +32,13 @@ export interface InstansiBatchCreateResult {
   invoice: InstansiInvoiceDto;
 }
 
+export interface ResetSeatResult {
+  id: string;
+  name: string;
+  candidateNumber: string | null;
+  claimed: boolean;
+}
+
 /**
  * Institution-owned test sessions. Institution is always derived from the
  * caller (ownerUserId) — never from the request body. Session creation
@@ -287,6 +294,34 @@ export class InstansiSessionsService {
       pricePerSeat * (participants.length - 1),
     );
     return toInstansiInvoice(updated);
+  }
+
+  async resetParticipant(
+    userId: string,
+    sessionId: string,
+    participantId: string,
+  ): Promise<ResetSeatResult> {
+    const institutionId =
+      await this.participantsService.resolveInstitutionId(userId);
+    const session = await this.sessionsRepo.findById(sessionId);
+    if (!session || session.institutionId !== institutionId) {
+      throw new NotFoundException('Session not found');
+    }
+    const participants = await this.sessionsRepo.findParticipantsBySessionId(
+      session.id,
+    );
+    if (!participants.some((p) => p.id === participantId)) {
+      throw new NotFoundException('Participant not found');
+    }
+
+    const updated =
+      await this.sessionsRepo.resetParticipantToken(participantId);
+    return {
+      id: updated.id,
+      name: updated.name,
+      candidateNumber: updated.candidateNumber,
+      claimed: updated.tokenHash != null,
+    };
   }
 
   /**

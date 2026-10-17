@@ -58,6 +58,7 @@ describe('InstansiSessionsService', () => {
       createParticipants: jest.fn(),
       updateParticipant: jest.fn(),
       deleteParticipant: jest.fn(),
+      resetParticipantToken: jest.fn(),
     };
     mockParticipantsRepo = {
       findMany: jest.fn(),
@@ -356,6 +357,40 @@ describe('InstansiSessionsService', () => {
         institutionParticipantId: 'emp-9',
       });
       expect(mockInvoicesService.regenerateAmount).not.toHaveBeenCalled();
+    });
+
+    it('resets the seat lock for a seat owned by the caller institution', async () => {
+      mockSessionsRepo.findParticipantsBySessionId.mockResolvedValue([
+        { id: 'p1', institutionParticipantId: 'emp-1', name: 'A' },
+      ] as never);
+      mockSessionsRepo.resetParticipantToken.mockResolvedValue({
+        id: 'p1',
+        name: 'A',
+        candidateNumber: '3',
+        tokenHash: null,
+      } as never);
+
+      const result = await service.resetParticipant(USER_ID, 's1', 'p1');
+
+      expect(mockSessionsRepo.resetParticipantToken).toHaveBeenCalledWith('p1');
+      expect(result).toEqual({
+        id: 'p1',
+        name: 'A',
+        candidateNumber: '3',
+        claimed: false,
+      });
+    });
+
+    it('404s reset for another institution session without touching the seat', async () => {
+      mockSessionsRepo.findById.mockResolvedValue({
+        ...batchSession,
+        institutionId: 'other-inst',
+      } as never);
+
+      await expect(
+        service.resetParticipant(USER_ID, 's1', 'p1'),
+      ).rejects.toThrow(NotFoundException);
+      expect(mockSessionsRepo.resetParticipantToken).not.toHaveBeenCalled();
     });
 
     it('rejects every edit with 409 batch_locked once the invoice is PAID', async () => {

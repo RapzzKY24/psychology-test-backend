@@ -125,6 +125,8 @@ export interface SessionsRepository {
     data: { name?: string; institutionParticipantId?: string | null },
   ): Promise<SessionParticipant>;
   deleteParticipant(id: string): Promise<void>;
+  /** Releases the seat lock (clears tokenHash; keeps claimedAt for audit). */
+  resetParticipantToken(id: string): Promise<SessionParticipant>;
   /** Returns false when the seat was already locked by another device. */
   claimSeatWithAttempts(params: {
     seatId: string;

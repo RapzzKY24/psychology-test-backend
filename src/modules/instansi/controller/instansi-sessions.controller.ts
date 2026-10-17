@@ -14,7 +14,10 @@ import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
 import { PaginationSchema } from '../../../common/dto/pagination.dto';
 import type { PaginationDto } from '../../../common/dto/pagination.dto';
 import { InstansiSessionsService } from '../service/instansi-sessions.service';
-import type { InstansiBatchCreateResult } from '../service/instansi-sessions.service';
+import type {
+  InstansiBatchCreateResult,
+  ResetSeatResult,
+} from '../service/instansi-sessions.service';
 import { CreateInstansiSessionSchema } from '../dto/create-instansi-session.dto';
 import type { CreateInstansiSessionDto } from '../dto/create-instansi-session.dto';
 import { AddBatchParticipantsSchema } from '../dto/add-batch-participants.dto';
@@ -100,6 +103,20 @@ export class InstansiSessionsController {
       dto,
     );
     return { data, message: 'participant_updated' };
+  }
+
+  @Post(':id/participants/:participantId/reset')
+  async resetParticipant(
+    @Session() session: UserSession,
+    @Param('id') id: string,
+    @Param('participantId') participantId: string,
+  ): Promise<ApiResponse<ResetSeatResult>> {
+    const data = await this.sessionsService.resetParticipant(
+      session.user.id,
+      id,
+      participantId,
+    );
+    return { data, message: 'seat_reset' };
   }
 
   @Delete(':id/participants/:participantId')
