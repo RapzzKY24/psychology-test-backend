@@ -114,7 +114,9 @@ export class PrismaInvoicesRepository implements InvoicesRepository {
         },
       });
       if (updated.count === 0) {
-        const current = await tx.invoice.findUnique({ where: { id: invoiceId } });
+        const current = await tx.invoice.findUnique({
+          where: { id: invoiceId },
+        });
         if (current?.status === 'PAID') {
           return { outcome: 'already_paid', invoice: current };
         }

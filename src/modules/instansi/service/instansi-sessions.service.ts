@@ -15,9 +15,19 @@ import type { TestsRepository } from '../../tests/repository/tests.repository';
 import { INSTANSI_PARTICIPANTS_REPOSITORY } from '../repository/instansi-participants.repository';
 import type { InstansiParticipantsRepository } from '../repository/instansi-participants.repository';
 import { InstansiParticipantsService } from './instansi-participants.service';
+import { InvoicesService } from '../../invoices/service/invoices.service';
 import type { CreateInstansiSessionDto } from '../dto/create-instansi-session.dto';
+import {
+  toInstansiInvoice,
+  type InstansiInvoiceDto,
+} from '../dto/instansi-invoice.dto';
 import type { PaginatedResponse } from '../../../common/interfaces/api-response.interface';
 import type { TestSession } from '../../../generated/prisma/client';
+
+export interface InstansiBatchCreateResult {
+  session: TestSession;
+  invoice: InstansiInvoiceDto;
+}
 
 /**
  * Institution-owned test sessions. Institution is always derived from the
@@ -35,12 +45,13 @@ export class InstansiSessionsService {
     private readonly testsRepo: TestsRepository,
     private readonly participantsService: InstansiParticipantsService,
     private readonly sessionsService: SessionsService,
+    private readonly invoicesService: InvoicesService,
   ) {}
 
   async create(
     userId: string,
     dto: CreateInstansiSessionDto,
-  ): Promise<TestSession> {
+  ): Promise<InstansiBatchCreateResult> {
     const institutionId =
       await this.participantsService.resolveInstitutionId(userId);
 
@@ -76,13 +87,14 @@ export class InstansiSessionsService {
     }
     const byId = new Map(employees.map((e) => [e.id, e]));
 
-    return this.sessionsService.create(
+    const session = await this.sessionsService.create(
       {
         title: dto.title,
         institutionId,
         testIds: dto.testIds,
         slotLimit: dto.slotLimit,
         expiresAt: dto.expiresAt,
+        status: 'PENDING_PAYMENT',
         pin: dto.pin,
         roster: dto.employeeIds.map((id) => {
           const employee = byId.get(id);
@@ -95,6 +107,17 @@ export class InstansiSessionsService {
       },
       userId,
     );
+
+    // One seat per employee, each seat pays the sum of the batch's test prices.
+    const pricePerSeat = tests.data.reduce((sum, t) => sum + t.price, 0);
+    const invoice = await this.invoicesService.createForSession({
+      institutionId,
+      amount: pricePerSeat * employees.length,
+      sessionId: session.id,
+      expiresAt: session.expiresAt,
+    });
+
+    return { session, invoice: toInstansiInvoice(invoice) };
   }
 
   async list(

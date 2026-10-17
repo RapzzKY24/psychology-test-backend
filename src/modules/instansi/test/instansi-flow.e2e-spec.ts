@@ -4,6 +4,8 @@ import { PrismaSessionsRepository } from '../../sessions/repository/sessions.pri
 import { InstansiParticipantsPrismaRepository } from '../repository/instansi-participants.prisma-repository';
 import { PrismaInstitutionsRepository } from '../../institutions/repository/institutions.prisma-repository';
 import { PrismaTestsRepository } from '../../tests/repository/tests.prisma-repository';
+import { PrismaInvoicesRepository } from '../../invoices/repository/invoices.prisma-repository';
+import { InvoicesService } from '../../invoices/service/invoices.service';
 import { SessionsService } from '../../sessions/service/sessions.service';
 import { SessionsPublicService } from '../../sessions/service/sessions-public.service';
 import { InstansiParticipantsService } from '../service/instansi-participants.service';
@@ -18,6 +20,7 @@ import { InstansiOverviewService } from '../service/instansi-overview.service';
 describe('Instansi flow (integration, DB real)', () => {
   let prisma: PrismaService;
   let sessionsService: InstansiSessionsService;
+  let invoicesService: InvoicesService;
   let publicService: SessionsPublicService;
   let overviewService: InstansiOverviewService;
 
@@ -40,12 +43,14 @@ describe('Instansi flow (integration, DB real)', () => {
       participantsRepo,
       institutionsRepo,
     );
+    invoicesService = new InvoicesService(new PrismaInvoicesRepository(prisma));
     sessionsService = new InstansiSessionsService(
       sessionsRepo,
       participantsRepo,
-      testsRepo as never,
+      testsRepo,
       participantsService,
       new SessionsService(sessionsRepo),
+      invoicesService,
     );
     publicService = new SessionsPublicService(sessionsRepo);
     overviewService = new InstansiOverviewService(
@@ -99,6 +104,7 @@ describe('Instansi flow (integration, DB real)', () => {
     await prisma.sessionParticipant.deleteMany({
       where: { id: { in: seatIds } },
     });
+    await prisma.invoice.deleteMany({ where: { sessionId } });
     await prisma.sessionTest.deleteMany({ where: { sessionId } });
     await prisma.testSession.deleteMany({ where: { id: sessionId } });
     await prisma.institutionParticipant.deleteMany({
@@ -133,7 +139,7 @@ describe('Instansi flow (integration, DB real)', () => {
     });
 
     // When: HR creates a session from employees
-    const session = await sessionsService.create(userId, {
+    const { session, invoice } = await sessionsService.create(userId, {
       title: `${tag} Sesi 1`,
       testIds: [testId],
       employeeIds: [emp1.id, emp2.id],
@@ -143,6 +149,21 @@ describe('Instansi flow (integration, DB real)', () => {
     sessionId = session.id;
     expect(session.joinMode).toBe('ROSTER');
     expect(session.institutionId).toBe(institutionId);
+    expect(session.status).toBe('PENDING_PAYMENT');
+    // 100000 per test × 2 employees
+    expect(invoice.amount).toBe(200000);
+    expect(invoice.vaNumber).toBeNull();
+
+    // When: the batch invoice settles, the session activates
+    const settlement = await invoicesService.confirmPaymentWithActivation(
+      invoice.id,
+      { paidAmount: invoice.amount, verifiedBySource: 'GDC' },
+    );
+    expect(settlement.outcome).toBe('confirmed');
+    const activated = await prisma.testSession.findUniqueOrThrow({
+      where: { id: sessionId },
+    });
+    expect(activated.status).toBe('ACTIVE');
 
     const seats = await prisma.sessionParticipant.findMany({
       where: { sessionId },

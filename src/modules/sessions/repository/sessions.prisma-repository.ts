@@ -166,6 +166,7 @@ export class PrismaSessionsRepository implements SessionsRepository {
         slotLimit: params.slotLimit,
         expiresAt: params.expiresAt,
         joinMode: params.joinMode,
+        status: params.status,
         sessionTests: {
           create: params.tests.map((t) => ({
             testId: t.testId,

@@ -89,6 +89,7 @@ export class SessionsService {
           pinHash,
           slotLimit: dto.slotLimit,
           expiresAt: dto.expiresAt,
+          status: dto.status,
           joinMode: dto.roster && dto.roster.length > 0 ? 'ROSTER' : 'OPEN',
           roster: (dto.roster ?? []).map((r) => ({
             name: r.name,

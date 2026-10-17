@@ -34,6 +34,7 @@ export interface CreateSessionParams {
   slotLimit: number;
   expiresAt: Date;
   joinMode: 'OPEN' | 'ROSTER';
+  status?: 'PENDING_PAYMENT' | 'ACTIVE';
   tests: { testId: string; order: number }[];
   roster: {
     name: string;

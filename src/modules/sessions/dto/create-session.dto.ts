@@ -15,6 +15,8 @@ export const CreateSessionSchema = z
       message: 'expiresAt must be in the future',
     }),
     pin: z.string().min(4).max(8).optional(),
+    // PENDING_PAYMENT gates public join until the batch invoice is settled.
+    status: z.enum(['PENDING_PAYMENT', 'ACTIVE']).optional(),
     // Roster sessions: pre-created participant rows; join becomes name-pick.
     // institutionParticipantId links a seat to employee master data (T3).
     roster: z

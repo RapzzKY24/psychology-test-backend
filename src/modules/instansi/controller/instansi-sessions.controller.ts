@@ -5,6 +5,7 @@ import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
 import { PaginationSchema } from '../../../common/dto/pagination.dto';
 import type { PaginationDto } from '../../../common/dto/pagination.dto';
 import { InstansiSessionsService } from '../service/instansi-sessions.service';
+import type { InstansiBatchCreateResult } from '../service/instansi-sessions.service';
 import { CreateInstansiSessionSchema } from '../dto/create-instansi-session.dto';
 import type { CreateInstansiSessionDto } from '../dto/create-instansi-session.dto';
 import type {
@@ -24,7 +25,7 @@ export class InstansiSessionsController {
     @Session() session: UserSession,
     @Body(new ZodValidationPipe(CreateInstansiSessionSchema))
     dto: CreateInstansiSessionDto,
-  ): Promise<ApiResponse<TestSession>> {
+  ): Promise<ApiResponse<InstansiBatchCreateResult>> {
     const data = await this.sessionsService.create(session.user.id, dto);
     return { data, message: 'session_created' };
   }

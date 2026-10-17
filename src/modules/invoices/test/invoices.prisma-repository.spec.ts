@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { PrismaInvoicesRepository } from '../repository/invoices.prisma-repository';
 import type { PrismaService } from '../../../prisma/prisma.service';
 import type { Invoice } from '../../../generated/prisma/client';
@@ -76,7 +75,10 @@ describe('PrismaInvoicesRepository.confirmPaymentWithActivation', () => {
       verifiedBySource: 'GDC',
     });
 
-    expect(result).toEqual({ outcome: 'conflict', reason: 'invoice_cancelled' });
+    expect(result).toEqual({
+      outcome: 'conflict',
+      reason: 'invoice_cancelled',
+    });
     expect(t.invoice.updateMany).not.toHaveBeenCalled();
   });
 
@@ -98,9 +100,7 @@ describe('PrismaInvoicesRepository.confirmPaymentWithActivation', () => {
     t.invoice.findUnique.mockResolvedValue(invoice({}));
     t.invoice.updateMany.mockResolvedValue({ count: 1 });
     t.testSession.updateMany.mockResolvedValue({ count: 1 });
-    t.invoice.findUniqueOrThrow.mockResolvedValue(
-      invoice({ status: 'PAID' }),
-    );
+    t.invoice.findUniqueOrThrow.mockResolvedValue(invoice({ status: 'PAID' }));
 
     const result = await makeRepo(t).confirmPaymentWithActivation('inv1', {
       paidAmount: 300000,
@@ -112,9 +112,16 @@ describe('PrismaInvoicesRepository.confirmPaymentWithActivation', () => {
     expect(t.invoice.updateMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: 'inv1', status: 'UNPAID' },
-        data: expect.objectContaining({ status: 'PAID' }),
       }),
     );
+    const [[updateArgs]] = t.invoice.updateMany.mock.calls as unknown as [
+      [{ data: Record<string, unknown> }],
+    ];
+    expect(updateArgs.data).toMatchObject({
+      status: 'PAID',
+      verifiedBySource: 'GDC',
+      gdcTrxId: 'trx1',
+    });
     expect(t.testSession.updateMany).toHaveBeenCalledWith({
       where: { id: 'sess1', status: 'PENDING_PAYMENT' },
       data: { status: 'ACTIVE' },
