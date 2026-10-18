@@ -428,6 +428,7 @@ model Invoice {
   institution      Institution               @relation(fields: [institutionId], references: [id])
   session          TestSession?              @relation(fields: [sessionId], references: [id])
 
+  @@index([vaNumber])
   @@map("invoices")
 }
 
