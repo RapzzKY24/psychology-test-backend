@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { NotFoundException } from '@nestjs/common';
+import { BadGatewayException, NotFoundException } from '@nestjs/common';
 import { InstansiSessionsService } from '../service/instansi-sessions.service';
 import type { SessionsRepository } from '../../sessions/repository/sessions.repository';
 import type { InstansiParticipantsRepository } from '../repository/instansi-participants.repository';
@@ -16,7 +16,11 @@ describe('InstansiSessionsService', () => {
     findBySessionId: jest.Mock;
     regenerateAmount: jest.Mock;
   };
-  let mockInvoiceVaService: { isEnabled: jest.Mock; provision: jest.Mock };
+  let mockInvoiceVaService: {
+    isEnabled: jest.Mock;
+    provision: jest.Mock;
+    reprovision: jest.Mock;
+  };
 
   const USER_ID = 'user-1';
   const INSTITUTION_ID = 'inst-1';
@@ -80,6 +84,7 @@ describe('InstansiSessionsService', () => {
     mockInvoiceVaService = {
       isEnabled: jest.fn().mockReturnValue(true),
       provision: jest.fn().mockResolvedValue(null),
+      reprovision: jest.fn().mockResolvedValue(null),
     };
     mockTestsRepo = {
       findMany: jest.fn().mockResolvedValue({
@@ -309,6 +314,7 @@ describe('InstansiSessionsService', () => {
       id: 's1',
       institutionId: INSTITUTION_ID,
       slotLimit: 10,
+      title: 'Sesi Rekrutmen 1',
     };
     const unpaidInvoice = { id: 'inv1', status: 'UNPAID', amount: 50000 };
 
@@ -345,6 +351,10 @@ describe('InstansiSessionsService', () => {
       expect(mockInvoicesService.regenerateAmount).toHaveBeenCalledWith(
         'inv1',
         150000,
+      );
+      expect(mockInvoiceVaService.reprovision).toHaveBeenCalledWith(
+        'inv1',
+        'Sesi Rekrutmen 1',
       );
     });
 
@@ -384,6 +394,68 @@ describe('InstansiSessionsService', () => {
         'inv1',
         100000,
       );
+      expect(mockInvoiceVaService.reprovision).toHaveBeenCalledWith(
+        'inv1',
+        'Sesi Rekrutmen 1',
+      );
+    });
+
+    it('returns the re-issued VA after a roster change', async () => {
+      mockSessionsRepo.findParticipantsBySessionId.mockResolvedValue([
+        { id: 'p1', institutionParticipantId: 'emp-1', name: 'A' },
+        { id: 'p2', institutionParticipantId: 'emp-2', name: 'B' },
+      ] as never);
+      mockParticipantsRepo.findManyByIds.mockResolvedValue([
+        { id: 'emp-3', name: 'C' },
+      ] as never);
+      mockInvoicesService.regenerateAmount.mockResolvedValue({
+        id: 'inv1',
+        amount: 150000,
+        status: 'UNPAID',
+      });
+      mockInvoiceVaService.reprovision.mockResolvedValue({
+        id: 'inv1',
+        number: 'INV-1',
+        amount: 150000,
+        status: 'UNPAID',
+        vaNumber: '880777',
+        vaBankCode: '014',
+        expiresAt: new Date('2026-09-01T02:00:00Z'),
+        sessionId: 's1',
+      });
+
+      const result = await service.addParticipants(USER_ID, 's1', {
+        employeeIds: ['emp-3'],
+      });
+
+      expect(result.vaNumber).toBe('880777');
+      expect(result.amount).toBe(150000);
+    });
+
+    it('leaves the VA voided when re-issuing fails, for recovery to retry', async () => {
+      mockSessionsRepo.findParticipantsBySessionId.mockResolvedValue([
+        { id: 'p1', institutionParticipantId: 'emp-1', name: 'A' },
+        { id: 'p2', institutionParticipantId: 'emp-2', name: 'B' },
+      ] as never);
+      mockParticipantsRepo.findManyByIds.mockResolvedValue([
+        { id: 'emp-3', name: 'C' },
+      ] as never);
+      mockInvoicesService.regenerateAmount.mockResolvedValue({
+        id: 'inv1',
+        amount: 150000,
+        status: 'UNPAID',
+        vaNumber: null,
+      });
+      mockInvoiceVaService.reprovision.mockRejectedValue(
+        new BadGatewayException('payment_gateway_failed'),
+      );
+
+      const result = await service.addParticipants(USER_ID, 's1', {
+        employeeIds: ['emp-3'],
+      });
+
+      expect(result.vaNumber).toBeNull();
+      expect(result.amount).toBe(150000);
     });
 
     it('swaps the seat employee without changing the amount', async () => {

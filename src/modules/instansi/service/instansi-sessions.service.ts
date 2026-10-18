@@ -257,7 +257,7 @@ export class InstansiSessionsService {
       invoice.id,
       pricePerSeat * (existing.length + employees.length),
     );
-    return toInstansiInvoice(updated);
+    return toInstansiInvoice(await this.syncInvoiceVa(updated, session.title));
   }
 
   async swapParticipant(
@@ -326,7 +326,7 @@ export class InstansiSessionsService {
       invoice.id,
       pricePerSeat * (participants.length - 1),
     );
-    return toInstansiInvoice(updated);
+    return toInstansiInvoice(await this.syncInvoiceVa(updated, session.title));
   }
 
   async resetParticipant(
@@ -355,6 +355,26 @@ export class InstansiSessionsService {
       candidateNumber: updated.candidateNumber,
       claimed: updated.tokenHash != null,
     };
+  }
+
+  /**
+   * Re-issue the VA after a roster change moved the amount (the repo voids the
+   * stale VA). Best-effort: on a gateway failure the VA stays null and the
+   * recovery pass (T12) provisions it with the current amount.
+   */
+  private async syncInvoiceVa(
+    invoice: Invoice,
+    title: string,
+  ): Promise<Invoice> {
+    if (!this.invoiceVaService.isEnabled()) return invoice;
+    try {
+      return (
+        (await this.invoiceVaService.reprovision(invoice.id, title)) ?? invoice
+      );
+    } catch (error) {
+      if (!(error instanceof BadGatewayException)) throw error;
+      return invoice;
+    }
   }
 
   /**
