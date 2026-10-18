@@ -36,6 +36,7 @@ export class PrismaSessionsRepository implements SessionsRepository {
     const [
       sessionTests,
       participantRows,
+      attemptRows,
       attemptsTotal,
       attemptsInProgress,
       attemptsCompleted,
@@ -54,7 +55,12 @@ export class PrismaSessionsRepository implements SessionsRepository {
           email: true,
           candidateNumber: true,
           joinedAt: true,
+          tokenHash: true,
         },
+      }),
+      this.prisma.attempt.findMany({
+        where: { sessionId: id },
+        select: { id: true, participantId: true },
       }),
       this.prisma.attempt.count({ where: { sessionId: id } }),
       this.prisma.attempt.count({
@@ -65,6 +71,9 @@ export class PrismaSessionsRepository implements SessionsRepository {
       }),
     ]);
 
+    const answeredByParticipant =
+      await this.countResponsesByParticipant(attemptRows);
+
     return {
       session,
       tests: sessionTests.map((st) => ({
@@ -73,13 +82,44 @@ export class PrismaSessionsRepository implements SessionsRepository {
         testName: st.test.name,
         order: st.order,
       })),
-      participants: participantRows,
+      participants: participantRows.map(({ tokenHash, ...row }) => ({
+        ...row,
+        claimed: tokenHash != null,
+        answeredCount: answeredByParticipant.get(row.id) ?? 0,
+      })),
       attempts: {
         total: attemptsTotal,
         inProgress: attemptsInProgress,
         completed: attemptsCompleted,
       },
     };
+  }
+
+  /** Maps each participant to the number of responses submitted by its seats. */
+  private async countResponsesByParticipant(
+    attempts: { id: string; participantId: string | null }[],
+  ): Promise<Map<string, number>> {
+    const answeredByParticipant = new Map<string, number>();
+    if (attempts.length === 0) return answeredByParticipant;
+
+    const counts = await this.prisma.response.groupBy({
+      by: ['attemptId'],
+      where: { attemptId: { in: attempts.map((a) => a.id) } },
+      _count: { _all: true },
+    });
+    const answeredByAttempt = new Map(
+      counts.map((c) => [c.attemptId, c._count._all]),
+    );
+
+    for (const attempt of attempts) {
+      if (!attempt.participantId) continue;
+      answeredByParticipant.set(
+        attempt.participantId,
+        (answeredByParticipant.get(attempt.participantId) ?? 0) +
+          (answeredByAttempt.get(attempt.id) ?? 0),
+      );
+    }
+    return answeredByParticipant;
   }
 
   async findMany(params: {

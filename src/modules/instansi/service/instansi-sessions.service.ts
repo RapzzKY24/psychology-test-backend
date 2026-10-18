@@ -42,6 +42,11 @@ export interface ResetSeatResult {
   claimed: boolean;
 }
 
+export interface InstansiSessionDetail extends SessionDetail {
+  /** The batch invoice (amount drives the roster editor); null if not provisioned. */
+  invoice: InstansiInvoiceDto | null;
+}
+
 /**
  * Institution-owned test sessions. Institution is always derived from the
  * caller (ownerUserId) — never from the request body. Session creation
@@ -173,14 +178,21 @@ export class InstansiSessionsService {
     };
   }
 
-  async getDetail(userId: string, sessionId: string): Promise<SessionDetail> {
+  async getDetail(
+    userId: string,
+    sessionId: string,
+  ): Promise<InstansiSessionDetail> {
     const institutionId =
       await this.participantsService.resolveInstitutionId(userId);
     const detail = await this.sessionsRepo.findDetailById(sessionId);
     if (!detail || detail.session.institutionId !== institutionId) {
       throw new NotFoundException('Session not found');
     }
-    return detail;
+    const invoice = await this.invoicesService.findBySessionId(sessionId);
+    return {
+      ...detail,
+      invoice: invoice ? toInstansiInvoice(invoice) : null,
+    };
   }
 
   async close(userId: string, sessionId: string): Promise<TestSession> {

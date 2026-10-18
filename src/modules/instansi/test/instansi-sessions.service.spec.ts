@@ -235,16 +235,42 @@ describe('InstansiSessionsService', () => {
       expect(mockSessionsRepo.findById).not.toHaveBeenCalled();
     });
 
-    it('returns detail for own session', async () => {
+    it('returns detail for own session with its invoice', async () => {
+      const invoice = {
+        id: 'inv1',
+        number: 'INV-1',
+        amount: 300000,
+        status: 'UNPAID',
+        sessionId: 's1',
+        vaNumber: null,
+        vaBankCode: null,
+        expiresAt: null,
+      };
       mockSessionsRepo.findDetailById.mockResolvedValue({
         session: { id: 's1', institutionId: INSTITUTION_ID },
+        participants: [],
       } as never);
+      mockInvoicesService.findBySessionId.mockResolvedValue(invoice);
 
       const result = await service.getDetail(USER_ID, 's1');
 
-      expect(result).toEqual({
-        session: { id: 's1', institutionId: INSTITUTION_ID },
+      expect(result.session).toEqual({
+        id: 's1',
+        institutionId: INSTITUTION_ID,
       });
+      expect(result.invoice).toEqual(invoice);
+    });
+
+    it('returns a null invoice when none is provisioned', async () => {
+      mockSessionsRepo.findDetailById.mockResolvedValue({
+        session: { id: 's1', institutionId: INSTITUTION_ID },
+        participants: [],
+      } as never);
+      mockInvoicesService.findBySessionId.mockResolvedValue(null);
+
+      const result = await service.getDetail(USER_ID, 's1');
+
+      expect(result.invoice).toBeNull();
     });
   });
 

@@ -16,6 +16,7 @@ import type { PaginationDto } from '../../../common/dto/pagination.dto';
 import { InstansiSessionsService } from '../service/instansi-sessions.service';
 import type {
   InstansiBatchCreateResult,
+  InstansiSessionDetail,
   ResetSeatResult,
 } from '../service/instansi-sessions.service';
 import { CreateInstansiSessionSchema } from '../dto/create-instansi-session.dto';
@@ -30,7 +31,6 @@ import type {
   PaginatedResponse,
 } from '../../../common/interfaces/api-response.interface';
 import type { TestSession } from '../../../generated/prisma/client';
-import type { SessionDetail } from '../../sessions/repository/sessions.repository';
 
 @Controller('api/v1/instansi/sessions')
 @Roles(['INSTANSI'])
@@ -59,7 +59,7 @@ export class InstansiSessionsController {
   async getDetail(
     @Session() session: UserSession,
     @Param('id') id: string,
-  ): Promise<ApiResponse<SessionDetail>> {
+  ): Promise<ApiResponse<InstansiSessionDetail>> {
     const data = await this.sessionsService.getDetail(session.user.id, id);
     return { data };
   }
