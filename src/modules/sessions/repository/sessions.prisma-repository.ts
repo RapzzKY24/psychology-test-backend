@@ -55,6 +55,7 @@ export class PrismaSessionsRepository implements SessionsRepository {
           email: true,
           candidateNumber: true,
           joinedAt: true,
+          institutionParticipantId: true,
           tokenHash: true,
         },
       }),
@@ -82,11 +83,14 @@ export class PrismaSessionsRepository implements SessionsRepository {
         testName: st.test.name,
         order: st.order,
       })),
-      participants: participantRows.map(({ tokenHash, ...row }) => ({
-        ...row,
-        claimed: tokenHash != null,
-        answeredCount: answeredByParticipant.get(row.id) ?? 0,
-      })),
+      participants: participantRows.map(
+        ({ tokenHash, institutionParticipantId, ...row }) => ({
+          ...row,
+          employeeId: institutionParticipantId,
+          claimed: tokenHash != null,
+          answeredCount: answeredByParticipant.get(row.id) ?? 0,
+        }),
+      ),
       attempts: {
         total: attemptsTotal,
         inProgress: attemptsInProgress,

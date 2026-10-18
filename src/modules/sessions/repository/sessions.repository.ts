@@ -20,6 +20,8 @@ export interface SessionDetail {
     email: string | null;
     candidateNumber: string | null;
     joinedAt: Date;
+    /** Linked institution employee (null for ad-hoc participants). */
+    employeeId: string | null;
     /** True once a device has locked the seat (participant token issued). */
     claimed: boolean;
     /** Responses submitted across this seat's attempts. */
