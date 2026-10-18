@@ -17,7 +17,11 @@ describe('InvoiceVaService', () => {
     complete: jest.Mock;
     fail: jest.Mock;
   };
-  let eventLog: { record: jest.Mock; markProcessed: jest.Mock };
+  let eventLog: {
+    record: jest.Mock;
+    markProcessed: jest.Mock;
+    markFailed: jest.Mock;
+  };
   let gateway: { createVa: jest.Mock; inquiryVa: jest.Mock };
   let config: { get: jest.Mock };
 
@@ -41,6 +45,7 @@ describe('InvoiceVaService', () => {
     eventLog = {
       record: jest.fn().mockResolvedValue({ id: 'e1' }),
       markProcessed: jest.fn(),
+      markFailed: jest.fn(),
     };
     gateway = {
       createVa: jest.fn().mockResolvedValue({
@@ -145,7 +150,7 @@ describe('InvoiceVaService', () => {
     );
   });
 
-  it('on a gateway failure marks the claim failed and updates nothing', async () => {
+  it('on a gateway failure marks the event and claim failed, updates nothing', async () => {
     gateway.createVa.mockRejectedValue(
       new GdcApiError('request_failed', 'boom', 500, '/va'),
     );
@@ -153,10 +158,43 @@ describe('InvoiceVaService', () => {
     await expect(service.provision('inv1', 'Sesi')).rejects.toThrow(
       BadGatewayException,
     );
+    expect(eventLog.markFailed).toHaveBeenCalledWith('e1', {
+      errorMessage: 'boom',
+    });
     expect(idempotency.fail).toHaveBeenCalledWith('c1', {
       errorMessage: 'boom',
     });
     expect(repo.update).not.toHaveBeenCalled();
+  });
+
+  describe('reprovision', () => {
+    it('issues a fresh, amount-scoped VA for a still-UNPAID invoice', async () => {
+      repo.findById.mockResolvedValue({
+        ...invoice,
+        status: 'UNPAID',
+        vaNumber: '889999',
+        amount: 150000,
+      });
+
+      await service.reprovision('inv1', 'Sesi');
+
+      expect(gateway.createVa).toHaveBeenCalledWith(
+        expect.objectContaining({ externalId: 'inv1:150000', amount: 150000 }),
+      );
+      expect(repo.update).toHaveBeenCalledWith(
+        'inv1',
+        expect.objectContaining({ gdcExternalId: 'inv1:150000' }),
+      );
+    });
+
+    it('does nothing once the invoice is no longer UNPAID', async () => {
+      repo.findById.mockResolvedValue({ ...invoice, status: 'PAID' });
+
+      await service.reprovision('inv1', 'Sesi');
+
+      expect(gateway.createVa).not.toHaveBeenCalled();
+      expect(repo.update).not.toHaveBeenCalled();
+    });
   });
 });
 

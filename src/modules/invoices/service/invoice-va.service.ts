@@ -15,6 +15,8 @@ import {
 
 // Distinct namespace from orders so VA idempotency keys never collide.
 const VA_CREATE_SCOPE = 'gdc.invoice.va.create';
+// Separate scope so an amount change re-issues instead of replaying the cached VA.
+const VA_REPROVISION_SCOPE = 'gdc.invoice.va.reprovision';
 
 @Injectable()
 export class InvoiceVaService {
@@ -42,11 +44,34 @@ export class InvoiceVaService {
     if (!invoice) return null;
     if (invoice.vaNumber) return invoice;
 
-    const externalId = invoice.id;
-    const claim = await this.idempotency.begin({
-      scope: VA_CREATE_SCOPE,
-      key: externalId,
-    });
+    return this.issueVa(invoice, name, VA_CREATE_SCOPE, invoice.id);
+  }
+
+  /**
+   * Re-issue the VA for a still-UNPAID invoice whose amount changed (roster
+   * edit). The old VA number stops resolving, so a late callback for the stale
+   * total is rejected as `payment_not_found` instead of mis-activating the
+   * session on an `amount_mismatch`.
+   */
+  async reprovision(invoiceId: string, name: string): Promise<Invoice | null> {
+    const invoice = await this.repo.findById(invoiceId);
+    if (!invoice || invoice.status !== 'UNPAID') return invoice;
+
+    return this.issueVa(
+      invoice,
+      name,
+      VA_REPROVISION_SCOPE,
+      `${invoice.id}:${invoice.amount}`,
+    );
+  }
+
+  private async issueVa(
+    invoice: Invoice,
+    name: string,
+    scope: string,
+    externalId: string,
+  ): Promise<Invoice> {
+    const claim = await this.idempotency.begin({ scope, key: externalId });
     if (
       !claim.acquired &&
       claim.existing.status === 'COMPLETED' &&
@@ -70,7 +95,7 @@ export class InvoiceVaService {
       aggregateId: invoice.id,
       reference: externalId,
       payload: {
-        trxId: invoice.id,
+        trxId: externalId,
         virtualAccountName: name,
         totalAmount: { value: invoice.amount.toFixed(2), currency: 'IDR' },
         bankCode: DEFAULT_VA_BANK_CODE,
@@ -88,9 +113,10 @@ export class InvoiceVaService {
           new Date(Date.now() + this.paymentTtlMin * 60 * 1000),
       });
     } catch (error) {
-      await this.idempotency.fail(claimId, {
-        errorMessage: error instanceof Error ? error.message : 'unknown_error',
-      });
+      const errorMessage =
+        error instanceof Error ? error.message : 'unknown_error';
+      await this.eventLog.markFailed(event.id, { errorMessage });
+      await this.idempotency.fail(claimId, { errorMessage });
       if (error instanceof GdcApiError) {
         throw new BadGatewayException('payment_gateway_failed');
       }

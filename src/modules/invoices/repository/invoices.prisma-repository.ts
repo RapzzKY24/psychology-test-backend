@@ -140,7 +140,17 @@ export class PrismaInvoicesRepository implements InvoicesRepository {
   regenerateAmount(invoiceId: string, amount: number): Promise<Invoice> {
     return this.prisma.invoice.update({
       where: { id: invoiceId },
-      data: { amount },
+      data: {
+        amount,
+        // The VA was issued for the previous total, so void it here; the
+        // service re-issues a fresh VA for the new amount (and the recovery
+        // pass picks it up if that call fails).
+        vaNumber: null,
+        vaBankCode: null,
+        gdcTrxId: null,
+        gdcReferenceNo: null,
+        gdcExternalId: null,
+      },
     });
   }
 

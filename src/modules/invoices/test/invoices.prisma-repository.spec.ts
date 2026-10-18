@@ -144,3 +144,24 @@ describe('PrismaInvoicesRepository.confirmPaymentWithActivation', () => {
     expect(t.testSession.updateMany).not.toHaveBeenCalled();
   });
 });
+
+describe('PrismaInvoicesRepository.regenerateAmount', () => {
+  it('voids the stale VA columns alongside the new amount', async () => {
+    const update = jest.fn().mockResolvedValue(invoice({ amount: 150000 }));
+    const prisma = { invoice: { update } } as unknown as PrismaService;
+
+    await new PrismaInvoicesRepository(prisma).regenerateAmount('inv1', 150000);
+
+    expect(update).toHaveBeenCalledWith({
+      where: { id: 'inv1' },
+      data: {
+        amount: 150000,
+        vaNumber: null,
+        vaBankCode: null,
+        gdcTrxId: null,
+        gdcReferenceNo: null,
+        gdcExternalId: null,
+      },
+    });
+  });
+});
