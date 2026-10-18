@@ -1,6 +1,10 @@
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
 import { INVOICES_REPOSITORY } from '../repository/invoices.repository';
-import type { InvoicesRepository } from '../repository/invoices.repository';
+import type {
+  ConfirmInvoicePaymentParams,
+  ConfirmInvoicePaymentResult,
+  InvoicesRepository,
+} from '../repository/invoices.repository';
 import type { Invoice, Prisma } from '../../../generated/prisma/client';
 import type { QueryInvoicesDto } from '../dto/query-invoices.dto';
 
@@ -27,6 +31,53 @@ export class InvoicesService {
       notes: dto.notes,
       year: new Date().getFullYear(),
     });
+  }
+
+  async createForSession(data: {
+    institutionId: string;
+    amount: number;
+    sessionId: string;
+    expiresAt?: Date;
+    notes?: string;
+  }): Promise<Invoice> {
+    if (!(await this.repo.institutionExists(data.institutionId))) {
+      throw new NotFoundException('Institution not found');
+    }
+    return this.repo.createForSession(data);
+  }
+
+  findBySessionId(sessionId: string): Promise<Invoice | null> {
+    return this.repo.findBySessionId(sessionId);
+  }
+
+  findByVaNumber(vaNumber: string): Promise<Invoice | null> {
+    return this.repo.findByVaNumber(vaNumber);
+  }
+
+  confirmPaymentWithActivation(
+    invoiceId: string,
+    params: ConfirmInvoicePaymentParams,
+  ): Promise<ConfirmInvoicePaymentResult> {
+    return this.repo.confirmPaymentWithActivation(invoiceId, params);
+  }
+
+  regenerateAmount(invoiceId: string, amount: number): Promise<Invoice> {
+    return this.repo.regenerateAmount(invoiceId, amount);
+  }
+
+  findUnpaidWithoutVa(params: {
+    createdBefore: Date;
+    limit: number;
+  }): Promise<Invoice[]> {
+    return this.repo.findUnpaidWithoutVa(params);
+  }
+
+  findUnsettledVaInvoices(params: {
+    dueBefore: Date;
+    notBefore: Date;
+    limit: number;
+  }): Promise<Invoice[]> {
+    return this.repo.findUnsettledVaInvoices(params);
   }
 
   async findMany(

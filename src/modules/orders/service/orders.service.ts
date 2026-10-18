@@ -8,10 +8,30 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ORDERS_REPOSITORY } from '../repository/orders.repository';
-import type { OrdersRepository } from '../repository/orders.repository';
-import type { Order, Prisma } from '../../../generated/prisma/client';
+import type {
+  OrdersRepository,
+  VerifyPaymentResult,
+} from '../repository/orders.repository';
+import type {
+  Order,
+  PaymentProvider,
+  Prisma,
+} from '../../../generated/prisma/client';
 import type { QueryPaymentsDto } from '../dto/query-payments.dto';
 import type { AdminPaymentListItemDto } from '../dto/admin-payment-list-item.dto';
+import { OrderVaService } from './order-va.service';
+
+export interface CreateOrderResult {
+  orderId: string;
+  basePrice: number;
+  uniqueCode: number;
+  amount: number;
+  expiresAt: Date;
+  qrisImageUrl: string | null;
+  paymentProvider: PaymentProvider;
+  vaNumber: string | null;
+  vaBankCode: string | null;
+}
 
 @Injectable()
 export class OrdersService {
@@ -19,6 +39,7 @@ export class OrdersService {
     @Inject(ORDERS_REPOSITORY)
     private readonly repo: OrdersRepository,
     private readonly configService: ConfigService,
+    private readonly orderVa: OrderVaService,
   ) {}
 
   private get paymentTtlMin(): number {
@@ -41,17 +62,7 @@ export class OrdersService {
     }
   }
 
-  async create(
-    testId: string,
-    userId: string,
-  ): Promise<{
-    orderId: string;
-    basePrice: number;
-    uniqueCode: number;
-    amount: number;
-    expiresAt: Date;
-    qrisImageUrl: string | null;
-  }> {
+  async create(testId: string, userId: string): Promise<CreateOrderResult> {
     const test = await this.repo.findTestById(testId);
     if (!test) throw new NotFoundException('Test not found');
     if (test.status !== 'PUBLISHED') {
@@ -59,6 +70,26 @@ export class OrdersService {
         message: 'validation_failed',
         details: ['test must be PUBLISHED'],
       });
+    }
+
+    if (this.orderVa.isEnabled()) {
+      const order = await this.orderVa.createVaOrder(
+        testId,
+        userId,
+        test.price,
+        test.name,
+      );
+      return {
+        orderId: order.id,
+        basePrice: order.basePrice,
+        uniqueCode: order.uniqueCode,
+        amount: order.amount,
+        expiresAt: order.expiresAt,
+        qrisImageUrl: null,
+        paymentProvider: 'GDC_VA',
+        vaNumber: order.vaNumber,
+        vaBankCode: order.vaBankCode,
+      };
     }
 
     let order: Order;
@@ -85,6 +116,9 @@ export class OrdersService {
       amount: order.amount,
       expiresAt: order.expiresAt,
       qrisImageUrl,
+      paymentProvider: 'MANUAL_QRIS',
+      vaNumber: null,
+      vaBankCode: null,
     };
   }
 
@@ -214,6 +248,35 @@ export class OrdersService {
       sessionId: result.sessionId,
       attemptId: result.attemptId,
     };
+  }
+
+  findByVaNumber(vaNumber: string): Promise<Order | null> {
+    return this.repo.findByVaNumber(vaNumber);
+  }
+
+  /** Gateway-sourced unlock; the repository re-checks status transactionally (exactly-once). */
+  confirmExternalPayment(orderId: string): Promise<VerifyPaymentResult> {
+    return this.repo.confirmExternalPayment(orderId);
+  }
+
+  findUnsettledVaOrders(params: {
+    dueBefore: Date;
+    notBefore: Date;
+    limit: number;
+  }): Promise<Order[]> {
+    return this.repo.findUnsettledVaOrders(params);
+  }
+
+  findPendingVaOrdersWithoutNumber(params: {
+    createdBefore: Date;
+    limit: number;
+  }): Promise<Order[]> {
+    return this.repo.findPendingVaOrdersWithoutNumber(params);
+  }
+
+  /** Retry create-va for an order that never got a VA (same external id). */
+  reprovision(orderId: string): Promise<Order | null> {
+    return this.orderVa.reprovision(orderId);
   }
 
   async cancel(

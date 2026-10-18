@@ -15,7 +15,12 @@ import { QueryInvoicesSchema } from '../dto/query-invoices.dto';
 import type { QueryInvoicesDto } from '../dto/query-invoices.dto';
 import { UpdateInvoiceStatusSchema } from '../dto/update-invoice-status.dto';
 import type { UpdateInvoiceStatusDto } from '../dto/update-invoice-status.dto';
+import { VerifyInvoiceSchema } from '../dto/verify-invoice.dto';
+import type { VerifyInvoiceDto } from '../dto/verify-invoice.dto';
 import { InvoicesService } from '../service/invoices.service';
+import { AdminInvoicesService } from '../service/admin-invoices.service';
+import { Session } from '@thallesp/nestjs-better-auth';
+import type { UserSession } from '@thallesp/nestjs-better-auth';
 import type {
   ApiResponse,
   PaginatedResponse,
@@ -24,7 +29,10 @@ import type { Invoice } from '../../../generated/prisma/client';
 
 @Controller('api/v1/admin/invoices')
 export class InvoicesController {
-  constructor(private readonly invoicesService: InvoicesService) {}
+  constructor(
+    private readonly invoicesService: InvoicesService,
+    private readonly adminInvoicesService: AdminInvoicesService,
+  ) {}
 
   @Post()
   @Roles(['ADMIN'])
@@ -70,6 +78,21 @@ export class InvoicesController {
       id,
       dto.status,
       dto.notes,
+    );
+    return { data };
+  }
+
+  @Post(':id/verify')
+  @Roles(['ADMIN'])
+  async verifyBreakGlass(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(VerifyInvoiceSchema)) dto: VerifyInvoiceDto,
+    @Session() session: UserSession,
+  ): Promise<ApiResponse<Invoice>> {
+    const data = await this.adminInvoicesService.verifyBreakGlass(
+      id,
+      dto.reason,
+      session.user.id,
     );
     return { data };
   }

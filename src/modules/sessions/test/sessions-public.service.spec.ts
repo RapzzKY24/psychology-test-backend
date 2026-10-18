@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { GoneException, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  GoneException,
+  NotFoundException,
+} from '@nestjs/common';
 import { SessionsPublicService } from '../service/sessions-public.service';
 import type { SessionsRepository } from '../repository/sessions.repository';
 
@@ -39,7 +44,7 @@ describe('SessionsPublicService', () => {
       ]),
       findParticipantsBySessionId: jest.fn().mockResolvedValue([]),
       findAttemptsByParticipantId: jest.fn().mockResolvedValue([]),
-      claimSeatWithAttempts: jest.fn(),
+      claimSeatWithAttempts: jest.fn().mockResolvedValue(true),
     };
     service = new SessionsPublicService(
       mockRepo as unknown as SessionsRepository,
@@ -57,6 +62,19 @@ describe('SessionsPublicService', () => {
       expect(preview.tests).toEqual([{ order: 1, testName: 'DISC Form A' }]);
       expect(preview.slotsUsed).toBe(0);
       expect(preview.requiresPin).toBe(true);
+      expect(preview.active).toBe(true);
+    });
+
+    it('reports active:false for an unpaid (PENDING_PAYMENT) session', async () => {
+      mockRepo.findByToken.mockResolvedValue({
+        ...sessionRow,
+        status: 'PENDING_PAYMENT',
+      } as never);
+
+      const preview = await service.getPreviewByToken('token-abc');
+
+      expect(preview.status).toBe('PENDING_PAYMENT');
+      expect(preview.active).toBe(false);
     });
 
     it('includes roster rows with claimed state for roster sessions', async () => {
@@ -72,6 +90,7 @@ describe('SessionsPublicService', () => {
           name: 'Budi Santoso',
           email: null,
           candidateNumber: '3',
+          tokenHash: 'h1',
           claimedAt: new Date('2026-09-06T02:00:00Z'),
           joinedAt: new Date('2026-09-06T02:00:00Z'),
         },
@@ -80,6 +99,7 @@ describe('SessionsPublicService', () => {
           name: 'Siti Aminah',
           email: null,
           candidateNumber: '4',
+          tokenHash: null,
           claimedAt: null,
           joinedAt: new Date('2026-09-06T02:00:00Z'),
         },
@@ -146,6 +166,18 @@ describe('SessionsPublicService', () => {
       expect(result.attempts).toHaveLength(1);
     });
 
+    it('throws 403 session_unpaid for a PENDING_PAYMENT session', async () => {
+      mockRepo.findByToken.mockResolvedValue({
+        ...rosterSession,
+        status: 'PENDING_PAYMENT',
+      } as never);
+
+      await expect(service.claim('token-abc', 'r1', '1.1.1.1')).rejects.toThrow(
+        ForbiddenException,
+      );
+      expect(mockRepo.claimSeatWithAttempts).not.toHaveBeenCalled();
+    });
+
     it('throws 404 for an OPEN session (roster claim only)', async () => {
       mockRepo.findByToken.mockResolvedValue(sessionRow as never);
 
@@ -155,19 +187,38 @@ describe('SessionsPublicService', () => {
       expect(mockRepo.claimSeatWithAttempts).not.toHaveBeenCalled();
     });
 
-    it('maps a vanished seat (P2025) to 404', async () => {
+    it('throws 409 seat_claimed when device B claims a seat locked by device A', async () => {
       mockRepo.findByToken.mockResolvedValue(rosterSession as never);
       mockRepo.findParticipantsBySessionId.mockResolvedValue([
-        { id: 'r1', claimedAt: null },
+        { id: 'r1', claimedAt: null, tokenHash: null },
       ] as never);
-      const p2025 = Object.assign(new Error('record not found'), {
-        code: 'P2025',
-      });
-      mockRepo.claimSeatWithAttempts.mockRejectedValue(p2025);
+      mockRepo.claimSeatWithAttempts.mockResolvedValue(false);
 
       await expect(service.claim('token-abc', 'r1', '1.1.1.1')).rejects.toThrow(
-        NotFoundException,
+        ConflictException,
       );
+      expect(mockRepo.findAttemptsByParticipantId).not.toHaveBeenCalled();
+    });
+
+    it('lets exactly one of two parallel claims win', async () => {
+      mockRepo.findByToken.mockResolvedValue(rosterSession as never);
+      mockRepo.findParticipantsBySessionId.mockResolvedValue([
+        { id: 'r1', claimedAt: null, tokenHash: null },
+      ] as never);
+      mockRepo.claimSeatWithAttempts
+        .mockResolvedValueOnce(true)
+        .mockResolvedValueOnce(false);
+
+      const results = await Promise.allSettled([
+        service.claim('token-abc', 'r1', '1.1.1.1'),
+        service.claim('token-abc', 'r1', '2.2.2.2'),
+      ]);
+
+      const ok = results.filter((r) => r.status === 'fulfilled');
+      const rejected = results.filter((r) => r.status === 'rejected');
+      expect(ok).toHaveLength(1);
+      expect(rejected).toHaveLength(1);
+      expect(rejected[0].reason).toBeInstanceOf(ConflictException);
     });
 
     it('throws Gone for an expired session and 404 for a foreign participantId', async () => {

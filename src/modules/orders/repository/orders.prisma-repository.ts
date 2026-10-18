@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
-import type { Order, Prisma, Test } from '../../../generated/prisma/client';
+import type {
+  Order,
+  PaymentVerifiedBySource,
+  Prisma,
+  Test,
+} from '../../../generated/prisma/client';
 import type {
   OrdersRepository,
   VerifyPaymentResult,
@@ -123,9 +128,66 @@ export class PrismaOrdersRepository implements OrdersRepository {
     return result.count;
   }
 
-  async verifyPayment(
+  findByVaNumber(vaNumber: string): Promise<Order | null> {
+    return this.prisma.order.findFirst({ where: { vaNumber } });
+  }
+
+  verifyPayment(
     orderId: string,
     adminId: string,
+  ): Promise<VerifyPaymentResult> {
+    return this.settleOrder(orderId, {
+      verifiedById: adminId,
+      verifiedBySource: 'ADMIN',
+    });
+  }
+
+  confirmExternalPayment(orderId: string): Promise<VerifyPaymentResult> {
+    return this.settleOrder(orderId, {
+      verifiedById: null,
+      verifiedBySource: 'GDC',
+    });
+  }
+
+  findUnsettledVaOrders(params: {
+    dueBefore: Date;
+    notBefore: Date;
+    limit: number;
+  }): Promise<Order[]> {
+    return this.prisma.order.findMany({
+      where: {
+        status: { in: ['PENDING', 'EXPIRED'] },
+        paymentProvider: 'GDC_VA',
+        vaNumber: { not: null },
+        expiresAt: { lte: params.dueBefore, gte: params.notBefore },
+      },
+      orderBy: { expiresAt: 'asc' },
+      take: params.limit,
+    });
+  }
+
+  findPendingVaOrdersWithoutNumber(params: {
+    createdBefore: Date;
+    limit: number;
+  }): Promise<Order[]> {
+    return this.prisma.order.findMany({
+      where: {
+        status: 'PENDING',
+        paymentProvider: 'GDC_VA',
+        vaNumber: null,
+        createdAt: { lt: params.createdBefore },
+      },
+      orderBy: { createdAt: 'asc' },
+      take: params.limit,
+    });
+  }
+
+  private async settleOrder(
+    orderId: string,
+    attrs: {
+      verifiedById: string | null;
+      verifiedBySource: PaymentVerifiedBySource;
+    },
   ): Promise<VerifyPaymentResult> {
     return this.prisma.$transaction(async (tx) => {
       const current = await tx.order.findUnique({ where: { id: orderId } });
@@ -142,7 +204,12 @@ export class PrismaOrdersRepository implements OrdersRepository {
         current.expiresAt.getTime() <= Date.now();
       const updated = await tx.order.updateMany({
         where: { id: orderId, status: { in: ['PENDING', 'EXPIRED'] } },
-        data: { status: 'PAID', verifiedById: adminId, verifiedAt: new Date() },
+        data: {
+          status: 'PAID',
+          verifiedById: attrs.verifiedById,
+          verifiedBySource: attrs.verifiedBySource,
+          verifiedAt: new Date(),
+        },
       });
       if (updated.count === 0) {
         return { outcome: 'conflict', reason: 'already_verified' };

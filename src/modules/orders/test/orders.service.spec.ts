@@ -7,6 +7,11 @@ describe('OrdersService', () => {
   let service: OrdersService;
   let mockRepo: jest.Mocked<OrdersRepository>;
   let mockConfig: { get: jest.Mock };
+  let mockOrderVa: {
+    isEnabled: jest.Mock;
+    createVaOrder: jest.Mock;
+    reprovision: jest.Mock;
+  };
 
   beforeEach(() => {
     mockRepo = {
@@ -21,12 +26,25 @@ describe('OrdersService', () => {
       updateClaimIfUnset: jest.fn(),
       cancelPayment: jest.fn(),
       verifyPayment: jest.fn(),
+      findByVaNumber: jest.fn(),
+      confirmExternalPayment: jest.fn(),
+      findUnsettledVaOrders: jest.fn(),
+      findPendingVaOrdersWithoutNumber: jest.fn(),
       updateManyToExpired: jest.fn(),
       findMany: jest.fn(),
       findManyEnriched: jest.fn(),
     };
     mockConfig = { get: jest.fn().mockReturnValue(60) };
-    service = new OrdersService(mockRepo, mockConfig as never);
+    mockOrderVa = {
+      isEnabled: jest.fn().mockReturnValue(false),
+      createVaOrder: jest.fn(),
+      reprovision: jest.fn(),
+    };
+    service = new OrdersService(
+      mockRepo,
+      mockConfig as never,
+      mockOrderVa as never,
+    );
   });
 
   describe('create', () => {
@@ -50,6 +68,44 @@ describe('OrdersService', () => {
       expect(result.uniqueCode).toBeGreaterThanOrEqual(1);
       expect(result.uniqueCode).toBeLessThanOrEqual(999);
       expect(result.amount).toBe(result.basePrice + result.uniqueCode);
+    });
+
+    it('should provision a VA when the gdc provider is enabled', async () => {
+      mockRepo.findTestById.mockResolvedValue({
+        id: 't1',
+        name: 'DISC Form A',
+        price: 200000,
+        status: 'PUBLISHED',
+      } as never);
+      mockOrderVa.isEnabled.mockReturnValue(true);
+      mockOrderVa.createVaOrder.mockResolvedValue({
+        id: 'o1',
+        basePrice: 200000,
+        uniqueCode: 0,
+        amount: 200000,
+        expiresAt: new Date(),
+        paymentProvider: 'GDC_VA',
+        vaNumber: '19008172',
+        vaBankCode: '014',
+      });
+
+      const result = await service.create('t1', 'u1');
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          paymentProvider: 'GDC_VA',
+          vaNumber: '19008172',
+          vaBankCode: '014',
+          qrisImageUrl: null,
+        }),
+      );
+      expect(mockOrderVa.createVaOrder).toHaveBeenCalledWith(
+        't1',
+        'u1',
+        200000,
+        'DISC Form A',
+      );
+      expect(mockRepo.createWithUniqueCheck).not.toHaveBeenCalled();
     });
 
     it('should throw 404 if test not found', async () => {

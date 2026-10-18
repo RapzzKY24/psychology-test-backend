@@ -31,6 +31,10 @@ describe('InstansiOverviewService', () => {
       updateParticipantToken: jest.fn(),
       claimSeatWithAttempts: jest.fn(),
       joinSession: jest.fn(),
+      createParticipants: jest.fn(),
+      updateParticipant: jest.fn(),
+      deleteParticipant: jest.fn(),
+      resetParticipantToken: jest.fn(),
     };
     mockParticipantsRepo = {
       findMany: jest.fn(),

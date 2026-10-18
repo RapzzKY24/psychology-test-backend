@@ -52,6 +52,10 @@ describe('SessionsService', () => {
       updateParticipantToken: jest.fn(),
       claimSeatWithAttempts: jest.fn(),
       joinSession: jest.fn(),
+      createParticipants: jest.fn(),
+      updateParticipant: jest.fn(),
+      deleteParticipant: jest.fn(),
+      resetParticipantToken: jest.fn(),
     };
     mockRepo.findByToken.mockResolvedValue(null); // no token collision by default
     service = new SessionsService(mockRepo);
@@ -244,6 +248,17 @@ describe('SessionsService', () => {
       await expect(
         service.join('tok', { name: 'Budi' } as any, '1.1.1.1'),
       ).rejects.toThrow('session_closed');
+    });
+
+    it('should throw 403 session_unpaid when session is PENDING_PAYMENT', async () => {
+      mockRepo.findByToken.mockResolvedValue({
+        ...activeSession,
+        status: 'PENDING_PAYMENT',
+      });
+      await expect(
+        service.join('tok', { name: 'Budi' } as any, '1.1.1.1'),
+      ).rejects.toThrow('session_unpaid');
+      expect(mockRepo.joinSession).not.toHaveBeenCalled();
     });
 
     it('should throw 410 session_expired when expiresAt is in the past', async () => {

@@ -54,7 +54,9 @@ export class TestsPublishService {
       const existingCodes = new Set(
         interpretations.map((interp) => interp.patternCode),
       );
-      const missing = scorer.patternCatalog.filter((code) => !existingCodes.has(code));
+      const missing = scorer.patternCatalog.filter(
+        (code) => !existingCodes.has(code),
+      );
       if (missing.length > 0) {
         throw new UnprocessableEntityException({
           message: 'validation_failed',

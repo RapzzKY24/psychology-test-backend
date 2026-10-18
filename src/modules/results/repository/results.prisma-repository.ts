@@ -5,6 +5,7 @@ import type {
   AdminResultRow,
   ResultsRepository,
   ApprovedResultRow,
+  InstitutionResultRow,
 } from './results.repository';
 
 @Injectable()
@@ -179,6 +180,65 @@ export class PrismaResultsRepository implements ResultsRepository {
         patternCode: row.patternCode,
         correctedPatternCode: row.correctedPatternCode,
         completedAt: row.attempt.completedAt,
+        approvedAt: row.reviewedAt,
+      })),
+      total,
+    };
+  }
+
+  async listApprovedByInstitution(params: {
+    institutionId: string;
+    skip: number;
+    take: number;
+  }): Promise<{ data: InstitutionResultRow[]; total: number }> {
+    const where: Prisma.TestResultWhereInput = {
+      status: 'APPROVED',
+      attempt: { session: { institutionId: params.institutionId } },
+    };
+    const [rows, total] = await Promise.all([
+      this.prisma.testResult.findMany({
+        where,
+        skip: params.skip,
+        take: params.take,
+        orderBy: { reviewedAt: 'desc' },
+        select: {
+          id: true,
+          attemptId: true,
+          patternCode: true,
+          scores: true,
+          reviewedAt: true,
+          attempt: {
+            select: {
+              userId: true,
+              test: { select: { name: true } },
+              participant: { select: { name: true } },
+            },
+          },
+        },
+      }),
+      this.prisma.testResult.count({ where }),
+    ]);
+
+    const userIds = rows
+      .map((row) => row.attempt.userId)
+      .filter((id): id is string => Boolean(id));
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: userIds } },
+      select: { id: true, name: true },
+    });
+    const userNameById = new Map(users.map((user) => [user.id, user.name]));
+
+    return {
+      data: rows.map((row) => ({
+        resultId: row.id,
+        attemptId: row.attemptId,
+        participantName:
+          row.attempt.participant?.name ??
+          userNameById.get(row.attempt.userId ?? '') ??
+          'Unknown',
+        testName: row.attempt.test.name,
+        patternCode: row.patternCode,
+        scores: row.scores,
         approvedAt: row.reviewedAt,
       })),
       total,

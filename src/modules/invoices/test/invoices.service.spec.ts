@@ -14,6 +14,13 @@ describe('InvoicesService', () => {
       update: jest.fn(),
       institutionExists: jest.fn(),
       createNextNumbered: jest.fn(),
+      createForSession: jest.fn(),
+      findBySessionId: jest.fn(),
+      findByVaNumber: jest.fn(),
+      confirmPaymentWithActivation: jest.fn(),
+      regenerateAmount: jest.fn(),
+      findUnpaidWithoutVa: jest.fn(),
+      findUnsettledVaInvoices: jest.fn(),
     };
     service = new InvoicesService(mockRepo);
   });
@@ -77,6 +84,59 @@ describe('InvoicesService', () => {
     it('should throw 404 if not found', async () => {
       mockRepo.findById.mockResolvedValue(null);
       await expect(service.findById('id')).rejects.toThrow('Invoice not found');
+    });
+  });
+
+  describe('createForSession', () => {
+    it('should 404 when the institution is missing', async () => {
+      mockRepo.institutionExists.mockResolvedValue(false);
+      await expect(
+        service.createForSession({
+          institutionId: 'inst1',
+          amount: 1000,
+          sessionId: 'sess1',
+        }),
+      ).rejects.toThrow('Institution not found');
+      expect(mockRepo.createForSession).not.toHaveBeenCalled();
+    });
+
+    it('should delegate a session-linked invoice to the repository', async () => {
+      mockRepo.institutionExists.mockResolvedValue(true);
+      mockRepo.createForSession.mockResolvedValue({
+        id: 'inv1',
+        sessionId: 'sess1',
+      } as never);
+
+      const result = await service.createForSession({
+        institutionId: 'inst1',
+        amount: 300000,
+        sessionId: 'sess1',
+      });
+      expect(result.sessionId).toBe('sess1');
+      expect(mockRepo.createForSession).toHaveBeenCalledWith(
+        expect.objectContaining({ sessionId: 'sess1', amount: 300000 }),
+      );
+    });
+  });
+
+  describe('confirmPaymentWithActivation', () => {
+    it('should pass the settlement params through to the repository', async () => {
+      mockRepo.confirmPaymentWithActivation.mockResolvedValue({
+        outcome: 'confirmed',
+        invoice: { id: 'inv1', status: 'PAID' },
+      } as never);
+
+      const result = await service.confirmPaymentWithActivation('inv1', {
+        paidAmount: 300000,
+        verifiedBySource: 'GDC',
+        gdcTrxId: 'trx1',
+      });
+
+      expect(result.outcome).toBe('confirmed');
+      expect(mockRepo.confirmPaymentWithActivation).toHaveBeenCalledWith(
+        'inv1',
+        { paidAmount: 300000, verifiedBySource: 'GDC', gdcTrxId: 'trx1' },
+      );
     });
   });
 

@@ -20,6 +20,12 @@ export interface SessionDetail {
     email: string | null;
     candidateNumber: string | null;
     joinedAt: Date;
+    /** Linked institution employee (null for ad-hoc participants). */
+    employeeId: string | null;
+    /** True once a device has locked the seat (participant token issued). */
+    claimed: boolean;
+    /** Responses submitted across this seat's attempts. */
+    answeredCount: number;
   }>;
   attempts: SessionTestsSummary;
 }
@@ -34,6 +40,7 @@ export interface CreateSessionParams {
   slotLimit: number;
   expiresAt: Date;
   joinMode: 'OPEN' | 'ROSTER';
+  status?: 'PENDING_PAYMENT' | 'ACTIVE';
   tests: { testId: string; order: number }[];
   roster: {
     name: string;
@@ -111,13 +118,29 @@ export interface SessionsRepository {
     claimedAt?: Date,
   ): Promise<void>;
   countParticipants(sessionId: string): Promise<number>;
+  createParticipants(
+    sessionId: string,
+    rows: {
+      name: string;
+      candidateNumber?: string | null;
+      institutionParticipantId?: string | null;
+    }[],
+  ): Promise<number>;
+  updateParticipant(
+    id: string,
+    data: { name?: string; institutionParticipantId?: string | null },
+  ): Promise<SessionParticipant>;
+  deleteParticipant(id: string): Promise<void>;
+  /** Releases the seat lock (clears tokenHash; keeps claimedAt for audit). */
+  resetParticipantToken(id: string): Promise<SessionParticipant>;
+  /** Returns false when the seat was already locked by another device. */
   claimSeatWithAttempts(params: {
     seatId: string;
     tokenHash: string;
     claimedAt: Date;
     sessionId: string;
     testIds: string[];
-  }): Promise<void>;
+  }): Promise<boolean>;
   findParticipantByTokenHash(
     tokenHash: string,
   ): Promise<SessionParticipant | null>;

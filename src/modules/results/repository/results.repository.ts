@@ -26,6 +26,17 @@ export interface ApprovedResultRow {
   approvedAt: Date | null;
 }
 
+/** Institution-scoped approved result row (GET /api/v1/instansi/results). */
+export interface InstitutionResultRow {
+  resultId: string;
+  attemptId: string;
+  participantName: string;
+  testName: string;
+  patternCode: string;
+  scores: Prisma.JsonValue;
+  approvedAt: Date | null;
+}
+
 export interface ResultsRepository {
   findResultByAttemptId(attemptId: string): Promise<TestResult | null>;
   findAttemptWithResult(attemptId: string): Promise<{
@@ -62,4 +73,10 @@ export interface ResultsRepository {
     skip: number;
     take: number;
   }): Promise<{ data: ApprovedResultRow[]; total: number }>;
+  /** APPROVED results whose session belongs to the institution. */
+  listApprovedByInstitution(params: {
+    institutionId: string;
+    skip: number;
+    take: number;
+  }): Promise<{ data: InstitutionResultRow[]; total: number }>;
 }

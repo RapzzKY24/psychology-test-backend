@@ -57,6 +57,7 @@ enum SessionKind {
 }
 
 enum SessionStatus {
+  PENDING_PAYMENT
   ACTIVE
   CLOSED
 }
@@ -86,6 +87,40 @@ enum IdType {
 
 enum DeliveryStatus {
   SENT
+  FAILED
+}
+
+enum PaymentProvider {
+  MANUAL_QRIS
+  GDC_VA
+}
+
+enum PaymentVerifiedBySource {
+  ADMIN
+  GDC
+}
+
+enum EventSource {
+  GDC
+  MANUAL
+}
+
+enum EventDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum EventStatus {
+  RECEIVED
+  PROCESSING
+  PROCESSED
+  FAILED
+  DUPLICATE
+}
+
+enum IdempotencyStatus {
+  IN_PROGRESS
+  COMPLETED
   FAILED
 }
 
@@ -259,6 +294,7 @@ model TestSession {
   sessionTests  SessionTest[]
   participants  SessionParticipant[]
   attempts      Attempt[]
+  invoice       Invoice?
 
   @@map("test_sessions")
 }
@@ -369,18 +405,30 @@ model TestResult {
 }
 
 model Invoice {
-  id            String        @id @default(uuid()) @db.Uuid
-  institutionId String        @db.Uuid
-  number        String        @unique
-  amount        Int
-  status        InvoiceStatus @default(UNPAID)
-  issuedAt      DateTime      @default(now())
-  dueDate       DateTime?
-  notes         String?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  institution   Institution   @relation(fields: [institutionId], references: [id])
+  id               String                    @id @default(uuid()) @db.Uuid
+  institutionId    String                    @db.Uuid
+  number           String                    @unique
+  amount           Int
+  status           InvoiceStatus             @default(UNPAID)
+  issuedAt         DateTime                  @default(now())
+  dueDate          DateTime?
+  notes            String?
+  sessionId        String?                   @unique @db.Uuid
+  expiresAt        DateTime?
+  paymentProvider  PaymentProvider?
+  vaNumber         String?                   @unique
+  vaBankCode       String?
+  gdcTrxId         String?
+  gdcReferenceNo   String?
+  gdcExternalId    String?
+  verifiedBySource PaymentVerifiedBySource?
+  verifiedAt       DateTime?
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
+  institution      Institution               @relation(fields: [institutionId], references: [id])
+  session          TestSession?              @relation(fields: [sessionId], references: [id])
 
+  @@index([vaNumber])
   @@map("invoices")
 }
 
@@ -391,18 +439,26 @@ model Order {
   basePrice     Int
   uniqueCode    Int
   amount        Int
-  status        OrderStatus @default(PENDING)
-  expiresAt     DateTime
-  userClaimedAt DateTime?
-  verifiedById  String?
-  verifiedAt    DateTime?
-  cancelReason  String?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  test          Test        @relation(fields: [testId], references: [id])
+  status            OrderStatus                @default(PENDING)
+  expiresAt         DateTime
+  userClaimedAt     DateTime?
+  verifiedById      String?
+  verifiedBySource  PaymentVerifiedBySource?
+  verifiedAt        DateTime?
+  cancelReason      String?
+  paymentProvider   PaymentProvider?
+  vaNumber          String?
+  vaBankCode        String?
+  gdcTrxId          String?
+  gdcReferenceNo    String?
+  gdcExternalId     String?
+  createdAt         DateTime                   @default(now())
+  updatedAt         DateTime                   @updatedAt
+  test              Test                       @relation(fields: [testId], references: [id])
 
   @@index([userId])
   @@index([status, amount])
+  @@index([vaNumber])
   @@map("orders")
 }
 
@@ -425,4 +481,47 @@ model ReportDelivery {
   result    TestResult     @relation(fields: [resultId], references: [id])
 
   @@map("report_deliveries")
+}
+
+model EventLog {
+  id             String         @id @default(uuid()) @db.Uuid
+  source         EventSource
+  direction      EventDirection
+  type           String
+  status         EventStatus    @default(RECEIVED)
+  aggregateType  String?
+  aggregateId    String?        @db.Uuid
+  reference      String?
+  idempotencyKey String?
+  payload        Json?
+  response       Json?
+  httpStatus     Int?
+  errorMessage   String?
+  attempts       Int            @default(0)
+  createdAt      DateTime       @default(now())
+  processedAt    DateTime?
+  updatedAt      DateTime       @updatedAt
+
+  @@index([aggregateType, aggregateId])
+  @@index([status, createdAt])
+  @@index([idempotencyKey])
+  @@map("event_log")
+}
+
+model IdempotencyKey {
+  id             String            @id @default(uuid()) @db.Uuid
+  key            String            @unique
+  scope          String
+  requestHash    String?
+  status         IdempotencyStatus @default(IN_PROGRESS)
+  responseStatus Int?
+  responseBody   Json?
+  errorMessage   String?
+  lockedAt       DateTime?
+  expiresAt      DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([scope, createdAt])
+  @@map("idempotency_keys")
 }

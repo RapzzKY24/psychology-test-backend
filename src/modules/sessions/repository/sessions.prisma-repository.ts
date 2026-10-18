@@ -36,6 +36,7 @@ export class PrismaSessionsRepository implements SessionsRepository {
     const [
       sessionTests,
       participantRows,
+      attemptRows,
       attemptsTotal,
       attemptsInProgress,
       attemptsCompleted,
@@ -54,7 +55,13 @@ export class PrismaSessionsRepository implements SessionsRepository {
           email: true,
           candidateNumber: true,
           joinedAt: true,
+          institutionParticipantId: true,
+          tokenHash: true,
         },
+      }),
+      this.prisma.attempt.findMany({
+        where: { sessionId: id },
+        select: { id: true, participantId: true },
       }),
       this.prisma.attempt.count({ where: { sessionId: id } }),
       this.prisma.attempt.count({
@@ -65,6 +72,9 @@ export class PrismaSessionsRepository implements SessionsRepository {
       }),
     ]);
 
+    const answeredByParticipant =
+      await this.countResponsesByParticipant(attemptRows);
+
     return {
       session,
       tests: sessionTests.map((st) => ({
@@ -73,13 +83,47 @@ export class PrismaSessionsRepository implements SessionsRepository {
         testName: st.test.name,
         order: st.order,
       })),
-      participants: participantRows,
+      participants: participantRows.map(
+        ({ tokenHash, institutionParticipantId, ...row }) => ({
+          ...row,
+          employeeId: institutionParticipantId,
+          claimed: tokenHash != null,
+          answeredCount: answeredByParticipant.get(row.id) ?? 0,
+        }),
+      ),
       attempts: {
         total: attemptsTotal,
         inProgress: attemptsInProgress,
         completed: attemptsCompleted,
       },
     };
+  }
+
+  /** Maps each participant to the number of responses submitted by its seats. */
+  private async countResponsesByParticipant(
+    attempts: { id: string; participantId: string | null }[],
+  ): Promise<Map<string, number>> {
+    const answeredByParticipant = new Map<string, number>();
+    if (attempts.length === 0) return answeredByParticipant;
+
+    const counts = await this.prisma.response.groupBy({
+      by: ['attemptId'],
+      where: { attemptId: { in: attempts.map((a) => a.id) } },
+      _count: { _all: true },
+    });
+    const answeredByAttempt = new Map(
+      counts.map((c) => [c.attemptId, c._count._all]),
+    );
+
+    for (const attempt of attempts) {
+      if (!attempt.participantId) continue;
+      answeredByParticipant.set(
+        attempt.participantId,
+        (answeredByParticipant.get(attempt.participantId) ?? 0) +
+          (answeredByAttempt.get(attempt.id) ?? 0),
+      );
+    }
+    return answeredByParticipant;
   }
 
   async findMany(params: {
@@ -166,6 +210,7 @@ export class PrismaSessionsRepository implements SessionsRepository {
         slotLimit: params.slotLimit,
         expiresAt: params.expiresAt,
         joinMode: params.joinMode,
+        status: params.status,
         sessionTests: {
           create: params.tests.map((t) => ({
             testId: t.testId,
@@ -194,6 +239,51 @@ export class PrismaSessionsRepository implements SessionsRepository {
 
   countParticipants(sessionId: string): Promise<number> {
     return this.prisma.sessionParticipant.count({ where: { sessionId } });
+  }
+
+  async createParticipants(
+    sessionId: string,
+    rows: {
+      name: string;
+      candidateNumber?: string | null;
+      institutionParticipantId?: string | null;
+    }[],
+  ): Promise<number> {
+    const result = await this.prisma.sessionParticipant.createMany({
+      data: rows.map((r) => ({
+        sessionId,
+        name: r.name,
+        candidateNumber: r.candidateNumber ?? null,
+        institutionParticipantId: r.institutionParticipantId ?? null,
+      })),
+    });
+    return result.count;
+  }
+
+  updateParticipant(
+    id: string,
+    data: { name?: string; institutionParticipantId?: string | null },
+  ): Promise<SessionParticipant> {
+    return this.prisma.sessionParticipant.update({
+      where: { id },
+      data: {
+        ...(data.name !== undefined ? { name: data.name } : {}),
+        ...(data.institutionParticipantId !== undefined
+          ? { institutionParticipantId: data.institutionParticipantId }
+          : {}),
+      },
+    });
+  }
+
+  async deleteParticipant(id: string): Promise<void> {
+    await this.prisma.sessionParticipant.delete({ where: { id } });
+  }
+
+  resetParticipantToken(id: string): Promise<SessionParticipant> {
+    return this.prisma.sessionParticipant.update({
+      where: { id },
+      data: { tokenHash: null },
+    });
   }
 
   async findSessionTestsBySessionId(
@@ -278,14 +368,17 @@ export class PrismaSessionsRepository implements SessionsRepository {
     claimedAt: Date;
     sessionId: string;
     testIds: string[];
-  }): Promise<void> {
-    await this.prisma.$transaction(async (tx) => {
+  }): Promise<boolean> {
+    return this.prisma.$transaction(async (tx) => {
       // Row lock serializes concurrent claims on the same seat.
       await tx.$queryRaw`SELECT id FROM "session_participants" WHERE id = ${params.seatId}::uuid FOR UPDATE`;
-      await tx.sessionParticipant.update({
-        where: { id: params.seatId },
+      // Conditional lock: only win the seat if it is still unclaimed.
+      const won = await tx.sessionParticipant.updateMany({
+        where: { id: params.seatId, tokenHash: null },
         data: { tokenHash: params.tokenHash, claimedAt: params.claimedAt },
       });
+      if (won.count === 0) return false;
+
       const existing = await tx.attempt.findMany({
         where: { participantId: params.seatId },
         select: { testId: true },
@@ -302,6 +395,7 @@ export class PrismaSessionsRepository implements SessionsRepository {
           })),
         });
       }
+      return true;
     });
   }
 

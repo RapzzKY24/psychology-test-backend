@@ -112,8 +112,13 @@ export class TestsService {
     };
   }
 
-  async findManyPublicFiltered(filter: { slug: string }): Promise<PaginatedResponse<PublicTestDto>> {
-    const where: Prisma.TestWhereInput = { status: 'PUBLISHED', slug: filter.slug };
+  async findManyPublicFiltered(filter: {
+    slug: string;
+  }): Promise<PaginatedResponse<PublicTestDto>> {
+    const where: Prisma.TestWhereInput = {
+      status: 'PUBLISHED',
+      slug: filter.slug,
+    };
     const { data, total } = await this.repo.findMany({
       skip: 0,
       take: 100,
