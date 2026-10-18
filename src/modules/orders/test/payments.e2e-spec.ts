@@ -159,9 +159,9 @@ describe('Payments E2E (integ, real DB)', () => {
         isEnabled: () => false,
         provision: () => Promise.resolve(null),
       } as never,
+      orderVaStub,
       new EventLogService(new PrismaEventLogRepository(prisma)),
       new IdempotencyService(new PrismaIdempotencyRepository(prisma)),
-      {} as never,
       configStub as never,
     );
   });

@@ -7,7 +7,7 @@ import type { IdempotencyService } from '../../idempotency/service/idempotency.s
 import type { OrdersService } from '../../orders/service/orders.service';
 import type { InvoicesService } from '../../invoices/service/invoices.service';
 import type { InvoiceVaService } from '../../invoices/service/invoice-va.service';
-import type { GdcClient } from '../../gdc/client/gdc.client';
+import type { OrderVaService } from '../../orders/service/order-va.service';
 import type { ConfigService } from '@nestjs/config';
 
 describe('PaymentsService', () => {
@@ -44,8 +44,10 @@ describe('PaymentsService', () => {
       | 'findUnsettledVaInvoices'
     >
   >;
-  let invoiceVa: jest.Mocked<Pick<InvoiceVaService, 'isEnabled' | 'provision'>>;
-  let gdc: jest.Mocked<Pick<GdcClient, 'inquiryVaStatus'>>;
+  let invoiceVa: jest.Mocked<
+    Pick<InvoiceVaService, 'isEnabled' | 'provision' | 'inquiryVa'>
+  >;
+  let orderVa: jest.Mocked<Pick<OrderVaService, 'inquiryVa'>>;
   let config: { get: jest.Mock };
 
   const order = { id: 'o1', amount: 200000 };
@@ -97,8 +99,9 @@ describe('PaymentsService', () => {
     invoiceVa = {
       isEnabled: jest.fn().mockReturnValue(true),
       provision: jest.fn(),
+      inquiryVa: jest.fn(),
     };
-    gdc = { inquiryVaStatus: jest.fn() };
+    orderVa = { inquiryVa: jest.fn() };
     config = {
       get: jest.fn((key: string, fallback?: unknown) => {
         const map: Record<string, unknown> = {
@@ -121,9 +124,9 @@ describe('PaymentsService', () => {
       orders as never,
       invoices as never,
       invoiceVa as never,
+      orderVa as never,
       eventLog as never,
       idempotency as never,
-      gdc as never,
       config as unknown as ConfigService,
     );
   });
@@ -391,10 +394,10 @@ describe('PaymentsService', () => {
 
     it('unlocks an order GDC reports as paid', async () => {
       orders.findUnsettledVaOrders.mockResolvedValue([vaOrder] as never);
-      gdc.inquiryVaStatus.mockResolvedValue({
-        virtualAccountNo: '19008172',
-        paymentFlagStatus: '00',
-        totalAmount: { value: '200000.00', currency: 'IDR' },
+      orderVa.inquiryVa.mockResolvedValue({
+        vaNumber: '19008172',
+        status: '00',
+        paidAmount: 200000,
       });
       orders.confirmExternalPayment.mockResolvedValue({
         outcome: 'verified',
@@ -411,9 +414,10 @@ describe('PaymentsService', () => {
 
     it('skips orders GDC still reports as unpaid', async () => {
       orders.findUnsettledVaOrders.mockResolvedValue([vaOrder] as never);
-      gdc.inquiryVaStatus.mockResolvedValue({
-        virtualAccountNo: '19008172',
-        paymentFlagStatus: '03',
+      orderVa.inquiryVa.mockResolvedValue({
+        vaNumber: '19008172',
+        status: '03',
+        paidAmount: null,
       });
 
       const result = await service.reconcilePendingVas();
@@ -424,7 +428,7 @@ describe('PaymentsService', () => {
 
     it('continues when the gateway call fails', async () => {
       orders.findUnsettledVaOrders.mockResolvedValue([vaOrder] as never);
-      gdc.inquiryVaStatus.mockRejectedValue(
+      orderVa.inquiryVa.mockRejectedValue(
         new GdcApiError('request_failed', 'boom', 500, '/p'),
       );
 
@@ -480,10 +484,10 @@ describe('PaymentsService', () => {
 
     it('activates an invoice GDC reports as paid', async () => {
       invoices.findUnsettledVaInvoices.mockResolvedValue([vaInvoice] as never);
-      gdc.inquiryVaStatus.mockResolvedValue({
-        virtualAccountNo: '8801',
-        paymentFlagStatus: '00',
-        totalAmount: { value: '200000.00', currency: 'IDR' },
+      invoiceVa.inquiryVa.mockResolvedValue({
+        vaNumber: '8801',
+        status: '00',
+        paidAmount: 200000,
       });
       invoices.confirmPaymentWithActivation.mockResolvedValue({
         outcome: 'confirmed',
@@ -501,9 +505,10 @@ describe('PaymentsService', () => {
 
     it('skips an invoice GDC still reports as unpaid', async () => {
       invoices.findUnsettledVaInvoices.mockResolvedValue([vaInvoice] as never);
-      gdc.inquiryVaStatus.mockResolvedValue({
-        virtualAccountNo: '8801',
-        paymentFlagStatus: '03',
+      invoiceVa.inquiryVa.mockResolvedValue({
+        vaNumber: '8801',
+        status: '03',
+        paidAmount: null,
       });
 
       const result = await service.reconcileUnsettledInvoiceVas();

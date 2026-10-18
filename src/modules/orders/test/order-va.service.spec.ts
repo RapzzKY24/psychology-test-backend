@@ -1,10 +1,10 @@
 import { BadGatewayException } from '@nestjs/common';
 import { OrderVaService } from '../service/order-va.service';
 import { GdcApiError } from '../../gdc/errors/gdc-api.error';
+import type { PaymentGateway } from '../../gdc/gateway/payment-gateway.interface';
 import type { OrdersRepository } from '../repository/orders.repository';
 import type { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import type { EventLogService } from '../../event-log/service/event-log.service';
-import type { GdcClient } from '../../gdc/client/gdc.client';
 import type { ConfigService } from '@nestjs/config';
 
 describe('OrderVaService', () => {
@@ -16,7 +16,7 @@ describe('OrderVaService', () => {
     Pick<IdempotencyService, 'begin' | 'complete' | 'fail'>
   >;
   let eventLog: jest.Mocked<Pick<EventLogService, 'record' | 'markProcessed'>>;
-  let gdc: jest.Mocked<Pick<GdcClient, 'createVirtualAccount'>>;
+  let gateway: jest.Mocked<Pick<PaymentGateway, 'createVa' | 'inquiryVa'>>;
   let config: { get: jest.Mock };
 
   const baseOrder = {
@@ -32,7 +32,8 @@ describe('OrderVaService', () => {
   };
 
   const vaResult = {
-    virtualAccountNo: '19008172',
+    vaNumber: '19008172',
+    bankCode: '014',
     trxId: 'o1',
     referenceNo: 'ref-1',
   };
@@ -46,13 +47,12 @@ describe('OrderVaService', () => {
     };
     idempotency = { begin: jest.fn(), complete: jest.fn(), fail: jest.fn() };
     eventLog = { record: jest.fn(), markProcessed: jest.fn() };
-    gdc = { createVirtualAccount: jest.fn() };
+    gateway = { createVa: jest.fn(), inquiryVa: jest.fn() };
     config = {
       get: jest.fn((key: string, fallback?: unknown) => {
         const map: Record<string, unknown> = {
           'app.paymentProvider': 'gdc',
           'app.paymentTtlMin': 60,
-          'app.gdc.accountNumber': 'acc',
         };
         return map[key] ?? fallback;
       }),
@@ -62,7 +62,7 @@ describe('OrderVaService', () => {
       repo as never,
       idempotency as never,
       eventLog as never,
-      gdc as never,
+      gateway,
       config as unknown as ConfigService,
     );
   });
@@ -73,17 +73,24 @@ describe('OrderVaService', () => {
     expect(service.isEnabled()).toBe(false);
   });
 
+  it('isEnabled is true under the dev stub even without provider=gdc', () => {
+    config.get.mockImplementation((key: string) =>
+      key === 'app.gdcStub' ? true : 'manual',
+    );
+    expect(service.isEnabled()).toBe(true);
+  });
+
   it('creates a VA order and provisions the virtual account', async () => {
     repo.create.mockResolvedValue(baseOrder as never);
     idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
     eventLog.record.mockResolvedValue({ id: 'ev1' } as never);
-    gdc.createVirtualAccount.mockResolvedValue(vaResult);
+    gateway.createVa.mockResolvedValue(vaResult);
     eventLog.markProcessed.mockResolvedValue(undefined);
     idempotency.complete.mockResolvedValue(undefined);
     repo.update.mockResolvedValue({
       ...baseOrder,
-      vaNumber: vaResult.virtualAccountNo,
-      vaBankCode: '014',
+      vaNumber: vaResult.vaNumber,
+      vaBankCode: vaResult.bankCode,
     } as never);
 
     const order = await service.createVaOrder('t1', 'u1', 200000, 'DISC');
@@ -96,14 +103,12 @@ describe('OrderVaService', () => {
         paymentProvider: 'GDC_VA',
       }),
     );
-    expect(gdc.createVirtualAccount).toHaveBeenCalledWith(
+    expect(gateway.createVa).toHaveBeenCalledWith(
       expect.objectContaining({
-        virtualAccountName: 'DISC',
-        virtualAccountTrxType: 'C',
-        bankCode: '014',
-        accountNumber: 'acc',
+        externalId: 'o1',
+        amount: 200000,
+        name: 'DISC',
       }),
-      'o1',
     );
     expect(idempotency.complete).toHaveBeenCalledWith('idem1', {
       responseStatus: 200,
@@ -114,6 +119,27 @@ describe('OrderVaService', () => {
       expect.objectContaining({ vaNumber: '19008172', vaBankCode: '014' }),
     );
     expect(order.vaNumber).toBe('19008172');
+  });
+
+  it('delegates inquiry to the gateway seam', async () => {
+    gateway.inquiryVa.mockResolvedValue({
+      vaNumber: '19008172',
+      status: '00',
+      paidAmount: 200000,
+    });
+
+    const result = await service.inquiryVa({
+      vaNumber: '19008172',
+      paymentRequestId: 'trx1',
+      externalId: 'o1',
+    });
+
+    expect(gateway.inquiryVa).toHaveBeenCalledWith({
+      vaNumber: '19008172',
+      paymentRequestId: 'trx1',
+      externalId: 'o1',
+    });
+    expect(result.status).toBe('00');
   });
 
   it('reuses the stored VA result on a completed duplicate', async () => {
@@ -128,12 +154,12 @@ describe('OrderVaService', () => {
     });
     repo.update.mockResolvedValue({
       ...baseOrder,
-      vaNumber: vaResult.virtualAccountNo,
+      vaNumber: vaResult.vaNumber,
     } as never);
 
     await service.createVaOrder('t1', 'u1', 200000, 'DISC');
 
-    expect(gdc.createVirtualAccount).not.toHaveBeenCalled();
+    expect(gateway.createVa).not.toHaveBeenCalled();
     expect(eventLog.record).not.toHaveBeenCalled();
     expect(repo.update).toHaveBeenCalledWith(
       'o1',
@@ -146,19 +172,18 @@ describe('OrderVaService', () => {
     repo.findTestById.mockResolvedValue({ name: 'DISC Form A' } as never);
     idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
     eventLog.record.mockResolvedValue({ id: 'ev1' } as never);
-    gdc.createVirtualAccount.mockResolvedValue(vaResult);
+    gateway.createVa.mockResolvedValue(vaResult);
     eventLog.markProcessed.mockResolvedValue(undefined);
     idempotency.complete.mockResolvedValue(undefined);
     repo.update.mockResolvedValue({
       ...baseOrder,
-      vaNumber: vaResult.virtualAccountNo,
+      vaNumber: vaResult.vaNumber,
     } as never);
 
     const order = await service.reprovision('o1');
 
-    expect(gdc.createVirtualAccount).toHaveBeenCalledWith(
-      expect.objectContaining({ virtualAccountName: 'DISC Form A' }),
-      'o1',
+    expect(gateway.createVa).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'DISC Form A', externalId: 'o1' }),
     );
     expect(order?.vaNumber).toBe('19008172');
   });
@@ -171,15 +196,15 @@ describe('OrderVaService', () => {
 
     await service.reprovision('o1');
 
-    expect(gdc.createVirtualAccount).not.toHaveBeenCalled();
+    expect(gateway.createVa).not.toHaveBeenCalled();
     expect(repo.update).not.toHaveBeenCalled();
   });
 
-  it('maps a GDC failure to 502 and leaves the event for recovery', async () => {
+  it('maps a gateway failure to 502 and leaves the event for recovery', async () => {
     repo.create.mockResolvedValue(baseOrder as never);
     idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
     eventLog.record.mockResolvedValue({ id: 'ev1' } as never);
-    gdc.createVirtualAccount.mockRejectedValue(
+    gateway.createVa.mockRejectedValue(
       new GdcApiError('request_failed', 'boom', 500, '/p'),
     );
     idempotency.fail.mockResolvedValue(undefined);

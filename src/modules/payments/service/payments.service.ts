@@ -3,11 +3,12 @@ import { ConfigService } from '@nestjs/config';
 import { EventLogService } from '../../event-log/service/event-log.service';
 import { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import { OrdersService } from '../../orders/service/orders.service';
+import { OrderVaService } from '../../orders/service/order-va.service';
 import { InvoicesService } from '../../invoices/service/invoices.service';
 import { InvoiceVaService } from '../../invoices/service/invoice-va.service';
 import type { Invoice, Order } from '../../../generated/prisma/client';
-import { GdcClient } from '../../gdc/client/gdc.client';
 import { GdcApiError } from '../../gdc/errors/gdc-api.error';
+import type { VaInquiryResult } from '../../gdc/gateway/payment-gateway.interface';
 import { VaCallbackSchema } from '../../gdc/dto/gdc.dto';
 import type { VaCallback } from '../../gdc/dto/gdc.dto';
 import { MS_PER_MINUTE } from '../../../common/constants/time';
@@ -35,9 +36,9 @@ export class PaymentsService {
     private readonly orders: OrdersService,
     private readonly invoices: InvoicesService,
     private readonly invoiceVa: InvoiceVaService,
+    private readonly orderVa: OrderVaService,
     private readonly eventLog: EventLogService,
     private readonly idempotency: IdempotencyService,
-    private readonly gdc: GdcClient,
     private readonly config: ConfigService,
   ) {}
 
@@ -178,21 +179,19 @@ export class PaymentsService {
     for (const order of due) {
       if (!order.vaNumber) continue;
       checked += 1;
-      let status: Awaited<ReturnType<GdcClient['inquiryVaStatus']>>;
+      let status: VaInquiryResult;
       try {
-        status = await this.gdc.inquiryVaStatus(
-          {
-            virtualAccountNo: order.vaNumber,
-            paymentRequestId: order.gdcTrxId ?? order.id,
-          },
-          order.gdcExternalId ?? order.id,
-        );
+        status = await this.orderVa.inquiryVa({
+          vaNumber: order.vaNumber,
+          paymentRequestId: order.gdcTrxId ?? order.id,
+          externalId: order.gdcExternalId ?? order.id,
+        });
       } catch (error) {
         if (error instanceof GdcApiError) continue;
         throw error;
       }
-      if (status.paymentFlagStatus !== VA_INQUIRY_PAID_STATUS) continue;
-      if (!amountMatches(status.totalAmount?.value, order.amount)) continue;
+      if (status.status !== VA_INQUIRY_PAID_STATUS) continue;
+      if (!amountMatches(status.paidAmount, order.amount)) continue;
       const result = await this.orders.confirmExternalPayment(order.id);
       if (result.outcome === 'verified') settled += 1;
     }
@@ -258,21 +257,19 @@ export class PaymentsService {
     for (const invoice of due) {
       if (!invoice.vaNumber) continue;
       checked += 1;
-      let status: Awaited<ReturnType<GdcClient['inquiryVaStatus']>>;
+      let status: VaInquiryResult;
       try {
-        status = await this.gdc.inquiryVaStatus(
-          {
-            virtualAccountNo: invoice.vaNumber,
-            paymentRequestId: invoice.gdcTrxId ?? invoice.id,
-          },
-          invoice.gdcExternalId ?? invoice.id,
-        );
+        status = await this.invoiceVa.inquiryVa({
+          vaNumber: invoice.vaNumber,
+          paymentRequestId: invoice.gdcTrxId ?? invoice.id,
+          externalId: invoice.gdcExternalId ?? invoice.id,
+        });
       } catch (error) {
         if (error instanceof GdcApiError) continue;
         throw error;
       }
-      if (status.paymentFlagStatus !== VA_INQUIRY_PAID_STATUS) continue;
-      if (!amountMatches(status.totalAmount?.value, invoice.amount)) continue;
+      if (status.status !== VA_INQUIRY_PAID_STATUS) continue;
+      if (!amountMatches(status.paidAmount, invoice.amount)) continue;
       const result = await this.invoices.confirmPaymentWithActivation(
         invoice.id,
         {

@@ -11,3 +11,9 @@ export const GDC_TOKEN_EXPIRY_SAFETY_MS = 60_000;
 
 /** Asia/Jakarta offset (minutes) used for the SNAP `+07:00` timestamp. */
 export const JAKARTA_OFFSET_MINUTES = 7 * 60;
+
+/** Default bank for Virtual Account checkout (BCA). */
+export const DEFAULT_VA_BANK_CODE = '014';
+
+/** GDC create-va transaction type: closed amount. */
+export const VA_TRX_TYPE = 'C';

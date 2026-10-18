@@ -4,7 +4,7 @@ import { InvoiceVaService } from '../service/invoice-va.service';
 import type { InvoicesRepository } from '../repository/invoices.repository';
 import type { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import { GdcApiError } from '../../gdc/errors/gdc-api.error';
-import { StubVaProvider } from '../gateway/stub-va.provider';
+import { StubVaProvider } from '../../gdc/gateway/stub-va.provider';
 
 describe('InvoiceVaService', () => {
   let service: InvoiceVaService;
@@ -165,6 +165,27 @@ describe('InvoiceVaService', () => {
       errorMessage: 'boom',
     });
     expect(repo.update).not.toHaveBeenCalled();
+  });
+
+  it('delegates inquiry to the gateway seam', async () => {
+    gateway.inquiryVa.mockResolvedValue({
+      vaNumber: '8801234',
+      status: '00',
+      paidAmount: 300000,
+    });
+
+    const result = await service.inquiryVa({
+      vaNumber: '8801234',
+      paymentRequestId: 'inv1',
+      externalId: 'inv1',
+    });
+
+    expect(gateway.inquiryVa).toHaveBeenCalledWith({
+      vaNumber: '8801234',
+      paymentRequestId: 'inv1',
+      externalId: 'inv1',
+    });
+    expect(result.status).toBe('00');
   });
 
   describe('reprovision', () => {

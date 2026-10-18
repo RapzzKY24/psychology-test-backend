@@ -6,12 +6,14 @@ import type { Invoice, Prisma } from '../../../generated/prisma/client';
 import { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import { EventLogService } from '../../event-log/service/event-log.service';
 import { GdcApiError } from '../../gdc/errors/gdc-api.error';
-import { DEFAULT_VA_BANK_CODE } from '../../orders/constants/payment';
+import { DEFAULT_VA_BANK_CODE } from '../../gdc/constants/gdc';
 import {
   PAYMENT_GATEWAY,
   type CreateVaResult,
   type PaymentGateway,
-} from '../gateway/payment-gateway.interface';
+  type VaInquiryParams,
+  type VaInquiryResult,
+} from '../../gdc/gateway/payment-gateway.interface';
 
 // Distinct namespace from orders so VA idempotency keys never collide.
 const VA_CREATE_SCOPE = 'gdc.invoice.va.create';
@@ -63,6 +65,11 @@ export class InvoiceVaService {
       VA_REPROVISION_SCOPE,
       `${invoice.id}:${invoice.amount}`,
     );
+  }
+
+  /** Poll the provider for this VA's settlement status (reconciliation). */
+  inquiryVa(params: VaInquiryParams): Promise<VaInquiryResult> {
+    return this.gateway.inquiryVa(params);
   }
 
   private async issueVa(

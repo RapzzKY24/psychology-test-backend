@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { DEFAULT_VA_BANK_CODE } from '../../orders/constants/payment';
+import { DEFAULT_VA_BANK_CODE } from '../constants/gdc';
 import type {
   CreateVaParams,
   CreateVaResult,
   PaymentGateway,
+  VaInquiryParams,
   VaInquiryResult,
 } from './payment-gateway.interface';
 
@@ -22,8 +23,12 @@ export class StubVaProvider implements PaymentGateway {
     });
   }
 
-  inquiryVa(vaNumber: string): Promise<VaInquiryResult> {
-    return Promise.resolve({ vaNumber, status: 'PENDING', paidAmount: null });
+  inquiryVa(params: VaInquiryParams): Promise<VaInquiryResult> {
+    return Promise.resolve({
+      vaNumber: params.vaNumber,
+      status: 'PENDING',
+      paidAmount: null,
+    });
   }
 
   private hash(input: string): string {

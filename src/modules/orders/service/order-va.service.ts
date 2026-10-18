@@ -5,15 +5,16 @@ import type { OrdersRepository } from '../repository/orders.repository';
 import type { Order } from '../../../generated/prisma/client';
 import { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import { EventLogService } from '../../event-log/service/event-log.service';
-import { GdcClient } from '../../gdc/client/gdc.client';
-import type { CreateVirtualAccountResult } from '../../gdc/client/gdc.client';
 import { GdcApiError } from '../../gdc/errors/gdc-api.error';
-import { isoTimestamp } from '../../gdc/utils/timestamp';
+import { DEFAULT_VA_BANK_CODE } from '../../gdc/constants/gdc';
 import {
-  DEFAULT_VA_BANK_CODE,
-  VA_TRX_TYPE,
-  VA_UNIQUE_CODE,
-} from '../constants/payment';
+  PAYMENT_GATEWAY,
+  type CreateVaResult,
+  type PaymentGateway,
+  type VaInquiryParams,
+  type VaInquiryResult,
+} from '../../gdc/gateway/payment-gateway.interface';
+import { VA_UNIQUE_CODE } from '../constants/payment';
 
 const VA_CREATE_SCOPE = 'gdc.va.create';
 
@@ -32,12 +33,17 @@ export class OrderVaService {
     private readonly repo: OrdersRepository,
     private readonly idempotency: IdempotencyService,
     private readonly eventLog: EventLogService,
-    private readonly gdc: GdcClient,
+    @Inject(PAYMENT_GATEWAY)
+    private readonly gateway: PaymentGateway,
     private readonly config: ConfigService,
   ) {}
 
+  /** The VA provider is usable when GDC is selected or the dev stub is on. */
   isEnabled(): boolean {
-    return this.config.get<string>('app.paymentProvider') === 'gdc';
+    return (
+      this.config.get<boolean>('app.gdcStub') === true ||
+      this.config.get<string>('app.paymentProvider') === 'gdc'
+    );
   }
 
   /** Create a VA order (no unique code) and provision its Virtual Account. */
@@ -74,6 +80,11 @@ export class OrderVaService {
     return this.repo.update(order.id, va);
   }
 
+  /** Poll the provider for this VA's settlement status (reconciliation). */
+  inquiryVa(params: VaInquiryParams): Promise<VaInquiryResult> {
+    return this.gateway.inquiryVa(params);
+  }
+
   private get paymentTtlMin(): number {
     return this.config.get<number>('app.paymentTtlMin', 60);
   }
@@ -95,7 +106,7 @@ export class OrderVaService {
     ) {
       return this.toVaColumns(
         externalId,
-        claim.existing.responseBody as unknown as CreateVirtualAccountResult,
+        claim.existing.responseBody as unknown as CreateVaResult,
       );
     }
     const claimId = claim.acquired ? claim.id : claim.existing.id;
@@ -115,20 +126,14 @@ export class OrderVaService {
       },
     });
 
-    let result: CreateVirtualAccountResult;
+    let result: CreateVaResult;
     try {
-      result = await this.gdc.createVirtualAccount(
-        {
-          virtualAccountName,
-          expiredDate: isoTimestamp(order.expiresAt),
-          trxId: order.id,
-          virtualAccountTrxType: VA_TRX_TYPE,
-          totalAmount: { value: order.amount.toFixed(2), currency: 'IDR' },
-          accountNumber: this.config.get<string>('app.gdc.accountNumber', ''),
-          bankCode: DEFAULT_VA_BANK_CODE,
-        },
+      result = await this.gateway.createVa({
         externalId,
-      );
+        amount: order.amount,
+        name: virtualAccountName,
+        expiresAt: order.expiresAt,
+      });
     } catch (error) {
       await this.idempotency.fail(claimId, {
         errorMessage: error instanceof Error ? error.message : 'unknown_error',
@@ -149,11 +154,11 @@ export class OrderVaService {
 
   private toVaColumns(
     externalId: string,
-    result: CreateVirtualAccountResult,
+    result: CreateVaResult,
   ): VaProvisionFields {
     return {
-      vaNumber: result.virtualAccountNo,
-      vaBankCode: DEFAULT_VA_BANK_CODE,
+      vaNumber: result.vaNumber,
+      vaBankCode: result.bankCode,
       gdcTrxId: result.trxId,
       gdcReferenceNo: result.referenceNo,
       gdcExternalId: externalId,
