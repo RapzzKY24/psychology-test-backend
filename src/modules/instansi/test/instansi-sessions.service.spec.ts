@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { BadGatewayException, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { InstansiSessionsService } from '../service/instansi-sessions.service';
 import type { SessionsRepository } from '../../sessions/repository/sessions.repository';
 import type { InstansiParticipantsRepository } from '../repository/instansi-participants.repository';
@@ -370,26 +370,32 @@ describe('InstansiSessionsService', () => {
     });
   });
 
-  describe('roster edits (UNPAID only)', () => {
+  describe('roster edits (free, invoice untouched)', () => {
     const batchSession = {
       id: 's1',
       institutionId: INSTITUTION_ID,
       slotLimit: 10,
       title: 'Sesi Rekrutmen 1',
     };
-    const unpaidInvoice = { id: 'inv1', status: 'UNPAID', amount: 50000 };
-
-    const givenUnpaidBatch = () => {
-      mockSessionsRepo.findById.mockResolvedValue(batchSession as never);
-      mockInvoicesService.findBySessionId.mockResolvedValue(unpaidInvoice);
-      mockSessionsRepo.findSessionTestsBySessionId.mockResolvedValue([
-        { testId: 't1', testName: 'DISC', testStatus: 'PUBLISHED', order: 1 },
-      ] as never);
+    const invoice = {
+      id: 'inv1',
+      number: 'INV-1',
+      status: 'UNPAID',
+      amount: 500000,
+      vaNumber: '880777',
+      vaBankCode: '014',
+      sessionId: 's1',
+      expiresAt: new Date('2026-09-01T02:00:00Z'),
     };
 
-    beforeEach(givenUnpaidBatch);
+    const givenBatch = () => {
+      mockSessionsRepo.findById.mockResolvedValue(batchSession as never);
+      mockInvoicesService.findBySessionId.mockResolvedValue(invoice);
+    };
 
-    it('adds participants and regenerates the amount per new seat', async () => {
+    beforeEach(givenBatch);
+
+    it('adds participants and leaves the prepaid invoice untouched', async () => {
       mockSessionsRepo.findParticipantsBySessionId.mockResolvedValue([
         { id: 'p1', institutionParticipantId: 'emp-1', name: 'A' },
         { id: 'p2', institutionParticipantId: 'emp-2', name: 'B' },
@@ -397,26 +403,38 @@ describe('InstansiSessionsService', () => {
       mockParticipantsRepo.findManyByIds.mockResolvedValue([
         { id: 'emp-3', name: 'C' },
       ] as never);
-      mockInvoicesService.regenerateAmount.mockResolvedValue({
-        id: 'inv1',
-        amount: 150000,
-        status: 'UNPAID',
-      });
 
-      await service.addParticipants(USER_ID, 's1', { employeeIds: ['emp-3'] });
+      const result = await service.addParticipants(USER_ID, 's1', {
+        employeeIds: ['emp-3'],
+      });
 
       expect(mockSessionsRepo.createParticipants).toHaveBeenCalledWith('s1', [
         { name: 'C', institutionParticipantId: 'emp-3' },
       ]);
-      // 50000 per seat × 3 seats
-      expect(mockInvoicesService.regenerateAmount).toHaveBeenCalledWith(
-        'inv1',
-        150000,
-      );
-      expect(mockInvoiceVaService.reprovision).toHaveBeenCalledWith(
-        'inv1',
-        'Sesi Rekrutmen 1',
-      );
+      expect(mockInvoicesService.regenerateAmount).not.toHaveBeenCalled();
+      expect(mockInvoiceVaService.reprovision).not.toHaveBeenCalled();
+      expect(result.amount).toBe(500000);
+      expect(result.vaNumber).toBe('880777');
+    });
+
+    it('adds participants after the invoice is PAID (no batch_locked)', async () => {
+      mockInvoicesService.findBySessionId.mockResolvedValue({
+        ...invoice,
+        status: 'PAID',
+      });
+      mockSessionsRepo.findParticipantsBySessionId.mockResolvedValue([
+        { id: 'p1', institutionParticipantId: 'emp-1', name: 'A' },
+      ] as never);
+      mockParticipantsRepo.findManyByIds.mockResolvedValue([
+        { id: 'emp-3', name: 'C' },
+      ] as never);
+
+      const result = await service.addParticipants(USER_ID, 's1', {
+        employeeIds: ['emp-3'],
+      });
+
+      expect(mockSessionsRepo.createParticipants).toHaveBeenCalled();
+      expect(result.amount).toBe(500000);
     });
 
     it('rejects adding beyond slotLimit with 422 and no change', async () => {
@@ -433,90 +451,20 @@ describe('InstansiSessionsService', () => {
         service.addParticipants(USER_ID, 's1', { employeeIds: ['emp-3'] }),
       ).rejects.toThrow('validation_failed');
       expect(mockSessionsRepo.createParticipants).not.toHaveBeenCalled();
-      expect(mockInvoicesService.regenerateAmount).not.toHaveBeenCalled();
     });
 
-    it('removes a participant and lowers the amount by one share', async () => {
+    it('removes a participant without touching the invoice', async () => {
       mockSessionsRepo.findParticipantsBySessionId.mockResolvedValue([
         { id: 'p1', institutionParticipantId: 'emp-1', name: 'A' },
         { id: 'p2', institutionParticipantId: 'emp-2', name: 'B' },
         { id: 'p3', institutionParticipantId: 'emp-3', name: 'C' },
       ] as never);
-      mockInvoicesService.regenerateAmount.mockResolvedValue({
-        id: 'inv1',
-        amount: 100000,
-        status: 'UNPAID',
-      });
 
-      await service.removeParticipant(USER_ID, 's1', 'p3');
+      const result = await service.removeParticipant(USER_ID, 's1', 'p3');
 
       expect(mockSessionsRepo.deleteParticipant).toHaveBeenCalledWith('p3');
-      expect(mockInvoicesService.regenerateAmount).toHaveBeenCalledWith(
-        'inv1',
-        100000,
-      );
-      expect(mockInvoiceVaService.reprovision).toHaveBeenCalledWith(
-        'inv1',
-        'Sesi Rekrutmen 1',
-      );
-    });
-
-    it('returns the re-issued VA after a roster change', async () => {
-      mockSessionsRepo.findParticipantsBySessionId.mockResolvedValue([
-        { id: 'p1', institutionParticipantId: 'emp-1', name: 'A' },
-        { id: 'p2', institutionParticipantId: 'emp-2', name: 'B' },
-      ] as never);
-      mockParticipantsRepo.findManyByIds.mockResolvedValue([
-        { id: 'emp-3', name: 'C' },
-      ] as never);
-      mockInvoicesService.regenerateAmount.mockResolvedValue({
-        id: 'inv1',
-        amount: 150000,
-        status: 'UNPAID',
-      });
-      mockInvoiceVaService.reprovision.mockResolvedValue({
-        id: 'inv1',
-        number: 'INV-1',
-        amount: 150000,
-        status: 'UNPAID',
-        vaNumber: '880777',
-        vaBankCode: '014',
-        expiresAt: new Date('2026-09-01T02:00:00Z'),
-        sessionId: 's1',
-      });
-
-      const result = await service.addParticipants(USER_ID, 's1', {
-        employeeIds: ['emp-3'],
-      });
-
-      expect(result.vaNumber).toBe('880777');
-      expect(result.amount).toBe(150000);
-    });
-
-    it('leaves the VA voided when re-issuing fails, for recovery to retry', async () => {
-      mockSessionsRepo.findParticipantsBySessionId.mockResolvedValue([
-        { id: 'p1', institutionParticipantId: 'emp-1', name: 'A' },
-        { id: 'p2', institutionParticipantId: 'emp-2', name: 'B' },
-      ] as never);
-      mockParticipantsRepo.findManyByIds.mockResolvedValue([
-        { id: 'emp-3', name: 'C' },
-      ] as never);
-      mockInvoicesService.regenerateAmount.mockResolvedValue({
-        id: 'inv1',
-        amount: 150000,
-        status: 'UNPAID',
-        vaNumber: null,
-      });
-      mockInvoiceVaService.reprovision.mockRejectedValue(
-        new BadGatewayException('payment_gateway_failed'),
-      );
-
-      const result = await service.addParticipants(USER_ID, 's1', {
-        employeeIds: ['emp-3'],
-      });
-
-      expect(result.vaNumber).toBeNull();
-      expect(result.amount).toBe(150000);
+      expect(mockInvoicesService.regenerateAmount).not.toHaveBeenCalled();
+      expect(result.amount).toBe(500000);
     });
 
     it('swaps the seat employee without changing the amount', async () => {
@@ -572,21 +520,15 @@ describe('InstansiSessionsService', () => {
       expect(mockSessionsRepo.resetParticipantToken).not.toHaveBeenCalled();
     });
 
-    it('rejects every edit with 409 batch_locked once the invoice is PAID', async () => {
-      mockInvoicesService.findBySessionId.mockResolvedValue({
-        id: 'inv1',
-        status: 'PAID',
-      });
+    it('404s when the batch belongs to another institution', async () => {
+      mockSessionsRepo.findById.mockResolvedValue({
+        ...batchSession,
+        institutionId: 'other-inst',
+      } as never);
 
       await expect(
         service.addParticipants(USER_ID, 's1', { employeeIds: ['emp-3'] }),
-      ).rejects.toThrow('batch_locked');
-      await expect(
-        service.swapParticipant(USER_ID, 's1', 'p1', { employeeId: 'emp-9' }),
-      ).rejects.toThrow('batch_locked');
-      await expect(
-        service.removeParticipant(USER_ID, 's1', 'p1'),
-      ).rejects.toThrow('batch_locked');
+      ).rejects.toThrow(NotFoundException);
       expect(mockSessionsRepo.createParticipants).not.toHaveBeenCalled();
     });
   });
