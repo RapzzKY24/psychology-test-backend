@@ -18,6 +18,7 @@ import type {
 } from '../repository/sessions.repository';
 import type { CreateSessionDto } from '../dto/create-session.dto';
 import type { JoinSessionDto } from '../dto/join-session.dto';
+import type { UpdateSessionDto } from '../dto/update-session.dto';
 import type { TestSession } from '../../../generated/prisma/client';
 import type { PaginatedResponse } from '../../../common/interfaces/api-response.interface';
 import { generateInviteToken } from '../utils/generate-invite-token';
@@ -148,6 +149,12 @@ export class SessionsService {
     // Idempotent close — mirrors the idempotent-complete pattern in this feature.
     if (session.status === 'CLOSED') return session;
     return this.repo.updateStatus(id, 'CLOSED');
+  }
+
+  async update(id: string, dto: UpdateSessionDto): Promise<TestSession> {
+    const session = await this.repo.findById(id);
+    if (!session) throw new NotFoundException('Session not found');
+    return this.repo.update(id, { title: dto.title, expiresAt: dto.expiresAt });
   }
 
   async join(
