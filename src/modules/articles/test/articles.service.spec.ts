@@ -104,6 +104,16 @@ describe('ArticlesService', () => {
         }),
       );
     });
+
+    it('list rows omit the rich-text content', async () => {
+      mockRepo.findMany.mockResolvedValue({
+        data: [makeArticle({ status: 'PUBLISHED' })],
+        total: 1,
+      });
+      const result = await service.findManyPublic({ page: 1, limit: 10 });
+      expect(result.data[0]).not.toHaveProperty('content');
+      expect(result.data[0]).toHaveProperty('slug', 'artikel-1');
+    });
   });
 
   describe('findBySlugPublic', () => {

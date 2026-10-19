@@ -13,8 +13,18 @@ import type { ArticlesRepository } from '../repository/articles.repository';
 import type { CreateArticleDto } from '../dto/create-article.dto';
 import type { UpdateArticleDto } from '../dto/update-article.dto';
 import type { QueryArticleDto } from '../dto/query-article.dto';
-import { toAdminArticleDto, toPublicArticleDto } from '../dto/article.dto';
-import type { AdminArticleDto, PublicArticleDto } from '../dto/article.dto';
+import {
+  toAdminArticleDto,
+  toAdminArticleListItemDto,
+  toPublicArticleDto,
+  toPublicArticleListItemDto,
+} from '../dto/article.dto';
+import type {
+  AdminArticleDto,
+  AdminArticleListItemDto,
+  PublicArticleDto,
+  PublicArticleListItemDto,
+} from '../dto/article.dto';
 import type { Prisma } from '../../../generated/prisma/client';
 import type { PaginatedResponse } from '../../../common/interfaces/api-response.interface';
 
@@ -62,7 +72,7 @@ export class ArticlesService {
 
   async findManyAdmin(
     query: QueryArticleDto,
-  ): Promise<PaginatedResponse<AdminArticleDto>> {
+  ): Promise<PaginatedResponse<AdminArticleListItemDto>> {
     const where = this.buildWhere(query, {});
     if (query.status) where.status = query.status;
     const skip = (query.page - 1) * query.limit;
@@ -72,7 +82,7 @@ export class ArticlesService {
       where,
     });
     return {
-      data: data.map(toAdminArticleDto),
+      data: data.map(toAdminArticleListItemDto),
       meta: {
         page: query.page,
         limit: query.limit,
@@ -131,11 +141,18 @@ export class ArticlesService {
     const article = await this.repo.findById(id);
     if (!article) throw new NotFoundException('Article not found');
     await this.repo.delete(id);
+    if (article.coverPath) {
+      const dir = this.getUploadDir();
+      const full = path.resolve(article.coverPath);
+      if (full.startsWith(`${dir}${path.sep}`)) {
+        await fs.promises.unlink(full).catch(() => {});
+      }
+    }
   }
 
   async findManyPublic(
     query: QueryArticleDto,
-  ): Promise<PaginatedResponse<PublicArticleDto>> {
+  ): Promise<PaginatedResponse<PublicArticleListItemDto>> {
     const where = this.buildWhere(query, { status: 'PUBLISHED' });
     const skip = (query.page - 1) * query.limit;
     const { data, total } = await this.repo.findMany({
@@ -145,7 +162,7 @@ export class ArticlesService {
       orderBy: { publishedAt: 'desc' },
     });
     return {
-      data: data.map(toPublicArticleDto),
+      data: data.map(toPublicArticleListItemDto),
       meta: {
         page: query.page,
         limit: query.limit,

@@ -21,7 +21,10 @@ import { UpdateArticleSchema } from '../dto/update-article.dto';
 import type { UpdateArticleDto } from '../dto/update-article.dto';
 import { QueryArticleSchema } from '../dto/query-article.dto';
 import type { QueryArticleDto } from '../dto/query-article.dto';
-import type { AdminArticleDto } from '../dto/article.dto';
+import type {
+  AdminArticleDto,
+  AdminArticleListItemDto,
+} from '../dto/article.dto';
 import { ArticlesService } from '../service/articles.service';
 import { validateArticleImageFile } from '../utils/validate-article-image-file';
 import type {
@@ -47,7 +50,7 @@ export class ArticlesController {
   @Get()
   async findMany(
     @Query(new ZodValidationPipe(QueryArticleSchema)) query: QueryArticleDto,
-  ): Promise<PaginatedResponse<AdminArticleDto>> {
+  ): Promise<PaginatedResponse<AdminArticleListItemDto>> {
     return this.articlesService.findManyAdmin(query);
   }
 

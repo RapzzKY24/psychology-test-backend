@@ -3,7 +3,10 @@ import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
 import { QueryArticleSchema } from '../dto/query-article.dto';
 import type { QueryArticleDto } from '../dto/query-article.dto';
-import type { PublicArticleDto } from '../dto/article.dto';
+import type {
+  PublicArticleDto,
+  PublicArticleListItemDto,
+} from '../dto/article.dto';
 import { ArticlesService } from '../service/articles.service';
 import type {
   ApiResponse,
@@ -20,7 +23,7 @@ export class PublicArticlesController {
   @Get()
   async findMany(
     @Query(new ZodValidationPipe(QueryArticleSchema)) query: QueryArticleDto,
-  ): Promise<PaginatedResponse<PublicArticleDto>> {
+  ): Promise<PaginatedResponse<PublicArticleListItemDto>> {
     return this.articlesService.findManyPublic(query);
   }
 
