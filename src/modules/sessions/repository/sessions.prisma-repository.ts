@@ -237,6 +237,19 @@ export class PrismaSessionsRepository implements SessionsRepository {
     });
   }
 
+  update(
+    id: string,
+    data: { title?: string; expiresAt?: Date },
+  ): Promise<TestSession> {
+    return this.prisma.testSession.update({
+      where: { id },
+      data: {
+        ...(data.title !== undefined ? { title: data.title } : {}),
+        ...(data.expiresAt !== undefined ? { expiresAt: data.expiresAt } : {}),
+      },
+    });
+  }
+
   countParticipants(sessionId: string): Promise<number> {
     return this.prisma.sessionParticipant.count({ where: { sessionId } });
   }

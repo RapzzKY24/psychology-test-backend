@@ -43,6 +43,7 @@ describe('SessionsService', () => {
       findInstitutionById: jest.fn(),
       createWithTests: jest.fn(),
       updateStatus: jest.fn(),
+      update: jest.fn(),
       findSessionTestsBySessionId: jest.fn(),
       findParticipantByTokenHash: jest.fn(),
       findParticipantsBySessionId: jest.fn(),
@@ -206,6 +207,42 @@ describe('SessionsService', () => {
       const result = await service.close('sess-1');
       expect(result.status).toBe('CLOSED');
       expect(mockRepo.updateStatus).toHaveBeenCalledWith('sess-1', 'CLOSED');
+    });
+  });
+
+  describe('update', () => {
+    it('should throw 404 when session missing', async () => {
+      mockRepo.findById.mockResolvedValue(null);
+      await expect(service.update('missing', { title: 'X' })).rejects.toThrow(
+        'Session not found',
+      );
+      expect(mockRepo.update).not.toHaveBeenCalled();
+    });
+
+    it('should update only the title when expiresAt is omitted', async () => {
+      mockRepo.findById.mockResolvedValue({ id: 'sess-1' } as any);
+      mockRepo.update.mockResolvedValue({ id: 'sess-1', title: 'Baru' } as any);
+
+      const result = await service.update('sess-1', { title: 'Baru' });
+
+      expect(mockRepo.update).toHaveBeenCalledWith('sess-1', {
+        title: 'Baru',
+        expiresAt: undefined,
+      });
+      expect(result.title).toBe('Baru');
+    });
+
+    it('should update only the expiry when title is omitted', async () => {
+      const expiresAt = new Date(Date.now() + 86_400_000);
+      mockRepo.findById.mockResolvedValue({ id: 'sess-1' } as any);
+      mockRepo.update.mockResolvedValue({ id: 'sess-1', expiresAt } as any);
+
+      await service.update('sess-1', { expiresAt });
+
+      expect(mockRepo.update).toHaveBeenCalledWith('sess-1', {
+        title: undefined,
+        expiresAt,
+      });
     });
   });
 

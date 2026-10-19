@@ -104,6 +104,11 @@ export interface SessionsRepository {
   findInstitutionById(id: string): Promise<{ id: string } | null>;
   createWithTests(params: CreateSessionParams): Promise<TestSession>;
   updateStatus(id: string, status: 'ACTIVE' | 'CLOSED'): Promise<TestSession>;
+  /** Partial admin edit of a session's title / expiry. */
+  update(
+    id: string,
+    data: { title?: string; expiresAt?: Date },
+  ): Promise<TestSession>;
   findSessionTestsBySessionId(sessionId: string): Promise<SessionTestSummary[]>;
   findParticipantsBySessionId(sessionId: string): Promise<SessionParticipant[]>;
   findAttemptsByParticipantId(
