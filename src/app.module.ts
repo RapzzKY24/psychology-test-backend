@@ -10,6 +10,7 @@ import { auth } from './modules/auth/auth';
 import { AdminModule } from './modules/admin/admin.module';
 import { PsychologistModule } from './modules/psychologist/psychologist.module';
 import { TestsModule } from './modules/tests/tests.module';
+import { ArticlesModule } from './modules/articles/articles.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { InstitutionsModule } from './modules/institutions/institutions.module';
 import { InstansiModule } from './modules/instansi/instansi.module';
@@ -31,6 +32,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
     AdminModule,
     PsychologistModule,
     TestsModule,
+    ArticlesModule,
     ReviewsModule,
     InstitutionsModule,
     InstansiModule,
