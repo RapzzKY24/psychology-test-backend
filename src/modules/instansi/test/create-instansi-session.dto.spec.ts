@@ -1,19 +1,30 @@
 import { CreateInstansiSessionSchema } from '../dto/create-instansi-session.dto';
 
 const valid = {
-  title: 'Sesi Rekrutmen 1',
   testIds: ['00000000-0000-4000-8000-000000000001'],
-  employeeIds: [
-    '00000000-0000-4000-8000-000000000011',
-    '00000000-0000-4000-8000-000000000012',
-  ],
   slotLimit: 10,
-  expiresAt: new Date(Date.now() + 3600_000),
 };
 
 describe('CreateInstansiSessionSchema', () => {
-  it('accepts a valid payload', () => {
+  it('accepts a minimal payload (tests + slotLimit only)', () => {
     expect(CreateInstansiSessionSchema.safeParse(valid).success).toBe(true);
+  });
+
+  it('defaults employeeIds to an empty roster', () => {
+    const result = CreateInstansiSessionSchema.safeParse(valid);
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.data.employeeIds).toEqual([]);
+  });
+
+  it('accepts an explicit employee roster', () => {
+    const result = CreateInstansiSessionSchema.safeParse({
+      ...valid,
+      employeeIds: [
+        '00000000-0000-4000-8000-000000000011',
+        '00000000-0000-4000-8000-000000000012',
+      ],
+    });
+    expect(result.success).toBe(true);
   });
 
   it('rejects duplicate employeeIds', () => {
@@ -45,19 +56,27 @@ describe('CreateInstansiSessionSchema', () => {
     expect(result.success).toBe(false);
   });
 
-  it('rejects a past expiresAt', () => {
-    expect(
-      CreateInstansiSessionSchema.safeParse({
-        ...valid,
-        expiresAt: new Date(Date.now() - 1000),
-      }).success,
-    ).toBe(false);
-  });
-
   it('rejects non-uuid ids', () => {
     expect(
       CreateInstansiSessionSchema.safeParse({ ...valid, testIds: ['test-1'] })
         .success,
+    ).toBe(false);
+  });
+
+  it('rejects a non-positive slotLimit', () => {
+    expect(
+      CreateInstansiSessionSchema.safeParse({ ...valid, slotLimit: 0 }).success,
+    ).toBe(false);
+  });
+
+  it('rejects instansi-supplied title/expiresAt/pin (system-filled)', () => {
+    expect(
+      CreateInstansiSessionSchema.safeParse({
+        ...valid,
+        title: 'Sesi Rekrutmen',
+        expiresAt: new Date(Date.now() + 3600_000),
+        pin: '1234',
+      }).success,
     ).toBe(false);
   });
 });

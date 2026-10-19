@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return */
-import { ConflictException } from '@nestjs/common';
 import { Prisma } from '../../../generated/prisma/client';
 
 // better-auth/crypto is ESM-only; mock before the service import.

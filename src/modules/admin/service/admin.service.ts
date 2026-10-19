@@ -173,7 +173,13 @@ export class AdminService {
       // Race: two concurrent creates passing the pre-checks — the DB
       // unique constraint wins; map back to 409 instead of 500.
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        const target = String(error.meta?.target ?? '');
+        const rawTarget = error.meta?.target;
+        const target =
+          typeof rawTarget === 'string'
+            ? rawTarget
+            : Array.isArray(rawTarget)
+              ? rawTarget.join(',')
+              : '';
         if (error.code === 'P2002' && target.includes('nik')) {
           throw new ConflictException('duplicate_nik');
         }

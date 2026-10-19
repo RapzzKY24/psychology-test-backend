@@ -112,7 +112,7 @@ export class PrismaReviewsRepository implements ReviewsRepository {
         patternCode: string;
         scores: unknown;
         correctedPatternCode: string | null;
-        correctedScores: unknown | null;
+        correctedScores: unknown;
       };
       const sessionInst = attempt.session.institution?.name?.trim() || null;
       const participantInst =
