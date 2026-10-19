@@ -9,6 +9,8 @@ describe('InstansiSessionsService', () => {
   let mockSessionsRepo: jest.Mocked<SessionsRepository>;
   let mockParticipantsRepo: jest.Mocked<InstansiParticipantsRepository>;
   let mockTestsRepo: { findMany: jest.Mock };
+  let mockInstitutionsRepo: { findByOwnerUserId: jest.Mock };
+  let mockConfig: { get: jest.Mock };
   let mockParticipantsService: { resolveInstitutionId: jest.Mock };
   let mockSessionsService: { create: jest.Mock; close: jest.Mock };
   let mockInvoicesService: {
@@ -24,13 +26,11 @@ describe('InstansiSessionsService', () => {
 
   const USER_ID = 'user-1';
   const INSTITUTION_ID = 'inst-1';
+  const INSTITUTION_NAME = 'PT Contoh Sejahtera';
   const dto = {
-    title: 'Sesi Rekrutmen 1',
     testIds: ['test-1'],
-    employeeIds: ['emp-1', 'emp-2'],
     slotLimit: 10,
-    expiresAt: new Date(Date.now() + 3600_000),
-    pin: undefined,
+    employeeIds: ['emp-1', 'emp-2'],
   };
 
   const employees = [
@@ -76,6 +76,12 @@ describe('InstansiSessionsService', () => {
     };
     mockParticipantsService = { resolveInstitutionId: jest.fn() };
     mockSessionsService = { create: jest.fn(), close: jest.fn() };
+    mockInstitutionsRepo = {
+      findByOwnerUserId: jest
+        .fn()
+        .mockResolvedValue({ id: INSTITUTION_ID, name: INSTITUTION_NAME }),
+    };
+    mockConfig = { get: jest.fn().mockReturnValue(30) };
     mockInvoicesService = {
       createForSession: jest.fn(),
       findBySessionId: jest.fn(),
@@ -88,7 +94,7 @@ describe('InstansiSessionsService', () => {
     };
     mockTestsRepo = {
       findMany: jest.fn().mockResolvedValue({
-        data: [{ slug: 'cpmi', price: 50000 }],
+        data: [{ id: 'test-1', slug: 'cpmi', name: 'CPMI', price: 50000 }],
         total: 1,
       }),
     };
@@ -99,39 +105,42 @@ describe('InstansiSessionsService', () => {
       mockSessionsRepo,
       mockParticipantsRepo,
       mockTestsRepo as never,
+      mockInstitutionsRepo as never,
       mockParticipantsService as never,
       mockSessionsService as never,
       mockInvoicesService as never,
       mockInvoiceVaService as never,
+      mockConfig as never,
     );
   });
 
   describe('create', () => {
-    it('creates a PENDING_PAYMENT ROSTER session + invoice scoped to the caller institution', async () => {
+    const issuedExpiry = new Date('2026-11-17T00:00:00Z');
+
+    it('creates a PENDING_PAYMENT batch + invoice billed per slot, roster from employees', async () => {
       mockParticipantsRepo.findManyByIds.mockResolvedValue(employees as never);
       mockSessionsService.create.mockResolvedValue({
         id: 's1',
-        expiresAt: dto.expiresAt,
+        expiresAt: issuedExpiry,
       });
       mockInvoicesService.createForSession.mockResolvedValue({
         id: 'inv1',
         number: 'INV-2026-0001',
-        amount: 100000,
+        amount: 500000,
         status: 'UNPAID',
         vaNumber: null,
         vaBankCode: null,
-        expiresAt: dto.expiresAt,
+        expiresAt: issuedExpiry,
       });
 
       const result = await service.create(USER_ID, dto);
 
-      expect(result.session).toEqual({ id: 's1', expiresAt: dto.expiresAt });
       expect(result.invoice.id).toBe('inv1');
       expect(mockSessionsService.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          title: dto.title,
           institutionId: INSTITUTION_ID,
           testIds: dto.testIds,
+          slotLimit: dto.slotLimit,
           status: 'PENDING_PAYMENT',
           roster: [
             { name: 'Budi Santoso', institutionParticipantId: 'emp-1' },
@@ -140,18 +149,60 @@ describe('InstansiSessionsService', () => {
         }),
         USER_ID,
       );
-      // 50000 per test × 2 employees
+      // 50000 per test × 10 slots bought up front
       expect(mockInvoicesService.createForSession).toHaveBeenCalledWith(
         expect.objectContaining({
           institutionId: INSTITUTION_ID,
           sessionId: 's1',
-          amount: 100000,
+          amount: 500000,
         }),
       );
-      expect(mockInvoiceVaService.provision).toHaveBeenCalledWith(
-        'inv1',
-        dto.title,
+      const provisionTitle = mockInvoiceVaService.provision.mock
+        .calls[0] as unknown as [string, string];
+      expect(provisionTitle[1]).toContain('CPMI');
+      expect(provisionTitle[1]).toContain(INSTITUTION_NAME);
+    });
+
+    it('allows an empty roster (names are filled later from the dashboard)', async () => {
+      mockParticipantsRepo.findManyByIds.mockResolvedValue([] as never);
+      mockSessionsService.create.mockResolvedValue({ id: 's1' });
+      mockInvoicesService.createForSession.mockResolvedValue({ id: 'inv1' });
+
+      await service.create(USER_ID, {
+        testIds: ['test-1'],
+        slotLimit: 10,
+        employeeIds: [],
+      });
+
+      expect(mockSessionsService.create).toHaveBeenCalledWith(
+        expect.objectContaining({ roster: [] }),
+        USER_ID,
       );
+      expect(mockInvoicesService.createForSession).toHaveBeenCalledWith(
+        expect.objectContaining({ amount: 500000 }),
+      );
+    });
+
+    it('fills a default title and a future expiry from the configured TTL', async () => {
+      mockParticipantsRepo.findManyByIds.mockResolvedValue([] as never);
+      let createArgs: { title: string; expiresAt: Date } | undefined;
+      mockSessionsService.create.mockImplementation(
+        (args: { title: string; expiresAt: Date }) => {
+          createArgs = args;
+          return Promise.resolve({ id: 's1' });
+        },
+      );
+      mockInvoicesService.createForSession.mockResolvedValue({ id: 'inv1' });
+
+      const before = Date.now();
+      await service.create(USER_ID, { ...dto, employeeIds: [] });
+
+      expect(createArgs?.title).toContain('CPMI');
+      expect(createArgs?.title).toContain(INSTITUTION_NAME);
+      const ttlMs = 30 * 24 * 60 * 60 * 1000;
+      const expiresMs = (createArgs as { expiresAt: Date }).expiresAt.getTime();
+      expect(expiresMs).toBeGreaterThanOrEqual(before + ttlMs - 5000);
+      expect(expiresMs).toBeLessThanOrEqual(Date.now() + ttlMs + 5000);
     });
 
     it('fails fast with 503 when no VA gateway is configured', async () => {
@@ -164,12 +215,12 @@ describe('InstansiSessionsService', () => {
       expect(mockInvoicesService.createForSession).not.toHaveBeenCalled();
     });
 
-    it('prices the batch as the sum of test prices times the seat count', async () => {
+    it('prices the batch as the sum of test prices times the slot count', async () => {
       mockParticipantsRepo.findManyByIds.mockResolvedValue(employees as never);
       mockTestsRepo.findMany.mockResolvedValue({
         data: [
-          { slug: 'cpmi', price: 50000 },
-          { slug: 'other', price: 25000 },
+          { id: 'test-1', slug: 'cpmi', name: 'CPMI', price: 50000 },
+          { id: 'test-2', slug: 'other', name: 'Other', price: 25000 },
         ],
         total: 2,
       });
@@ -181,8 +232,9 @@ describe('InstansiSessionsService', () => {
         testIds: ['test-1', 'test-2'],
       });
 
+      // (50000 + 25000) × 10 slots
       expect(mockInvoicesService.createForSession).toHaveBeenCalledWith(
-        expect.objectContaining({ amount: 150000 }),
+        expect.objectContaining({ amount: 750000 }),
       );
     });
 
@@ -199,7 +251,16 @@ describe('InstansiSessionsService', () => {
         employees[0],
       ] as never);
 
-      await expect(service.create(USER_ID, dto as never)).rejects.toThrow(
+      await expect(service.create(USER_ID, dto)).rejects.toThrow(
+        NotFoundException,
+      );
+      expect(mockSessionsService.create).not.toHaveBeenCalled();
+    });
+
+    it('throws 404 when the caller has no institution', async () => {
+      mockInstitutionsRepo.findByOwnerUserId.mockResolvedValue(null);
+
+      await expect(service.create(USER_ID, dto)).rejects.toThrow(
         NotFoundException,
       );
       expect(mockSessionsService.create).not.toHaveBeenCalled();

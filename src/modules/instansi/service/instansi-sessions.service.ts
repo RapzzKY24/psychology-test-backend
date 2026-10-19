@@ -7,6 +7,7 @@ import {
   ServiceUnavailableException,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { SESSIONS_REPOSITORY } from '../../sessions/repository/sessions.repository';
 import type {
   SessionsRepository,
@@ -15,6 +16,8 @@ import type {
 import { SessionsService } from '../../sessions/service/sessions.service';
 import { TESTS_REPOSITORY } from '../../tests/repository/tests.repository';
 import type { TestsRepository } from '../../tests/repository/tests.repository';
+import { INSTITUTIONS_REPOSITORY } from '../../institutions/repository/institutions.repository';
+import type { InstitutionsRepository } from '../../institutions/repository/institutions.repository';
 import { INSTANSI_PARTICIPANTS_REPOSITORY } from '../repository/instansi-participants.repository';
 import type { InstansiParticipantsRepository } from '../repository/instansi-participants.repository';
 import { InstansiParticipantsService } from './instansi-participants.service';
@@ -27,8 +30,13 @@ import {
   toInstansiInvoice,
   type InstansiInvoiceDto,
 } from '../dto/instansi-invoice.dto';
+import { buildDefaultSessionTitle } from '../utils/build-default-session-title';
 import type { PaginatedResponse } from '../../../common/interfaces/api-response.interface';
-import type { Invoice, TestSession } from '../../../generated/prisma/client';
+import type {
+  Invoice,
+  Test,
+  TestSession,
+} from '../../../generated/prisma/client';
 
 export interface InstansiBatchCreateResult {
   session: TestSession;
@@ -61,10 +69,13 @@ export class InstansiSessionsService {
     private readonly participantsRepo: InstansiParticipantsRepository,
     @Inject(TESTS_REPOSITORY)
     private readonly testsRepo: TestsRepository,
+    @Inject(INSTITUTIONS_REPOSITORY)
+    private readonly institutionsRepo: InstitutionsRepository,
     private readonly participantsService: InstansiParticipantsService,
     private readonly sessionsService: SessionsService,
     private readonly invoicesService: InvoicesService,
     private readonly invoiceVaService: InvoiceVaService,
+    private readonly config: ConfigService,
   ) {}
 
   async create(
@@ -76,8 +87,9 @@ export class InstansiSessionsService {
       throw new ServiceUnavailableException('payment_gateway_unavailable');
     }
 
-    const institutionId =
-      await this.participantsService.resolveInstitutionId(userId);
+    const institution = await this.institutionsRepo.findByOwnerUserId(userId);
+    if (!institution) throw new NotFoundException('Institution not found');
+    const institutionId = institution.id;
 
     // WPT hidden from instansi — only CPMI (and existing non-WPT tests) allowed
     const tests = await this.testsRepo.findMany({
@@ -111,15 +123,26 @@ export class InstansiSessionsService {
     }
     const byId = new Map(employees.map((e) => [e.id, e]));
 
+    // Title & expiry are system-filled at checkout (owner decisions #9): the
+    // institution only chooses tests + how many slots. Admin tidies later.
+    const now = new Date();
+    const expiresAt = new Date(
+      now.getTime() + this.sessionDefaultTtlDays() * 24 * 60 * 60 * 1000,
+    );
+    const title = buildDefaultSessionTitle(
+      this.orderedTestNames(tests.data, dto.testIds),
+      institution.name,
+      now,
+    );
+
     const session = await this.sessionsService.create(
       {
-        title: dto.title,
+        title,
         institutionId,
         testIds: dto.testIds,
         slotLimit: dto.slotLimit,
-        expiresAt: dto.expiresAt,
+        expiresAt,
         status: 'PENDING_PAYMENT',
-        pin: dto.pin,
         roster: dto.employeeIds.map((id) => {
           const employee = byId.get(id);
           if (!employee) throw new NotFoundException('Employee not found');
@@ -132,11 +155,12 @@ export class InstansiSessionsService {
       userId,
     );
 
-    // One seat per employee, each seat pays the sum of the batch's test prices.
+    // Prepaid slots: the batch is billed for every slot bought up front
+    // (Σ test price × slotLimit), independent of how many names are filled.
     const pricePerSeat = tests.data.reduce((sum, t) => sum + t.price, 0);
     let invoice = await this.invoicesService.createForSession({
       institutionId,
-      amount: pricePerSeat * employees.length,
+      amount: pricePerSeat * dto.slotLimit,
       sessionId: session.id,
       expiresAt: session.expiresAt,
     });
@@ -146,7 +170,7 @@ export class InstansiSessionsService {
     try {
       const provisioned = await this.invoiceVaService.provision(
         invoice.id,
-        dto.title,
+        title,
       );
       if (provisioned) invoice = provisioned;
     } catch (error) {
@@ -406,5 +430,17 @@ export class InstansiSessionsService {
     });
     const pricePerSeat = tests.data.reduce((sum, t) => sum + t.price, 0);
     return { session, invoice, pricePerSeat };
+  }
+
+  private sessionDefaultTtlDays(): number {
+    return this.config.get<number>('app.sessionDefaultTtlDays', 30);
+  }
+
+  /** Test names in the order the institution picked them (for the title). */
+  private orderedTestNames(tests: Test[], orderedIds: string[]): string[] {
+    const byId = new Map(tests.map((t) => [t.id, t]));
+    return orderedIds
+      .map((id) => byId.get(id)?.name)
+      .filter((name): name is string => Boolean(name));
   }
 }

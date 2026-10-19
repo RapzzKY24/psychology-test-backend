@@ -2,6 +2,10 @@ import { registerAs } from '@nestjs/config';
 
 export default registerAs('app', () => ({
   paymentTtlMin: parseInt(process.env.PAYMENT_TTL_MIN ?? '60', 10),
+  sessionDefaultTtlDays: parseInt(
+    process.env.SESSION_DEFAULT_TTL_DAYS ?? '30',
+    10,
+  ),
   uploadDir: process.env.UPLOAD_DIR ?? './uploads',
   paymentProvider: process.env.PAYMENT_PROVIDER ?? 'manual',
   gdcStub: process.env.GDC_STUB === 'true',

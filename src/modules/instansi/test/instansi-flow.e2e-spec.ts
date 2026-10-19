@@ -49,6 +49,7 @@ describe('Instansi flow (integration, DB real)', () => {
       sessionsRepo,
       participantsRepo,
       testsRepo,
+      institutionsRepo,
       participantsService,
       new SessionsService(sessionsRepo),
       invoicesService,
@@ -56,6 +57,7 @@ describe('Instansi flow (integration, DB real)', () => {
         isEnabled: () => true,
         provision: () => Promise.resolve(null),
       } as never,
+      { get: (_key: string, fallback: unknown) => fallback } as never,
     );
     publicService = new SessionsPublicService(sessionsRepo);
     overviewService = new InstansiOverviewService(
@@ -146,20 +148,18 @@ describe('Instansi flow (integration, DB real)', () => {
       },
     });
 
-    // When: HR creates a session from employees
+    // When: HR buys 10 slots for the test (names filled at checkout)
     const { session, invoice } = await sessionsService.create(userId, {
-      title: `${tag} Sesi 1`,
       testIds: [testId],
       employeeIds: [emp1.id, emp2.id],
       slotLimit: 10,
-      expiresAt: new Date(Date.now() + 3600_000),
     });
     sessionId = session.id;
     expect(session.joinMode).toBe('ROSTER');
     expect(session.institutionId).toBe(institutionId);
     expect(session.status).toBe('PENDING_PAYMENT');
-    // 100000 per test × 2 employees
-    expect(invoice.amount).toBe(200000);
+    // 100000 per test × 10 slots bought up front
+    expect(invoice.amount).toBe(1000000);
     expect(invoice.vaNumber).toBeNull();
 
     // When: the batch invoice settles, the session activates
