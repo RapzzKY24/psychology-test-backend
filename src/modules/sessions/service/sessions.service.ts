@@ -92,7 +92,12 @@ export class SessionsService {
           slotLimit: dto.slotLimit,
           expiresAt: dto.expiresAt,
           status: dto.status,
-          joinMode: dto.roster && dto.roster.length > 0 ? 'ROSTER' : 'OPEN',
+          // Institution batches always use the roster picker — even when bought
+          // without names (slots first, names later).
+          joinMode:
+            dto.institutionId || (dto.roster && dto.roster.length > 0)
+              ? 'ROSTER'
+              : 'OPEN',
           roster: (dto.roster ?? []).map((r) => ({
             name: r.name,
             candidateNumber: r.candidateNumber ?? null,
