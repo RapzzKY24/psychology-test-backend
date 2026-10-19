@@ -1,6 +1,5 @@
 import {
   BadGatewayException,
-  ConflictException,
   Injectable,
   Inject,
   NotFoundException,
@@ -234,10 +233,7 @@ export class InstansiSessionsService {
     sessionId: string,
     dto: AddBatchParticipantsDto,
   ): Promise<InstansiInvoiceDto> {
-    const { session, invoice, pricePerSeat } = await this.loadEditableBatch(
-      userId,
-      sessionId,
-    );
+    const { session, invoice } = await this.loadBatch(userId, sessionId);
     const institutionId = session.institutionId;
     if (!institutionId) throw new NotFoundException('Session not found');
 
@@ -277,11 +273,8 @@ export class InstansiSessionsService {
         institutionParticipantId: e.id,
       })),
     );
-    const updated = await this.invoicesService.regenerateAmount(
-      invoice.id,
-      pricePerSeat * (existing.length + employees.length),
-    );
-    return toInstansiInvoice(await this.syncInvoiceVa(updated, session.title));
+    // Roster is administrative — the prepaid invoice/VA never changes.
+    return toInstansiInvoice(invoice);
   }
 
   async swapParticipant(
@@ -290,10 +283,7 @@ export class InstansiSessionsService {
     participantId: string,
     dto: SwapBatchParticipantDto,
   ): Promise<InstansiInvoiceDto> {
-    const { session, invoice } = await this.loadEditableBatch(
-      userId,
-      sessionId,
-    );
+    const { session, invoice } = await this.loadBatch(userId, sessionId);
     const institutionId = session.institutionId;
     if (!institutionId) throw new NotFoundException('Session not found');
 
@@ -334,10 +324,7 @@ export class InstansiSessionsService {
     sessionId: string,
     participantId: string,
   ): Promise<InstansiInvoiceDto> {
-    const { session, invoice, pricePerSeat } = await this.loadEditableBatch(
-      userId,
-      sessionId,
-    );
+    const { session, invoice } = await this.loadBatch(userId, sessionId);
     const participants = await this.sessionsRepo.findParticipantsBySessionId(
       session.id,
     );
@@ -346,11 +333,8 @@ export class InstansiSessionsService {
     }
 
     await this.sessionsRepo.deleteParticipant(participantId);
-    const updated = await this.invoicesService.regenerateAmount(
-      invoice.id,
-      pricePerSeat * (participants.length - 1),
-    );
-    return toInstansiInvoice(await this.syncInvoiceVa(updated, session.title));
+    // Roster is administrative — the prepaid invoice/VA never changes.
+    return toInstansiInvoice(invoice);
   }
 
   async resetParticipant(
@@ -382,33 +366,14 @@ export class InstansiSessionsService {
   }
 
   /**
-   * Re-issue the VA after a roster change moved the amount (the repo voids the
-   * stale VA). Best-effort: on a gateway failure the VA stays null and the
-   * recovery pass (T12) provisions it with the current amount.
+   * The batch must belong to the caller's institution. Roster edits are free
+   * and administrative: the prepaid invoice/VA is never touched, so an invoice
+   * that is already PAID does not lock the roster (owner decision #2 / ADR-2).
    */
-  private async syncInvoiceVa(
-    invoice: Invoice,
-    title: string,
-  ): Promise<Invoice> {
-    if (!this.invoiceVaService.isEnabled()) return invoice;
-    try {
-      return (
-        (await this.invoiceVaService.reprovision(invoice.id, title)) ?? invoice
-      );
-    } catch (error) {
-      if (!(error instanceof BadGatewayException)) throw error;
-      return invoice;
-    }
-  }
-
-  /**
-   * The batch must belong to the caller's institution and its invoice must
-   * still be UNPAID — once paid the roster is frozen (`batch_locked`).
-   */
-  private async loadEditableBatch(
+  private async loadBatch(
     userId: string,
     sessionId: string,
-  ): Promise<{ session: TestSession; invoice: Invoice; pricePerSeat: number }> {
+  ): Promise<{ session: TestSession; invoice: Invoice }> {
     const institutionId =
       await this.participantsService.resolveInstitutionId(userId);
     const session = await this.sessionsRepo.findById(sessionId);
@@ -416,20 +381,8 @@ export class InstansiSessionsService {
       throw new NotFoundException('Session not found');
     }
     const invoice = await this.invoicesService.findBySessionId(session.id);
-    if (!invoice || invoice.status !== 'UNPAID') {
-      throw new ConflictException('batch_locked');
-    }
-
-    const sessionTests = await this.sessionsRepo.findSessionTestsBySessionId(
-      session.id,
-    );
-    const tests = await this.testsRepo.findMany({
-      skip: 0,
-      take: sessionTests.length,
-      where: { id: { in: sessionTests.map((st) => st.testId) } },
-    });
-    const pricePerSeat = tests.data.reduce((sum, t) => sum + t.price, 0);
-    return { session, invoice, pricePerSeat };
+    if (!invoice) throw new NotFoundException('Invoice not found');
+    return { session, invoice };
   }
 
   private sessionDefaultTtlDays(): number {
