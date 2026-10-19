@@ -22,7 +22,9 @@ export const ArticleBlockSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('image'),
     // Local uploads only — blocks can never point at external/JS URLs.
-    url: z.string().regex(/^\/uploads\/articles\/[a-f0-9-]+\.(png|jpg)$/),
+    url: z
+      .string()
+      .regex(/^\/api\/v1\/articles\/media\/[a-f0-9-]+\.(png|jpg)$/),
     caption: z.string().max(300).optional(),
   }),
 ]);

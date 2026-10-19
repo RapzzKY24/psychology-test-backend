@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/unbound-method */
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import { ArticlesService } from '../service/articles.service';
 import type { ArticlesRepository } from '../repository/articles.repository';
 import type { Article } from '../../../generated/prisma/client';
@@ -25,6 +28,7 @@ function makeArticle(over: Partial<Article> = {}): Article {
 describe('ArticlesService', () => {
   let service: ArticlesService;
   let mockRepo: jest.Mocked<ArticlesRepository>;
+  let uploadDir: string;
 
   beforeEach(() => {
     mockRepo = {
@@ -35,10 +39,15 @@ describe('ArticlesService', () => {
       update: jest.fn(),
       delete: jest.fn(),
     };
+    uploadDir = fs.mkdtempSync(path.join(os.tmpdir(), 'articles-'));
     const config = {
-      get: jest.fn().mockReturnValue('./uploads'),
+      get: jest.fn().mockReturnValue(uploadDir),
     } as unknown as ConfigService;
     service = new ArticlesService(mockRepo, config);
+  });
+
+  afterEach(() => {
+    fs.rmSync(uploadDir, { recursive: true, force: true });
   });
 
   describe('create', () => {
@@ -178,6 +187,37 @@ describe('ArticlesService', () => {
       await expect(
         service.update('a1', { slug: 'baru' }),
       ).rejects.toBeInstanceOf(ConflictException);
+    });
+  });
+
+  describe('images', () => {
+    const file = {
+      mimetype: 'image/png',
+      buffer: Buffer.from('fake'),
+    } as Express.Multer.File;
+
+    it('saveImage stores the file and returns a served media URL', async () => {
+      const { url } = await service.saveImage(file);
+      expect(url).toMatch(/^\/api\/v1\/articles\/media\/[a-f0-9-]+\.png$/);
+      const filename = url.split('/').pop() as string;
+      expect(fs.existsSync(path.join(uploadDir, 'articles', filename))).toBe(
+        true,
+      );
+    });
+
+    it('getMediaPath resolves a stored file', async () => {
+      const { url } = await service.saveImage(file);
+      const filename = url.split('/').pop() as string;
+      expect(() => service.getMediaPath(filename)).not.toThrow();
+    });
+
+    it('getMediaPath rejects path traversal and unknown files', () => {
+      expect(() => service.getMediaPath('../../etc/passwd')).toThrow(
+        NotFoundException,
+      );
+      expect(() => service.getMediaPath('missing.png')).toThrow(
+        NotFoundException,
+      );
     });
   });
 });

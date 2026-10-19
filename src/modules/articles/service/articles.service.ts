@@ -195,7 +195,21 @@ export class ArticlesService {
     const filename = `${randomUUID()}${ext}`;
     const filePath = path.join(dir, filename);
     await fs.promises.writeFile(filePath, file.buffer);
-    return { url: `/uploads/articles/${filename}` };
+    return { url: `/api/v1/articles/media/${filename}` };
+  }
+
+  /** Resolve an inline content image, jailed to the article upload dir. */
+  getMediaPath(filename: string): string {
+    const base = `${this.getUploadDir()}${path.sep}`;
+    const full = path.resolve(base, filename);
+    if (
+      !/^[a-f0-9-]+\.(png|jpg)$/.test(filename) ||
+      !full.startsWith(base) ||
+      !fs.existsSync(full)
+    ) {
+      throw new NotFoundException('media_not_found');
+    }
+    return full;
   }
 
   private resolveCoverPath(stored: string | null): string {

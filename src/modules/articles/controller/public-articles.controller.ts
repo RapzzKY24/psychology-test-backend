@@ -24,6 +24,21 @@ export class PublicArticlesController {
     return this.articlesService.findManyPublic(query);
   }
 
+  @Get('media/:filename')
+  streamMedia(@Param('filename') filename: string, @Res() res: Response): void {
+    const filePath = this.articlesService.getMediaPath(filename);
+    res.sendFile(filePath, (err: unknown) => {
+      if (err && !res.headersSent) {
+        const body: ErrorResponse = {
+          statusCode: HttpStatus.NOT_FOUND,
+          message: 'media_not_found',
+          error: 'NotFoundException',
+        };
+        res.status(HttpStatus.NOT_FOUND).json(body);
+      }
+    });
+  }
+
   @Get(':slug')
   async findOne(
     @Param('slug') slug: string,
