@@ -138,6 +138,23 @@ describe('SessionsService', () => {
         expect.objectContaining({ pinHash: 'hashed-pin' }),
       );
     });
+
+    it('should mark an institution batch ROSTER even when bought without names', async () => {
+      const institutionId = '22222222-2222-4222-8222-222222222222';
+      mockRepo.findTestsByIds.mockResolvedValue([
+        { id: '11111111-1111-4111-8111-111111111111', status: 'PUBLISHED' },
+      ]);
+      mockRepo.findInstitutionById.mockResolvedValue({
+        id: institutionId,
+      });
+      mockRepo.createWithTests.mockResolvedValue({ id: 'sess-3' } as any);
+
+      await service.create({ ...baseDto, institutionId, roster: [] }, adminId);
+
+      expect(mockRepo.createWithTests).toHaveBeenCalledWith(
+        expect.objectContaining({ joinMode: 'ROSTER' }),
+      );
+    });
   });
 
   describe('findDetail', () => {

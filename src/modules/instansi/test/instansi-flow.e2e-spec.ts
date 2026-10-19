@@ -148,10 +148,10 @@ describe('Instansi flow (integration, DB real)', () => {
       },
     });
 
-    // When: HR buys 10 slots for the test (names filled at checkout)
+    // When: HR buys 10 slots for the test — no names yet (one door: catalog)
     const { session, invoice } = await sessionsService.create(userId, {
       testIds: [testId],
-      employeeIds: [emp1.id, emp2.id],
+      employeeIds: [],
       slotLimit: 10,
     });
     sessionId = session.id;
@@ -161,6 +161,11 @@ describe('Instansi flow (integration, DB real)', () => {
     // 100000 per test × 10 slots bought up front
     expect(invoice.amount).toBe(1000000);
     expect(invoice.vaNumber).toBeNull();
+
+    const emptyRoster = await prisma.sessionParticipant.findMany({
+      where: { sessionId },
+    });
+    expect(emptyRoster).toHaveLength(0);
 
     // When: the batch invoice settles, the session activates
     const settlement = await invoicesService.confirmPaymentWithActivation(
@@ -172,6 +177,12 @@ describe('Instansi flow (integration, DB real)', () => {
       where: { id: sessionId },
     });
     expect(activated.status).toBe('ACTIVE');
+
+    // When: HR fills the names AFTER paying — roster edit never re-bills
+    const afterAdd = await sessionsService.addParticipants(userId, sessionId, {
+      employeeIds: [emp1.id, emp2.id],
+    });
+    expect(afterAdd.amount).toBe(1000000);
 
     const seats = await prisma.sessionParticipant.findMany({
       where: { sessionId },
