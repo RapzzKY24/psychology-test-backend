@@ -4,17 +4,16 @@ import { isoTimestamp } from '../utils/timestamp';
 import { signTransaction } from '../utils/signature-transaction';
 import {
   CreateVirtualAccountResponseSchema,
-  VaStatusResponseSchema,
-} from '../dto/gdc.dto';
+  VaInquiryResponseSchema,
+} from '../dto/doku.dto';
 import type {
   CreateVirtualAccountInput,
-  InquiryVaStatusInput,
-  VaStatusResponse,
-} from '../dto/gdc.dto';
-import { GdcApiError } from '../errors/gdc-api.error';
-import { GdcTokenProvider } from './gdc-token.provider';
-import { GDC_PATH_CREATE_VA, GDC_PATH_VA_STATUS } from '../constants/gdc';
-import type { GdcConfig } from './gdc.config';
+  InquiryVaInput,
+} from '../dto/doku.dto';
+import { DokuApiError } from '../errors/doku-api.error';
+import { DokuTokenProvider } from './doku-token.provider';
+import { DOKU_PATH_CREATE_VA, DOKU_PATH_VA_INQUIRY } from '../constants/doku';
+import type { DokuConfig } from './doku.config';
 
 export interface CreateVirtualAccountResult {
   virtualAccountNo: string;
@@ -22,15 +21,21 @@ export interface CreateVirtualAccountResult {
   referenceNo: string | null;
 }
 
+export interface InquiryVaResult {
+  virtualAccountNo: string;
+  paymentFlagStatus: string | null;
+  paidAmount: number | null;
+}
+
 @Injectable()
-export class GdcClient {
+export class DokuClient {
   constructor(
     private readonly config: ConfigService,
-    private readonly tokens: GdcTokenProvider,
+    private readonly tokens: DokuTokenProvider,
   ) {}
 
-  private get cfg(): GdcConfig {
-    return this.config.get<GdcConfig>('app.gdc')!;
+  private get cfg(): DokuConfig {
+    return this.config.get<DokuConfig>('app.doku')!;
   }
 
   /** HMAC-signed POST. `externalId` is caller-supplied so retries reuse it. */
@@ -39,7 +44,15 @@ export class GdcClient {
     body: unknown,
     externalId: string,
   ): Promise<unknown> {
-    const { baseUrl, partnerId, channelId, clientSecret } = this.cfg;
+    const { baseUrl, clientId, channelId, secretKey } = this.cfg;
+    if (!baseUrl || !clientId || !secretKey) {
+      throw new DokuApiError(
+        'request_failed',
+        'Doku credentials are not configured',
+        undefined,
+        path,
+      );
+    }
     const token = await this.tokens.getAccessToken();
     const payload = JSON.stringify(body);
     const timestamp = isoTimestamp();
@@ -49,7 +62,7 @@ export class GdcClient {
       tokenB2B: token,
       payload,
       timestamp,
-      clientSecret,
+      clientSecret: secretKey,
     });
     const response = await fetch(`${baseUrl}${path}`, {
       method: 'POST',
@@ -57,17 +70,17 @@ export class GdcClient {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
         'X-TIMESTAMP': timestamp,
-        'X-PARTNER-ID': partnerId,
+        'X-PARTNER-ID': clientId,
         'X-EXTERNAL-ID': externalId,
         'CHANNEL-ID': channelId,
-        'X-Signature': signature,
+        'X-SIGNATURE': signature,
       },
       body: payload,
     });
     if (!response.ok) {
-      throw new GdcApiError(
+      throw new DokuApiError(
         'request_failed',
-        `GDC request failed: ${path}`,
+        `Doku request failed: ${path}`,
         response.status,
         path,
       );
@@ -79,26 +92,15 @@ export class GdcClient {
     input: CreateVirtualAccountInput,
     externalId: string,
   ): Promise<CreateVirtualAccountResult> {
-    const body = {
-      virtualAccountName: input.virtualAccountName,
-      expiredDate: input.expiredDate,
-      trxId: input.trxId,
-      virtualAccountTrxType: input.virtualAccountTrxType,
-      totalAmount: input.totalAmount,
-      additionalInfo: {
-        accountNumber: input.accountNumber,
-        bankCode: input.bankCode,
-      },
-    };
     const result = CreateVirtualAccountResponseSchema.safeParse(
-      await this.signedPost(GDC_PATH_CREATE_VA, body, externalId),
+      await this.signedPost(DOKU_PATH_CREATE_VA, input, externalId),
     );
     if (!result.success) {
-      throw new GdcApiError(
+      throw new DokuApiError(
         'request_failed',
-        'Unexpected GDC create-va response',
+        'Unexpected Doku create-va response',
         undefined,
-        GDC_PATH_CREATE_VA,
+        DOKU_PATH_CREATE_VA,
       );
     }
     const { virtualAccountData } = result.data;
@@ -109,26 +111,30 @@ export class GdcClient {
     };
   }
 
-  async inquiryVaStatus(
-    input: InquiryVaStatusInput,
+  async inquiryVa(
+    input: InquiryVaInput,
     externalId: string,
-  ): Promise<VaStatusResponse['virtualAccountData']> {
-    const body = {
-      virtualAccountNo: input.virtualAccountNo,
-      paymentRequestId: input.paymentRequestId,
-      inquiryRequestId: '',
-    };
-    const result = VaStatusResponseSchema.safeParse(
-      await this.signedPost(GDC_PATH_VA_STATUS, body, externalId),
+  ): Promise<InquiryVaResult> {
+    const result = VaInquiryResponseSchema.safeParse(
+      await this.signedPost(DOKU_PATH_VA_INQUIRY, input, externalId),
     );
     if (!result.success) {
-      throw new GdcApiError(
+      throw new DokuApiError(
         'request_failed',
-        'Unexpected GDC va-status response',
+        'Unexpected Doku va-inquiry response',
         undefined,
-        GDC_PATH_VA_STATUS,
+        DOKU_PATH_VA_INQUIRY,
       );
     }
-    return result.data.virtualAccountData;
+    const data = result.data.virtualAccountData;
+    return {
+      virtualAccountNo: data?.virtualAccountNo ?? input.virtualAccountNo,
+      paymentFlagStatus: data?.paymentFlagStatus ?? null,
+      paidAmount: data?.paidAmount
+        ? Number(data.paidAmount.value)
+        : data?.totalAmount
+          ? Number(data.totalAmount.value)
+          : null,
+    };
   }
 }

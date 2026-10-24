@@ -3,8 +3,8 @@ import type { ConfigService } from '@nestjs/config';
 import { InvoiceVaService } from '../service/invoice-va.service';
 import type { InvoicesRepository } from '../repository/invoices.repository';
 import type { IdempotencyService } from '../../idempotency/service/idempotency.service';
-import { GdcApiError } from '../../gdc/errors/gdc-api.error';
-import { StubVaProvider } from '../../gdc/gateway/stub-va.provider';
+import { DokuApiError } from '../../doku/errors/doku-api.error';
+import { StubVaProvider } from '../../doku/gateway/stub-va.provider';
 
 describe('InvoiceVaService', () => {
   let service: InvoiceVaService;
@@ -67,21 +67,21 @@ describe('InvoiceVaService', () => {
   });
 
   describe('isEnabled', () => {
-    it('is true when GDC_STUB is on', () => {
+    it('is true when DOKU_STUB is on', () => {
       config.get.mockReturnValue(true);
       expect(service.isEnabled()).toBe(true);
     });
 
-    it('is true when the payment provider is gdc', () => {
+    it('is true when the payment provider is doku', () => {
       config.get.mockImplementation((key: string) =>
-        key === 'app.gdcStub' ? false : 'gdc',
+        key === 'app.doku.stub' ? false : 'doku',
       );
       expect(service.isEnabled()).toBe(true);
     });
 
-    it('is false when neither stub nor gdc is configured', () => {
+    it('is false when neither stub nor doku is configured', () => {
       config.get.mockImplementation((key: string) =>
-        key === 'app.gdcStub' ? false : 'manual',
+        key === 'app.doku.stub' ? false : 'manual',
       );
       expect(service.isEnabled()).toBe(false);
     });
@@ -112,7 +112,7 @@ describe('InvoiceVaService', () => {
         vaNumber: '8801234',
         vaBankCode: '014',
         gdcExternalId: 'inv1',
-        paymentProvider: 'GDC_VA',
+        paymentProvider: 'DOKU_VA',
       }),
     );
   });
@@ -152,7 +152,7 @@ describe('InvoiceVaService', () => {
 
   it('on a gateway failure marks the event and claim failed, updates nothing', async () => {
     gateway.createVa.mockRejectedValue(
-      new GdcApiError('request_failed', 'boom', 500, '/va'),
+      new DokuApiError('request_failed', 'boom', 500, '/va'),
     );
 
     await expect(service.provision('inv1', 'Sesi')).rejects.toThrow(
@@ -237,6 +237,6 @@ describe('StubVaProvider', () => {
 
     expect(first.vaNumber).toMatch(/^88\d+$/);
     expect(first.vaNumber).toBe(second.vaNumber);
-    expect(first.bankCode).toBe('014');
+    expect(first.bankCode).toBe('DOKU');
   });
 });

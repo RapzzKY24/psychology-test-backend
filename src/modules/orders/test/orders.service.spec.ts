@@ -70,7 +70,7 @@ describe('OrdersService', () => {
       expect(result.amount).toBe(result.basePrice + result.uniqueCode);
     });
 
-    it('should provision a VA when the gdc provider is enabled', async () => {
+    it('should provision a VA when the doku provider is enabled', async () => {
       mockRepo.findTestById.mockResolvedValue({
         id: 't1',
         name: 'DISC Form A',
@@ -84,7 +84,7 @@ describe('OrdersService', () => {
         uniqueCode: 0,
         amount: 200000,
         expiresAt: new Date(),
-        paymentProvider: 'GDC_VA',
+        paymentProvider: 'DOKU_VA',
         vaNumber: '19008172',
         vaBankCode: '014',
       });
@@ -93,7 +93,7 @@ describe('OrdersService', () => {
 
       expect(result).toEqual(
         expect.objectContaining({
-          paymentProvider: 'GDC_VA',
+          paymentProvider: 'DOKU_VA',
           vaNumber: '19008172',
           vaBankCode: '014',
           qrisImageUrl: null,

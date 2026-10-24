@@ -5,20 +5,20 @@ import type { InvoicesRepository } from '../repository/invoices.repository';
 import type { Invoice, Prisma } from '../../../generated/prisma/client';
 import { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import { EventLogService } from '../../event-log/service/event-log.service';
-import { GdcApiError } from '../../gdc/errors/gdc-api.error';
-import { DEFAULT_VA_BANK_CODE } from '../../gdc/constants/gdc';
+import { DokuApiError } from '../../doku/errors/doku-api.error';
+import { DEFAULT_VA_BANK_CODE } from '../../doku/constants/doku';
 import {
   PAYMENT_GATEWAY,
   type CreateVaResult,
   type PaymentGateway,
   type VaInquiryParams,
   type VaInquiryResult,
-} from '../../gdc/gateway/payment-gateway.interface';
+} from '../../doku/gateway/payment-gateway.interface';
 
 // Distinct namespace from orders so VA idempotency keys never collide.
-const VA_CREATE_SCOPE = 'gdc.invoice.va.create';
+const VA_CREATE_SCOPE = 'doku.invoice.va.create';
 // Separate scope so an amount change re-issues instead of replaying the cached VA.
-const VA_REPROVISION_SCOPE = 'gdc.invoice.va.reprovision';
+const VA_REPROVISION_SCOPE = 'doku.invoice.va.reprovision';
 
 @Injectable()
 export class InvoiceVaService {
@@ -32,11 +32,11 @@ export class InvoiceVaService {
     private readonly config: ConfigService,
   ) {}
 
-  /** The VA provider is usable when GDC is selected or the dev stub is on. */
+  /** The VA provider is usable when DOKU is selected or the dev stub is on. */
   isEnabled(): boolean {
     return (
-      this.config.get<boolean>('app.gdcStub') === true ||
-      this.config.get<string>('app.paymentProvider') === 'gdc'
+      this.config.get<boolean>('app.doku.stub') === true ||
+      this.config.get<string>('app.paymentProvider') === 'doku'
     );
   }
 
@@ -95,7 +95,7 @@ export class InvoiceVaService {
     const claimId = claim.acquired ? claim.id : claim.existing.id;
 
     const event = await this.eventLog.record({
-      source: 'GDC',
+      source: 'DOKU',
       direction: 'OUTBOUND',
       type: 'CREATE_VA_REQUEST',
       aggregateType: 'Invoice',
@@ -124,7 +124,7 @@ export class InvoiceVaService {
         error instanceof Error ? error.message : 'unknown_error';
       await this.eventLog.markFailed(event.id, { errorMessage });
       await this.idempotency.fail(claimId, { errorMessage });
-      if (error instanceof GdcApiError) {
+      if (error instanceof DokuApiError) {
         throw new BadGatewayException('payment_gateway_failed');
       }
       throw error;
@@ -152,7 +152,7 @@ export class InvoiceVaService {
       gdcTrxId: result.trxId,
       gdcReferenceNo: result.referenceNo,
       gdcExternalId: externalId,
-      paymentProvider: 'GDC_VA',
+      paymentProvider: 'DOKU_VA',
     };
   }
 }

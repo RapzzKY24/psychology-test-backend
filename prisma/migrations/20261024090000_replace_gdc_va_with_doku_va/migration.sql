@@ -1,0 +1,3 @@
+ALTER TYPE "PaymentProvider" RENAME VALUE 'GDC_VA' TO 'DOKU_VA';
+ALTER TYPE "PaymentVerifiedBySource" RENAME VALUE 'GDC' TO 'DOKU';
+ALTER TYPE "EventSource" RENAME VALUE 'GDC' TO 'DOKU';

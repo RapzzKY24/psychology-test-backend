@@ -10,7 +10,7 @@ import { MS_PER_MINUTE } from '../../../common/constants/time';
 
 /**
  * Periodically replays stale inbound callbacks and reconciles unsettled VA
- * orders against GDC. Runs only when the gateway provider is active; the
+ * orders against DOKU. Runs only when the gateway provider is active; the
  * exactly-once unlock lives in the repository, so overlapping runs are safe.
  */
 @Injectable()
@@ -25,7 +25,7 @@ export class PaymentsRecoveryService implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   onModuleInit(): void {
-    if (this.config.get<string>('app.paymentProvider') !== 'gdc') return;
+    if (this.config.get<string>('app.paymentProvider') !== 'doku') return;
     const intervalMs =
       this.config.get<number>('app.recovery.intervalMin', 5) * MS_PER_MINUTE;
     this.timer = setInterval(() => void this.runOnce(), intervalMs);

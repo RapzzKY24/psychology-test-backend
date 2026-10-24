@@ -33,7 +33,7 @@ export interface OrdersRepository {
   /** Transactional exactly-once verify: PAID + verifiedBy + INDIVIDUAL session + attempt. */
   verifyPayment(orderId: string, adminId: string): Promise<VerifyPaymentResult>;
   findByVaNumber(vaNumber: string): Promise<Order | null>;
-  /** Same exactly-once unlock as `verifyPayment`, but sourced from the gateway (verifiedBySource = GDC). */
+  /** Same exactly-once unlock as `verifyPayment`, but sourced from the gateway (verifiedBySource = DOKU). */
   confirmExternalPayment(orderId: string): Promise<VerifyPaymentResult>;
   /**
    * Unsettled VA orders whose `expiresAt` fell in `[notBefore, dueBefore]` —

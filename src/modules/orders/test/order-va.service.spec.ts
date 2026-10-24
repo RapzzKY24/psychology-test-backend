@@ -1,7 +1,7 @@
 import { BadGatewayException } from '@nestjs/common';
 import { OrderVaService } from '../service/order-va.service';
-import { GdcApiError } from '../../gdc/errors/gdc-api.error';
-import type { PaymentGateway } from '../../gdc/gateway/payment-gateway.interface';
+import { DokuApiError } from '../../doku/errors/doku-api.error';
+import type { PaymentGateway } from '../../doku/gateway/payment-gateway.interface';
 import type { OrdersRepository } from '../repository/orders.repository';
 import type { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import type { EventLogService } from '../../event-log/service/event-log.service';
@@ -27,7 +27,7 @@ describe('OrderVaService', () => {
     uniqueCode: 0,
     amount: 200000,
     status: 'PENDING',
-    paymentProvider: 'GDC_VA',
+    paymentProvider: 'DOKU_VA',
     expiresAt: new Date(Date.now() + 3600_000),
   };
 
@@ -51,7 +51,7 @@ describe('OrderVaService', () => {
     config = {
       get: jest.fn((key: string, fallback?: unknown) => {
         const map: Record<string, unknown> = {
-          'app.paymentProvider': 'gdc',
+          'app.paymentProvider': 'doku',
           'app.paymentTtlMin': 60,
         };
         return map[key] ?? fallback;
@@ -73,9 +73,9 @@ describe('OrderVaService', () => {
     expect(service.isEnabled()).toBe(false);
   });
 
-  it('isEnabled is true under the dev stub even without provider=gdc', () => {
+  it('isEnabled is true under the dev stub even without provider=doku', () => {
     config.get.mockImplementation((key: string) =>
-      key === 'app.gdcStub' ? true : 'manual',
+      key === 'app.doku.stub' ? true : 'manual',
     );
     expect(service.isEnabled()).toBe(true);
   });
@@ -100,7 +100,7 @@ describe('OrderVaService', () => {
         basePrice: 200000,
         uniqueCode: 0,
         amount: 200000,
-        paymentProvider: 'GDC_VA',
+        paymentProvider: 'DOKU_VA',
       }),
     );
     expect(gateway.createVa).toHaveBeenCalledWith(
@@ -205,7 +205,7 @@ describe('OrderVaService', () => {
     idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
     eventLog.record.mockResolvedValue({ id: 'ev1' } as never);
     gateway.createVa.mockRejectedValue(
-      new GdcApiError('request_failed', 'boom', 500, '/p'),
+      new DokuApiError('request_failed', 'boom', 500, '/p'),
     );
     idempotency.fail.mockResolvedValue(undefined);
 

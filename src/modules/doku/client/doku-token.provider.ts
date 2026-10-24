@@ -2,24 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { isoTimestamp } from '../utils/timestamp';
 import { signAccessToken } from '../utils/signature-access-token';
-import { AccessTokenResponseSchema } from '../dto/gdc.dto';
-import { GdcApiError } from '../errors/gdc-api.error';
+import { AccessTokenResponseSchema } from '../dto/doku.dto';
+import { DokuApiError } from '../errors/doku-api.error';
 import {
-  GDC_PATH_ACCESS_TOKEN,
-  GDC_TOKEN_DEFAULT_TTL_SECONDS,
-  GDC_TOKEN_EXPIRY_SAFETY_MS,
-} from '../constants/gdc';
-import type { GdcConfig } from './gdc.config';
+  DOKU_PATH_ACCESS_TOKEN,
+  DOKU_TOKEN_DEFAULT_TTL_SECONDS,
+  DOKU_TOKEN_EXPIRY_SAFETY_MS,
+} from '../constants/doku';
+import type { DokuConfig } from './doku.config';
 
 /** Obtains and caches the SNAP B2B access token (RSA-signed). */
 @Injectable()
-export class GdcTokenProvider {
+export class DokuTokenProvider {
   private cached: { value: string; expiresAt: number } | null = null;
 
   constructor(private readonly config: ConfigService) {}
 
-  private get cfg(): GdcConfig {
-    return this.config.get<GdcConfig>('app.gdc')!;
+  private get cfg(): DokuConfig {
+    return this.config.get<DokuConfig>('app.doku')!;
   }
 
   async getAccessToken(): Promise<string> {
@@ -27,41 +27,49 @@ export class GdcTokenProvider {
       return this.cached.value;
     }
     const { baseUrl, clientId, privateKey } = this.cfg;
+    if (!baseUrl || !clientId || !privateKey) {
+      throw new DokuApiError(
+        'access_token_failed',
+        'Doku credentials are not configured',
+        undefined,
+        DOKU_PATH_ACCESS_TOKEN,
+      );
+    }
     const timestamp = isoTimestamp();
     const signature = signAccessToken(clientId, timestamp, privateKey);
-    const response = await fetch(`${baseUrl}${GDC_PATH_ACCESS_TOKEN}`, {
+    const response = await fetch(`${baseUrl}${DOKU_PATH_ACCESS_TOKEN}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Timestamp': timestamp,
-        'Client-Key': clientId,
-        'X-Signature': signature,
+        'X-TIMESTAMP': timestamp,
+        'X-CLIENT-KEY': clientId,
+        'X-SIGNATURE': signature,
       },
       body: JSON.stringify({ grantType: 'client_credentials' }),
     });
     if (!response.ok) {
-      throw new GdcApiError(
+      throw new DokuApiError(
         'access_token_failed',
-        'Failed to obtain GDC access token',
+        'Failed to obtain Doku access token',
         response.status,
-        GDC_PATH_ACCESS_TOKEN,
+        DOKU_PATH_ACCESS_TOKEN,
       );
     }
     const result = AccessTokenResponseSchema.safeParse(await response.json());
     if (!result.success) {
-      throw new GdcApiError(
+      throw new DokuApiError(
         'access_token_failed',
-        'Unexpected GDC access-token response',
+        'Unexpected Doku access-token response',
         response.status,
-        GDC_PATH_ACCESS_TOKEN,
+        DOKU_PATH_ACCESS_TOKEN,
       );
     }
     const parsed = result.data;
     const ttlSeconds =
-      parseInt(parsed.expiresIn, 10) || GDC_TOKEN_DEFAULT_TTL_SECONDS;
+      parseInt(parsed.expiresIn ?? '', 10) || DOKU_TOKEN_DEFAULT_TTL_SECONDS;
     this.cached = {
       value: parsed.accessToken,
-      expiresAt: Date.now() + ttlSeconds * 1000 - GDC_TOKEN_EXPIRY_SAFETY_MS,
+      expiresAt: Date.now() + ttlSeconds * 1000 - DOKU_TOKEN_EXPIRY_SAFETY_MS,
     };
     return parsed.accessToken;
   }
