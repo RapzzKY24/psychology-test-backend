@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DokuClient } from '../client/doku.client';
+import { DokuApiError } from '../errors/doku-api.error';
 import type { DokuConfig } from '../client/doku.config';
 import { isoTimestamp } from '../utils/timestamp';
 import { customerNoFromExternalId } from '../utils/customer-no';
@@ -27,6 +28,12 @@ export class DokuVaProvider implements PaymentGateway {
 
   async createVa(params: CreateVaParams): Promise<CreateVaResult> {
     const { partnerServiceId, bankCode, channelId } = this.cfg;
+    if (!partnerServiceId) {
+      throw new DokuApiError(
+        'request_failed',
+        'DOKU_PARTNER_SERVICE_ID is not configured',
+      );
+    }
     const customerNo = customerNoFromExternalId(params.externalId);
     const virtualAccountNo = `${partnerServiceId.padStart(8, '0')}${customerNo}`;
     const result = await this.doku.createVirtualAccount(

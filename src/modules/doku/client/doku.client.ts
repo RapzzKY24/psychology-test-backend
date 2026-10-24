@@ -45,6 +45,14 @@ export class DokuClient {
     externalId: string,
   ): Promise<unknown> {
     const { baseUrl, clientId, channelId, secretKey } = this.cfg;
+    if (!baseUrl || !clientId || !secretKey) {
+      throw new DokuApiError(
+        'request_failed',
+        'Doku credentials are not configured',
+        undefined,
+        path,
+      );
+    }
     const token = await this.tokens.getAccessToken();
     const payload = JSON.stringify(body);
     const timestamp = isoTimestamp();

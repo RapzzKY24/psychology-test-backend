@@ -27,6 +27,14 @@ export class DokuTokenProvider {
       return this.cached.value;
     }
     const { baseUrl, clientId, privateKey } = this.cfg;
+    if (!baseUrl || !clientId || !privateKey) {
+      throw new DokuApiError(
+        'access_token_failed',
+        'Doku credentials are not configured',
+        undefined,
+        DOKU_PATH_ACCESS_TOKEN,
+      );
+    }
     const timestamp = isoTimestamp();
     const signature = signAccessToken(clientId, timestamp, privateKey);
     const response = await fetch(`${baseUrl}${DOKU_PATH_ACCESS_TOKEN}`, {
