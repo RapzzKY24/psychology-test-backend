@@ -7,21 +7,21 @@ import { OrderVaService } from '../../orders/service/order-va.service';
 import { InvoicesService } from '../../invoices/service/invoices.service';
 import { InvoiceVaService } from '../../invoices/service/invoice-va.service';
 import type { Invoice, Order } from '../../../generated/prisma/client';
-import { GdcApiError } from '../../gdc/errors/gdc-api.error';
-import type { VaInquiryResult } from '../../gdc/gateway/payment-gateway.interface';
-import { VaCallbackSchema } from '../../gdc/dto/gdc.dto';
-import type { VaCallback } from '../../gdc/dto/gdc.dto';
+import { DokuApiError } from '../../doku/errors/doku-api.error';
+import type { VaInquiryResult } from '../../doku/gateway/payment-gateway.interface';
+import { VaCallbackSchema } from '../../doku/dto/doku.dto';
+import type { VaCallback } from '../../doku/dto/doku.dto';
 import { MS_PER_MINUTE } from '../../../common/constants/time';
 import { amountMatches } from '../utils/amount-matches';
 import {
-  GDC_ACK,
+  DOKU_ACK,
   VA_CALLBACK_EVENT_TYPE,
   VA_CALLBACK_KEY_PREFIX,
   VA_CALLBACK_PAID_STATUS,
   VA_CALLBACK_SCOPE,
   VA_INQUIRY_PAID_STATUS,
 } from '../constants/payments';
-import type { GdcAck } from '../constants/payments';
+import type { DokuAck } from '../constants/payments';
 
 type CallbackOutcome =
   | { kind: 'settled' }
@@ -59,17 +59,17 @@ export class PaymentsService {
   }
 
   /**
-   * Handle a VA payment callback from GDC. Idempotent per
-   * `virtualAccountNo:referenceNo`, always acknowledges with the SNAP 2000000
+   * Handle a VA payment callback from Doku. Idempotent per
+   * `virtualAccountNo:trxId`, always acknowledges with Doku's `2002700`
    * envelope so the gateway does not retry on our business-level outcomes.
    */
-  async handleVaCallback(body: unknown): Promise<GdcAck> {
+  async handleVaCallback(body: unknown): Promise<DokuAck> {
     const parsed = VaCallbackSchema.safeParse(body);
     if (!parsed.success) {
       // Never let a schema mismatch turn into a 422 retry storm: record it for
       // investigation and still acknowledge.
       const event = await this.eventLog.record({
-        source: 'GDC',
+        source: 'DOKU',
         direction: 'INBOUND',
         type: VA_CALLBACK_EVENT_TYPE,
         payload: { raw: body },
@@ -77,22 +77,24 @@ export class PaymentsService {
       await this.eventLog.markFailed(event.id, {
         errorMessage: 'unparsable_payload',
       });
-      return GDC_ACK;
+      return DOKU_ACK;
     }
     const payload = parsed.data;
-    const key = `${VA_CALLBACK_KEY_PREFIX}${payload.virtualAccountNo}:${payload.referenceNo}`;
+    const reference =
+      payload.trxId ?? payload.paymentRequestId ?? payload.virtualAccountNo;
+    const key = `${VA_CALLBACK_KEY_PREFIX}${payload.virtualAccountNo}:${reference}`;
 
     const claim = await this.idempotency.begin({
       scope: VA_CALLBACK_SCOPE,
       key,
     });
-    if (!claim.acquired) return GDC_ACK;
+    if (!claim.acquired) return DOKU_ACK;
 
     const event = await this.eventLog.record({
-      source: 'GDC',
+      source: 'DOKU',
       direction: 'INBOUND',
       type: VA_CALLBACK_EVENT_TYPE,
-      reference: payload.referenceNo,
+      reference,
       idempotencyKey: key,
       payload: this.redact(payload),
     });
@@ -103,10 +105,10 @@ export class PaymentsService {
     } else {
       await this.idempotency.complete(claim.id, {
         responseStatus: 200,
-        responseBody: GDC_ACK,
+        responseBody: DOKU_ACK,
       });
     }
-    return GDC_ACK;
+    return DOKU_ACK;
   }
 
   /** Replay inbound callbacks that were never finalized (e.g. a crash mid-handling). */
@@ -137,7 +139,7 @@ export class PaymentsService {
   /**
    * Retry VA provisioning for gateway orders whose create-va call failed
    * (PENDING, no `vaNumber`). Reuses `order.id` as the external id, so a
-   * duplicate at GDC is deduped and no second VA is issued.
+   * duplicate at DOKU is deduped and no second VA is issued.
    */
   async recoverStaleProvisioning(): Promise<{
     checked: number;
@@ -154,7 +156,7 @@ export class PaymentsService {
         if (updated?.vaNumber) provisioned += 1;
       } catch (error) {
         if (
-          error instanceof GdcApiError ||
+          error instanceof DokuApiError ||
           error instanceof BadGatewayException
         ) {
           this.logger.warn(`reprovision ${order.id} failed: ${error.message}`);
@@ -166,7 +168,7 @@ export class PaymentsService {
     return { checked: due.length, provisioned };
   }
 
-  /** Poll GDC for VA orders still unsettled after expiry and unlock any that were paid. */
+  /** Poll DOKU for VA orders still unsettled after expiry and unlock any that were paid. */
   async reconcilePendingVas(): Promise<{ checked: number; settled: number }> {
     const now = new Date();
     const due = await this.orders.findUnsettledVaOrders({
@@ -187,7 +189,7 @@ export class PaymentsService {
           externalId: order.gdcExternalId ?? order.id,
         });
       } catch (error) {
-        if (error instanceof GdcApiError) continue;
+        if (error instanceof DokuApiError) continue;
         throw error;
       }
       if (status.status !== VA_INQUIRY_PAID_STATUS) continue;
@@ -226,7 +228,7 @@ export class PaymentsService {
         if (updated?.vaNumber) provisioned += 1;
       } catch (error) {
         if (
-          error instanceof GdcApiError ||
+          error instanceof DokuApiError ||
           error instanceof BadGatewayException
         ) {
           this.logger.warn(
@@ -240,7 +242,7 @@ export class PaymentsService {
     return { checked: due.length, provisioned };
   }
 
-  /** Poll GDC for invoice VAs still unsettled after expiry and unlock any that were paid. */
+  /** Poll DOKU for invoice VAs still unsettled after expiry and unlock any that were paid. */
   async reconcileUnsettledInvoiceVas(): Promise<{
     checked: number;
     settled: number;
@@ -265,7 +267,7 @@ export class PaymentsService {
           externalId: invoice.gdcExternalId ?? invoice.id,
         });
       } catch (error) {
-        if (error instanceof GdcApiError) continue;
+        if (error instanceof DokuApiError) continue;
         throw error;
       }
       if (status.status !== VA_INQUIRY_PAID_STATUS) continue;
@@ -274,7 +276,7 @@ export class PaymentsService {
         invoice.id,
         {
           paidAmount: invoice.amount,
-          verifiedBySource: 'GDC',
+          verifiedBySource: 'DOKU',
           gdcTrxId: invoice.gdcTrxId,
           gdcReferenceNo: invoice.gdcReferenceNo,
         },
@@ -307,16 +309,15 @@ export class PaymentsService {
     payload: VaCallback,
     eventId: string,
   ): Promise<CallbackOutcome> {
-    if (
-      payload.additionalInfo.latestTransactionStatus !== VA_CALLBACK_PAID_STATUS
-    ) {
+    const status = this.callbackStatus(payload);
+    if (status !== undefined && status !== VA_CALLBACK_PAID_STATUS) {
       await this.eventLog.markProcessed(eventId, {
-        response: { ignored: payload.additionalInfo.latestTransactionStatus },
+        response: { ignored: status },
       });
       return { kind: 'ignored', reason: 'non_paid_status' };
     }
 
-    if (!amountMatches(payload.totalAmount.value, order.amount)) {
+    if (!amountMatches(this.callbackAmount(payload), order.amount)) {
       await this.eventLog.markFailed(eventId, {
         errorMessage: 'amount_mismatch',
       });
@@ -352,11 +353,10 @@ export class PaymentsService {
     payload: VaCallback,
     eventId: string,
   ): Promise<CallbackOutcome> {
-    if (
-      payload.additionalInfo.latestTransactionStatus !== VA_CALLBACK_PAID_STATUS
-    ) {
+    const status = this.callbackStatus(payload);
+    if (status !== undefined && status !== VA_CALLBACK_PAID_STATUS) {
       await this.eventLog.markProcessed(eventId, {
-        response: { ignored: payload.additionalInfo.latestTransactionStatus },
+        response: { ignored: status },
       });
       return { kind: 'ignored', reason: 'non_paid_status' };
     }
@@ -364,10 +364,10 @@ export class PaymentsService {
     const result = await this.invoices.confirmPaymentWithActivation(
       invoice.id,
       {
-        paidAmount: Number(payload.totalAmount.value),
-        verifiedBySource: 'GDC',
-        gdcTrxId: payload.trxId,
-        gdcReferenceNo: payload.referenceNo,
+        paidAmount: Number(this.callbackAmount(payload)),
+        verifiedBySource: 'DOKU',
+        gdcTrxId: payload.trxId ?? null,
+        gdcReferenceNo: null,
       },
     );
     if (result.outcome === 'already_paid') {
@@ -392,18 +392,28 @@ export class PaymentsService {
     return { kind: 'settled' };
   }
 
+  /** Doku notifies on success; a channel may still send an explicit status. */
+  private callbackStatus(payload: VaCallback): string | undefined {
+    return (
+      payload.latestTransactionStatus ??
+      payload.additionalInfo?.latestTransactionStatus
+    );
+  }
+
+  /** Prefer the actually paid amount; fall back to the billed amount. */
+  private callbackAmount(payload: VaCallback): string | null {
+    return payload.paidAmount?.value ?? payload.totalAmount?.value ?? null;
+  }
+
   private redact(payload: VaCallback): Record<string, unknown> {
     return {
       virtualAccountNo: payload.virtualAccountNo,
       trxId: payload.trxId,
       paymentRequestId: payload.paymentRequestId,
-      referenceNo: payload.referenceNo,
-      sourceBankCode: payload.sourceBankCode,
       paidAmount: payload.paidAmount,
       totalAmount: payload.totalAmount,
       trxDateTime: payload.trxDateTime,
-      latestTransactionStatus: payload.additionalInfo.latestTransactionStatus,
-      transactionType: payload.additionalInfo.transactionType,
+      latestTransactionStatus: this.callbackStatus(payload),
     };
   }
 }

@@ -5,18 +5,18 @@ import type { OrdersRepository } from '../repository/orders.repository';
 import type { Order } from '../../../generated/prisma/client';
 import { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import { EventLogService } from '../../event-log/service/event-log.service';
-import { GdcApiError } from '../../gdc/errors/gdc-api.error';
-import { DEFAULT_VA_BANK_CODE } from '../../gdc/constants/gdc';
+import { DokuApiError } from '../../doku/errors/doku-api.error';
+import { DEFAULT_VA_BANK_CODE } from '../../doku/constants/doku';
 import {
   PAYMENT_GATEWAY,
   type CreateVaResult,
   type PaymentGateway,
   type VaInquiryParams,
   type VaInquiryResult,
-} from '../../gdc/gateway/payment-gateway.interface';
+} from '../../doku/gateway/payment-gateway.interface';
 import { VA_UNIQUE_CODE } from '../constants/payment';
 
-const VA_CREATE_SCOPE = 'gdc.va.create';
+const VA_CREATE_SCOPE = 'doku.va.create';
 
 interface VaProvisionFields {
   vaNumber: string;
@@ -38,11 +38,11 @@ export class OrderVaService {
     private readonly config: ConfigService,
   ) {}
 
-  /** The VA provider is usable when GDC is selected or the dev stub is on. */
+  /** The VA provider is usable when DOKU is selected or the dev stub is on. */
   isEnabled(): boolean {
     return (
-      this.config.get<boolean>('app.gdcStub') === true ||
-      this.config.get<string>('app.paymentProvider') === 'gdc'
+      this.config.get<boolean>('app.doku.stub') === true ||
+      this.config.get<string>('app.paymentProvider') === 'doku'
     );
   }
 
@@ -60,7 +60,7 @@ export class OrderVaService {
       uniqueCode: VA_UNIQUE_CODE,
       amount: basePrice,
       status: 'PENDING',
-      paymentProvider: 'GDC_VA',
+      paymentProvider: 'DOKU_VA',
       expiresAt: new Date(Date.now() + this.paymentTtlMin * 60 * 1000),
     });
 
@@ -70,7 +70,7 @@ export class OrderVaService {
 
   /**
    * Retry provisioning for a gateway order that has no VA yet. Reuses
-   * `order.id` as the external id, so GDC/idempotency dedupes a retry.
+   * `order.id` as the external id, so DOKU/idempotency dedupes a retry.
    */
   async reprovision(orderId: string): Promise<Order | null> {
     const order = await this.repo.findById(orderId);
@@ -112,7 +112,7 @@ export class OrderVaService {
     const claimId = claim.acquired ? claim.id : claim.existing.id;
 
     const event = await this.eventLog.record({
-      source: 'GDC',
+      source: 'DOKU',
       direction: 'OUTBOUND',
       type: 'CREATE_VA_REQUEST',
       aggregateType: 'Order',
@@ -138,7 +138,7 @@ export class OrderVaService {
       await this.idempotency.fail(claimId, {
         errorMessage: error instanceof Error ? error.message : 'unknown_error',
       });
-      if (error instanceof GdcApiError) {
+      if (error instanceof DokuApiError) {
         throw new BadGatewayException('payment_gateway_failed');
       }
       throw error;

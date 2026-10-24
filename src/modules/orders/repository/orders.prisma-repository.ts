@@ -145,7 +145,7 @@ export class PrismaOrdersRepository implements OrdersRepository {
   confirmExternalPayment(orderId: string): Promise<VerifyPaymentResult> {
     return this.settleOrder(orderId, {
       verifiedById: null,
-      verifiedBySource: 'GDC',
+      verifiedBySource: 'DOKU',
     });
   }
 
@@ -157,7 +157,7 @@ export class PrismaOrdersRepository implements OrdersRepository {
     return this.prisma.order.findMany({
       where: {
         status: { in: ['PENDING', 'EXPIRED'] },
-        paymentProvider: 'GDC_VA',
+        paymentProvider: 'DOKU_VA',
         vaNumber: { not: null },
         expiresAt: { lte: params.dueBefore, gte: params.notBefore },
       },
@@ -173,7 +173,7 @@ export class PrismaOrdersRepository implements OrdersRepository {
     return this.prisma.order.findMany({
       where: {
         status: 'PENDING',
-        paymentProvider: 'GDC_VA',
+        paymentProvider: 'DOKU_VA',
         vaNumber: null,
         createdAt: { lt: params.createdBefore },
       },

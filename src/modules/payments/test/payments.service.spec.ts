@@ -1,7 +1,7 @@
 import { BadGatewayException } from '@nestjs/common';
 import { PaymentsService } from '../service/payments.service';
-import { GDC_ACK } from '../constants/payments';
-import { GdcApiError } from '../../gdc/errors/gdc-api.error';
+import { DOKU_ACK } from '../constants/payments';
+import { DokuApiError } from '../../doku/errors/doku-api.error';
 import type { EventLogService } from '../../event-log/service/event-log.service';
 import type { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import type { OrdersService } from '../../orders/service/orders.service';
@@ -54,7 +54,7 @@ describe('PaymentsService', () => {
   const invoice = { id: 'inv1', amount: 300000, sessionId: 's1' };
 
   const callback = {
-    partnerServiceId: '   GDC',
+    partnerServiceId: '   DOKU',
     customerNo: '12345',
     virtualAccountNo: '19008172',
     virtualAccountName: 'DISC',
@@ -143,16 +143,16 @@ describe('PaymentsService', () => {
 
     const ack = await service.handleVaCallback(callback);
 
-    expect(ack).toEqual(GDC_ACK);
+    expect(ack).toEqual(DOKU_ACK);
     expect(idempotency.begin).toHaveBeenCalledWith({
-      scope: 'gdc.va.callback',
-      key: 'gdc.va.callback:19008172:ref-1',
+      scope: 'doku.va.callback',
+      key: 'doku.va.callback:19008172:o1',
     });
     expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1');
     expect(eventLog.markProcessed).toHaveBeenCalled();
     expect(idempotency.complete).toHaveBeenCalledWith('idem1', {
       responseStatus: 200,
-      responseBody: GDC_ACK,
+      responseBody: DOKU_ACK,
     });
   });
 
@@ -164,7 +164,7 @@ describe('PaymentsService', () => {
 
     const ack = await service.handleVaCallback(callback);
 
-    expect(ack).toEqual(GDC_ACK);
+    expect(ack).toEqual(DOKU_ACK);
     expect(eventLog.record).not.toHaveBeenCalled();
     expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
   });
@@ -175,7 +175,7 @@ describe('PaymentsService', () => {
 
     const ack = await service.handleVaCallback(callback);
 
-    expect(ack).toEqual(GDC_ACK);
+    expect(ack).toEqual(DOKU_ACK);
     expect(eventLog.markFailed).toHaveBeenCalledWith('ev1', {
       errorMessage: 'payment_not_found',
     });
@@ -196,15 +196,16 @@ describe('PaymentsService', () => {
 
     const ack = await service.handleVaCallback({
       ...callback,
+      paidAmount: { value: '300000.00', currency: 'IDR' },
       totalAmount: { value: '300000.00', currency: 'IDR' },
     });
 
-    expect(ack).toEqual(GDC_ACK);
+    expect(ack).toEqual(DOKU_ACK);
     expect(invoices.confirmPaymentWithActivation).toHaveBeenCalledWith('inv1', {
       paidAmount: 300000,
-      verifiedBySource: 'GDC',
+      verifiedBySource: 'DOKU',
       gdcTrxId: 'o1',
-      gdcReferenceNo: 'ref-1',
+      gdcReferenceNo: null,
     });
     expect(eventLog.markProcessed).toHaveBeenCalledWith('ev1', {
       response: { invoiceId: 'inv1', sessionId: 's1' },
@@ -223,6 +224,7 @@ describe('PaymentsService', () => {
 
     await service.handleVaCallback({
       ...callback,
+      paidAmount: { value: '300000.00', currency: 'IDR' },
       totalAmount: { value: '300000.00', currency: 'IDR' },
     });
 
@@ -242,6 +244,7 @@ describe('PaymentsService', () => {
 
     await service.handleVaCallback({
       ...callback,
+      paidAmount: { value: '299999.00', currency: 'IDR' },
       totalAmount: { value: '299999.00', currency: 'IDR' },
     });
 
@@ -257,10 +260,11 @@ describe('PaymentsService', () => {
 
     const ack = await service.handleVaCallback({
       ...callback,
+      paidAmount: { value: '199999.00', currency: 'IDR' },
       totalAmount: { value: '199999.00', currency: 'IDR' },
     });
 
-    expect(ack).toEqual(GDC_ACK);
+    expect(ack).toEqual(DOKU_ACK);
     expect(idempotency.fail).toHaveBeenCalledWith('idem1', {
       errorMessage: 'amount_mismatch',
     });
@@ -279,7 +283,7 @@ describe('PaymentsService', () => {
       },
     });
 
-    expect(ack).toEqual(GDC_ACK);
+    expect(ack).toEqual(DOKU_ACK);
     expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
     expect(eventLog.markProcessed).toHaveBeenCalled();
     expect(idempotency.complete).toHaveBeenCalled();
@@ -290,7 +294,7 @@ describe('PaymentsService', () => {
 
     const ack = await service.handleVaCallback({ unexpected: true });
 
-    expect(ack).toEqual(GDC_ACK);
+    expect(ack).toEqual(DOKU_ACK);
     expect(idempotency.begin).not.toHaveBeenCalled();
     expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
     expect(eventLog.markFailed).toHaveBeenCalledWith('ev1', {
@@ -319,7 +323,7 @@ describe('PaymentsService', () => {
         { id: 'o1' } as never,
       ]);
       orders.reprovision.mockRejectedValue(
-        new GdcApiError('request_failed', 'boom', 500, '/p'),
+        new DokuApiError('request_failed', 'boom', 500, '/p'),
       );
 
       const result = await service.recoverStaleProvisioning();
@@ -392,7 +396,7 @@ describe('PaymentsService', () => {
   describe('reconcilePendingVas', () => {
     const vaOrder = { id: 'o1', amount: 200000, vaNumber: '19008172' };
 
-    it('unlocks an order GDC reports as paid', async () => {
+    it('unlocks an order DOKU reports as paid', async () => {
       orders.findUnsettledVaOrders.mockResolvedValue([vaOrder] as never);
       orderVa.inquiryVa.mockResolvedValue({
         vaNumber: '19008172',
@@ -412,7 +416,7 @@ describe('PaymentsService', () => {
       expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1');
     });
 
-    it('skips orders GDC still reports as unpaid', async () => {
+    it('skips orders DOKU still reports as unpaid', async () => {
       orders.findUnsettledVaOrders.mockResolvedValue([vaOrder] as never);
       orderVa.inquiryVa.mockResolvedValue({
         vaNumber: '19008172',
@@ -429,7 +433,7 @@ describe('PaymentsService', () => {
     it('continues when the gateway call fails', async () => {
       orders.findUnsettledVaOrders.mockResolvedValue([vaOrder] as never);
       orderVa.inquiryVa.mockRejectedValue(
-        new GdcApiError('request_failed', 'boom', 500, '/p'),
+        new DokuApiError('request_failed', 'boom', 500, '/p'),
       );
 
       const result = await service.reconcilePendingVas();
@@ -482,7 +486,7 @@ describe('PaymentsService', () => {
       gdcReferenceNo: null,
     };
 
-    it('activates an invoice GDC reports as paid', async () => {
+    it('activates an invoice DOKU reports as paid', async () => {
       invoices.findUnsettledVaInvoices.mockResolvedValue([vaInvoice] as never);
       invoiceVa.inquiryVa.mockResolvedValue({
         vaNumber: '8801',
@@ -503,7 +507,7 @@ describe('PaymentsService', () => {
       );
     });
 
-    it('skips an invoice GDC still reports as unpaid', async () => {
+    it('skips an invoice DOKU still reports as unpaid', async () => {
       invoices.findUnsettledVaInvoices.mockResolvedValue([vaInvoice] as never);
       invoiceVa.inquiryVa.mockResolvedValue({
         vaNumber: '8801',

@@ -45,7 +45,7 @@ describe('PrismaInvoicesRepository.confirmPaymentWithActivation', () => {
 
     const result = await makeRepo(t).confirmPaymentWithActivation('inv1', {
       paidAmount: 300000,
-      verifiedBySource: 'GDC',
+      verifiedBySource: 'DOKU',
     });
 
     expect(result.outcome).toBe('not_found');
@@ -58,7 +58,7 @@ describe('PrismaInvoicesRepository.confirmPaymentWithActivation', () => {
 
     const result = await makeRepo(t).confirmPaymentWithActivation('inv1', {
       paidAmount: 300000,
-      verifiedBySource: 'GDC',
+      verifiedBySource: 'DOKU',
     });
 
     expect(result.outcome).toBe('already_paid');
@@ -72,7 +72,7 @@ describe('PrismaInvoicesRepository.confirmPaymentWithActivation', () => {
 
     const result = await makeRepo(t).confirmPaymentWithActivation('inv1', {
       paidAmount: 300000,
-      verifiedBySource: 'GDC',
+      verifiedBySource: 'DOKU',
     });
 
     expect(result).toEqual({
@@ -88,7 +88,7 @@ describe('PrismaInvoicesRepository.confirmPaymentWithActivation', () => {
 
     const result = await makeRepo(t).confirmPaymentWithActivation('inv1', {
       paidAmount: 299999,
-      verifiedBySource: 'GDC',
+      verifiedBySource: 'DOKU',
     });
 
     expect(result.outcome).toBe('amount_mismatch');
@@ -104,7 +104,7 @@ describe('PrismaInvoicesRepository.confirmPaymentWithActivation', () => {
 
     const result = await makeRepo(t).confirmPaymentWithActivation('inv1', {
       paidAmount: 300000,
-      verifiedBySource: 'GDC',
+      verifiedBySource: 'DOKU',
       gdcTrxId: 'trx1',
     });
 
@@ -119,7 +119,7 @@ describe('PrismaInvoicesRepository.confirmPaymentWithActivation', () => {
     ];
     expect(updateArgs.data).toMatchObject({
       status: 'PAID',
-      verifiedBySource: 'GDC',
+      verifiedBySource: 'DOKU',
       gdcTrxId: 'trx1',
     });
     expect(t.testSession.updateMany).toHaveBeenCalledWith({
@@ -137,7 +137,7 @@ describe('PrismaInvoicesRepository.confirmPaymentWithActivation', () => {
 
     const result = await makeRepo(t).confirmPaymentWithActivation('inv1', {
       paidAmount: 300000,
-      verifiedBySource: 'GDC',
+      verifiedBySource: 'DOKU',
     });
 
     expect(result.outcome).toBe('already_paid');

@@ -3,7 +3,7 @@ import type { MarkFailedInput, MarkProcessedInput } from '../dto/event-log.dto';
 
 export const EVENT_LOG_REPOSITORY = 'EventLogRepository';
 
-export type EventSource = 'GDC' | 'MANUAL';
+export type EventSource = 'DOKU' | 'MANUAL';
 export type EventDirection = 'INBOUND' | 'OUTBOUND';
 export type EventStatus =
   'RECEIVED' | 'PROCESSING' | 'PROCESSED' | 'FAILED' | 'DUPLICATE';

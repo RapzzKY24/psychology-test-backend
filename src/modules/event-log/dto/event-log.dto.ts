@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const EventSourceSchema = z.enum(['GDC', 'MANUAL']);
+export const EventSourceSchema = z.enum(['DOKU', 'MANUAL']);
 export const EventDirectionSchema = z.enum(['INBOUND', 'OUTBOUND']);
 
 export const RecordEventSchema = z.object({

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DEFAULT_VA_BANK_CODE } from '../constants/gdc';
+import { DEFAULT_VA_BANK_CODE } from '../constants/doku';
 import type {
   CreateVaParams,
   CreateVaResult,
@@ -9,7 +9,7 @@ import type {
 } from './payment-gateway.interface';
 
 /**
- * Deterministic in-memory provider for dev/test (`GDC_STUB=true`): no network
+ * Deterministic in-memory provider for dev/test (`DOKU_STUB=true`): no network
  * call, stable VA generated from the invoice id so retries stay idempotent.
  */
 @Injectable()

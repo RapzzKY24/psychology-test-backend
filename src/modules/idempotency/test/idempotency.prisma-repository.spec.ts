@@ -13,8 +13,8 @@ describe('PrismaIdempotencyRepository', () => {
   const now = new Date('2026-10-17T00:00:00Z');
   const row = {
     id: 'rec1',
-    key: 'gdc.va.callback:123:ref1',
-    scope: 'gdc.va.callback',
+    key: 'doku.va.callback:123:ref1',
+    scope: 'doku.va.callback',
     requestHash: null,
     status: 'IN_PROGRESS',
     responseStatus: null,
@@ -41,14 +41,14 @@ describe('PrismaIdempotencyRepository', () => {
     model.create.mockResolvedValue(row);
 
     const result = await repo.create({
-      key: 'gdc.va.callback:123:ref1',
-      scope: 'gdc.va.callback',
+      key: 'doku.va.callback:123:ref1',
+      scope: 'doku.va.callback',
     });
 
     expect(model.create).toHaveBeenCalledWith({
       data: {
-        key: 'gdc.va.callback:123:ref1',
-        scope: 'gdc.va.callback',
+        key: 'doku.va.callback:123:ref1',
+        scope: 'doku.va.callback',
         requestHash: undefined,
         expiresAt: undefined,
         lockedAt: expect.any(Date),
@@ -57,8 +57,8 @@ describe('PrismaIdempotencyRepository', () => {
     });
     expect(result).toEqual({
       id: 'rec1',
-      key: 'gdc.va.callback:123:ref1',
-      scope: 'gdc.va.callback',
+      key: 'doku.va.callback:123:ref1',
+      scope: 'doku.va.callback',
       requestHash: null,
       status: 'IN_PROGRESS',
       responseStatus: null,

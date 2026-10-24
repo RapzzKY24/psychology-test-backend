@@ -16,7 +16,7 @@ export interface CreateVaResult {
 
 export interface VaInquiryParams {
   vaNumber: string;
-  /** SNAP request id; defaults to `vaNumber` when the caller has no GDC trx id. */
+  /** Provider request id; defaults to `vaNumber` when the caller has no trx id. */
   paymentRequestId?: string;
   /** Idempotency header for the inquiry; defaults to `vaNumber`. */
   externalId?: string;
@@ -24,15 +24,15 @@ export interface VaInquiryParams {
 
 export interface VaInquiryResult {
   vaNumber: string;
-  /** Provider settlement flag (GDC `00` = paid). */
+  /** Provider settlement flag (Doku `00` = paid). */
   status: string;
   paidAmount: number | null;
 }
 
 /**
- * Seam over the VA provider so dev/test can run without GDC. Selected in
- * `GdcModule` by config (`GDC_STUB`); owned by `gdc` because it is pure
- * transport — order/invoice modules consume it and never touch `GdcClient`.
+ * Seam over the VA provider so dev/test can run without Doku. Selected in
+ * `DokuModule` by config (`DOKU_STUB`); owned by `doku` because it is pure
+ * transport — order/invoice modules consume it and never touch `DokuClient`.
  */
 export interface PaymentGateway {
   createVa(params: CreateVaParams): Promise<CreateVaResult>;
