@@ -1,6 +1,6 @@
 import { BadGatewayException } from '@nestjs/common';
 import { PaymentsService } from '../service/payments.service';
-import { JOKUL_ACK } from '../constants/payments';
+import { JOKUL_ACK, MIDTRANS_ACK } from '../constants/payments';
 import { JokulApiError } from '../../jokul/errors/jokul-api.error';
 import type { EventLogService } from '../../event-log/service/event-log.service';
 import type { IdempotencyService } from '../../idempotency/service/idempotency.service';
@@ -16,6 +16,9 @@ describe('PaymentsService', () => {
     Pick<
       OrdersService,
       | 'findByVaNumber'
+      | 'findByProviderOrderId'
+      | 'updatePaymentType'
+      | 'cancel'
       | 'confirmExternalPayment'
       | 'findUnsettledOrders'
       | 'findPendingOrdersWithoutProviderOrderId'
@@ -39,6 +42,8 @@ describe('PaymentsService', () => {
     Pick<
       InvoicesService,
       | 'findByVaNumber'
+      | 'findByProviderOrderId'
+      | 'updatePaymentType'
       | 'confirmPaymentWithActivation'
       | 'findUnpaidWithoutProviderOrderId'
       | 'findUnsettledInvoices'
@@ -77,6 +82,9 @@ describe('PaymentsService', () => {
   beforeEach(() => {
     orders = {
       findByVaNumber: jest.fn(),
+      findByProviderOrderId: jest.fn().mockResolvedValue(null),
+      updatePaymentType: jest.fn(),
+      cancel: jest.fn(),
       confirmExternalPayment: jest.fn(),
       findUnsettledOrders: jest.fn(),
       findPendingOrdersWithoutProviderOrderId: jest.fn(),
@@ -92,6 +100,8 @@ describe('PaymentsService', () => {
     idempotency = { begin: jest.fn(), complete: jest.fn(), fail: jest.fn() };
     invoices = {
       findByVaNumber: jest.fn().mockResolvedValue(null),
+      findByProviderOrderId: jest.fn().mockResolvedValue(null),
+      updatePaymentType: jest.fn(),
       confirmPaymentWithActivation: jest.fn(),
       findUnpaidWithoutProviderOrderId: jest.fn().mockResolvedValue([]),
       findUnsettledInvoices: jest.fn().mockResolvedValue([]),
@@ -523,6 +533,260 @@ describe('PaymentsService', () => {
 
       expect(result).toEqual({ checked: 1, settled: 0 });
       expect(invoices.confirmPaymentWithActivation).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('handleNotification', () => {
+    /** Aliases over the service mocks, so each case reads as a lookup + write. */
+    interface RepositorySeam {
+      findByProviderOrderId: jest.Mock;
+      update: jest.Mock;
+    }
+
+    /** Realistic Snap notification body; each case overrides one field. */
+    const notification = {
+      order_id: 'o1',
+      status_code: '200',
+      gross_amount: '200000.00',
+      signature_key: 'x',
+      transaction_status: 'settlement',
+      transaction_id: 'trx-1',
+      payment_type: 'bank_transfer',
+      fraud_status: 'accept',
+    };
+
+    let orderRepo: RepositorySeam;
+    let invoiceRepo: RepositorySeam;
+    let cancelOrder: jest.Mock;
+
+    const pendingOrder = { id: 'o1', amount: 200000, status: 'PENDING' };
+    const unpaidInvoice = {
+      id: 'inv1',
+      amount: 300000,
+      sessionId: 's1',
+      status: 'UNPAID',
+    };
+
+    beforeEach(() => {
+      orders.findByProviderOrderId.mockResolvedValue(null);
+      invoices.findByProviderOrderId.mockResolvedValue(null);
+      cancelOrder = orders.cancel as unknown as jest.Mock;
+      cancelOrder.mockResolvedValue({ orderId: 'o1', status: 'CANCELLED' });
+
+      orderRepo = {
+        findByProviderOrderId:
+          orders.findByProviderOrderId as unknown as jest.Mock,
+        update: orders.updatePaymentType as unknown as jest.Mock,
+      };
+      invoiceRepo = {
+        findByProviderOrderId:
+          invoices.findByProviderOrderId as unknown as jest.Mock,
+        update: invoices.updatePaymentType as unknown as jest.Mock,
+      };
+
+      idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
+    });
+
+    afterEach(() => {
+      // Pure webhook handling: no gateway/client call may happen here.
+      expect(orderPayment.inquiryVa).not.toHaveBeenCalled();
+      expect(invoicePayment.inquiryVa).not.toHaveBeenCalled();
+      expect(invoicePayment.provision).not.toHaveBeenCalled();
+    });
+
+    it('settles a PENDING order on settlement and acknowledges', async () => {
+      orderRepo.findByProviderOrderId.mockResolvedValue(pendingOrder);
+      orders.confirmExternalPayment.mockResolvedValue({
+        outcome: 'verified',
+        wasLate: false,
+        sessionId: 's1',
+        attemptId: 'a1',
+      });
+
+      const ack = await service.handleNotification(notification);
+
+      expect(ack).toEqual(MIDTRANS_ACK);
+      expect(idempotency.begin).toHaveBeenCalledWith({
+        scope: 'midtrans.notification',
+        key: 'o1:settlement:200',
+      });
+      expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1');
+      expect(eventLog.markProcessed).toHaveBeenCalledWith('ev1', {
+        response: { orderId: 'o1', sessionId: 's1', wasLate: false },
+      });
+      expect(idempotency.complete).toHaveBeenCalledWith('idem1', {
+        responseStatus: 200,
+        responseBody: MIDTRANS_ACK,
+      });
+      expect(eventLog.markFailed).not.toHaveBeenCalled();
+    });
+
+    it('short-circuits a duplicate delivery', async () => {
+      idempotency.begin.mockResolvedValue({
+        acquired: false,
+        existing: { id: 'idem1', status: 'COMPLETED' } as never,
+      });
+
+      const ack = await service.handleNotification(notification);
+
+      expect(ack).toEqual(MIDTRANS_ACK);
+      expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
+      expect(eventLog.record).not.toHaveBeenCalled();
+      expect(idempotency.complete).not.toHaveBeenCalled();
+    });
+
+    it('rejects a settlement whose gross_amount does not match the order', async () => {
+      orderRepo.findByProviderOrderId.mockResolvedValue(pendingOrder);
+
+      const ack = await service.handleNotification({
+        ...notification,
+        gross_amount: '199999.00',
+      });
+
+      expect(ack).toEqual(MIDTRANS_ACK);
+      expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
+      expect(eventLog.markFailed).toHaveBeenCalledWith('ev1', {
+        errorMessage: 'amount_mismatch',
+      });
+      expect(idempotency.fail).toHaveBeenCalledWith('idem1', {
+        errorMessage: 'amount_mismatch',
+      });
+      expect(idempotency.complete).not.toHaveBeenCalled();
+    });
+
+    it('never slides a PAID order back to pending', async () => {
+      orderRepo.findByProviderOrderId.mockResolvedValue({
+        id: 'o1',
+        amount: 200000,
+        status: 'PAID',
+      });
+
+      const ack = await service.handleNotification({
+        ...notification,
+        transaction_status: 'pending',
+        status_code: '201',
+      });
+
+      expect(ack).toEqual(MIDTRANS_ACK);
+      expect(orderRepo.update).not.toHaveBeenCalled();
+      expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
+      expect(eventLog.markProcessed).toHaveBeenCalledWith('ev1', {
+        response: { ignored: 'already_paid', incoming: 'pending' },
+      });
+      expect(eventLog.markFailed).not.toHaveBeenCalled();
+    });
+
+    it('records an unknown order_id and still acknowledges', async () => {
+      orderRepo.findByProviderOrderId.mockResolvedValue(null);
+      invoiceRepo.findByProviderOrderId.mockResolvedValue(null);
+
+      const ack = await service.handleNotification(notification);
+
+      expect(ack).toEqual(MIDTRANS_ACK);
+      expect(eventLog.markFailed).toHaveBeenCalledWith('ev1', {
+        errorMessage: 'payment_not_found',
+      });
+      expect(idempotency.fail).toHaveBeenCalledWith('idem1', {
+        errorMessage: 'payment_not_found',
+      });
+      expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
+      expect(invoices.confirmPaymentWithActivation).not.toHaveBeenCalled();
+    });
+
+    it('records an expired order without settling or cancelling it', async () => {
+      orderRepo.findByProviderOrderId.mockResolvedValue(pendingOrder);
+
+      const ack = await service.handleNotification({
+        ...notification,
+        transaction_status: 'expire',
+      });
+
+      expect(ack).toEqual(MIDTRANS_ACK);
+      expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
+      expect(cancelOrder).not.toHaveBeenCalled();
+      expect(eventLog.markProcessed).toHaveBeenCalledWith('ev1', {
+        response: { expired: true, orderId: 'o1' },
+      });
+      expect(eventLog.markFailed).not.toHaveBeenCalled();
+    });
+
+    it('keeps a denied payment retryable: no cancel, no settle', async () => {
+      orderRepo.findByProviderOrderId.mockResolvedValue(pendingOrder);
+
+      const ack = await service.handleNotification({
+        ...notification,
+        transaction_status: 'deny',
+        status_code: '202',
+      });
+
+      expect(ack).toEqual(MIDTRANS_ACK);
+      expect(cancelOrder).not.toHaveBeenCalled();
+      expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
+      expect(eventLog.markProcessed).toHaveBeenCalledWith('ev1', {
+        response: { ignored: 'deny' },
+      });
+      expect(idempotency.complete).toHaveBeenCalled();
+    });
+
+    it('settles an UNPAID invoice and activates its session', async () => {
+      invoiceRepo.findByProviderOrderId.mockResolvedValue(unpaidInvoice);
+      invoices.confirmPaymentWithActivation.mockResolvedValue({
+        outcome: 'confirmed',
+        invoice: unpaidInvoice as never,
+      });
+
+      const ack = await service.handleNotification({
+        ...notification,
+        order_id: 'inv1',
+        gross_amount: '300000.00',
+      });
+
+      expect(ack).toEqual(MIDTRANS_ACK);
+      expect(invoices.confirmPaymentWithActivation).toHaveBeenCalledWith(
+        'inv1',
+        { paidAmount: 300000, verifiedBySource: 'MIDTRANS' },
+      );
+      expect(eventLog.markProcessed).toHaveBeenCalledWith('ev1', {
+        response: { invoiceId: 'inv1', sessionId: 's1' },
+      });
+      expect(idempotency.complete).toHaveBeenCalled();
+    });
+
+    it('activates an already-PAID invoice only once', async () => {
+      invoiceRepo.findByProviderOrderId.mockResolvedValue({
+        ...unpaidInvoice,
+        status: 'PAID',
+      });
+      invoices.confirmPaymentWithActivation.mockResolvedValue({
+        outcome: 'already_paid',
+        invoice: unpaidInvoice as never,
+      });
+
+      const ack = await service.handleNotification({
+        ...notification,
+        order_id: 'inv1',
+        gross_amount: '300000.00',
+      });
+
+      expect(ack).toEqual(MIDTRANS_ACK);
+      expect(invoices.confirmPaymentWithActivation).toHaveBeenCalledTimes(1);
+      expect(eventLog.markProcessed).toHaveBeenCalledWith('ev1', {
+        response: { alreadySettled: true, invoiceId: 'inv1' },
+      });
+      expect(eventLog.markFailed).not.toHaveBeenCalled();
+    });
+
+    it('acks an unparsable body without throwing', async () => {
+      await expect(
+        service.handleNotification({ unexpected: true }),
+      ).resolves.toEqual(MIDTRANS_ACK);
+
+      expect(eventLog.record).toHaveBeenCalled();
+      expect(eventLog.markFailed).toHaveBeenCalledWith('ev1', {
+        errorMessage: 'unparsable_payload',
+      });
+      expect(idempotency.begin).not.toHaveBeenCalled();
+      expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
     });
   });
 });

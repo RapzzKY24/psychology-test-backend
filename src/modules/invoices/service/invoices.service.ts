@@ -58,6 +58,19 @@ export class InvoicesService {
     return this.repo.findByVaNumber(vaNumber);
   }
 
+  /** Provider-agnostic lookup: the id Midtrans echoes back on every notification. */
+  findByProviderOrderId(providerOrderId: string): Promise<Invoice | null> {
+    return this.repo.findByProviderOrderId(providerOrderId);
+  }
+
+  /** Record the method the customer actually paid with (best effort). */
+  async updatePaymentType(
+    invoiceId: string,
+    paymentType: string,
+  ): Promise<void> {
+    await this.repo.update(invoiceId, { paymentType });
+  }
+
   confirmPaymentWithActivation(
     invoiceId: string,
     params: ConfirmInvoicePaymentParams,

@@ -254,6 +254,16 @@ export class OrdersService {
     return this.repo.findByVaNumber(vaNumber);
   }
 
+  /** Provider-agnostic lookup: the id Midtrans echoes back on every notification. */
+  findByProviderOrderId(providerOrderId: string): Promise<Order | null> {
+    return this.repo.findByProviderOrderId(providerOrderId);
+  }
+
+  /** Record the method the customer actually paid with (best effort). */
+  async updatePaymentType(orderId: string, paymentType: string): Promise<void> {
+    await this.repo.update(orderId, { paymentType });
+  }
+
   /** Gateway-sourced unlock; the repository re-checks status transactionally (exactly-once). */
   confirmExternalPayment(orderId: string): Promise<VerifyPaymentResult> {
     return this.repo.confirmExternalPayment(orderId);

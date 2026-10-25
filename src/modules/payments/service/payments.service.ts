@@ -16,19 +16,26 @@ import {
   type PaymentProviderEnv,
 } from '../../../common/constants/payment-provider';
 import { PaymentGatewayError } from '../gateway/payment-gateway.error';
+import type { GatewayPaymentStatus } from '../gateway/payment-gateway.interface';
 import { VaCallbackSchema } from '../../jokul/dto/jokul.dto';
 import type { VaCallback } from '../../jokul/dto/jokul.dto';
+import { MidtransNotificationSchema } from '../../midtrans/dto/midtrans.dto';
+import type { MidtransNotification } from '../../midtrans/dto/midtrans.dto';
+import { mapTransactionStatus } from '../../midtrans/utils/map-status';
 import { MS_PER_MINUTE } from '../../../common/constants/time';
 import { amountMatches } from '../utils/amount-matches';
 import {
   JOKUL_ACK,
+  MIDTRANS_ACK,
+  MIDTRANS_NOTIFICATION_EVENT_TYPE,
+  MIDTRANS_NOTIFICATION_SCOPE,
   VA_CALLBACK_EVENT_TYPE,
   VA_CALLBACK_KEY_PREFIX,
   VA_CALLBACK_PAID_STATUS,
   VA_CALLBACK_SCOPE,
   VA_INQUIRY_PAID_STATUS,
 } from '../constants/payments';
-import type { JokulAck } from '../constants/payments';
+import type { JokulAck, MidtransAck } from '../constants/payments';
 
 /** Shape returned by both payment services' `inquiryVa` (legacy Jokul status codes). */
 type VaInquiryResult = Awaited<ReturnType<OrderPaymentService['inquiryVa']>>;
@@ -126,6 +133,61 @@ export class PaymentsService {
       });
     }
     return JOKUL_ACK;
+  }
+
+  /**
+   * Handle a Midtrans HTTP notification. Idempotent per
+   * `order_id:transaction_status:status_code` and always answers
+   * `{ ok: true }` so Midtrans stops retrying; business outcomes are kept in
+   * the event log instead of the HTTP status.
+   */
+  async handleNotification(body: unknown): Promise<MidtransAck> {
+    const parsed = MidtransNotificationSchema.safeParse(body);
+    if (!parsed.success) {
+      // Same policy as the Jokul path: an unparsable body is recorded, never
+      // turned into a retry storm.
+      const event = await this.eventLog.record({
+        source: 'MIDTRANS',
+        direction: 'INBOUND',
+        type: MIDTRANS_NOTIFICATION_EVENT_TYPE,
+        payload: { raw: body },
+      });
+      await this.eventLog.markFailed(event.id, {
+        errorMessage: 'unparsable_payload',
+      });
+      return MIDTRANS_ACK;
+    }
+
+    const payload = parsed.data;
+    // A retried notification carries the same triple, so a redelivery is
+    // dropped; a genuine state change (pending -> settlement) is not.
+    const key = `${payload.order_id}:${payload.transaction_status}:${payload.status_code}`;
+
+    const claim = await this.idempotency.begin({
+      scope: MIDTRANS_NOTIFICATION_SCOPE,
+      key,
+    });
+    if (!claim.acquired) return MIDTRANS_ACK;
+
+    const event = await this.eventLog.record({
+      source: 'MIDTRANS',
+      direction: 'INBOUND',
+      type: MIDTRANS_NOTIFICATION_EVENT_TYPE,
+      reference: payload.order_id,
+      idempotencyKey: key,
+      payload: this.redactMidtrans(payload),
+    });
+
+    const outcome = await this.applyNotification(payload, event.id);
+    if (outcome.kind === 'rejected') {
+      await this.idempotency.fail(claim.id, { errorMessage: outcome.reason });
+    } else {
+      await this.idempotency.complete(claim.id, {
+        responseStatus: 200,
+        responseBody: MIDTRANS_ACK,
+      });
+    }
+    return MIDTRANS_ACK;
   }
 
   /** Replay inbound callbacks that were never finalized (e.g. a crash mid-handling). */
@@ -431,6 +493,230 @@ export class PaymentsService {
       totalAmount: payload.totalAmount,
       trxDateTime: payload.trxDateTime,
       latestTransactionStatus: this.callbackStatus(payload),
+    };
+  }
+
+  /**
+   * Resolve the notification target: a gateway order first, then a session
+   * invoice. Midtrans only echoes `order_id` (our `providerOrderId`), so an
+   * unknown id is recorded and rejected — but still acked.
+   */
+  private async applyNotification(
+    payload: MidtransNotification,
+    eventId: string,
+  ): Promise<CallbackOutcome> {
+    const status = mapTransactionStatus(
+      payload.transaction_status,
+      payload.fraud_status ?? null,
+    );
+
+    const order = await this.orders.findByProviderOrderId(payload.order_id);
+    if (order) {
+      return this.applyOrderNotification(order, payload, status, eventId);
+    }
+
+    const invoice = await this.invoices.findByProviderOrderId(payload.order_id);
+    if (invoice) {
+      return this.applyInvoiceNotification(invoice, payload, status, eventId);
+    }
+
+    await this.eventLog.markFailed(eventId, {
+      errorMessage: 'payment_not_found',
+    });
+    return { kind: 'rejected', reason: 'payment_not_found' };
+  }
+
+  private async applyOrderNotification(
+    order: Order,
+    payload: MidtransNotification,
+    status: GatewayPaymentStatus,
+    eventId: string,
+  ): Promise<CallbackOutcome> {
+    // Monotonic guard: a paid order never slides back to a non-paid state, no
+    // matter what the provider reports afterwards.
+    if (order.status === 'PAID' && status !== 'PAID') {
+      await this.eventLog.markProcessed(eventId, {
+        response: {
+          ignored: 'already_paid',
+          incoming: payload.transaction_status,
+        },
+      });
+      return { kind: 'ignored', reason: 'already_paid' };
+    }
+
+    switch (status) {
+      case 'PAID': {
+        if (!amountMatches(payload.gross_amount, order.amount)) {
+          await this.eventLog.markFailed(eventId, {
+            errorMessage: 'amount_mismatch',
+          });
+          return { kind: 'rejected', reason: 'amount_mismatch' };
+        }
+
+        const result = await this.orders.confirmExternalPayment(order.id);
+        if (result.outcome === 'conflict') {
+          await this.eventLog.markProcessed(eventId, {
+            response: { alreadySettled: true, orderId: order.id },
+          });
+          return { kind: 'ignored', reason: 'already_settled' };
+        }
+        if (result.outcome !== 'verified') {
+          await this.eventLog.markFailed(eventId, {
+            errorMessage: `settle_${result.outcome}`,
+          });
+          return { kind: 'rejected', reason: `settle_${result.outcome}` };
+        }
+
+        await this.persistPaymentType(
+          'order',
+          order.id,
+          payload.payment_type ?? null,
+        );
+        await this.eventLog.markProcessed(eventId, {
+          response: {
+            orderId: order.id,
+            sessionId: result.sessionId,
+            wasLate: result.wasLate,
+          },
+        });
+        return { kind: 'settled' };
+      }
+
+      case 'EXPIRED':
+        // OrdersService exposes no markExpired; the lazy expiry in
+        // OrdersService.listPayments settles the stored status, so only the
+        // provider verdict is recorded here.
+        await this.eventLog.markProcessed(eventId, {
+          response: { expired: true, orderId: order.id },
+        });
+        return { kind: 'ignored', reason: 'expired' };
+
+      case 'FAILED':
+        // A deny/failure is retryable: Midtrans lets the customer pay the same
+        // order_id again, so the order must NOT be cancelled. A `cancel` is
+        // different — that transaction is dead.
+        if (
+          payload.transaction_status.toLowerCase() === 'cancel' &&
+          order.status === 'PENDING'
+        ) {
+          try {
+            await this.orders.cancel(order.id, 'midtrans_cancel');
+          } catch (error) {
+            // A concurrent settle/cancel won the race; nothing to undo.
+            this.logger.warn(
+              `midtrans cancel ${order.id} skipped: ${error instanceof Error ? error.message : 'unknown_error'}`,
+            );
+          }
+        }
+        await this.eventLog.markProcessed(eventId, {
+          response: { ignored: payload.transaction_status },
+        });
+        return { kind: 'ignored', reason: 'non_paid_status' };
+
+      case 'PENDING':
+        await this.eventLog.markProcessed(eventId, {
+          response: { pending: true },
+        });
+        return { kind: 'ignored', reason: 'non_paid_status' };
+    }
+  }
+
+  private async applyInvoiceNotification(
+    invoice: Invoice,
+    payload: MidtransNotification,
+    status: GatewayPaymentStatus,
+    eventId: string,
+  ): Promise<CallbackOutcome> {
+    if (invoice.status === 'PAID' && status !== 'PAID') {
+      await this.eventLog.markProcessed(eventId, {
+        response: {
+          ignored: 'already_paid',
+          incoming: payload.transaction_status,
+        },
+      });
+      return { kind: 'ignored', reason: 'already_paid' };
+    }
+
+    if (status !== 'PAID') {
+      // InvoiceStatus has no EXPIRED and an unpaid invoice stays payable, so
+      // the stored status is never touched here.
+      await this.eventLog.markProcessed(eventId, {
+        response: { ignored: payload.transaction_status },
+      });
+      return { kind: 'ignored', reason: 'non_paid_status' };
+    }
+
+    // No amount guard here on purpose: confirmPaymentWithActivation compares
+    // the paid amount with the invoice amount internally, exactly as the Jokul
+    // path relies on.
+    const result = await this.invoices.confirmPaymentWithActivation(
+      invoice.id,
+      {
+        paidAmount: Number(payload.gross_amount),
+        verifiedBySource: 'MIDTRANS',
+      },
+    );
+    if (result.outcome === 'already_paid') {
+      await this.eventLog.markProcessed(eventId, {
+        response: { alreadySettled: true, invoiceId: invoice.id },
+      });
+      return { kind: 'ignored', reason: 'already_settled' };
+    }
+    if (result.outcome !== 'confirmed') {
+      await this.eventLog.markFailed(eventId, {
+        errorMessage: `settle_${result.outcome}`,
+      });
+      return { kind: 'rejected', reason: `settle_${result.outcome}` };
+    }
+
+    await this.persistPaymentType(
+      'invoice',
+      invoice.id,
+      payload.payment_type ?? null,
+    );
+    await this.eventLog.markProcessed(eventId, {
+      response: { invoiceId: invoice.id, sessionId: invoice.sessionId },
+    });
+    return { kind: 'settled' };
+  }
+
+  /**
+   * Store the method the customer actually paid with. Best effort: the
+   * settlement is already committed, so a failed write is only logged.
+   */
+  private async persistPaymentType(
+    kind: 'order' | 'invoice',
+    id: string,
+    paymentType: string | null,
+  ): Promise<void> {
+    if (!paymentType) return;
+    try {
+      if (kind === 'order') {
+        await this.orders.updatePaymentType(id, paymentType);
+      } else {
+        await this.invoices.updatePaymentType(id, paymentType);
+      }
+    } catch (error) {
+      this.logger.warn(
+        `persist paymentType ${kind} ${id} failed: ${error instanceof Error ? error.message : 'unknown_error'}`,
+      );
+    }
+  }
+
+  /** Notification payload without the signature or any credential. */
+  private redactMidtrans(
+    payload: MidtransNotification,
+  ): Record<string, unknown> {
+    return {
+      order_id: payload.order_id,
+      transaction_id: payload.transaction_id,
+      transaction_status: payload.transaction_status,
+      status_code: payload.status_code,
+      fraud_status: payload.fraud_status,
+      payment_type: payload.payment_type,
+      gross_amount: payload.gross_amount,
+      transaction_time: payload.transaction_time,
+      expiry_time: payload.expiry_time,
     };
   }
 }
