@@ -25,7 +25,6 @@
     "seed:admin": "tsx src/scripts/seed-admin.ts",
     "seed:disc": "tsx src/scripts/seed-disc.ts",
     "seed:cpmi": "tsx src/scripts/seed-cpmi.ts",
-    "migrate:cancel-gdc-vas": "tsx src/scripts/cancel-pending-gdc-vas.ts",
     "seed:wpt": "tsx src/scripts/seed-wpt.ts"
   },
   "dependencies": {

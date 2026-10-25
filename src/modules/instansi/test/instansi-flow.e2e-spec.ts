@@ -170,7 +170,7 @@ describe('Instansi flow (integration, DB real)', () => {
     // When: the batch invoice settles, the session activates
     const settlement = await invoicesService.confirmPaymentWithActivation(
       invoice.id,
-      { paidAmount: invoice.amount, verifiedBySource: 'DOKU' },
+      { paidAmount: invoice.amount, verifiedBySource: 'JOKUL' },
     );
     expect(settlement.outcome).toBe('confirmed');
     const activated = await prisma.testSession.findUniqueOrThrow({

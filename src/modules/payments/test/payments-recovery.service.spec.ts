@@ -35,7 +35,7 @@ describe('PaymentsRecoveryService', () => {
     config = {
       get: jest.fn((key: string, fallback?: unknown) => {
         const map: Record<string, unknown> = {
-          'app.paymentProvider': 'doku',
+          'app.paymentProvider': 'jokul',
           'app.recovery.intervalMin': 5,
         };
         return map[key] ?? fallback;

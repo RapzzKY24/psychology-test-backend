@@ -45,7 +45,7 @@ describe('PrismaInvoicesRepository.confirmPaymentWithActivation', () => {
 
     const result = await makeRepo(t).confirmPaymentWithActivation('inv1', {
       paidAmount: 300000,
-      verifiedBySource: 'DOKU',
+      verifiedBySource: 'JOKUL',
     });
 
     expect(result.outcome).toBe('not_found');
@@ -58,7 +58,7 @@ describe('PrismaInvoicesRepository.confirmPaymentWithActivation', () => {
 
     const result = await makeRepo(t).confirmPaymentWithActivation('inv1', {
       paidAmount: 300000,
-      verifiedBySource: 'DOKU',
+      verifiedBySource: 'JOKUL',
     });
 
     expect(result.outcome).toBe('already_paid');
@@ -72,7 +72,7 @@ describe('PrismaInvoicesRepository.confirmPaymentWithActivation', () => {
 
     const result = await makeRepo(t).confirmPaymentWithActivation('inv1', {
       paidAmount: 300000,
-      verifiedBySource: 'DOKU',
+      verifiedBySource: 'JOKUL',
     });
 
     expect(result).toEqual({
@@ -88,7 +88,7 @@ describe('PrismaInvoicesRepository.confirmPaymentWithActivation', () => {
 
     const result = await makeRepo(t).confirmPaymentWithActivation('inv1', {
       paidAmount: 299999,
-      verifiedBySource: 'DOKU',
+      verifiedBySource: 'JOKUL',
     });
 
     expect(result.outcome).toBe('amount_mismatch');
@@ -104,8 +104,7 @@ describe('PrismaInvoicesRepository.confirmPaymentWithActivation', () => {
 
     const result = await makeRepo(t).confirmPaymentWithActivation('inv1', {
       paidAmount: 300000,
-      verifiedBySource: 'DOKU',
-      gdcTrxId: 'trx1',
+      verifiedBySource: 'JOKUL',
     });
 
     expect(result.outcome).toBe('confirmed');
@@ -119,8 +118,7 @@ describe('PrismaInvoicesRepository.confirmPaymentWithActivation', () => {
     ];
     expect(updateArgs.data).toMatchObject({
       status: 'PAID',
-      verifiedBySource: 'DOKU',
-      gdcTrxId: 'trx1',
+      verifiedBySource: 'JOKUL',
     });
     expect(t.testSession.updateMany).toHaveBeenCalledWith({
       where: { id: 'sess1', status: 'PENDING_PAYMENT' },
@@ -137,7 +135,7 @@ describe('PrismaInvoicesRepository.confirmPaymentWithActivation', () => {
 
     const result = await makeRepo(t).confirmPaymentWithActivation('inv1', {
       paidAmount: 300000,
-      verifiedBySource: 'DOKU',
+      verifiedBySource: 'JOKUL',
     });
 
     expect(result.outcome).toBe('already_paid');
@@ -158,9 +156,6 @@ describe('PrismaInvoicesRepository.regenerateAmount', () => {
         amount: 150000,
         vaNumber: null,
         vaBankCode: null,
-        gdcTrxId: null,
-        gdcReferenceNo: null,
-        gdcExternalId: null,
       },
     });
   });

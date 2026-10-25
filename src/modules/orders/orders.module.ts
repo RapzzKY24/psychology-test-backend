@@ -6,7 +6,7 @@ import { PublicQrisController } from './controller/qris.controller';
 import { OrdersService } from './service/orders.service';
 import { OrderVaService } from './service/order-va.service';
 import { QrisService } from './service/qris.service';
-import { DokuModule } from '../doku/doku.module';
+import { JokulModule } from '../jokul/jokul.module';
 import { EventLogModule } from '../event-log/event-log.module';
 import { IdempotencyModule } from '../idempotency/idempotency.module';
 import { PrismaOrdersRepository } from './repository/orders.prisma-repository';
@@ -15,7 +15,7 @@ import { ORDERS_REPOSITORY } from './repository/orders.repository';
 import { QRIS_REPOSITORY } from './repository/qris.repository';
 
 @Module({
-  imports: [DokuModule, EventLogModule, IdempotencyModule],
+  imports: [JokulModule, EventLogModule, IdempotencyModule],
   controllers: [
     OrdersController,
     AdminPaymentsController,

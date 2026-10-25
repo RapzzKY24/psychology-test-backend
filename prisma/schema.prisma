@@ -97,17 +97,20 @@ enum DeliveryStatus {
 
 enum PaymentProvider {
   MANUAL_QRIS
-  DOKU_VA
+  JOKUL_VA
+  MIDTRANS_SNAP
 }
 
 enum PaymentVerifiedBySource {
   ADMIN
-  DOKU
+  JOKUL
+  MIDTRANS
 }
 
 enum EventSource {
-  DOKU
+  JOKUL
   MANUAL
+  MIDTRANS
 }
 
 enum EventDirection {
@@ -439,9 +442,10 @@ model Invoice {
   paymentProvider  PaymentProvider?
   vaNumber         String?                   @unique
   vaBankCode       String?
-  gdcTrxId         String?
-  gdcReferenceNo   String?
-  gdcExternalId    String?
+  providerOrderId  String?                   @unique
+  paymentToken     String?
+  paymentUrl       String?
+  paymentType      String?
   verifiedBySource PaymentVerifiedBySource?
   verifiedAt       DateTime?
   createdAt        DateTime                  @default(now())
@@ -470,9 +474,10 @@ model Order {
   paymentProvider   PaymentProvider?
   vaNumber          String?
   vaBankCode        String?
-  gdcTrxId          String?
-  gdcReferenceNo    String?
-  gdcExternalId     String?
+  providerOrderId   String?                   @unique
+  paymentToken      String?
+  paymentUrl        String?
+  paymentType       String?
   createdAt         DateTime                   @default(now())
   updatedAt         DateTime                   @updatedAt
   test              Test                       @relation(fields: [testId], references: [id])

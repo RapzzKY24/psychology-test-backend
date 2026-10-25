@@ -5,20 +5,18 @@ import type { InvoicesRepository } from '../repository/invoices.repository';
 import type { Invoice, Prisma } from '../../../generated/prisma/client';
 import { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import { EventLogService } from '../../event-log/service/event-log.service';
-import { DokuApiError } from '../../doku/errors/doku-api.error';
-import { DEFAULT_VA_BANK_CODE } from '../../doku/constants/doku';
+import { JokulApiError } from '../../jokul/errors/jokul-api.error';
+import { DEFAULT_VA_BANK_CODE } from '../../jokul/constants/jokul';
 import {
   PAYMENT_GATEWAY,
-  type CreateVaResult,
+  type CreatePaymentResult,
   type PaymentGateway,
-  type VaInquiryParams,
-  type VaInquiryResult,
-} from '../../doku/gateway/payment-gateway.interface';
+} from '../../payments/gateway/payment-gateway.interface';
 
 // Distinct namespace from orders so VA idempotency keys never collide.
-const VA_CREATE_SCOPE = 'doku.invoice.va.create';
+const VA_CREATE_SCOPE = 'jokul.invoice.va.create';
 // Separate scope so an amount change re-issues instead of replaying the cached VA.
-const VA_REPROVISION_SCOPE = 'doku.invoice.va.reprovision';
+const VA_REPROVISION_SCOPE = 'jokul.invoice.va.reprovision';
 
 @Injectable()
 export class InvoiceVaService {
@@ -32,11 +30,11 @@ export class InvoiceVaService {
     private readonly config: ConfigService,
   ) {}
 
-  /** The VA provider is usable when DOKU is selected or the dev stub is on. */
+  /** The VA provider is usable when Jokul is selected or the dev stub is on. */
   isEnabled(): boolean {
     return (
-      this.config.get<boolean>('app.doku.stub') === true ||
-      this.config.get<string>('app.paymentProvider') === 'doku'
+      this.config.get<boolean>('app.jokul.stub') === true ||
+      this.config.get<string>('app.paymentProvider') === 'jokul'
     );
   }
 
@@ -68,8 +66,20 @@ export class InvoiceVaService {
   }
 
   /** Poll the provider for this VA's settlement status (reconciliation). */
-  inquiryVa(params: VaInquiryParams): Promise<VaInquiryResult> {
-    return this.gateway.inquiryVa(params);
+  async inquiryVa(params: {
+    vaNumber: string;
+    paymentRequestId?: string;
+    externalId?: string;
+  }): Promise<{ vaNumber: string; status: string; paidAmount: number | null }> {
+    const result = await this.gateway.getStatus({
+      providerOrderId: params.externalId ?? params.vaNumber,
+      vaNumber: params.vaNumber,
+    });
+    return {
+      vaNumber: params.vaNumber,
+      status: result.status === 'PAID' ? '00' : 'PENDING',
+      paidAmount: result.paidAmount,
+    };
   }
 
   private async issueVa(
@@ -87,15 +97,14 @@ export class InvoiceVaService {
       return this.repo.update(
         invoice.id,
         this.toColumns(
-          externalId,
-          claim.existing.responseBody as unknown as CreateVaResult,
+          claim.existing.responseBody as unknown as CreatePaymentResult,
         ),
       );
     }
     const claimId = claim.acquired ? claim.id : claim.existing.id;
 
     const event = await this.eventLog.record({
-      source: 'DOKU',
+      source: 'JOKUL',
       direction: 'OUTBOUND',
       type: 'CREATE_VA_REQUEST',
       aggregateType: 'Invoice',
@@ -109,22 +118,22 @@ export class InvoiceVaService {
       },
     });
 
-    let result: CreateVaResult;
+    let result: CreatePaymentResult;
     try {
-      result = await this.gateway.createVa({
+      result = await this.gateway.createPayment({
         externalId,
         amount: invoice.amount,
-        name,
         expiresAt:
           invoice.expiresAt ??
           new Date(Date.now() + this.paymentTtlMin * 60 * 1000),
+        customer: { name },
       });
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'unknown_error';
       await this.eventLog.markFailed(event.id, { errorMessage });
       await this.idempotency.fail(claimId, { errorMessage });
-      if (error instanceof DokuApiError) {
+      if (error instanceof JokulApiError) {
         throw new BadGatewayException('payment_gateway_failed');
       }
       throw error;
@@ -135,24 +144,21 @@ export class InvoiceVaService {
       responseStatus: 200,
       responseBody: result,
     });
-    return this.repo.update(invoice.id, this.toColumns(externalId, result));
+    return this.repo.update(invoice.id, this.toColumns(result));
   }
 
   private get paymentTtlMin(): number {
     return this.config.get<number>('app.paymentTtlMin', 60);
   }
 
-  private toColumns(
-    externalId: string,
-    result: CreateVaResult,
-  ): Prisma.InvoiceUpdateInput {
+  private toColumns(result: CreatePaymentResult): Prisma.InvoiceUpdateInput {
+    if (!result.vaNumber) {
+      throw new BadGatewayException('payment_gateway_failed');
+    }
     return {
       vaNumber: result.vaNumber,
-      vaBankCode: result.bankCode,
-      gdcTrxId: result.trxId,
-      gdcReferenceNo: result.referenceNo,
-      gdcExternalId: externalId,
-      paymentProvider: 'DOKU_VA',
+      vaBankCode: result.bankCode ?? DEFAULT_VA_BANK_CODE,
+      paymentProvider: 'JOKUL_VA',
     };
   }
 }

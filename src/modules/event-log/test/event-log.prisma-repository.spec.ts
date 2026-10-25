@@ -13,7 +13,7 @@ describe('PrismaEventLogRepository', () => {
   const now = new Date('2026-10-17T00:00:00Z');
   const row = {
     id: 'ev1',
-    source: 'DOKU',
+    source: 'JOKUL',
     direction: 'INBOUND',
     type: 'VA_CALLBACK_RECEIVED',
     status: 'RECEIVED',
@@ -42,7 +42,7 @@ describe('PrismaEventLogRepository', () => {
     model.create.mockResolvedValue(row);
 
     const result = await repo.create({
-      source: 'DOKU',
+      source: 'JOKUL',
       direction: 'INBOUND',
       type: 'VA_CALLBACK_RECEIVED',
       aggregateType: 'Order',
@@ -55,7 +55,7 @@ describe('PrismaEventLogRepository', () => {
     expect(data.aggregateId).toBe('o1');
     expect(result).toEqual({
       id: 'ev1',
-      source: 'DOKU',
+      source: 'JOKUL',
       direction: 'INBOUND',
       type: 'VA_CALLBACK_RECEIVED',
       status: 'RECEIVED',

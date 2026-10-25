@@ -20,7 +20,6 @@ import { OrdersModule } from './modules/orders/orders.module';
 import { InvoicesModule } from './modules/invoices/invoices.module';
 import { IdempotencyModule } from './modules/idempotency/idempotency.module';
 import { EventLogModule } from './modules/event-log/event-log.module';
-import { DokuModule } from './modules/doku/doku.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 
 @Module({
@@ -42,7 +41,6 @@ import { PaymentsModule } from './modules/payments/payments.module';
     InvoicesModule,
     IdempotencyModule,
     EventLogModule,
-    DokuModule,
     PaymentsModule,
   ],
   controllers: [AppController],

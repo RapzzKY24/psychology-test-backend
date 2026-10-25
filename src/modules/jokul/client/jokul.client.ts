@@ -5,15 +5,18 @@ import { signTransaction } from '../utils/signature-transaction';
 import {
   CreateVirtualAccountResponseSchema,
   VaInquiryResponseSchema,
-} from '../dto/doku.dto';
+} from '../dto/jokul.dto';
 import type {
   CreateVirtualAccountInput,
   InquiryVaInput,
-} from '../dto/doku.dto';
-import { DokuApiError } from '../errors/doku-api.error';
-import { DokuTokenProvider } from './doku-token.provider';
-import { DOKU_PATH_CREATE_VA, DOKU_PATH_VA_INQUIRY } from '../constants/doku';
-import type { DokuConfig } from './doku.config';
+} from '../dto/jokul.dto';
+import { JokulApiError } from '../errors/jokul-api.error';
+import { JokulTokenProvider } from './jokul-token.provider';
+import {
+  JOKUL_PATH_CREATE_VA,
+  JOKUL_PATH_VA_INQUIRY,
+} from '../constants/jokul';
+import type { JokulConfig } from './jokul.config';
 
 export interface CreateVirtualAccountResult {
   virtualAccountNo: string;
@@ -28,14 +31,14 @@ export interface InquiryVaResult {
 }
 
 @Injectable()
-export class DokuClient {
+export class JokulClient {
   constructor(
     private readonly config: ConfigService,
-    private readonly tokens: DokuTokenProvider,
+    private readonly tokens: JokulTokenProvider,
   ) {}
 
-  private get cfg(): DokuConfig {
-    return this.config.get<DokuConfig>('app.doku')!;
+  private get cfg(): JokulConfig {
+    return this.config.get<JokulConfig>('app.jokul')!;
   }
 
   /** HMAC-signed POST. `externalId` is caller-supplied so retries reuse it. */
@@ -46,9 +49,9 @@ export class DokuClient {
   ): Promise<unknown> {
     const { baseUrl, clientId, channelId, secretKey } = this.cfg;
     if (!baseUrl || !clientId || !secretKey) {
-      throw new DokuApiError(
+      throw new JokulApiError(
         'request_failed',
-        'Doku credentials are not configured',
+        'Jokul credentials are not configured',
         undefined,
         path,
       );
@@ -78,9 +81,9 @@ export class DokuClient {
       body: payload,
     });
     if (!response.ok) {
-      throw new DokuApiError(
+      throw new JokulApiError(
         'request_failed',
-        `Doku request failed: ${path}`,
+        `Jokul request failed: ${path}`,
         response.status,
         path,
       );
@@ -93,14 +96,14 @@ export class DokuClient {
     externalId: string,
   ): Promise<CreateVirtualAccountResult> {
     const result = CreateVirtualAccountResponseSchema.safeParse(
-      await this.signedPost(DOKU_PATH_CREATE_VA, input, externalId),
+      await this.signedPost(JOKUL_PATH_CREATE_VA, input, externalId),
     );
     if (!result.success) {
-      throw new DokuApiError(
+      throw new JokulApiError(
         'request_failed',
-        'Unexpected Doku create-va response',
+        'Unexpected Jokul create-va response',
         undefined,
-        DOKU_PATH_CREATE_VA,
+        JOKUL_PATH_CREATE_VA,
       );
     }
     const { virtualAccountData } = result.data;
@@ -116,14 +119,14 @@ export class DokuClient {
     externalId: string,
   ): Promise<InquiryVaResult> {
     const result = VaInquiryResponseSchema.safeParse(
-      await this.signedPost(DOKU_PATH_VA_INQUIRY, input, externalId),
+      await this.signedPost(JOKUL_PATH_VA_INQUIRY, input, externalId),
     );
     if (!result.success) {
-      throw new DokuApiError(
+      throw new JokulApiError(
         'request_failed',
-        'Unexpected Doku va-inquiry response',
+        'Unexpected Jokul va-inquiry response',
         undefined,
-        DOKU_PATH_VA_INQUIRY,
+        JOKUL_PATH_VA_INQUIRY,
       );
     }
     const data = result.data.virtualAccountData;

@@ -1,7 +1,7 @@
 import { BadGatewayException } from '@nestjs/common';
 import { OrderVaService } from '../service/order-va.service';
-import { DokuApiError } from '../../doku/errors/doku-api.error';
-import type { PaymentGateway } from '../../doku/gateway/payment-gateway.interface';
+import { JokulApiError } from '../../jokul/errors/jokul-api.error';
+import type { PaymentGateway } from '../../payments/gateway/payment-gateway.interface';
 import type { OrdersRepository } from '../repository/orders.repository';
 import type { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import type { EventLogService } from '../../event-log/service/event-log.service';
@@ -16,7 +16,7 @@ describe('OrderVaService', () => {
     Pick<IdempotencyService, 'begin' | 'complete' | 'fail'>
   >;
   let eventLog: jest.Mocked<Pick<EventLogService, 'record' | 'markProcessed'>>;
-  let gateway: jest.Mocked<Pick<PaymentGateway, 'createVa' | 'inquiryVa'>>;
+  let gateway: jest.Mocked<Pick<PaymentGateway, 'createPayment' | 'getStatus'>>;
   let config: { get: jest.Mock };
 
   const baseOrder = {
@@ -27,15 +27,17 @@ describe('OrderVaService', () => {
     uniqueCode: 0,
     amount: 200000,
     status: 'PENDING',
-    paymentProvider: 'DOKU_VA',
+    paymentProvider: 'JOKUL_VA',
     expiresAt: new Date(Date.now() + 3600_000),
   };
 
-  const vaResult = {
+  const paymentResult = {
+    providerOrderId: 'o1',
+    token: '',
+    redirectUrl: '',
+    transactionId: 'o1',
     vaNumber: '19008172',
     bankCode: '014',
-    trxId: 'o1',
-    referenceNo: 'ref-1',
   };
 
   beforeEach(() => {
@@ -47,11 +49,11 @@ describe('OrderVaService', () => {
     };
     idempotency = { begin: jest.fn(), complete: jest.fn(), fail: jest.fn() };
     eventLog = { record: jest.fn(), markProcessed: jest.fn() };
-    gateway = { createVa: jest.fn(), inquiryVa: jest.fn() };
+    gateway = { createPayment: jest.fn(), getStatus: jest.fn() };
     config = {
       get: jest.fn((key: string, fallback?: unknown) => {
         const map: Record<string, unknown> = {
-          'app.paymentProvider': 'doku',
+          'app.paymentProvider': 'jokul',
           'app.paymentTtlMin': 60,
         };
         return map[key] ?? fallback;
@@ -75,7 +77,7 @@ describe('OrderVaService', () => {
 
   it('isEnabled is true under the dev stub even without provider=doku', () => {
     config.get.mockImplementation((key: string) =>
-      key === 'app.doku.stub' ? true : 'manual',
+      key === 'app.jokul.stub' ? true : 'manual',
     );
     expect(service.isEnabled()).toBe(true);
   });
@@ -84,13 +86,13 @@ describe('OrderVaService', () => {
     repo.create.mockResolvedValue(baseOrder as never);
     idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
     eventLog.record.mockResolvedValue({ id: 'ev1' } as never);
-    gateway.createVa.mockResolvedValue(vaResult);
+    gateway.createPayment.mockResolvedValue(paymentResult);
     eventLog.markProcessed.mockResolvedValue(undefined);
     idempotency.complete.mockResolvedValue(undefined);
     repo.update.mockResolvedValue({
       ...baseOrder,
-      vaNumber: vaResult.vaNumber,
-      vaBankCode: vaResult.bankCode,
+      vaNumber: paymentResult.vaNumber,
+      vaBankCode: paymentResult.bankCode,
     } as never);
 
     const order = await service.createVaOrder('t1', 'u1', 200000, 'DISC');
@@ -100,19 +102,19 @@ describe('OrderVaService', () => {
         basePrice: 200000,
         uniqueCode: 0,
         amount: 200000,
-        paymentProvider: 'DOKU_VA',
+        paymentProvider: 'JOKUL_VA',
       }),
     );
-    expect(gateway.createVa).toHaveBeenCalledWith(
+    expect(gateway.createPayment).toHaveBeenCalledWith(
       expect.objectContaining({
         externalId: 'o1',
         amount: 200000,
-        name: 'DISC',
+        customer: { name: 'DISC' },
       }),
     );
     expect(idempotency.complete).toHaveBeenCalledWith('idem1', {
       responseStatus: 200,
-      responseBody: vaResult,
+      responseBody: paymentResult,
     });
     expect(repo.update).toHaveBeenCalledWith(
       'o1',
@@ -122,10 +124,11 @@ describe('OrderVaService', () => {
   });
 
   it('delegates inquiry to the gateway seam', async () => {
-    gateway.inquiryVa.mockResolvedValue({
-      vaNumber: '19008172',
-      status: '00',
+    gateway.getStatus.mockResolvedValue({
+      providerOrderId: 'o1',
+      status: 'PAID',
       paidAmount: 200000,
+      paymentType: null,
     });
 
     const result = await service.inquiryVa({
@@ -134,10 +137,9 @@ describe('OrderVaService', () => {
       externalId: 'o1',
     });
 
-    expect(gateway.inquiryVa).toHaveBeenCalledWith({
+    expect(gateway.getStatus).toHaveBeenCalledWith({
+      providerOrderId: 'o1',
       vaNumber: '19008172',
-      paymentRequestId: 'trx1',
-      externalId: 'o1',
     });
     expect(result.status).toBe('00');
   });
@@ -149,17 +151,17 @@ describe('OrderVaService', () => {
       existing: {
         id: 'idem1',
         status: 'COMPLETED',
-        responseBody: vaResult,
+        responseBody: paymentResult,
       } as never,
     });
     repo.update.mockResolvedValue({
       ...baseOrder,
-      vaNumber: vaResult.vaNumber,
+      vaNumber: paymentResult.vaNumber,
     } as never);
 
     await service.createVaOrder('t1', 'u1', 200000, 'DISC');
 
-    expect(gateway.createVa).not.toHaveBeenCalled();
+    expect(gateway.createPayment).not.toHaveBeenCalled();
     expect(eventLog.record).not.toHaveBeenCalled();
     expect(repo.update).toHaveBeenCalledWith(
       'o1',
@@ -172,18 +174,21 @@ describe('OrderVaService', () => {
     repo.findTestById.mockResolvedValue({ name: 'DISC Form A' } as never);
     idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
     eventLog.record.mockResolvedValue({ id: 'ev1' } as never);
-    gateway.createVa.mockResolvedValue(vaResult);
+    gateway.createPayment.mockResolvedValue(paymentResult);
     eventLog.markProcessed.mockResolvedValue(undefined);
     idempotency.complete.mockResolvedValue(undefined);
     repo.update.mockResolvedValue({
       ...baseOrder,
-      vaNumber: vaResult.vaNumber,
+      vaNumber: paymentResult.vaNumber,
     } as never);
 
     const order = await service.reprovision('o1');
 
-    expect(gateway.createVa).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'DISC Form A', externalId: 'o1' }),
+    expect(gateway.createPayment).toHaveBeenCalledWith(
+      expect.objectContaining({
+        customer: { name: 'DISC Form A' },
+        externalId: 'o1',
+      }),
     );
     expect(order?.vaNumber).toBe('19008172');
   });
@@ -196,7 +201,7 @@ describe('OrderVaService', () => {
 
     await service.reprovision('o1');
 
-    expect(gateway.createVa).not.toHaveBeenCalled();
+    expect(gateway.createPayment).not.toHaveBeenCalled();
     expect(repo.update).not.toHaveBeenCalled();
   });
 
@@ -204,8 +209,8 @@ describe('OrderVaService', () => {
     repo.create.mockResolvedValue(baseOrder as never);
     idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
     eventLog.record.mockResolvedValue({ id: 'ev1' } as never);
-    gateway.createVa.mockRejectedValue(
-      new DokuApiError('request_failed', 'boom', 500, '/p'),
+    gateway.createPayment.mockRejectedValue(
+      new JokulApiError('request_failed', 'boom', 500, '/p'),
     );
     idempotency.fail.mockResolvedValue(undefined);
 

@@ -25,7 +25,7 @@ export class PaymentsRecoveryService implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   onModuleInit(): void {
-    if (this.config.get<string>('app.paymentProvider') !== 'doku') return;
+    if (this.config.get<string>('app.paymentProvider') !== 'jokul') return;
     const intervalMs =
       this.config.get<number>('app.recovery.intervalMin', 5) * MS_PER_MINUTE;
     this.timer = setInterval(() => void this.runOnce(), intervalMs);

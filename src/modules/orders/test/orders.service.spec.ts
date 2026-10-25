@@ -84,7 +84,7 @@ describe('OrdersService', () => {
         uniqueCode: 0,
         amount: 200000,
         expiresAt: new Date(),
-        paymentProvider: 'DOKU_VA',
+        paymentProvider: 'JOKUL_VA',
         vaNumber: '19008172',
         vaBankCode: '014',
       });
@@ -93,7 +93,7 @@ describe('OrdersService', () => {
 
       expect(result).toEqual(
         expect.objectContaining({
-          paymentProvider: 'DOKU_VA',
+          paymentProvider: 'JOKUL_VA',
           vaNumber: '19008172',
           vaBankCode: '014',
           qrisImageUrl: null,

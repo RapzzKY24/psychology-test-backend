@@ -3,8 +3,8 @@ import type { ConfigService } from '@nestjs/config';
 import { InvoiceVaService } from '../service/invoice-va.service';
 import type { InvoicesRepository } from '../repository/invoices.repository';
 import type { IdempotencyService } from '../../idempotency/service/idempotency.service';
-import { DokuApiError } from '../../doku/errors/doku-api.error';
-import { StubVaProvider } from '../../doku/gateway/stub-va.provider';
+import { JokulApiError } from '../../jokul/errors/jokul-api.error';
+import { StubVaProvider } from '../../jokul/gateway/stub-va.provider';
 
 describe('InvoiceVaService', () => {
   let service: InvoiceVaService;
@@ -22,7 +22,7 @@ describe('InvoiceVaService', () => {
     markProcessed: jest.Mock;
     markFailed: jest.Mock;
   };
-  let gateway: { createVa: jest.Mock; inquiryVa: jest.Mock };
+  let gateway: { createPayment: jest.Mock; getStatus: jest.Mock };
   let config: { get: jest.Mock };
 
   const invoice = {
@@ -30,6 +30,15 @@ describe('InvoiceVaService', () => {
     amount: 300000,
     expiresAt: new Date('2026-09-01T02:00:00Z'),
     vaNumber: null,
+  };
+
+  const paymentResult = {
+    providerOrderId: 'inv1',
+    token: '',
+    redirectUrl: '',
+    transactionId: 'inv1',
+    vaNumber: '8801234',
+    bankCode: '014',
   };
 
   beforeEach(() => {
@@ -48,13 +57,8 @@ describe('InvoiceVaService', () => {
       markFailed: jest.fn(),
     };
     gateway = {
-      createVa: jest.fn().mockResolvedValue({
-        vaNumber: '8801234',
-        bankCode: '014',
-        trxId: 'inv1',
-        referenceNo: null,
-      }),
-      inquiryVa: jest.fn(),
+      createPayment: jest.fn().mockResolvedValue(paymentResult),
+      getStatus: jest.fn(),
     };
     config = { get: jest.fn().mockReturnValue(true) };
     service = new InvoiceVaService(
@@ -72,16 +76,16 @@ describe('InvoiceVaService', () => {
       expect(service.isEnabled()).toBe(true);
     });
 
-    it('is true when the payment provider is doku', () => {
+    it('is true when the payment provider is jokul', () => {
       config.get.mockImplementation((key: string) =>
-        key === 'app.doku.stub' ? false : 'doku',
+        key === 'app.jokul.stub' ? false : 'jokul',
       );
       expect(service.isEnabled()).toBe(true);
     });
 
     it('is false when neither stub nor doku is configured', () => {
       config.get.mockImplementation((key: string) =>
-        key === 'app.doku.stub' ? false : 'manual',
+        key === 'app.jokul.stub' ? false : 'manual',
       );
       expect(service.isEnabled()).toBe(false);
     });
@@ -90,29 +94,22 @@ describe('InvoiceVaService', () => {
   it('provisions a VA, records the event, and persists the columns', async () => {
     await service.provision('inv1', 'Sesi Rekrutmen');
 
-    expect(gateway.createVa).toHaveBeenCalledWith(
+    expect(gateway.createPayment).toHaveBeenCalledWith(
       expect.objectContaining({ externalId: 'inv1', amount: 300000 }),
     );
-    const vaResult = {
-      vaNumber: '8801234',
-      bankCode: '014',
-      trxId: 'inv1',
-      referenceNo: null,
-    };
     expect(idempotency.complete).toHaveBeenCalledWith('c1', {
       responseStatus: 200,
-      responseBody: vaResult,
+      responseBody: paymentResult,
     });
     expect(eventLog.markProcessed).toHaveBeenCalledWith('e1', {
-      response: vaResult,
+      response: paymentResult,
     });
     expect(repo.update).toHaveBeenCalledWith(
       'inv1',
       expect.objectContaining({
         vaNumber: '8801234',
         vaBankCode: '014',
-        gdcExternalId: 'inv1',
-        paymentProvider: 'DOKU_VA',
+        paymentProvider: 'JOKUL_VA',
       }),
     );
   });
@@ -122,7 +119,7 @@ describe('InvoiceVaService', () => {
 
     await service.provision('inv1', 'Sesi');
 
-    expect(gateway.createVa).not.toHaveBeenCalled();
+    expect(gateway.createPayment).not.toHaveBeenCalled();
     expect(repo.update).not.toHaveBeenCalled();
   });
 
@@ -133,17 +130,15 @@ describe('InvoiceVaService', () => {
         id: 'c1',
         status: 'COMPLETED',
         responseBody: {
+          ...paymentResult,
           vaNumber: '881111',
-          bankCode: '014',
-          trxId: 'inv1',
-          referenceNo: null,
         },
       },
     });
 
     await service.provision('inv1', 'Sesi');
 
-    expect(gateway.createVa).not.toHaveBeenCalled();
+    expect(gateway.createPayment).not.toHaveBeenCalled();
     expect(repo.update).toHaveBeenCalledWith(
       'inv1',
       expect.objectContaining({ vaNumber: '881111' }),
@@ -151,8 +146,8 @@ describe('InvoiceVaService', () => {
   });
 
   it('on a gateway failure marks the event and claim failed, updates nothing', async () => {
-    gateway.createVa.mockRejectedValue(
-      new DokuApiError('request_failed', 'boom', 500, '/va'),
+    gateway.createPayment.mockRejectedValue(
+      new JokulApiError('request_failed', 'boom', 500, '/va'),
     );
 
     await expect(service.provision('inv1', 'Sesi')).rejects.toThrow(
@@ -168,10 +163,11 @@ describe('InvoiceVaService', () => {
   });
 
   it('delegates inquiry to the gateway seam', async () => {
-    gateway.inquiryVa.mockResolvedValue({
-      vaNumber: '8801234',
-      status: '00',
+    gateway.getStatus.mockResolvedValue({
+      providerOrderId: 'inv1',
+      status: 'PAID',
       paidAmount: 300000,
+      paymentType: null,
     });
 
     const result = await service.inquiryVa({
@@ -180,10 +176,9 @@ describe('InvoiceVaService', () => {
       externalId: 'inv1',
     });
 
-    expect(gateway.inquiryVa).toHaveBeenCalledWith({
+    expect(gateway.getStatus).toHaveBeenCalledWith({
+      providerOrderId: 'inv1',
       vaNumber: '8801234',
-      paymentRequestId: 'inv1',
-      externalId: 'inv1',
     });
     expect(result.status).toBe('00');
   });
@@ -199,12 +194,12 @@ describe('InvoiceVaService', () => {
 
       await service.reprovision('inv1', 'Sesi');
 
-      expect(gateway.createVa).toHaveBeenCalledWith(
+      expect(gateway.createPayment).toHaveBeenCalledWith(
         expect.objectContaining({ externalId: 'inv1:150000', amount: 150000 }),
       );
       expect(repo.update).toHaveBeenCalledWith(
         'inv1',
-        expect.objectContaining({ gdcExternalId: 'inv1:150000' }),
+        expect.objectContaining({}),
       );
     });
 
@@ -213,7 +208,7 @@ describe('InvoiceVaService', () => {
 
       await service.reprovision('inv1', 'Sesi');
 
-      expect(gateway.createVa).not.toHaveBeenCalled();
+      expect(gateway.createPayment).not.toHaveBeenCalled();
       expect(repo.update).not.toHaveBeenCalled();
     });
   });
@@ -222,21 +217,17 @@ describe('InvoiceVaService', () => {
 describe('StubVaProvider', () => {
   it('returns a deterministic VA with no network call', async () => {
     const provider = new StubVaProvider();
-    const first = await provider.createVa({
+    const params = {
       externalId: 'inv-abc',
       amount: 300000,
-      name: 'Sesi',
       expiresAt: new Date(),
-    });
-    const second = await provider.createVa({
-      externalId: 'inv-abc',
-      amount: 300000,
-      name: 'Sesi',
-      expiresAt: new Date(),
-    });
+      customer: { name: 'Sesi' },
+    };
+    const first = await provider.createPayment(params);
+    const second = await provider.createPayment(params);
 
     expect(first.vaNumber).toMatch(/^88\d+$/);
     expect(first.vaNumber).toBe(second.vaNumber);
-    expect(first.bankCode).toBe('DOKU');
+    expect(first.bankCode).toBe('JOKUL');
   });
 });

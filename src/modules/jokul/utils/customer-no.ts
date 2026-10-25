@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 
 /**
  * Deterministic 16-digit `customerNo` derived from the caller's external id.
- * Doku requires `virtualAccountNo = partnerServiceId + customerNo` to be
+ * Jokul requires `virtualAccountNo = partnerServiceId + customerNo` to be
  * unique per transaction, and retries must reuse the same number.
  */
 export function customerNoFromExternalId(externalId: string): string {

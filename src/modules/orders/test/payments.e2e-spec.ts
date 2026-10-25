@@ -18,7 +18,7 @@ import { EventLogService } from '../../event-log/service/event-log.service';
 import { PrismaIdempotencyRepository } from '../../idempotency/repository/idempotency.prisma-repository';
 import { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import { PaymentsService } from '../../payments/service/payments.service';
-import { DOKU_ACK } from '../../payments/constants/payments';
+import { JOKUL_ACK } from '../../payments/constants/payments';
 
 /**
  * Feature 07 integration tests against the real DB
@@ -470,8 +470,7 @@ describe('Payments E2E (integ, real DB)', () => {
           status: 'UNPAID',
           sessionId: session.id,
           vaNumber: invoiceVa,
-          gdcExternalId: session.id,
-          paymentProvider: 'DOKU_VA',
+          paymentProvider: 'JOKUL_VA',
           expiresAt: new Date(Date.now() + 3600_000),
         },
       });
@@ -506,13 +505,13 @@ describe('Payments E2E (integ, real DB)', () => {
       const ack = await paymentsService.handleVaCallback(
         callbackFor(invoiceVa),
       );
-      expect(ack).toEqual(DOKU_ACK);
+      expect(ack).toEqual(JOKUL_ACK);
 
       const paid = await prisma.invoice.findUniqueOrThrow({
         where: { id: invoice.id },
       });
       expect(paid.status).toBe('PAID');
-      expect(paid.verifiedBySource).toBe('DOKU');
+      expect(paid.verifiedBySource).toBe('JOKUL');
 
       const activated = await prisma.testSession.findUniqueOrThrow({
         where: { id: session.id },

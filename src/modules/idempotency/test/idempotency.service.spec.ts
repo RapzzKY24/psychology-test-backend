@@ -12,8 +12,8 @@ describe('IdempotencyService', () => {
 
   const record: IdempotencyRecord = {
     id: 'rec1',
-    key: 'doku.va.callback:123:ref1',
-    scope: 'doku.va.callback',
+    key: 'jokul.va.callback:123:ref1',
+    scope: 'jokul.va.callback',
     requestHash: null,
     status: 'IN_PROGRESS',
     responseStatus: null,
@@ -40,14 +40,14 @@ describe('IdempotencyService', () => {
       mockRepo.create.mockResolvedValue(record);
 
       const result = await service.begin({
-        scope: 'doku.va.callback',
-        key: 'doku.va.callback:123:ref1',
+        scope: 'jokul.va.callback',
+        key: 'jokul.va.callback:123:ref1',
       });
 
       expect(result).toEqual({ acquired: true, id: 'rec1' });
       expect(mockRepo.create).toHaveBeenCalledWith({
-        key: 'doku.va.callback:123:ref1',
-        scope: 'doku.va.callback',
+        key: 'jokul.va.callback:123:ref1',
+        scope: 'jokul.va.callback',
         requestHash: undefined,
         expiresAt: undefined,
       });
@@ -57,7 +57,7 @@ describe('IdempotencyService', () => {
       mockRepo.create.mockResolvedValue(record);
 
       await service.begin({
-        scope: 'doku.va.create',
+        scope: 'jokul.va.create',
         key: 'ext1',
         ttlMinutes: 30,
       });
@@ -73,13 +73,13 @@ describe('IdempotencyService', () => {
       mockRepo.findByKey.mockResolvedValue(record);
 
       const result = await service.begin({
-        scope: 'doku.va.callback',
-        key: 'doku.va.callback:123:ref1',
+        scope: 'jokul.va.callback',
+        key: 'jokul.va.callback:123:ref1',
       });
 
       expect(result).toEqual({ acquired: false, existing: record });
       expect(mockRepo.findByKey).toHaveBeenCalledWith(
-        'doku.va.callback:123:ref1',
+        'jokul.va.callback:123:ref1',
       );
     });
 
@@ -89,7 +89,7 @@ describe('IdempotencyService', () => {
       mockRepo.findByKey.mockResolvedValue(null);
 
       await expect(
-        service.begin({ scope: 'doku.va.callback', key: 'k' }),
+        service.begin({ scope: 'jokul.va.callback', key: 'k' }),
       ).rejects.toThrow('unique');
     });
 
@@ -97,7 +97,7 @@ describe('IdempotencyService', () => {
       mockRepo.create.mockRejectedValue(new Error('db down'));
 
       await expect(
-        service.begin({ scope: 'doku.va.callback', key: 'k' }),
+        service.begin({ scope: 'jokul.va.callback', key: 'k' }),
       ).rejects.toThrow('db down');
     });
   });
@@ -133,7 +133,7 @@ describe('IdempotencyService', () => {
       const fn = jest.fn().mockResolvedValue({ ok: true });
 
       const value = await service.run(
-        { scope: 'doku.va.create', key: 'ext1' },
+        { scope: 'jokul.va.create', key: 'ext1' },
         fn,
       );
 
@@ -156,7 +156,7 @@ describe('IdempotencyService', () => {
       const fn = jest.fn();
 
       const value = await service.run(
-        { scope: 'doku.va.create', key: 'ext1' },
+        { scope: 'jokul.va.create', key: 'ext1' },
         fn,
       );
 
@@ -170,7 +170,7 @@ describe('IdempotencyService', () => {
       mockRepo.findByKey.mockResolvedValue(record);
 
       await expect(
-        service.run({ scope: 'doku.va.create', key: 'ext1' }, jest.fn()),
+        service.run({ scope: 'jokul.va.create', key: 'ext1' }, jest.fn()),
       ).rejects.toBeInstanceOf(IdempotencyInProgressError);
     });
 
@@ -179,7 +179,7 @@ describe('IdempotencyService', () => {
       mockRepo.fail.mockResolvedValue(undefined);
 
       await expect(
-        service.run({ scope: 'doku.va.create', key: 'ext1' }, () =>
+        service.run({ scope: 'jokul.va.create', key: 'ext1' }, () =>
           Promise.reject(new Error('boom')),
         ),
       ).rejects.toThrow('boom');

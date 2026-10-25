@@ -128,14 +128,13 @@ describe('InvoicesService', () => {
 
       const result = await service.confirmPaymentWithActivation('inv1', {
         paidAmount: 300000,
-        verifiedBySource: 'DOKU',
-        gdcTrxId: 'trx1',
+        verifiedBySource: 'JOKUL',
       });
 
       expect(result.outcome).toBe('confirmed');
       expect(mockRepo.confirmPaymentWithActivation).toHaveBeenCalledWith(
         'inv1',
-        { paidAmount: 300000, verifiedBySource: 'DOKU', gdcTrxId: 'trx1' },
+        { paidAmount: 300000, verifiedBySource: 'JOKUL' },
       );
     });
   });

@@ -10,7 +10,7 @@ export interface NotificationVerificationInput {
 }
 
 /**
- * Verify a Doku SNAP notification signature:
+ * Verify a Jokul SNAP notification signature:
  * `HMAC-SHA512(`${X-EXTERNAL-ID}:${X-TIMESTAMP}:${sha256Hex(body)}`, secretKey)`
  * base64-encoded. When no secret is configured (dev/stub) verification is
  * skipped so local flows keep working without credentials.

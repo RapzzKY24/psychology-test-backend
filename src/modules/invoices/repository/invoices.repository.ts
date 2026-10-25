@@ -16,8 +16,6 @@ export type ConfirmInvoicePaymentResult =
 export interface ConfirmInvoicePaymentParams {
   paidAmount: number;
   verifiedBySource: PaymentVerifiedBySource;
-  gdcTrxId?: string | null;
-  gdcReferenceNo?: string | null;
 }
 
 export interface InvoicesRepository {

@@ -86,7 +86,7 @@ export class OrdersService {
         amount: order.amount,
         expiresAt: order.expiresAt,
         qrisImageUrl: null,
-        paymentProvider: 'DOKU_VA',
+        paymentProvider: 'JOKUL_VA',
         vaNumber: order.vaNumber,
         vaBankCode: order.vaBankCode,
       };

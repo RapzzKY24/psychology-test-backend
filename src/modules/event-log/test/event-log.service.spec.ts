@@ -11,14 +11,14 @@ describe('EventLogService', () => {
 
   const record: EventLogRecord = {
     id: 'ev1',
-    source: 'DOKU',
+    source: 'JOKUL',
     direction: 'INBOUND',
     type: 'VA_CALLBACK_RECEIVED',
     status: 'RECEIVED',
     aggregateType: 'Order',
     aggregateId: '11111111-1111-4111-8111-111111111111',
     reference: 'ext1',
-    idempotencyKey: 'doku.va.callback:123:ref1',
+    idempotencyKey: 'jokul.va.callback:123:ref1',
     payload: null,
     response: null,
     httpStatus: null,
@@ -44,7 +44,7 @@ describe('EventLogService', () => {
     mockRepo.create.mockResolvedValue(record);
 
     const result = await service.record({
-      source: 'DOKU',
+      source: 'JOKUL',
       direction: 'INBOUND',
       type: 'VA_CALLBACK_RECEIVED',
       aggregateType: 'Order',
@@ -54,7 +54,7 @@ describe('EventLogService', () => {
 
     expect(result).toBe(record);
     expect(mockRepo.create).toHaveBeenCalledWith({
-      source: 'DOKU',
+      source: 'JOKUL',
       direction: 'INBOUND',
       type: 'VA_CALLBACK_RECEIVED',
       aggregateType: 'Order',
@@ -66,7 +66,7 @@ describe('EventLogService', () => {
   it('rejects an invalid event input', async () => {
     await expect(
       service.record({
-        source: 'DOKU',
+        source: 'JOKUL',
         direction: 'INBOUND',
         type: '',
       }),

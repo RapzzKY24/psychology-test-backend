@@ -5,25 +5,20 @@ import type { OrdersRepository } from '../repository/orders.repository';
 import type { Order } from '../../../generated/prisma/client';
 import { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import { EventLogService } from '../../event-log/service/event-log.service';
-import { DokuApiError } from '../../doku/errors/doku-api.error';
-import { DEFAULT_VA_BANK_CODE } from '../../doku/constants/doku';
+import { JokulApiError } from '../../jokul/errors/jokul-api.error';
+import { DEFAULT_VA_BANK_CODE } from '../../jokul/constants/jokul';
 import {
   PAYMENT_GATEWAY,
-  type CreateVaResult,
+  type CreatePaymentResult,
   type PaymentGateway,
-  type VaInquiryParams,
-  type VaInquiryResult,
-} from '../../doku/gateway/payment-gateway.interface';
+} from '../../payments/gateway/payment-gateway.interface';
 import { VA_UNIQUE_CODE } from '../constants/payment';
 
-const VA_CREATE_SCOPE = 'doku.va.create';
+const VA_CREATE_SCOPE = 'jokul.va.create';
 
 interface VaProvisionFields {
   vaNumber: string;
   vaBankCode: string;
-  gdcTrxId: string;
-  gdcReferenceNo: string | null;
-  gdcExternalId: string;
 }
 
 @Injectable()
@@ -38,11 +33,11 @@ export class OrderVaService {
     private readonly config: ConfigService,
   ) {}
 
-  /** The VA provider is usable when DOKU is selected or the dev stub is on. */
+  /** The VA provider is usable when Jokul is selected or the dev stub is on. */
   isEnabled(): boolean {
     return (
-      this.config.get<boolean>('app.doku.stub') === true ||
-      this.config.get<string>('app.paymentProvider') === 'doku'
+      this.config.get<boolean>('app.jokul.stub') === true ||
+      this.config.get<string>('app.paymentProvider') === 'jokul'
     );
   }
 
@@ -60,7 +55,7 @@ export class OrderVaService {
       uniqueCode: VA_UNIQUE_CODE,
       amount: basePrice,
       status: 'PENDING',
-      paymentProvider: 'DOKU_VA',
+      paymentProvider: 'JOKUL_VA',
       expiresAt: new Date(Date.now() + this.paymentTtlMin * 60 * 1000),
     });
 
@@ -81,8 +76,20 @@ export class OrderVaService {
   }
 
   /** Poll the provider for this VA's settlement status (reconciliation). */
-  inquiryVa(params: VaInquiryParams): Promise<VaInquiryResult> {
-    return this.gateway.inquiryVa(params);
+  async inquiryVa(params: {
+    vaNumber: string;
+    paymentRequestId?: string;
+    externalId?: string;
+  }): Promise<{ vaNumber: string; status: string; paidAmount: number | null }> {
+    const result = await this.gateway.getStatus({
+      providerOrderId: params.externalId ?? params.vaNumber,
+      vaNumber: params.vaNumber,
+    });
+    return {
+      vaNumber: params.vaNumber,
+      status: result.status === 'PAID' ? '00' : 'PENDING',
+      paidAmount: result.paidAmount,
+    };
   }
 
   private get paymentTtlMin(): number {
@@ -105,14 +112,13 @@ export class OrderVaService {
       claim.existing.responseBody !== null
     ) {
       return this.toVaColumns(
-        externalId,
-        claim.existing.responseBody as unknown as CreateVaResult,
+        claim.existing.responseBody as unknown as CreatePaymentResult,
       );
     }
     const claimId = claim.acquired ? claim.id : claim.existing.id;
 
     const event = await this.eventLog.record({
-      source: 'DOKU',
+      source: 'JOKUL',
       direction: 'OUTBOUND',
       type: 'CREATE_VA_REQUEST',
       aggregateType: 'Order',
@@ -126,19 +132,19 @@ export class OrderVaService {
       },
     });
 
-    let result: CreateVaResult;
+    let result: CreatePaymentResult;
     try {
-      result = await this.gateway.createVa({
+      result = await this.gateway.createPayment({
         externalId,
         amount: order.amount,
-        name: virtualAccountName,
         expiresAt: order.expiresAt,
+        customer: { name: virtualAccountName },
       });
     } catch (error) {
       await this.idempotency.fail(claimId, {
         errorMessage: error instanceof Error ? error.message : 'unknown_error',
       });
-      if (error instanceof DokuApiError) {
+      if (error instanceof JokulApiError) {
         throw new BadGatewayException('payment_gateway_failed');
       }
       throw error;
@@ -149,19 +155,16 @@ export class OrderVaService {
       responseStatus: 200,
       responseBody: result,
     });
-    return this.toVaColumns(externalId, result);
+    return this.toVaColumns(result);
   }
 
-  private toVaColumns(
-    externalId: string,
-    result: CreateVaResult,
-  ): VaProvisionFields {
+  private toVaColumns(result: CreatePaymentResult): VaProvisionFields {
+    if (!result.vaNumber) {
+      throw new BadGatewayException('payment_gateway_failed');
+    }
     return {
       vaNumber: result.vaNumber,
-      vaBankCode: result.bankCode,
-      gdcTrxId: result.trxId,
-      gdcReferenceNo: result.referenceNo,
-      gdcExternalId: externalId,
+      vaBankCode: result.bankCode ?? DEFAULT_VA_BANK_CODE,
     };
   }
 }

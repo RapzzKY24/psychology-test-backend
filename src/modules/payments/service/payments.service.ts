@@ -7,21 +7,23 @@ import { OrderVaService } from '../../orders/service/order-va.service';
 import { InvoicesService } from '../../invoices/service/invoices.service';
 import { InvoiceVaService } from '../../invoices/service/invoice-va.service';
 import type { Invoice, Order } from '../../../generated/prisma/client';
-import { DokuApiError } from '../../doku/errors/doku-api.error';
-import type { VaInquiryResult } from '../../doku/gateway/payment-gateway.interface';
-import { VaCallbackSchema } from '../../doku/dto/doku.dto';
-import type { VaCallback } from '../../doku/dto/doku.dto';
+import { JokulApiError } from '../../jokul/errors/jokul-api.error';
+import { VaCallbackSchema } from '../../jokul/dto/jokul.dto';
+import type { VaCallback } from '../../jokul/dto/jokul.dto';
 import { MS_PER_MINUTE } from '../../../common/constants/time';
 import { amountMatches } from '../utils/amount-matches';
 import {
-  DOKU_ACK,
+  JOKUL_ACK,
   VA_CALLBACK_EVENT_TYPE,
   VA_CALLBACK_KEY_PREFIX,
   VA_CALLBACK_PAID_STATUS,
   VA_CALLBACK_SCOPE,
   VA_INQUIRY_PAID_STATUS,
 } from '../constants/payments';
-import type { DokuAck } from '../constants/payments';
+import type { JokulAck } from '../constants/payments';
+
+/** Shape returned by both VA services' `inquiryVa` (legacy Jokul status codes). */
+type VaInquiryResult = Awaited<ReturnType<OrderVaService['inquiryVa']>>;
 
 type CallbackOutcome =
   | { kind: 'settled' }
@@ -63,13 +65,13 @@ export class PaymentsService {
    * `virtualAccountNo:trxId`, always acknowledges with Doku's `2002700`
    * envelope so the gateway does not retry on our business-level outcomes.
    */
-  async handleVaCallback(body: unknown): Promise<DokuAck> {
+  async handleVaCallback(body: unknown): Promise<JokulAck> {
     const parsed = VaCallbackSchema.safeParse(body);
     if (!parsed.success) {
       // Never let a schema mismatch turn into a 422 retry storm: record it for
       // investigation and still acknowledge.
       const event = await this.eventLog.record({
-        source: 'DOKU',
+        source: 'JOKUL',
         direction: 'INBOUND',
         type: VA_CALLBACK_EVENT_TYPE,
         payload: { raw: body },
@@ -77,7 +79,7 @@ export class PaymentsService {
       await this.eventLog.markFailed(event.id, {
         errorMessage: 'unparsable_payload',
       });
-      return DOKU_ACK;
+      return JOKUL_ACK;
     }
     const payload = parsed.data;
     const reference =
@@ -88,10 +90,10 @@ export class PaymentsService {
       scope: VA_CALLBACK_SCOPE,
       key,
     });
-    if (!claim.acquired) return DOKU_ACK;
+    if (!claim.acquired) return JOKUL_ACK;
 
     const event = await this.eventLog.record({
-      source: 'DOKU',
+      source: 'JOKUL',
       direction: 'INBOUND',
       type: VA_CALLBACK_EVENT_TYPE,
       reference,
@@ -105,10 +107,10 @@ export class PaymentsService {
     } else {
       await this.idempotency.complete(claim.id, {
         responseStatus: 200,
-        responseBody: DOKU_ACK,
+        responseBody: JOKUL_ACK,
       });
     }
-    return DOKU_ACK;
+    return JOKUL_ACK;
   }
 
   /** Replay inbound callbacks that were never finalized (e.g. a crash mid-handling). */
@@ -156,7 +158,7 @@ export class PaymentsService {
         if (updated?.vaNumber) provisioned += 1;
       } catch (error) {
         if (
-          error instanceof DokuApiError ||
+          error instanceof JokulApiError ||
           error instanceof BadGatewayException
         ) {
           this.logger.warn(`reprovision ${order.id} failed: ${error.message}`);
@@ -185,11 +187,11 @@ export class PaymentsService {
       try {
         status = await this.orderVa.inquiryVa({
           vaNumber: order.vaNumber,
-          paymentRequestId: order.gdcTrxId ?? order.id,
-          externalId: order.gdcExternalId ?? order.id,
+          paymentRequestId: order.id,
+          externalId: order.id,
         });
       } catch (error) {
-        if (error instanceof DokuApiError) continue;
+        if (error instanceof JokulApiError) continue;
         throw error;
       }
       if (status.status !== VA_INQUIRY_PAID_STATUS) continue;
@@ -228,7 +230,7 @@ export class PaymentsService {
         if (updated?.vaNumber) provisioned += 1;
       } catch (error) {
         if (
-          error instanceof DokuApiError ||
+          error instanceof JokulApiError ||
           error instanceof BadGatewayException
         ) {
           this.logger.warn(
@@ -263,11 +265,11 @@ export class PaymentsService {
       try {
         status = await this.invoiceVa.inquiryVa({
           vaNumber: invoice.vaNumber,
-          paymentRequestId: invoice.gdcTrxId ?? invoice.id,
-          externalId: invoice.gdcExternalId ?? invoice.id,
+          paymentRequestId: invoice.id,
+          externalId: invoice.id,
         });
       } catch (error) {
-        if (error instanceof DokuApiError) continue;
+        if (error instanceof JokulApiError) continue;
         throw error;
       }
       if (status.status !== VA_INQUIRY_PAID_STATUS) continue;
@@ -276,9 +278,7 @@ export class PaymentsService {
         invoice.id,
         {
           paidAmount: invoice.amount,
-          verifiedBySource: 'DOKU',
-          gdcTrxId: invoice.gdcTrxId,
-          gdcReferenceNo: invoice.gdcReferenceNo,
+          verifiedBySource: 'JOKUL',
         },
       );
       if (result.outcome === 'confirmed') settled += 1;
@@ -365,9 +365,7 @@ export class PaymentsService {
       invoice.id,
       {
         paidAmount: Number(this.callbackAmount(payload)),
-        verifiedBySource: 'DOKU',
-        gdcTrxId: payload.trxId ?? null,
-        gdcReferenceNo: null,
+        verifiedBySource: 'JOKUL',
       },
     );
     if (result.outcome === 'already_paid') {

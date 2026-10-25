@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/require-await */
 import { generateKeyPairSync } from 'node:crypto';
-import { DokuClient } from '../client/doku.client';
-import { DokuTokenProvider } from '../client/doku-token.provider';
-import { DokuApiError } from '../errors/doku-api.error';
+import { JokulClient } from '../client/jokul.client';
+import { JokulTokenProvider } from '../client/jokul-token.provider';
+import { JokulApiError } from '../errors/jokul-api.error';
 import type { ConfigService } from '@nestjs/config';
 
-describe('DokuClient', () => {
-  let client: DokuClient;
+describe('JokulClient', () => {
+  let client: JokulClient;
   let fetchMock: jest.Mock;
 
   const { privateKey } = generateKeyPairSync('rsa', {
@@ -22,8 +22,8 @@ describe('DokuClient', () => {
     secretKey: 'sec',
     partnerServiceId: '12345',
     channelId: 'H2H',
-    bankCode: 'DOKU',
-    callbackUrl: 'https://host/webhooks/doku/va',
+    bankCode: 'JOKUL',
+    callbackUrl: 'https://host/webhooks/jokul/va',
   };
 
   const tokenResponse = () => ({
@@ -44,14 +44,14 @@ describe('DokuClient', () => {
   beforeEach(() => {
     fetchMock = jest.fn();
     global.fetch = fetchMock;
-    client = new DokuClient(config(), new DokuTokenProvider(config()));
+    client = new JokulClient(config(), new JokulTokenProvider(config()));
   });
 
   afterEach(() => jest.restoreAllMocks());
 
   it('obtains and caches the access token', async () => {
     fetchMock.mockResolvedValueOnce(tokenResponse());
-    const tokens = new DokuTokenProvider(config());
+    const tokens = new JokulTokenProvider(config());
 
     expect(await tokens.getAccessToken()).toBe('tok');
     expect(await tokens.getAccessToken()).toBe('tok');
@@ -61,15 +61,15 @@ describe('DokuClient', () => {
     );
   });
 
-  it('throws DokuApiError on a non-ok token response', async () => {
+  it('throws JokulApiError on a non-ok token response', async () => {
     fetchMock.mockResolvedValueOnce({
       ok: false,
       status: 502,
       json: async () => ({}),
     });
-    const tokens = new DokuTokenProvider(config());
+    const tokens = new JokulTokenProvider(config());
 
-    await expect(tokens.getAccessToken()).rejects.toBeInstanceOf(DokuApiError);
+    await expect(tokens.getAccessToken()).rejects.toBeInstanceOf(JokulApiError);
   });
 
   it('creates a virtual account with the SNAP headers', async () => {
@@ -161,7 +161,7 @@ describe('DokuClient', () => {
     );
   });
 
-  it('throws DokuApiError on a non-ok signed request', async () => {
+  it('throws JokulApiError on a non-ok signed request', async () => {
     fetchMock.mockResolvedValueOnce(tokenResponse()).mockResolvedValueOnce({
       ok: false,
       status: 500,
@@ -179,6 +179,6 @@ describe('DokuClient', () => {
         },
         'ext-1',
       ),
-    ).rejects.toBeInstanceOf(DokuApiError);
+    ).rejects.toBeInstanceOf(JokulApiError);
   });
 });

@@ -10,7 +10,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 import type { Response } from 'express';
-import { verifyNotificationSignature } from '../../doku/utils/verify-notification';
+import { verifyNotificationSignature } from '../../jokul/utils/verify-notification';
 import { PaymentsService } from '../service/payments.service';
 
 function header(
@@ -21,8 +21,8 @@ function header(
   return Array.isArray(value) ? value[0] : value;
 }
 
-@Controller('api/v1/webhooks/doku')
-export class DokuWebhookController {
+@Controller('api/v1/webhooks/jokul')
+export class JokulWebhookController {
   constructor(
     private readonly payments: PaymentsService,
     private readonly config: ConfigService,
@@ -41,7 +41,7 @@ export class DokuWebhookController {
       timestamp: header(headers, 'x-timestamp'),
       signature: header(headers, 'x-signature'),
       body,
-      secretKey: this.config.get<string>('app.doku.secretKey') ?? '',
+      secretKey: this.config.get<string>('app.jokul.secretKey') ?? '',
     });
     if (!verified) throw new UnauthorizedException('invalid_signature');
 

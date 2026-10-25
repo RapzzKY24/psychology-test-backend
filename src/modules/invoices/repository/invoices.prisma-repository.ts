@@ -109,8 +109,6 @@ export class PrismaInvoicesRepository implements InvoicesRepository {
           status: 'PAID',
           verifiedBySource: params.verifiedBySource,
           verifiedAt: new Date(),
-          gdcTrxId: params.gdcTrxId ?? undefined,
-          gdcReferenceNo: params.gdcReferenceNo ?? undefined,
         },
       });
       if (updated.count === 0) {
@@ -147,9 +145,6 @@ export class PrismaInvoicesRepository implements InvoicesRepository {
         // pass picks it up if that call fails).
         vaNumber: null,
         vaBankCode: null,
-        gdcTrxId: null,
-        gdcReferenceNo: null,
-        gdcExternalId: null,
       },
     });
   }

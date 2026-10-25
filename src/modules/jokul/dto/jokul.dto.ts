@@ -90,7 +90,7 @@ export const InquiryVaInputSchema = z.object({
 export type InquiryVaInput = z.infer<typeof InquiryVaInputSchema>;
 
 /**
- * Doku VA payment notification. Doku only notifies on a successful payment, so
+ * Jokul VA payment notification. Jokul only notifies on a successful payment, so
  * the body carries no explicit status; `latestTransactionStatus` is tolerated
  * when a channel includes it. Unknown fields are preserved for the event log.
  */
