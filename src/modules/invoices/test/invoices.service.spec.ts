@@ -19,8 +19,9 @@ describe('InvoicesService', () => {
       findByVaNumber: jest.fn(),
       confirmPaymentWithActivation: jest.fn(),
       regenerateAmount: jest.fn(),
-      findUnpaidWithoutVa: jest.fn(),
-      findUnsettledVaInvoices: jest.fn(),
+      findByProviderOrderId: jest.fn(),
+      findUnpaidWithoutProviderOrderId: jest.fn(),
+      findUnsettledInvoices: jest.fn(),
     };
     service = new InvoicesService(mockRepo);
   });

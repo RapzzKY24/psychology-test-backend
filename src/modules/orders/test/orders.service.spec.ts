@@ -7,9 +7,9 @@ describe('OrdersService', () => {
   let service: OrdersService;
   let mockRepo: jest.Mocked<OrdersRepository>;
   let mockConfig: { get: jest.Mock };
-  let mockOrderVa: {
+  let mockOrderPayment: {
     isEnabled: jest.Mock;
-    createVaOrder: jest.Mock;
+    createPaymentOrder: jest.Mock;
     reprovision: jest.Mock;
   };
 
@@ -28,22 +28,23 @@ describe('OrdersService', () => {
       verifyPayment: jest.fn(),
       findByVaNumber: jest.fn(),
       confirmExternalPayment: jest.fn(),
-      findUnsettledVaOrders: jest.fn(),
-      findPendingVaOrdersWithoutNumber: jest.fn(),
+      findByProviderOrderId: jest.fn(),
+      findUnsettledOrders: jest.fn(),
+      findPendingOrdersWithoutProviderOrderId: jest.fn(),
       updateManyToExpired: jest.fn(),
       findMany: jest.fn(),
       findManyEnriched: jest.fn(),
     };
     mockConfig = { get: jest.fn().mockReturnValue(60) };
-    mockOrderVa = {
+    mockOrderPayment = {
       isEnabled: jest.fn().mockReturnValue(false),
-      createVaOrder: jest.fn(),
+      createPaymentOrder: jest.fn(),
       reprovision: jest.fn(),
     };
     service = new OrdersService(
       mockRepo,
       mockConfig as never,
-      mockOrderVa as never,
+      mockOrderPayment as never,
     );
   });
 
@@ -70,15 +71,15 @@ describe('OrdersService', () => {
       expect(result.amount).toBe(result.basePrice + result.uniqueCode);
     });
 
-    it('should provision a VA when the doku provider is enabled', async () => {
+    it('should provision a payment when the gateway provider is enabled', async () => {
       mockRepo.findTestById.mockResolvedValue({
         id: 't1',
         name: 'DISC Form A',
         price: 200000,
         status: 'PUBLISHED',
       } as never);
-      mockOrderVa.isEnabled.mockReturnValue(true);
-      mockOrderVa.createVaOrder.mockResolvedValue({
+      mockOrderPayment.isEnabled.mockReturnValue(true);
+      mockOrderPayment.createPaymentOrder.mockResolvedValue({
         id: 'o1',
         basePrice: 200000,
         uniqueCode: 0,
@@ -99,7 +100,7 @@ describe('OrdersService', () => {
           qrisImageUrl: null,
         }),
       );
-      expect(mockOrderVa.createVaOrder).toHaveBeenCalledWith(
+      expect(mockOrderPayment.createPaymentOrder).toHaveBeenCalledWith(
         't1',
         'u1',
         200000,

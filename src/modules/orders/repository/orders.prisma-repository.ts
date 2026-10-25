@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import type {
   Order,
+  PaymentProvider,
   PaymentVerifiedBySource,
   Prisma,
   Test,
@@ -132,6 +133,14 @@ export class PrismaOrdersRepository implements OrdersRepository {
     return this.prisma.order.findFirst({ where: { vaNumber } });
   }
 
+  /**
+   * `providerOrderId` is the only key the gateway echoes back on a
+   * notification, so this is the lookup used by the notification handler.
+   */
+  findByProviderOrderId(providerOrderId: string): Promise<Order | null> {
+    return this.prisma.order.findUnique({ where: { providerOrderId } });
+  }
+
   verifyPayment(
     orderId: string,
     adminId: string,
@@ -149,7 +158,8 @@ export class PrismaOrdersRepository implements OrdersRepository {
     });
   }
 
-  findUnsettledVaOrders(params: {
+  findUnsettledOrders(params: {
+    provider: PaymentProvider;
     dueBefore: Date;
     notBefore: Date;
     limit: number;
@@ -157,8 +167,8 @@ export class PrismaOrdersRepository implements OrdersRepository {
     return this.prisma.order.findMany({
       where: {
         status: { in: ['PENDING', 'EXPIRED'] },
-        paymentProvider: 'JOKUL_VA',
-        vaNumber: { not: null },
+        paymentProvider: params.provider,
+        providerOrderId: { not: null },
         expiresAt: { lte: params.dueBefore, gte: params.notBefore },
       },
       orderBy: { expiresAt: 'asc' },
@@ -166,15 +176,16 @@ export class PrismaOrdersRepository implements OrdersRepository {
     });
   }
 
-  findPendingVaOrdersWithoutNumber(params: {
+  findPendingOrdersWithoutProviderOrderId(params: {
+    provider: PaymentProvider;
     createdBefore: Date;
     limit: number;
   }): Promise<Order[]> {
     return this.prisma.order.findMany({
       where: {
         status: 'PENDING',
-        paymentProvider: 'JOKUL_VA',
-        vaNumber: null,
+        paymentProvider: params.provider,
+        providerOrderId: null,
         createdAt: { lt: params.createdBefore },
       },
       orderBy: { createdAt: 'asc' },

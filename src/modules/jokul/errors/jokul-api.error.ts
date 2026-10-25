@@ -1,3 +1,5 @@
+import { PaymentGatewayError } from '../../payments/gateway/payment-gateway.error';
+
 export type JokulApiErrorCode = 'access_token_failed' | 'request_failed';
 
 /**
@@ -5,14 +7,14 @@ export type JokulApiErrorCode = 'access_token_failed' | 'request_failed';
  * calling service maps it to an HTTP exception from the `api-contract.md`
  * catalog — this module never invents HTTP error messages itself.
  */
-export class JokulApiError extends Error {
+export class JokulApiError extends PaymentGatewayError {
   constructor(
-    readonly code: JokulApiErrorCode,
+    code: JokulApiErrorCode,
     message: string,
-    readonly status?: number,
-    readonly path?: string,
+    status?: number,
+    path?: string,
   ) {
-    super(message);
+    super(code, message, status, path);
     this.name = 'JokulApiError';
   }
 }

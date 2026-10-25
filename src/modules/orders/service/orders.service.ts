@@ -19,7 +19,7 @@ import type {
 } from '../../../generated/prisma/client';
 import type { QueryPaymentsDto } from '../dto/query-payments.dto';
 import type { AdminPaymentListItemDto } from '../dto/admin-payment-list-item.dto';
-import { OrderVaService } from './order-va.service';
+import { OrderPaymentService } from './order-payment.service';
 
 export interface CreateOrderResult {
   orderId: string;
@@ -39,7 +39,7 @@ export class OrdersService {
     @Inject(ORDERS_REPOSITORY)
     private readonly repo: OrdersRepository,
     private readonly configService: ConfigService,
-    private readonly orderVa: OrderVaService,
+    private readonly orderPayment: OrderPaymentService,
   ) {}
 
   private get paymentTtlMin(): number {
@@ -72,8 +72,8 @@ export class OrdersService {
       });
     }
 
-    if (this.orderVa.isEnabled()) {
-      const order = await this.orderVa.createVaOrder(
+    if (this.orderPayment.isEnabled()) {
+      const order = await this.orderPayment.createPaymentOrder(
         testId,
         userId,
         test.price,
@@ -86,7 +86,7 @@ export class OrdersService {
         amount: order.amount,
         expiresAt: order.expiresAt,
         qrisImageUrl: null,
-        paymentProvider: 'JOKUL_VA',
+        paymentProvider: order.paymentProvider ?? 'JOKUL_VA',
         vaNumber: order.vaNumber,
         vaBankCode: order.vaBankCode,
       };
@@ -259,24 +259,26 @@ export class OrdersService {
     return this.repo.confirmExternalPayment(orderId);
   }
 
-  findUnsettledVaOrders(params: {
+  findUnsettledOrders(params: {
+    provider: PaymentProvider;
     dueBefore: Date;
     notBefore: Date;
     limit: number;
   }): Promise<Order[]> {
-    return this.repo.findUnsettledVaOrders(params);
+    return this.repo.findUnsettledOrders(params);
   }
 
-  findPendingVaOrdersWithoutNumber(params: {
+  findPendingOrdersWithoutProviderOrderId(params: {
+    provider: PaymentProvider;
     createdBefore: Date;
     limit: number;
   }): Promise<Order[]> {
-    return this.repo.findPendingVaOrdersWithoutNumber(params);
+    return this.repo.findPendingOrdersWithoutProviderOrderId(params);
   }
 
-  /** Retry create-va for an order that never got a VA (same external id). */
+  /** Retry payment creation for an order that has no provider order yet. */
   reprovision(orderId: string): Promise<Order | null> {
-    return this.orderVa.reprovision(orderId);
+    return this.orderPayment.reprovision(orderId);
   }
 
   async cancel(

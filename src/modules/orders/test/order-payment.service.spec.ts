@@ -1,5 +1,5 @@
 import { BadGatewayException } from '@nestjs/common';
-import { OrderVaService } from '../service/order-va.service';
+import { OrderPaymentService } from '../service/order-payment.service';
 import { JokulApiError } from '../../jokul/errors/jokul-api.error';
 import type { PaymentGateway } from '../../payments/gateway/payment-gateway.interface';
 import type { OrdersRepository } from '../repository/orders.repository';
@@ -7,8 +7,8 @@ import type { IdempotencyService } from '../../idempotency/service/idempotency.s
 import type { EventLogService } from '../../event-log/service/event-log.service';
 import type { ConfigService } from '@nestjs/config';
 
-describe('OrderVaService', () => {
-  let service: OrderVaService;
+describe('OrderPaymentService', () => {
+  let service: OrderPaymentService;
   let repo: jest.Mocked<
     Pick<OrdersRepository, 'create' | 'update' | 'findById' | 'findTestById'>
   >;
@@ -60,7 +60,7 @@ describe('OrderVaService', () => {
       }),
     };
 
-    service = new OrderVaService(
+    service = new OrderPaymentService(
       repo as never,
       idempotency as never,
       eventLog as never,
@@ -75,14 +75,16 @@ describe('OrderVaService', () => {
     expect(service.isEnabled()).toBe(false);
   });
 
-  it('isEnabled is true under the dev stub even without provider=doku', () => {
-    config.get.mockImplementation((key: string) =>
-      key === 'app.jokul.stub' ? true : 'manual',
-    );
+  it('isEnabled is true under the dev stub when a gateway provider is selected', () => {
+    config.get.mockImplementation((key: string) => {
+      if (key === 'app.jokul.stub') return true;
+      if (key === 'app.paymentProvider') return 'jokul';
+      return undefined;
+    });
     expect(service.isEnabled()).toBe(true);
   });
 
-  it('creates a VA order and provisions the virtual account', async () => {
+  it('creates a payment order and provisions the payment', async () => {
     repo.create.mockResolvedValue(baseOrder as never);
     idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
     eventLog.record.mockResolvedValue({ id: 'ev1' } as never);
@@ -95,7 +97,7 @@ describe('OrderVaService', () => {
       vaBankCode: paymentResult.bankCode,
     } as never);
 
-    const order = await service.createVaOrder('t1', 'u1', 200000, 'DISC');
+    const order = await service.createPaymentOrder('t1', 'u1', 200000, 'DISC');
 
     expect(repo.create).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -112,6 +114,10 @@ describe('OrderVaService', () => {
         customer: { name: 'DISC' },
       }),
     );
+    expect(idempotency.begin).toHaveBeenCalledWith({
+      scope: 'jokul.payment.create',
+      key: 'o1',
+    });
     expect(idempotency.complete).toHaveBeenCalledWith('idem1', {
       responseStatus: 200,
       responseBody: paymentResult,
@@ -159,7 +165,7 @@ describe('OrderVaService', () => {
       vaNumber: paymentResult.vaNumber,
     } as never);
 
-    await service.createVaOrder('t1', 'u1', 200000, 'DISC');
+    await service.createPaymentOrder('t1', 'u1', 200000, 'DISC');
 
     expect(gateway.createPayment).not.toHaveBeenCalled();
     expect(eventLog.record).not.toHaveBeenCalled();
@@ -215,7 +221,7 @@ describe('OrderVaService', () => {
     idempotency.fail.mockResolvedValue(undefined);
 
     await expect(
-      service.createVaOrder('t1', 'u1', 200000, 'DISC'),
+      service.createPaymentOrder('t1', 'u1', 200000, 'DISC'),
     ).rejects.toBeInstanceOf(BadGatewayException);
 
     expect(idempotency.fail).toHaveBeenCalledWith('idem1', {

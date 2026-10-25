@@ -8,7 +8,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { PrismaOrdersRepository } from '../repository/orders.prisma-repository';
 import { PrismaQrisRepository } from '../repository/qris.prisma-repository';
 import { OrdersService } from '../service/orders.service';
-import { OrderVaService } from '../service/order-va.service';
+import { OrderPaymentService } from '../service/order-payment.service';
 import { QrisService } from '../service/qris.service';
 import { validateQrisFile } from '../utils/validate-qris-file';
 import { PrismaInvoicesRepository } from '../../invoices/repository/invoices.prisma-repository';
@@ -34,6 +34,8 @@ describe('Payments E2E (integ, real DB)', () => {
     get: jest.fn((key: string, def?: unknown) => {
       if (key === 'app.paymentTtlMin') return 60;
       if (key === 'app.uploadDir') return './uploads';
+      // Manual QRIS keeps this suite off the gateway (no provider is stubbed).
+      if (key === 'app.paymentProvider') return 'manual';
       return def;
     }),
   };
@@ -136,7 +138,7 @@ describe('Payments E2E (integ, real DB)', () => {
     ).map((it) => it.id);
 
     const ordersRepository = new PrismaOrdersRepository(prisma);
-    const orderVaStub = new OrderVaService(
+    const orderPaymentStub = new OrderPaymentService(
       ordersRepository,
       {} as never,
       {} as never,
@@ -146,7 +148,7 @@ describe('Payments E2E (integ, real DB)', () => {
     ordersService = new OrdersService(
       ordersRepository,
       configStub as never,
-      orderVaStub,
+      orderPaymentStub,
     );
     qrisService = new QrisService(
       new PrismaQrisRepository(prisma),
@@ -159,7 +161,7 @@ describe('Payments E2E (integ, real DB)', () => {
         isEnabled: () => false,
         provision: () => Promise.resolve(null),
       } as never,
-      orderVaStub,
+      orderPaymentStub,
       new EventLogService(new PrismaEventLogRepository(prisma)),
       new IdempotencyService(new PrismaIdempotencyRepository(prisma)),
       configStub as never,

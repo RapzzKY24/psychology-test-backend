@@ -6,8 +6,8 @@ import type { EventLogService } from '../../event-log/service/event-log.service'
 import type { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import type { OrdersService } from '../../orders/service/orders.service';
 import type { InvoicesService } from '../../invoices/service/invoices.service';
-import type { InvoiceVaService } from '../../invoices/service/invoice-va.service';
-import type { OrderVaService } from '../../orders/service/order-va.service';
+import type { InvoicePaymentService } from '../../invoices/service/invoice-payment.service';
+import type { OrderPaymentService } from '../../orders/service/order-payment.service';
 import type { ConfigService } from '@nestjs/config';
 
 describe('PaymentsService', () => {
@@ -17,8 +17,8 @@ describe('PaymentsService', () => {
       OrdersService,
       | 'findByVaNumber'
       | 'confirmExternalPayment'
-      | 'findUnsettledVaOrders'
-      | 'findPendingVaOrdersWithoutNumber'
+      | 'findUnsettledOrders'
+      | 'findPendingOrdersWithoutProviderOrderId'
       | 'reprovision'
     >
   >;
@@ -40,14 +40,14 @@ describe('PaymentsService', () => {
       InvoicesService,
       | 'findByVaNumber'
       | 'confirmPaymentWithActivation'
-      | 'findUnpaidWithoutVa'
-      | 'findUnsettledVaInvoices'
+      | 'findUnpaidWithoutProviderOrderId'
+      | 'findUnsettledInvoices'
     >
   >;
-  let invoiceVa: jest.Mocked<
-    Pick<InvoiceVaService, 'isEnabled' | 'provision' | 'inquiryVa'>
+  let invoicePayment: jest.Mocked<
+    Pick<InvoicePaymentService, 'isEnabled' | 'provision' | 'inquiryVa'>
   >;
-  let orderVa: jest.Mocked<Pick<OrderVaService, 'inquiryVa'>>;
+  let orderPayment: jest.Mocked<Pick<OrderPaymentService, 'inquiryVa'>>;
   let config: { get: jest.Mock };
 
   const order = { id: 'o1', amount: 200000 };
@@ -78,8 +78,8 @@ describe('PaymentsService', () => {
     orders = {
       findByVaNumber: jest.fn(),
       confirmExternalPayment: jest.fn(),
-      findUnsettledVaOrders: jest.fn(),
-      findPendingVaOrdersWithoutNumber: jest.fn(),
+      findUnsettledOrders: jest.fn(),
+      findPendingOrdersWithoutProviderOrderId: jest.fn(),
       reprovision: jest.fn(),
     };
     eventLog = {
@@ -93,15 +93,15 @@ describe('PaymentsService', () => {
     invoices = {
       findByVaNumber: jest.fn().mockResolvedValue(null),
       confirmPaymentWithActivation: jest.fn(),
-      findUnpaidWithoutVa: jest.fn().mockResolvedValue([]),
-      findUnsettledVaInvoices: jest.fn().mockResolvedValue([]),
+      findUnpaidWithoutProviderOrderId: jest.fn().mockResolvedValue([]),
+      findUnsettledInvoices: jest.fn().mockResolvedValue([]),
     };
-    invoiceVa = {
+    invoicePayment = {
       isEnabled: jest.fn().mockReturnValue(true),
       provision: jest.fn(),
       inquiryVa: jest.fn(),
     };
-    orderVa = { inquiryVa: jest.fn() };
+    orderPayment = { inquiryVa: jest.fn() };
     config = {
       get: jest.fn((key: string, fallback?: unknown) => {
         const map: Record<string, unknown> = {
@@ -123,8 +123,8 @@ describe('PaymentsService', () => {
     service = new PaymentsService(
       orders as never,
       invoices as never,
-      invoiceVa as never,
-      orderVa as never,
+      invoicePayment as never,
+      orderPayment as never,
       eventLog as never,
       idempotency as never,
       config as unknown as ConfigService,
@@ -302,11 +302,12 @@ describe('PaymentsService', () => {
 
   describe('recoverStaleProvisioning', () => {
     it('reprovisions a gateway order that never got a VA', async () => {
-      orders.findPendingVaOrdersWithoutNumber.mockResolvedValue([
+      orders.findPendingOrdersWithoutProviderOrderId.mockResolvedValue([
         { id: 'o1' } as never,
       ]);
       orders.reprovision.mockResolvedValue({
         id: 'o1',
+        providerOrderId: 'o1',
         vaNumber: '19008172',
       } as never);
 
@@ -314,10 +315,13 @@ describe('PaymentsService', () => {
 
       expect(result).toEqual({ checked: 1, provisioned: 1 });
       expect(orders.reprovision).toHaveBeenCalledWith('o1');
+      expect(
+        orders.findPendingOrdersWithoutProviderOrderId,
+      ).toHaveBeenCalledWith(expect.objectContaining({ provider: 'JOKUL_VA' }));
     });
 
     it('continues when a reprovision attempt fails', async () => {
-      orders.findPendingVaOrdersWithoutNumber.mockResolvedValue([
+      orders.findPendingOrdersWithoutProviderOrderId.mockResolvedValue([
         { id: 'o1' } as never,
       ]);
       orders.reprovision.mockRejectedValue(
@@ -395,8 +399,8 @@ describe('PaymentsService', () => {
     const vaOrder = { id: 'o1', amount: 200000, vaNumber: '19008172' };
 
     it('unlocks an order DOKU reports as paid', async () => {
-      orders.findUnsettledVaOrders.mockResolvedValue([vaOrder] as never);
-      orderVa.inquiryVa.mockResolvedValue({
+      orders.findUnsettledOrders.mockResolvedValue([vaOrder] as never);
+      orderPayment.inquiryVa.mockResolvedValue({
         vaNumber: '19008172',
         status: '00',
         paidAmount: 200000,
@@ -415,8 +419,8 @@ describe('PaymentsService', () => {
     });
 
     it('skips orders DOKU still reports as unpaid', async () => {
-      orders.findUnsettledVaOrders.mockResolvedValue([vaOrder] as never);
-      orderVa.inquiryVa.mockResolvedValue({
+      orders.findUnsettledOrders.mockResolvedValue([vaOrder] as never);
+      orderPayment.inquiryVa.mockResolvedValue({
         vaNumber: '19008172',
         status: '03',
         paidAmount: null,
@@ -429,8 +433,8 @@ describe('PaymentsService', () => {
     });
 
     it('continues when the gateway call fails', async () => {
-      orders.findUnsettledVaOrders.mockResolvedValue([vaOrder] as never);
-      orderVa.inquiryVa.mockRejectedValue(
+      orders.findUnsettledOrders.mockResolvedValue([vaOrder] as never);
+      orderPayment.inquiryVa.mockRejectedValue(
         new JokulApiError('request_failed', 'boom', 500, '/p'),
       );
 
@@ -442,31 +446,36 @@ describe('PaymentsService', () => {
 
   describe('recoverStaleInvoiceProvisioning', () => {
     it('skips entirely when no VA gateway is enabled', async () => {
-      invoiceVa.isEnabled.mockReturnValue(false);
+      invoicePayment.isEnabled.mockReturnValue(false);
 
       const result = await service.recoverStaleInvoiceProvisioning();
 
       expect(result).toEqual({ checked: 0, provisioned: 0 });
-      expect(invoices.findUnpaidWithoutVa).not.toHaveBeenCalled();
+      expect(invoices.findUnpaidWithoutProviderOrderId).not.toHaveBeenCalled();
     });
 
     it('retries provisioning for an UNPAID invoice with no VA', async () => {
-      invoices.findUnpaidWithoutVa.mockResolvedValue([
+      invoices.findUnpaidWithoutProviderOrderId.mockResolvedValue([
         { id: 'inv1', number: 'INV-1' } as never,
       ]);
-      invoiceVa.provision.mockResolvedValue({ vaNumber: '8801' } as never);
+      invoicePayment.provision.mockResolvedValue({
+        providerOrderId: 'inv1',
+        vaNumber: '8801',
+      } as never);
 
       const result = await service.recoverStaleInvoiceProvisioning();
 
       expect(result).toEqual({ checked: 1, provisioned: 1 });
-      expect(invoiceVa.provision).toHaveBeenCalledWith('inv1', 'INV-1');
+      expect(invoicePayment.provision).toHaveBeenCalledWith('inv1', 'INV-1');
     });
 
     it('continues when a provisioning retry fails', async () => {
-      invoices.findUnpaidWithoutVa.mockResolvedValue([
+      invoices.findUnpaidWithoutProviderOrderId.mockResolvedValue([
         { id: 'inv1', number: 'INV-1' } as never,
       ]);
-      invoiceVa.provision.mockRejectedValue(new BadGatewayException('boom'));
+      invoicePayment.provision.mockRejectedValue(
+        new BadGatewayException('boom'),
+      );
 
       const result = await service.recoverStaleInvoiceProvisioning();
 
@@ -482,8 +491,8 @@ describe('PaymentsService', () => {
     };
 
     it('activates an invoice DOKU reports as paid', async () => {
-      invoices.findUnsettledVaInvoices.mockResolvedValue([vaInvoice] as never);
-      invoiceVa.inquiryVa.mockResolvedValue({
+      invoices.findUnsettledInvoices.mockResolvedValue([vaInvoice] as never);
+      invoicePayment.inquiryVa.mockResolvedValue({
         vaNumber: '8801',
         status: '00',
         paidAmount: 200000,
@@ -503,8 +512,8 @@ describe('PaymentsService', () => {
     });
 
     it('skips an invoice DOKU still reports as unpaid', async () => {
-      invoices.findUnsettledVaInvoices.mockResolvedValue([vaInvoice] as never);
-      invoiceVa.inquiryVa.mockResolvedValue({
+      invoices.findUnsettledInvoices.mockResolvedValue([vaInvoice] as never);
+      invoicePayment.inquiryVa.mockResolvedValue({
         vaNumber: '8801',
         status: '03',
         paidAmount: null,

@@ -1,5 +1,6 @@
 import type {
   Invoice,
+  PaymentProvider,
   PaymentVerifiedBySource,
   Prisma,
 } from '../../../generated/prisma/client';
@@ -49,6 +50,11 @@ export interface InvoicesRepository {
   findBySessionId(sessionId: string): Promise<Invoice | null>;
   findByVaNumber(vaNumber: string): Promise<Invoice | null>;
   /**
+   * `providerOrderId` is the only key the gateway echoes back on a
+   * notification, so this is the lookup used by the notification handler.
+   */
+  findByProviderOrderId(providerOrderId: string): Promise<Invoice | null>;
+  /**
    * Exactly-once settlement: in one transaction mark the invoice PAID (payment
    * columns set) and activate its session (`PENDING_PAYMENT → ACTIVE`).
    * Idempotent — a re-run on a PAID invoice changes nothing.
@@ -59,13 +65,15 @@ export interface InvoicesRepository {
   ): Promise<ConfirmInvoicePaymentResult>;
   /** Recompute the invoice amount (batch roster changed while UNPAID). */
   regenerateAmount(invoiceId: string, amount: number): Promise<Invoice>;
-  /** UNPAID invoices with no VA yet, created before `createdBefore` (recovery). */
-  findUnpaidWithoutVa(params: {
+  /** UNPAID `provider` invoices with no provider order id yet (recovery). */
+  findUnpaidWithoutProviderOrderId(params: {
+    provider: PaymentProvider;
     createdBefore: Date;
     limit: number;
   }): Promise<Invoice[]>;
-  /** UNPAID VA invoices past expiry, for reconciliation against the gateway. */
-  findUnsettledVaInvoices(params: {
+  /** UNPAID `provider` invoices past expiry, for reconciliation against the gateway. */
+  findUnsettledInvoices(params: {
+    provider: PaymentProvider;
     dueBefore: Date;
     notBefore: Date;
     limit: number;

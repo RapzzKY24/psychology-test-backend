@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
-import type { Invoice, Prisma } from '../../../generated/prisma/client';
+import type {
+  Invoice,
+  PaymentProvider,
+  Prisma,
+} from '../../../generated/prisma/client';
 import type {
   ConfirmInvoicePaymentParams,
   ConfirmInvoicePaymentResult,
@@ -85,6 +89,14 @@ export class PrismaInvoicesRepository implements InvoicesRepository {
     return this.prisma.invoice.findUnique({ where: { vaNumber } });
   }
 
+  /**
+   * `providerOrderId` is the only key the gateway echoes back on a
+   * notification, so this is the lookup used by the notification handler.
+   */
+  findByProviderOrderId(providerOrderId: string): Promise<Invoice | null> {
+    return this.prisma.invoice.findUnique({ where: { providerOrderId } });
+  }
+
   async confirmPaymentWithActivation(
     invoiceId: string,
     params: ConfirmInvoicePaymentParams,
@@ -149,15 +161,17 @@ export class PrismaInvoicesRepository implements InvoicesRepository {
     });
   }
 
-  findUnpaidWithoutVa(params: {
+  findUnpaidWithoutProviderOrderId(params: {
+    provider: PaymentProvider;
     createdBefore: Date;
     limit: number;
   }): Promise<Invoice[]> {
     return this.prisma.invoice.findMany({
       where: {
         status: 'UNPAID',
-        vaNumber: null,
+        paymentProvider: params.provider,
         sessionId: { not: null },
+        providerOrderId: null,
         createdAt: { lt: params.createdBefore },
       },
       orderBy: { createdAt: 'asc' },
@@ -165,7 +179,8 @@ export class PrismaInvoicesRepository implements InvoicesRepository {
     });
   }
 
-  findUnsettledVaInvoices(params: {
+  findUnsettledInvoices(params: {
+    provider: PaymentProvider;
     dueBefore: Date;
     notBefore: Date;
     limit: number;
@@ -173,7 +188,8 @@ export class PrismaInvoicesRepository implements InvoicesRepository {
     return this.prisma.invoice.findMany({
       where: {
         status: 'UNPAID',
-        vaNumber: { not: null },
+        paymentProvider: params.provider,
+        providerOrderId: { not: null },
         expiresAt: { lt: params.dueBefore, gte: params.notBefore },
       },
       orderBy: { expiresAt: 'asc' },

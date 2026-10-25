@@ -1,13 +1,13 @@
 import { BadGatewayException } from '@nestjs/common';
 import type { ConfigService } from '@nestjs/config';
-import { InvoiceVaService } from '../service/invoice-va.service';
+import { InvoicePaymentService } from '../service/invoice-payment.service';
 import type { InvoicesRepository } from '../repository/invoices.repository';
 import type { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import { JokulApiError } from '../../jokul/errors/jokul-api.error';
 import { StubVaProvider } from '../../jokul/gateway/stub-va.provider';
 
-describe('InvoiceVaService', () => {
-  let service: InvoiceVaService;
+describe('InvoicePaymentService', () => {
+  let service: InvoicePaymentService;
   let repo: {
     findById: jest.Mock;
     update: jest.Mock;
@@ -61,7 +61,7 @@ describe('InvoiceVaService', () => {
       getStatus: jest.fn(),
     };
     config = { get: jest.fn().mockReturnValue(true) };
-    service = new InvoiceVaService(
+    service = new InvoicePaymentService(
       repo as unknown as InvoicesRepository,
       idempotency as unknown as IdempotencyService,
       eventLog as never,
@@ -71,8 +71,12 @@ describe('InvoiceVaService', () => {
   });
 
   describe('isEnabled', () => {
-    it('is true when DOKU_STUB is on', () => {
-      config.get.mockReturnValue(true);
+    it('is true when the dev stub is on and a gateway provider is selected', () => {
+      config.get.mockImplementation((key: string) => {
+        if (key === 'app.jokul.stub') return true;
+        if (key === 'app.paymentProvider') return 'jokul';
+        return undefined;
+      });
       expect(service.isEnabled()).toBe(true);
     });
 
@@ -83,7 +87,7 @@ describe('InvoiceVaService', () => {
       expect(service.isEnabled()).toBe(true);
     });
 
-    it('is false when neither stub nor doku is configured', () => {
+    it('is false when the provider is manual', () => {
       config.get.mockImplementation((key: string) =>
         key === 'app.jokul.stub' ? false : 'manual',
       );
@@ -91,12 +95,16 @@ describe('InvoiceVaService', () => {
     });
   });
 
-  it('provisions a VA, records the event, and persists the columns', async () => {
+  it('provisions a payment, records the event, and persists the columns', async () => {
     await service.provision('inv1', 'Sesi Rekrutmen');
 
     expect(gateway.createPayment).toHaveBeenCalledWith(
       expect.objectContaining({ externalId: 'inv1', amount: 300000 }),
     );
+    expect(idempotency.begin).toHaveBeenCalledWith({
+      scope: 'jokul.invoice.payment.create',
+      key: 'inv1',
+    });
     expect(idempotency.complete).toHaveBeenCalledWith('c1', {
       responseStatus: 200,
       responseBody: paymentResult,
@@ -195,8 +203,12 @@ describe('InvoiceVaService', () => {
       await service.reprovision('inv1', 'Sesi');
 
       expect(gateway.createPayment).toHaveBeenCalledWith(
-        expect.objectContaining({ externalId: 'inv1:150000', amount: 150000 }),
+        expect.objectContaining({ externalId: 'inv1-150000', amount: 150000 }),
       );
+      expect(idempotency.begin).toHaveBeenCalledWith({
+        scope: 'jokul.invoice.payment.reprovision',
+        key: 'inv1-150000',
+      });
       expect(repo.update).toHaveBeenCalledWith(
         'inv1',
         expect.objectContaining({}),

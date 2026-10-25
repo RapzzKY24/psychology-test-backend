@@ -21,7 +21,7 @@ import { INSTANSI_PARTICIPANTS_REPOSITORY } from '../repository/instansi-partici
 import type { InstansiParticipantsRepository } from '../repository/instansi-participants.repository';
 import { InstansiParticipantsService } from './instansi-participants.service';
 import { InvoicesService } from '../../invoices/service/invoices.service';
-import { InvoiceVaService } from '../../invoices/service/invoice-va.service';
+import { InvoicePaymentService } from '../../invoices/service/invoice-payment.service';
 import type { CreateInstansiSessionDto } from '../dto/create-instansi-session.dto';
 import type { AddBatchParticipantsDto } from '../dto/add-batch-participants.dto';
 import type { SwapBatchParticipantDto } from '../dto/swap-batch-participant.dto';
@@ -73,7 +73,7 @@ export class InstansiSessionsService {
     private readonly participantsService: InstansiParticipantsService,
     private readonly sessionsService: SessionsService,
     private readonly invoicesService: InvoicesService,
-    private readonly invoiceVaService: InvoiceVaService,
+    private readonly invoicePaymentService: InvoicePaymentService,
     private readonly config: ConfigService,
   ) {}
 
@@ -82,7 +82,7 @@ export class InstansiSessionsService {
     dto: CreateInstansiSessionDto,
   ): Promise<InstansiBatchCreateResult> {
     // Fail fast when no VA gateway is configured — never a half-created batch.
-    if (!this.invoiceVaService.isEnabled()) {
+    if (!this.invoicePaymentService.isEnabled()) {
       throw new ServiceUnavailableException('payment_gateway_unavailable');
     }
 
@@ -167,7 +167,7 @@ export class InstansiSessionsService {
     // Best-effort VA provisioning: on a gateway failure the invoice stays
     // UNPAID (no VA) and the recovery pass (T12) retries it.
     try {
-      const provisioned = await this.invoiceVaService.provision(
+      const provisioned = await this.invoicePaymentService.provision(
         invoice.id,
         title,
       );

@@ -2,24 +2,27 @@ import { BadGatewayException, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { INVOICES_REPOSITORY } from '../repository/invoices.repository';
 import type { InvoicesRepository } from '../repository/invoices.repository';
-import type { Invoice, Prisma } from '../../../generated/prisma/client';
+import type {
+  EventSource,
+  Invoice,
+  PaymentProvider,
+  Prisma,
+} from '../../../generated/prisma/client';
 import { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import { EventLogService } from '../../event-log/service/event-log.service';
-import { JokulApiError } from '../../jokul/errors/jokul-api.error';
-import { DEFAULT_VA_BANK_CODE } from '../../jokul/constants/jokul';
+import { PaymentGatewayError } from '../../payments/gateway/payment-gateway.error';
 import {
   PAYMENT_GATEWAY,
   type CreatePaymentResult,
   type PaymentGateway,
 } from '../../payments/gateway/payment-gateway.interface';
-
-// Distinct namespace from orders so VA idempotency keys never collide.
-const VA_CREATE_SCOPE = 'jokul.invoice.va.create';
-// Separate scope so an amount change re-issues instead of replaying the cached VA.
-const VA_REPROVISION_SCOPE = 'jokul.invoice.va.reprovision';
+import {
+  PAYMENT_PROVIDER_ENV_TO_DB,
+  type PaymentProviderEnv,
+} from '../../../common/constants/payment-provider';
 
 @Injectable()
-export class InvoiceVaService {
+export class InvoicePaymentService {
   constructor(
     @Inject(INVOICES_REPOSITORY)
     private readonly repo: InvoicesRepository,
@@ -30,42 +33,41 @@ export class InvoiceVaService {
     private readonly config: ConfigService,
   ) {}
 
-  /** The VA provider is usable when Jokul is selected or the dev stub is on. */
+  /** The gateway is usable whenever a provider is selected (anything but manual). */
   isEnabled(): boolean {
-    return (
-      this.config.get<boolean>('app.jokul.stub') === true ||
-      this.config.get<string>('app.paymentProvider') === 'jokul'
-    );
+    return this.providerEnv !== 'manual';
   }
 
-  /** Idempotently provision a VA for a session-linked invoice. */
+  /** Idempotently provision a payment for a session-linked invoice. */
   async provision(invoiceId: string, name: string): Promise<Invoice | null> {
     const invoice = await this.repo.findById(invoiceId);
     if (!invoice) return null;
-    if (invoice.vaNumber) return invoice;
+    if (invoice.providerOrderId || invoice.vaNumber) return invoice;
 
-    return this.issueVa(invoice, name, VA_CREATE_SCOPE, invoice.id);
+    return this.issuePayment(invoice, name, this.createScope(), invoice.id);
   }
 
   /**
-   * Re-issue the VA for a still-UNPAID invoice whose amount changed (roster
-   * edit). The old VA number stops resolving, so a late callback for the stale
-   * total is rejected as `payment_not_found` instead of mis-activating the
-   * session on an `amount_mismatch`.
+   * Re-issue the payment for a still-UNPAID invoice whose amount changed
+   * (roster edit). The old provider order stops resolving, so a late
+   * notification for the stale total is rejected as `payment_not_found`
+   * instead of mis-activating the session on an `amount_mismatch`.
    */
   async reprovision(invoiceId: string, name: string): Promise<Invoice | null> {
     const invoice = await this.repo.findById(invoiceId);
     if (!invoice || invoice.status !== 'UNPAID') return invoice;
 
-    return this.issueVa(
+    return this.issuePayment(
       invoice,
       name,
-      VA_REPROVISION_SCOPE,
-      `${invoice.id}:${invoice.amount}`,
+      this.reprovisionScope(),
+      // Midtrans order ids only allow alphanumerics and `- _ ~ .`, so the
+      // amount is joined with a hyphen and never a colon.
+      `${invoice.id}-${invoice.amount}`,
     );
   }
 
-  /** Poll the provider for this VA's settlement status (reconciliation). */
+  /** Poll the provider for this payment's settlement status (reconciliation). */
   async inquiryVa(params: {
     vaNumber: string;
     paymentRequestId?: string;
@@ -82,7 +84,44 @@ export class InvoiceVaService {
     };
   }
 
-  private async issueVa(
+  private get paymentTtlMin(): number {
+    return this.config.get<number>('app.paymentTtlMin', 60);
+  }
+
+  /**
+   * Normalises the env value. An unknown or non-string value falls back to
+   * `jokul` instead of leaking into idempotency scopes and DB columns.
+   */
+  private get providerEnv(): PaymentProviderEnv {
+    const raw = this.config.get<string>('app.paymentProvider');
+    return raw === 'manual' || raw === 'midtrans' || raw === 'jokul'
+      ? raw
+      : 'jokul';
+  }
+
+  private get paymentProvider(): PaymentProvider {
+    return PAYMENT_PROVIDER_ENV_TO_DB[this.providerEnv] ?? 'JOKUL_VA';
+  }
+
+  /** Audit rows must name the provider that actually served the request. */
+  private get eventSource(): EventSource {
+    return this.providerEnv === 'midtrans' ? 'MIDTRANS' : 'JOKUL';
+  }
+
+  /**
+   * Distinct namespace from orders, and provider-scoped so a Midtrans retry
+   * never replays a cached Jokul result for the same key.
+   */
+  private createScope(): string {
+    return `${this.providerEnv}.invoice.payment.create`;
+  }
+
+  /** Separate scope so an amount change re-issues instead of replaying the cache. */
+  private reprovisionScope(): string {
+    return `${this.providerEnv}.invoice.payment.reprovision`;
+  }
+
+  private async issuePayment(
     invoice: Invoice,
     name: string,
     scope: string,
@@ -104,17 +143,17 @@ export class InvoiceVaService {
     const claimId = claim.acquired ? claim.id : claim.existing.id;
 
     const event = await this.eventLog.record({
-      source: 'JOKUL',
+      source: this.eventSource,
       direction: 'OUTBOUND',
-      type: 'CREATE_VA_REQUEST',
+      type: 'CREATE_PAYMENT_REQUEST',
       aggregateType: 'Invoice',
       aggregateId: invoice.id,
       reference: externalId,
       payload: {
-        trxId: externalId,
-        virtualAccountName: name,
-        totalAmount: { value: invoice.amount.toFixed(2), currency: 'IDR' },
-        bankCode: DEFAULT_VA_BANK_CODE,
+        providerOrderId: externalId,
+        amount: invoice.amount,
+        expiresAt: invoice.expiresAt,
+        customerName: name,
       },
     });
 
@@ -133,7 +172,7 @@ export class InvoiceVaService {
         error instanceof Error ? error.message : 'unknown_error';
       await this.eventLog.markFailed(event.id, { errorMessage });
       await this.idempotency.fail(claimId, { errorMessage });
-      if (error instanceof JokulApiError) {
+      if (error instanceof PaymentGatewayError) {
         throw new BadGatewayException('payment_gateway_failed');
       }
       throw error;
@@ -147,18 +186,18 @@ export class InvoiceVaService {
     return this.repo.update(invoice.id, this.toColumns(result));
   }
 
-  private get paymentTtlMin(): number {
-    return this.config.get<number>('app.paymentTtlMin', 60);
-  }
-
+  /**
+   * Snap returns a token and a redirect url but no VA number, so the VA columns
+   * stay null there; Jokul fills them instead.
+   */
   private toColumns(result: CreatePaymentResult): Prisma.InvoiceUpdateInput {
-    if (!result.vaNumber) {
-      throw new BadGatewayException('payment_gateway_failed');
-    }
     return {
-      vaNumber: result.vaNumber,
-      vaBankCode: result.bankCode ?? DEFAULT_VA_BANK_CODE,
-      paymentProvider: 'JOKUL_VA',
+      providerOrderId: result.providerOrderId,
+      paymentToken: result.token || null,
+      paymentUrl: result.redirectUrl || null,
+      paymentProvider: this.paymentProvider,
+      vaNumber: result.vaNumber ?? null,
+      vaBankCode: result.bankCode ?? null,
     };
   }
 }

@@ -3,11 +3,19 @@ import { ConfigService } from '@nestjs/config';
 import { EventLogService } from '../../event-log/service/event-log.service';
 import { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import { OrdersService } from '../../orders/service/orders.service';
-import { OrderVaService } from '../../orders/service/order-va.service';
+import { OrderPaymentService } from '../../orders/service/order-payment.service';
 import { InvoicesService } from '../../invoices/service/invoices.service';
-import { InvoiceVaService } from '../../invoices/service/invoice-va.service';
-import type { Invoice, Order } from '../../../generated/prisma/client';
-import { JokulApiError } from '../../jokul/errors/jokul-api.error';
+import { InvoicePaymentService } from '../../invoices/service/invoice-payment.service';
+import type {
+  Invoice,
+  Order,
+  PaymentProvider,
+} from '../../../generated/prisma/client';
+import {
+  PAYMENT_PROVIDER_ENV_TO_DB,
+  type PaymentProviderEnv,
+} from '../../../common/constants/payment-provider';
+import { PaymentGatewayError } from '../gateway/payment-gateway.error';
 import { VaCallbackSchema } from '../../jokul/dto/jokul.dto';
 import type { VaCallback } from '../../jokul/dto/jokul.dto';
 import { MS_PER_MINUTE } from '../../../common/constants/time';
@@ -22,8 +30,8 @@ import {
 } from '../constants/payments';
 import type { JokulAck } from '../constants/payments';
 
-/** Shape returned by both VA services' `inquiryVa` (legacy Jokul status codes). */
-type VaInquiryResult = Awaited<ReturnType<OrderVaService['inquiryVa']>>;
+/** Shape returned by both payment services' `inquiryVa` (legacy Jokul status codes). */
+type VaInquiryResult = Awaited<ReturnType<OrderPaymentService['inquiryVa']>>;
 
 type CallbackOutcome =
   | { kind: 'settled' }
@@ -37,12 +45,19 @@ export class PaymentsService {
   constructor(
     private readonly orders: OrdersService,
     private readonly invoices: InvoicesService,
-    private readonly invoiceVa: InvoiceVaService,
-    private readonly orderVa: OrderVaService,
+    private readonly invoicePayment: InvoicePaymentService,
+    private readonly orderPayment: OrderPaymentService,
     private readonly eventLog: EventLogService,
     private readonly idempotency: IdempotencyService,
     private readonly config: ConfigService,
   ) {}
+
+  /** DB enum of the provider selected by `PAYMENT_PROVIDER`. */
+  private get activeProvider(): PaymentProvider {
+    const env = (this.config.get<string>('app.paymentProvider') ??
+      'jokul') as PaymentProviderEnv;
+    return PAYMENT_PROVIDER_ENV_TO_DB[env] ?? 'JOKUL_VA';
+  }
 
   private get staleAfterMs(): number {
     return (
@@ -147,7 +162,8 @@ export class PaymentsService {
     checked: number;
     provisioned: number;
   }> {
-    const due = await this.orders.findPendingVaOrdersWithoutNumber({
+    const due = await this.orders.findPendingOrdersWithoutProviderOrderId({
+      provider: this.activeProvider,
       createdBefore: new Date(Date.now() - this.staleAfterMs),
       limit: this.batchSize,
     });
@@ -155,10 +171,10 @@ export class PaymentsService {
     for (const order of due) {
       try {
         const updated = await this.orders.reprovision(order.id);
-        if (updated?.vaNumber) provisioned += 1;
+        if (updated?.providerOrderId) provisioned += 1;
       } catch (error) {
         if (
-          error instanceof JokulApiError ||
+          error instanceof PaymentGatewayError ||
           error instanceof BadGatewayException
         ) {
           this.logger.warn(`reprovision ${order.id} failed: ${error.message}`);
@@ -173,7 +189,8 @@ export class PaymentsService {
   /** Poll DOKU for VA orders still unsettled after expiry and unlock any that were paid. */
   async reconcilePendingVas(): Promise<{ checked: number; settled: number }> {
     const now = new Date();
-    const due = await this.orders.findUnsettledVaOrders({
+    const due = await this.orders.findUnsettledOrders({
+      provider: this.activeProvider,
       dueBefore: now,
       notBefore: new Date(now.getTime() - this.lookbackMs),
       limit: this.batchSize,
@@ -185,13 +202,13 @@ export class PaymentsService {
       checked += 1;
       let status: VaInquiryResult;
       try {
-        status = await this.orderVa.inquiryVa({
+        status = await this.orderPayment.inquiryVa({
           vaNumber: order.vaNumber,
           paymentRequestId: order.id,
           externalId: order.id,
         });
       } catch (error) {
-        if (error instanceof JokulApiError) continue;
+        if (error instanceof PaymentGatewayError) continue;
         throw error;
       }
       if (status.status !== VA_INQUIRY_PAID_STATUS) continue;
@@ -215,22 +232,23 @@ export class PaymentsService {
     checked: number;
     provisioned: number;
   }> {
-    if (!this.invoiceVa.isEnabled()) return { checked: 0, provisioned: 0 };
-    const due = await this.invoices.findUnpaidWithoutVa({
+    if (!this.invoicePayment.isEnabled()) return { checked: 0, provisioned: 0 };
+    const due = await this.invoices.findUnpaidWithoutProviderOrderId({
+      provider: this.activeProvider,
       createdBefore: new Date(Date.now() - this.staleAfterMs),
       limit: this.batchSize,
     });
     let provisioned = 0;
     for (const invoice of due) {
       try {
-        const updated = await this.invoiceVa.provision(
+        const updated = await this.invoicePayment.provision(
           invoice.id,
           invoice.number,
         );
-        if (updated?.vaNumber) provisioned += 1;
+        if (updated?.providerOrderId) provisioned += 1;
       } catch (error) {
         if (
-          error instanceof JokulApiError ||
+          error instanceof PaymentGatewayError ||
           error instanceof BadGatewayException
         ) {
           this.logger.warn(
@@ -249,9 +267,10 @@ export class PaymentsService {
     checked: number;
     settled: number;
   }> {
-    if (!this.invoiceVa.isEnabled()) return { checked: 0, settled: 0 };
+    if (!this.invoicePayment.isEnabled()) return { checked: 0, settled: 0 };
     const now = new Date();
-    const due = await this.invoices.findUnsettledVaInvoices({
+    const due = await this.invoices.findUnsettledInvoices({
+      provider: this.activeProvider,
       dueBefore: now,
       notBefore: new Date(now.getTime() - this.lookbackMs),
       limit: this.batchSize,
@@ -263,13 +282,13 @@ export class PaymentsService {
       checked += 1;
       let status: VaInquiryResult;
       try {
-        status = await this.invoiceVa.inquiryVa({
+        status = await this.invoicePayment.inquiryVa({
           vaNumber: invoice.vaNumber,
           paymentRequestId: invoice.id,
           externalId: invoice.id,
         });
       } catch (error) {
-        if (error instanceof JokulApiError) continue;
+        if (error instanceof PaymentGatewayError) continue;
         throw error;
       }
       if (status.status !== VA_INQUIRY_PAID_STATUS) continue;

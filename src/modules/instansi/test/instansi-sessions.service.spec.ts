@@ -18,7 +18,7 @@ describe('InstansiSessionsService', () => {
     findBySessionId: jest.Mock;
     regenerateAmount: jest.Mock;
   };
-  let mockInvoiceVaService: {
+  let mockInvoicePaymentService: {
     isEnabled: jest.Mock;
     provision: jest.Mock;
     reprovision: jest.Mock;
@@ -88,7 +88,7 @@ describe('InstansiSessionsService', () => {
       findBySessionId: jest.fn(),
       regenerateAmount: jest.fn(),
     };
-    mockInvoiceVaService = {
+    mockInvoicePaymentService = {
       isEnabled: jest.fn().mockReturnValue(true),
       provision: jest.fn().mockResolvedValue(null),
       reprovision: jest.fn().mockResolvedValue(null),
@@ -110,7 +110,7 @@ describe('InstansiSessionsService', () => {
       mockParticipantsService as never,
       mockSessionsService as never,
       mockInvoicesService as never,
-      mockInvoiceVaService as never,
+      mockInvoicePaymentService as never,
       mockConfig as never,
     );
   });
@@ -158,7 +158,7 @@ describe('InstansiSessionsService', () => {
           amount: 500000,
         }),
       );
-      const provisionTitle = mockInvoiceVaService.provision.mock
+      const provisionTitle = mockInvoicePaymentService.provision.mock
         .calls[0] as unknown as [string, string];
       expect(provisionTitle[1]).toContain('CPMI');
       expect(provisionTitle[1]).toContain(INSTITUTION_NAME);
@@ -207,7 +207,7 @@ describe('InstansiSessionsService', () => {
     });
 
     it('fails fast with 503 when no VA gateway is configured', async () => {
-      mockInvoiceVaService.isEnabled.mockReturnValue(false);
+      mockInvoicePaymentService.isEnabled.mockReturnValue(false);
 
       await expect(service.create(USER_ID, dto)).rejects.toThrow(
         'payment_gateway_unavailable',
@@ -413,7 +413,7 @@ describe('InstansiSessionsService', () => {
         { name: 'C', institutionParticipantId: 'emp-3' },
       ]);
       expect(mockInvoicesService.regenerateAmount).not.toHaveBeenCalled();
-      expect(mockInvoiceVaService.reprovision).not.toHaveBeenCalled();
+      expect(mockInvoicePaymentService.reprovision).not.toHaveBeenCalled();
       expect(result.amount).toBe(500000);
       expect(result.vaNumber).toBe('880777');
     });

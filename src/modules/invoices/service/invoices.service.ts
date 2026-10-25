@@ -5,7 +5,11 @@ import type {
   ConfirmInvoicePaymentResult,
   InvoicesRepository,
 } from '../repository/invoices.repository';
-import type { Invoice, Prisma } from '../../../generated/prisma/client';
+import type {
+  Invoice,
+  PaymentProvider,
+  Prisma,
+} from '../../../generated/prisma/client';
 import type { QueryInvoicesDto } from '../dto/query-invoices.dto';
 
 @Injectable()
@@ -65,19 +69,21 @@ export class InvoicesService {
     return this.repo.regenerateAmount(invoiceId, amount);
   }
 
-  findUnpaidWithoutVa(params: {
+  findUnpaidWithoutProviderOrderId(params: {
+    provider: PaymentProvider;
     createdBefore: Date;
     limit: number;
   }): Promise<Invoice[]> {
-    return this.repo.findUnpaidWithoutVa(params);
+    return this.repo.findUnpaidWithoutProviderOrderId(params);
   }
 
-  findUnsettledVaInvoices(params: {
+  findUnsettledInvoices(params: {
+    provider: PaymentProvider;
     dueBefore: Date;
     notBefore: Date;
     limit: number;
   }): Promise<Invoice[]> {
-    return this.repo.findUnsettledVaInvoices(params);
+    return this.repo.findUnsettledInvoices(params);
   }
 
   async findMany(

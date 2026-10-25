@@ -1,4 +1,9 @@
-import type { Order, Prisma, Test } from '../../../generated/prisma/client';
+import type {
+  Order,
+  PaymentProvider,
+  Prisma,
+  Test,
+} from '../../../generated/prisma/client';
 
 export const ORDERS_REPOSITORY = 'OrdersRepository';
 
@@ -33,19 +38,26 @@ export interface OrdersRepository {
   /** Transactional exactly-once verify: PAID + verifiedBy + INDIVIDUAL session + attempt. */
   verifyPayment(orderId: string, adminId: string): Promise<VerifyPaymentResult>;
   findByVaNumber(vaNumber: string): Promise<Order | null>;
+  /**
+   * `providerOrderId` is the only key the gateway echoes back on a
+   * notification, so this is the lookup used by the notification handler.
+   */
+  findByProviderOrderId(providerOrderId: string): Promise<Order | null>;
   /** Same exactly-once unlock as `verifyPayment`, but sourced from the gateway (verifiedBySource = DOKU). */
   confirmExternalPayment(orderId: string): Promise<VerifyPaymentResult>;
   /**
-   * Unsettled VA orders whose `expiresAt` fell in `[notBefore, dueBefore]` —
-   * candidates for gateway status reconciliation.
+   * Unsettled orders of `provider` whose `expiresAt` fell in
+   * `[notBefore, dueBefore]` — candidates for gateway status reconciliation.
    */
-  findUnsettledVaOrders(params: {
+  findUnsettledOrders(params: {
+    provider: PaymentProvider;
     dueBefore: Date;
     notBefore: Date;
     limit: number;
   }): Promise<Order[]>;
-  /** Gateway orders still PENDING without a VA, older than `createdBefore` — retry provisioning. */
-  findPendingVaOrdersWithoutNumber(params: {
+  /** `provider` orders still PENDING without a provider order id — retry provisioning. */
+  findPendingOrdersWithoutProviderOrderId(params: {
+    provider: PaymentProvider;
     createdBefore: Date;
     limit: number;
   }): Promise<Order[]>;
