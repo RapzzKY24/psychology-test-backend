@@ -47,7 +47,10 @@ describe('PaymentsRecoveryService', () => {
     );
   });
 
-  afterEach(() => service.onModuleDestroy());
+  afterEach(() => {
+    jest.useRealTimers();
+    service.onModuleDestroy();
+  });
 
   const timerOf = () =>
     (service as unknown as { timer?: NodeJS.Timeout }).timer;
@@ -74,6 +77,15 @@ describe('PaymentsRecoveryService', () => {
       expect(timerOf()).toBeDefined();
     },
   );
+
+  it('runs a catch-up pass shortly after boot', () => {
+    jest.useFakeTimers();
+    service.onModuleInit();
+
+    jest.advanceTimersByTime(15_000);
+
+    expect(payments.recoverStaleCallbacks).toHaveBeenCalled();
+  });
 
   it('runs every recovery pass', async () => {
     await service.runOnce();
