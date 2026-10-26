@@ -15,6 +15,7 @@ import type {
 import type {
   Order,
   PaymentProvider,
+  PaymentVerifiedBySource,
   Prisma,
 } from '../../../generated/prisma/client';
 import type { QueryPaymentsDto } from '../dto/query-payments.dto';
@@ -277,8 +278,11 @@ export class OrdersService {
   }
 
   /** Gateway-sourced unlock; the repository re-checks status transactionally (exactly-once). */
-  confirmExternalPayment(orderId: string): Promise<VerifyPaymentResult> {
-    return this.repo.confirmExternalPayment(orderId);
+  confirmExternalPayment(
+    orderId: string,
+    source: PaymentVerifiedBySource,
+  ): Promise<VerifyPaymentResult> {
+    return this.repo.confirmExternalPayment(orderId, source);
   }
 
   findUnsettledOrders(params: {

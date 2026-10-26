@@ -1,6 +1,7 @@
 import type {
   Order,
   PaymentProvider,
+  PaymentVerifiedBySource,
   Prisma,
   Test,
 } from '../../../generated/prisma/client';
@@ -44,7 +45,11 @@ export interface OrdersRepository {
    */
   findByProviderOrderId(providerOrderId: string): Promise<Order | null>;
   /** Same exactly-once unlock as `verifyPayment`, but sourced from the gateway (verifiedBySource = DOKU). */
-  confirmExternalPayment(orderId: string): Promise<VerifyPaymentResult>;
+  /** Gateway-sourced unlock; `source` is the provider that reported the payment. */
+  confirmExternalPayment(
+    orderId: string,
+    source: PaymentVerifiedBySource,
+  ): Promise<VerifyPaymentResult>;
   /**
    * Unsettled orders of `provider` whose `expiresAt` fell in
    * `[notBefore, dueBefore]` — candidates for gateway status reconciliation.

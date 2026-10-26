@@ -59,6 +59,19 @@ function pad(value: number): string {
 }
 
 /**
+ * Midtrans answers HTTP 200 with `{ "status_code": "404", "status_message":
+ * "Transaction doesn't exist." }` while the customer has not picked a payment
+ * method yet. The HTTP status is therefore useless here; the body decides.
+ */
+function isNotFoundPayload(payload: unknown): boolean {
+  return (
+    typeof payload === 'object' &&
+    payload !== null &&
+    (payload as { status_code?: unknown }).status_code === '404'
+  );
+}
+
+/**
  * `YYYY-MM-DD HH:mm:ss +0700`, the format Midtrans expects for
  * `expiry.start_time`. Computed in UTC+7 regardless of the server timezone.
  */
@@ -227,6 +240,14 @@ export class MidtransClient {
     );
 
     const payload: unknown = await response.json();
+    if (isNotFoundPayload(payload)) {
+      throw new MidtransApiError(
+        'not_found',
+        `Midtrans request failed: ${path} (404)`,
+        404,
+        path,
+      );
+    }
     const parsed = MidtransStatusResponseSchema.safeParse(payload);
     if (!parsed.success) {
       throw new MidtransApiError(
@@ -248,10 +269,28 @@ export class MidtransClient {
     };
   }
 
-  /** Expires a pending transaction so its `order_id` cannot be paid. */
+  /**
+   * Expires a pending transaction so its `order_id` cannot be paid. A body
+   * level 404 means there is nothing to expire yet (no payment method was ever
+   * chosen), which is reported as `not_found` instead of a silent success.
+   */
   async expire(providerOrderId: string): Promise<void> {
     const cfg = this.cfg;
     const path = `/v2/${encodeURIComponent(providerOrderId)}/expire`;
-    await this.send(cfg, 'POST', `${midtransApiBaseUrl(cfg)}${path}`, path);
+    const response = await this.send(
+      cfg,
+      'POST',
+      `${midtransApiBaseUrl(cfg)}${path}`,
+      path,
+    );
+    const payload: unknown = await response.json().catch(() => null);
+    if (isNotFoundPayload(payload)) {
+      throw new MidtransApiError(
+        'not_found',
+        `Midtrans request failed: ${path} (404)`,
+        404,
+        path,
+      );
+    }
   }
 }

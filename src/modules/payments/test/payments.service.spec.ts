@@ -158,7 +158,7 @@ describe('PaymentsService', () => {
       scope: 'jokul.va.callback',
       key: 'jokul.va.callback:19008172:o1',
     });
-    expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1');
+    expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1', 'JOKUL');
     expect(eventLog.markProcessed).toHaveBeenCalled();
     expect(idempotency.complete).toHaveBeenCalledWith('idem1', {
       responseStatus: 200,
@@ -380,7 +380,7 @@ describe('PaymentsService', () => {
 
       expect(replayed).toBe(1);
       expect(eventLog.markProcessing).toHaveBeenCalledWith('ev9');
-      expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1');
+      expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1', 'JOKUL');
       expect(eventLog.markProcessed).toHaveBeenCalledWith(
         'ev9',
         expect.anything(),
@@ -420,7 +420,7 @@ describe('PaymentsService', () => {
 
       expect(replayed).toBe(1);
       expect(eventLog.markProcessing).toHaveBeenCalledWith('ev9');
-      expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1');
+      expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1', 'MIDTRANS');
       expect(eventLog.markProcessed).toHaveBeenCalledWith(
         'ev9',
         expect.anything(),
@@ -471,10 +471,18 @@ describe('PaymentsService', () => {
       const result = await service.reconcilePendingPayments();
 
       expect(result).toEqual({ checked: 1, settled: 1 });
-      expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1');
+      expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1', 'JOKUL');
     });
 
     it('settles a Snap order that has no VA number, using its provider order id', async () => {
+      config.get.mockImplementation((key: string, fallback?: unknown) => {
+        const map: Record<string, unknown> = {
+          'app.paymentProvider': 'midtrans',
+          'app.recovery.lookbackMin': 1440,
+          'app.recovery.batchSize': 50,
+        };
+        return map[key] ?? fallback;
+      });
       orders.findUnsettledOrders.mockResolvedValue([
         { id: 'o1', amount: 200000, vaNumber: null, providerOrderId: 'o1' },
       ] as never);
@@ -498,6 +506,10 @@ describe('PaymentsService', () => {
         vaNumber: null,
       });
       expect(result).toEqual({ checked: 1, settled: 1 });
+      expect(orders.confirmExternalPayment).toHaveBeenCalledWith(
+        'o1',
+        'MIDTRANS',
+      );
       expect(orders.updatePaymentType).toHaveBeenCalledWith(
         'o1',
         'bank_transfer',
@@ -723,7 +735,7 @@ describe('PaymentsService', () => {
         scope: 'midtrans.notification',
         key: 'o1:settlement:200',
       });
-      expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1');
+      expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1', 'MIDTRANS');
       expect(eventLog.markProcessed).toHaveBeenCalledWith('ev1', {
         response: { orderId: 'o1', sessionId: 's1', wasLate: false },
       });

@@ -143,6 +143,22 @@ describe('MidtransClient', () => {
     });
   });
 
+  it('maps a body-level 404 to not_found even when the HTTP status is 200', async () => {
+    // Real sandbox answer before the customer picks a payment method.
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse(true, 200, {
+        status_code: '404',
+        status_message: "Transaction doesn't exist.",
+        id: 'b7fba2d1-466c-41b0-adaf-1b7a76f63d8a',
+      }),
+    );
+
+    await expect(client.getStatus(ORDER_ID)).rejects.toMatchObject({
+      code: 'not_found',
+      status: 404,
+    });
+  });
+
   it('maps a 5xx to request_failed', async () => {
     fetchMock.mockResolvedValueOnce(jsonResponse(false, 503, {}));
 
@@ -215,12 +231,30 @@ describe('MidtransClient', () => {
   });
 
   it('expires a transaction through the core API', async () => {
-    fetchMock.mockResolvedValueOnce(jsonResponse(true, 200, {}));
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse(true, 200, {
+        status_code: '200',
+        transaction_status: 'expire',
+      }),
+    );
 
     await expect(client.expire(ORDER_ID)).resolves.toBeUndefined();
     expect(fetchMock.mock.calls[0][0]).toBe(
       `https://api.sandbox.midtrans.com/v2/${ORDER_ID}/expire`,
     );
     expect(fetchMock.mock.calls[0][1].method).toBe('POST');
+  });
+
+  it('reports a body-level 404 from expire instead of a silent success', async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse(true, 200, {
+        status_code: '404',
+        status_message: "Transaction doesn't exist.",
+      }),
+    );
+
+    await expect(client.expire(ORDER_ID)).rejects.toMatchObject({
+      code: 'not_found',
+    });
   });
 });

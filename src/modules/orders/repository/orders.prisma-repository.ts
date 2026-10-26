@@ -151,10 +151,13 @@ export class PrismaOrdersRepository implements OrdersRepository {
     });
   }
 
-  confirmExternalPayment(orderId: string): Promise<VerifyPaymentResult> {
+  confirmExternalPayment(
+    orderId: string,
+    source: PaymentVerifiedBySource,
+  ): Promise<VerifyPaymentResult> {
     return this.settleOrder(orderId, {
       verifiedById: null,
-      verifiedBySource: 'JOKUL',
+      verifiedBySource: source,
     });
   }
 

@@ -323,7 +323,10 @@ export class PaymentsService {
       }
       if (status.status !== 'PAID') continue;
       if (!amountMatches(status.paidAmount, order.amount)) continue;
-      const result = await this.orders.confirmExternalPayment(order.id);
+      const result = await this.orders.confirmExternalPayment(
+        order.id,
+        this.activeVerifiedBy,
+      );
       if (result.outcome !== 'verified') continue;
       settled += 1;
       await this.persistPaymentType('order', order.id, status.paymentType);
@@ -452,7 +455,7 @@ export class PaymentsService {
       return { kind: 'rejected', reason: 'amount_mismatch' };
     }
 
-    const result = await this.orders.confirmExternalPayment(order.id);
+    const result = await this.orders.confirmExternalPayment(order.id, 'JOKUL');
     if (result.outcome === 'conflict') {
       await this.eventLog.markProcessed(eventId, {
         response: { alreadySettled: true, orderId: order.id },
@@ -600,7 +603,10 @@ export class PaymentsService {
           return { kind: 'rejected', reason: 'amount_mismatch' };
         }
 
-        const result = await this.orders.confirmExternalPayment(order.id);
+        const result = await this.orders.confirmExternalPayment(
+          order.id,
+          'MIDTRANS',
+        );
         if (result.outcome === 'conflict') {
           await this.eventLog.markProcessed(eventId, {
             response: { alreadySettled: true, orderId: order.id },
