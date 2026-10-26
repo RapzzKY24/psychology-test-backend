@@ -1,0 +1,49 @@
+import type { Invoice, Order } from '../../../generated/prisma/client';
+
+/** What was bought: a prepaid instansi batch (invoice) or a personal test (order). */
+export type CheckoutKind = 'invoice' | 'order';
+
+/** One vocabulary for both tables so the FE renders a single state machine. */
+export type CheckoutStatus = 'PAID' | 'UNPAID' | 'CANCELLED' | 'EXPIRED';
+
+export interface CheckoutStatusDto {
+  kind: CheckoutKind;
+  id: string;
+  status: CheckoutStatus;
+  amount: number;
+  testNames: string[];
+  /** Session opened by the payment; null while unpaid (orders have none). */
+  sessionId: string | null;
+  paidAt: string | null;
+}
+
+export function toInvoiceCheckout(input: {
+  invoice: Invoice;
+  testNames: string[];
+}): CheckoutStatusDto {
+  return {
+    kind: 'invoice',
+    id: input.invoice.id,
+    status: input.invoice.status,
+    amount: input.invoice.amount,
+    testNames: input.testNames,
+    sessionId: input.invoice.sessionId,
+    paidAt: input.invoice.verifiedAt?.toISOString() ?? null,
+  };
+}
+
+export function toOrderCheckout(input: {
+  order: Order;
+  testName: string;
+}): CheckoutStatusDto {
+  return {
+    kind: 'order',
+    id: input.order.id,
+    // PENDING is the order equivalent of an unpaid invoice.
+    status: input.order.status === 'PENDING' ? 'UNPAID' : input.order.status,
+    amount: input.order.amount,
+    testNames: [input.testName],
+    sessionId: null,
+    paidAt: input.order.verifiedAt?.toISOString() ?? null,
+  };
+}

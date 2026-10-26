@@ -21,6 +21,15 @@ export interface ConfirmInvoicePaymentParams {
 
 export interface InvoicesRepository {
   findById(id: string): Promise<Invoice | null>;
+  /**
+   * Invoice resolved by its own id or by `providerOrderId` (the id Snap echoes
+   * back), restricted to invoices whose institution belongs to `ownerUserId`.
+   * Also returns the session's test names for the checkout result page.
+   */
+  findOwnedByRef(
+    ref: string,
+    ownerUserId: string,
+  ): Promise<{ invoice: Invoice; testNames: string[] } | null>;
   findMany(params: {
     where: Prisma.InvoiceWhereInput;
     skip: number;

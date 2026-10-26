@@ -131,6 +131,13 @@ export class OrdersService {
     };
   }
 
+  findOwnedByRef(
+    ref: string,
+    userId: string,
+  ): Promise<{ order: Order; testName: string } | null> {
+    return this.repo.findOwnedByRef(ref, userId);
+  }
+
   async findById(
     orderId: string,
     userId: string,

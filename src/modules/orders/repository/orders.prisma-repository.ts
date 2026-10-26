@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { isUuid } from '../../../common/utils/is-uuid';
 import type {
   Order,
   PaymentProvider,
@@ -20,6 +21,23 @@ export class PrismaOrdersRepository implements OrdersRepository {
 
   findById(id: string): Promise<Order | null> {
     return this.prisma.order.findUnique({ where: { id } });
+  }
+
+  async findOwnedByRef(
+    ref: string,
+    userId: string,
+  ): Promise<{ order: Order; testName: string } | null> {
+    const byRef: Prisma.OrderWhereInput[] = [{ providerOrderId: ref }];
+    if (isUuid(ref)) byRef.unshift({ id: ref });
+
+    const row = await this.prisma.order.findFirst({
+      where: { OR: byRef, userId },
+      include: { test: { select: { name: true } } },
+    });
+    if (!row) return null;
+
+    const { test, ...order } = row;
+    return { order, testName: test.name };
   }
 
   findPendingOrPaidByAmount(

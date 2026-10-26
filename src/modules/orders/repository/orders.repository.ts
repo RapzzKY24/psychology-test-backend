@@ -20,6 +20,14 @@ export type VerifyPaymentResult =
 
 export interface OrdersRepository {
   findById(id: string): Promise<Order | null>;
+  /**
+   * Order resolved by its own id or by `providerOrderId`, restricted to the
+   * owner. Also returns the test name for the checkout result page.
+   */
+  findOwnedByRef(
+    ref: string,
+    userId: string,
+  ): Promise<{ order: Order; testName: string } | null>;
   findPendingOrPaidByAmount(amount: number, since: Date): Promise<Order | null>;
   findTestById(id: string): Promise<Test | null>;
   getQrisImageUrl(): Promise<string | null>;

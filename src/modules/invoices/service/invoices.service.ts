@@ -86,6 +86,13 @@ export class InvoicesService {
     return this.repo.findUnpaidWithoutProviderOrderId(params);
   }
 
+  findOwnedByRef(
+    ref: string,
+    ownerUserId: string,
+  ): Promise<{ invoice: Invoice; testNames: string[] } | null> {
+    return this.repo.findOwnedByRef(ref, ownerUserId);
+  }
+
   findUnsettledInvoices(params: {
     provider: PaymentProvider;
     createdBefore: Date;

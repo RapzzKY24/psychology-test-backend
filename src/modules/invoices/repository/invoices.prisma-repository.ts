@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
+import { isUuid } from '../../../common/utils/is-uuid';
 import type {
   Invoice,
   PaymentProvider,
@@ -173,6 +174,36 @@ export class PrismaInvoicesRepository implements InvoicesRepository {
       orderBy: { createdAt: 'asc' },
       take: params.limit,
     });
+  }
+
+  async findOwnedByRef(
+    ref: string,
+    ownerUserId: string,
+  ): Promise<{ invoice: Invoice; testNames: string[] } | null> {
+    const byRef: Prisma.InvoiceWhereInput[] = [{ providerOrderId: ref }];
+    if (isUuid(ref)) byRef.unshift({ id: ref });
+
+    const row = await this.prisma.invoice.findFirst({
+      where: { OR: byRef, institution: { ownerUserId } },
+      include: {
+        session: {
+          include: {
+            sessionTests: {
+              orderBy: { order: 'asc' },
+              include: { test: { select: { name: true } } },
+            },
+          },
+        },
+      },
+    });
+    if (!row) return null;
+
+    const { session, ...invoice } = row;
+    return {
+      invoice,
+      testNames:
+        session?.sessionTests.map((sessionTest) => sessionTest.test.name) ?? [],
+    };
   }
 
   findUnsettledInvoices(params: {
