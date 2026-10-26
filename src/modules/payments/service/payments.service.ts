@@ -231,26 +231,37 @@ export class PaymentsService {
       // guard keeps the type honest and skips a race with a concurrent write.
       if (!order.providerOrderId) continue;
       checked += 1;
-      let status: PaymentStatusResult;
-      try {
-        status = await this.orderPayment.getStatus({
-          providerOrderId: order.providerOrderId,
-        });
-      } catch (error) {
-        if (error instanceof PaymentGatewayError) continue;
-        throw error;
-      }
-      if (status.status !== 'PAID') continue;
-      if (!amountMatches(status.paidAmount, order.amount)) continue;
-      const result = await this.orders.confirmExternalPayment(
-        order.id,
-        'MIDTRANS',
-      );
-      if (result.outcome !== 'verified') continue;
-      settled += 1;
-      await this.persistPaymentType('order', order.id, status.paymentType);
+      if (await this.reconcileOrder(order)) settled += 1;
     }
     return { checked, settled };
+  }
+
+  /**
+   * Ask the gateway about one order and unlock it when the money arrived.
+   * Shared by the recovery pass and the buyer-facing status refresh, so both
+   * paths settle through the same guarded write. Returns true only when this
+   * call is the one that flipped the order to PAID.
+   */
+  async reconcileOrder(order: Order): Promise<boolean> {
+    if (order.status !== 'PENDING' || !order.providerOrderId) return false;
+    let status: PaymentStatusResult;
+    try {
+      status = await this.orderPayment.getStatus({
+        providerOrderId: order.providerOrderId,
+      });
+    } catch (error) {
+      if (error instanceof PaymentGatewayError) return false;
+      throw error;
+    }
+    if (status.status !== 'PAID') return false;
+    if (!amountMatches(status.paidAmount, order.amount)) return false;
+    const result = await this.orders.confirmExternalPayment(
+      order.id,
+      'MIDTRANS',
+    );
+    if (result.outcome !== 'verified') return false;
+    await this.persistPaymentType('order', order.id, status.paymentType);
+    return true;
   }
 
   /**
@@ -310,34 +321,45 @@ export class PaymentsService {
     for (const invoice of due) {
       if (!invoice.providerOrderId) continue;
       checked += 1;
-      let status: PaymentStatusResult;
-      try {
-        status = await this.invoicePayment.getStatus({
-          providerOrderId: invoice.providerOrderId,
-        });
-      } catch (error) {
-        if (error instanceof PaymentGatewayError) continue;
-        throw error;
-      }
-      if (status.status !== 'PAID') continue;
-      if (!amountMatches(status.paidAmount, invoice.amount)) continue;
-      const result = await this.invoices.confirmPaymentWithActivation(
-        invoice.id,
-        {
-          paidAmount: invoice.amount,
-          verifiedBySource: 'MIDTRANS',
-        },
-      );
-      if (result.outcome !== 'confirmed') continue;
-      settled += 1;
-      // The webhook never arrived (or arrived too early): surface the rescue so
-      // a lost notification is visible in the logs instead of silent.
-      this.logger.log(
-        `reconciled invoice ${invoice.id} as paid (provider order ${invoice.providerOrderId})`,
-      );
-      await this.persistPaymentType('invoice', invoice.id, status.paymentType);
+      if (await this.reconcileInvoice(invoice)) settled += 1;
     }
     return { checked, settled };
+  }
+
+  /**
+   * Invoice twin of `reconcileOrder`: one gateway lookup, one guarded settle.
+   * The buyer-facing refresh calls this directly, so a payment that settled at
+   * Midtrans no longer waits for the next recovery pass.
+   */
+  async reconcileInvoice(invoice: Invoice): Promise<boolean> {
+    if (!this.invoicePayment.isEnabled()) return false;
+    if (invoice.status !== 'UNPAID' || !invoice.providerOrderId) return false;
+    let status: PaymentStatusResult;
+    try {
+      status = await this.invoicePayment.getStatus({
+        providerOrderId: invoice.providerOrderId,
+      });
+    } catch (error) {
+      if (error instanceof PaymentGatewayError) return false;
+      throw error;
+    }
+    if (status.status !== 'PAID') return false;
+    if (!amountMatches(status.paidAmount, invoice.amount)) return false;
+    const result = await this.invoices.confirmPaymentWithActivation(
+      invoice.id,
+      {
+        paidAmount: invoice.amount,
+        verifiedBySource: 'MIDTRANS',
+      },
+    );
+    if (result.outcome !== 'confirmed') return false;
+    // The webhook never arrived (or arrived too early): surface the rescue so
+    // a lost notification is visible in the logs instead of silent.
+    this.logger.log(
+      `reconciled invoice ${invoice.id} as paid (provider order ${invoice.providerOrderId})`,
+    );
+    await this.persistPaymentType('invoice', invoice.id, status.paymentType);
+    return true;
   }
 
   /**

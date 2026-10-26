@@ -197,6 +197,7 @@ describe('PaymentsService', () => {
     const vaOrder = {
       id: 'o1',
       amount: 200000,
+      status: 'PENDING',
       vaNumber: '19008172',
       providerOrderId: 'o1',
     };
@@ -235,7 +236,13 @@ describe('PaymentsService', () => {
         return map[key] ?? fallback;
       });
       orders.findUnsettledOrders.mockResolvedValue([
-        { id: 'o1', amount: 200000, vaNumber: null, providerOrderId: 'o1' },
+        {
+          id: 'o1',
+          amount: 200000,
+          status: 'PENDING',
+          vaNumber: null,
+          providerOrderId: 'o1',
+        },
       ] as never);
       orderPayment.getStatus.mockResolvedValue({
         providerOrderId: 'o1',
@@ -291,6 +298,16 @@ describe('PaymentsService', () => {
 
       expect(result).toEqual({ checked: 1, settled: 0 });
     });
+
+    it('does not ask the provider about an order that is already final', async () => {
+      const settled = await service.reconcileOrder({
+        ...vaOrder,
+        status: 'PAID',
+      } as never);
+
+      expect(settled).toBe(false);
+      expect(orderPayment.getStatus).not.toHaveBeenCalled();
+    });
   });
 
   describe('recoverStaleInvoiceProvisioning', () => {
@@ -336,6 +353,7 @@ describe('PaymentsService', () => {
     const vaInvoice = {
       id: 'inv1',
       amount: 200000,
+      status: 'UNPAID',
       vaNumber: '8801',
       providerOrderId: 'inv1',
     };
@@ -413,6 +431,16 @@ describe('PaymentsService', () => {
         expect.objectContaining({ verifiedBySource: 'MIDTRANS' }),
       );
       expect(invoices.updatePaymentType).toHaveBeenCalledWith('inv1', 'qris');
+    });
+
+    it('does not ask the provider about an invoice that is already final', async () => {
+      const settled = await service.reconcileInvoice({
+        ...vaInvoice,
+        status: 'PAID',
+      } as never);
+
+      expect(settled).toBe(false);
+      expect(invoicePayment.getStatus).not.toHaveBeenCalled();
     });
 
     it('skips an invoice the provider still reports as unpaid', async () => {
