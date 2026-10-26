@@ -2,6 +2,7 @@ import 'dotenv/config';
 import * as express from 'express';
 import * as path from 'path';
 import { NestFactory } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -15,7 +16,9 @@ async function bootstrap() {
   // Catalog media is public: item figures and test covers. Payment proofs
   // (qris) and psychologist signatures stay behind their authenticated routes,
   // so they are deliberately not mounted here.
-  const uploadDir = path.resolve(process.env.UPLOAD_DIR ?? './uploads');
+  const uploadDir = path.resolve(
+    app.get(ConfigService).get<string>('app.uploadDir', './uploads'),
+  );
   for (const dir of ['test-items', 'test-covers']) {
     app.use(
       `/uploads/${dir}`,

@@ -7,6 +7,12 @@ import {
 import { TESTS_REPOSITORY } from '../repository/tests.repository';
 import type { TestsRepository } from '../repository/tests.repository';
 import { Inject } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs';
+import * as path from 'path';
+import type { Express } from 'express';
+import { ensureUploadDir } from '../../../lib/fs/ensure-upload-dir';
+import { generateTestImageFilename } from '../utils/generate-test-image-filename';
 import type { CreateTestDto } from '../dto/create-test.dto';
 import type { UpdateTestDto } from '../dto/update-test.dto';
 import type { Test, Prisma } from '../../../generated/prisma/client';
@@ -26,6 +32,7 @@ export class TestsService {
   constructor(
     @Inject(TESTS_REPOSITORY)
     private readonly repo: TestsRepository,
+    private readonly configService: ConfigService,
   ) {}
 
   async create(dto: CreateTestDto): Promise<Test> {
@@ -157,6 +164,45 @@ export class TestsService {
     };
   }
 
+  /**
+   * Catalog cover: written to `UPLOAD_DIR/test-covers`, saved on the test, then
+   * the replaced file is deleted so uploads do not accumulate.
+   */
+  async saveCoverImage(id: string, file: Express.Multer.File): Promise<Test> {
+    const test = await this.findById(id);
+    const coverDir = await this.imageDir('test-covers');
+    const filename = generateTestImageFilename(
+      file.originalname,
+      file.mimetype,
+    );
+    await fs.promises.writeFile(path.join(coverDir, filename), file.buffer);
+
+    const updated = await this.repo.update(id, {
+      imageUrl: `/uploads/test-covers/${filename}`,
+    });
+    await this.removeStoredFile(
+      test.imageUrl,
+      coverDir,
+      '/uploads/test-covers/',
+    );
+    return updated;
+  }
+
+  /** Item figure (question image); the path is stored in the item JSON. */
+  async saveItemImage(
+    id: string,
+    file: Express.Multer.File,
+  ): Promise<{ imageUrl: string }> {
+    await this.findById(id);
+    const itemDir = await this.imageDir('test-items');
+    const filename = generateTestImageFilename(
+      file.originalname,
+      file.mimetype,
+    );
+    await fs.promises.writeFile(path.join(itemDir, filename), file.buffer);
+    return { imageUrl: `/uploads/test-items/${filename}` };
+  }
+
   async update(id: string, dto: UpdateTestDto): Promise<Test> {
     const test = await this.repo.findById(id);
     if (!test) throw new NotFoundException('Test not found');
@@ -168,6 +214,25 @@ export class TestsService {
       if (existing) throw new ConflictException('slug already exists');
     }
     return this.repo.update(id, dto);
+  }
+
+  /** Resolve (and create) a public image dir under the configured upload root. */
+  private async imageDir(sub: 'test-items' | 'test-covers'): Promise<string> {
+    const root = this.configService.get<string>('app.uploadDir', './uploads');
+    const dir = path.join(root, sub);
+    await ensureUploadDir(dir);
+    return dir;
+  }
+
+  /** Best-effort cleanup of a replaced file (never fails the upload). */
+  private async removeStoredFile(
+    stored: string | null,
+    dir: string,
+    urlPrefix: string,
+  ): Promise<void> {
+    if (!stored?.startsWith(urlPrefix)) return;
+    const full = path.join(dir, path.basename(stored));
+    await fs.promises.unlink(full).catch(() => undefined);
   }
 
   async putItems(

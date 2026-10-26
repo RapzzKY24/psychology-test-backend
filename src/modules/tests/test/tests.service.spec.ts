@@ -3,6 +3,10 @@ import { NotFoundException } from '@nestjs/common';
 import { TestsService } from '../service/tests.service';
 import type { TestsRepository } from '../repository/tests.repository';
 
+const mockConfig = {
+  get: jest.fn().mockReturnValue('./uploads'),
+} as unknown as ConstructorParameters<typeof TestsService>[1];
+
 describe('TestsService', () => {
   let service: TestsService;
   let mockRepo: jest.Mocked<TestsRepository>;
@@ -21,7 +25,7 @@ describe('TestsService', () => {
       findItemsByTestId: jest.fn(),
       findInterpretationsByTestId: jest.fn(),
     };
-    service = new TestsService(mockRepo);
+    service = new TestsService(mockRepo, mockConfig);
   });
 
   describe('create', () => {
@@ -279,7 +283,7 @@ describe('TestsService.findDetailById', () => {
     mockRepo = {
       findDetailById: jest.fn(),
     } as unknown as jest.Mocked<TestsRepository>;
-    service = new TestsService(mockRepo);
+    service = new TestsService(mockRepo, mockConfig);
   });
 
   it('returns the test with ordered items and interpretations', async () => {

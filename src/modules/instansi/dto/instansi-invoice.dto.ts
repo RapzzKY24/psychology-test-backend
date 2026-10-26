@@ -23,10 +23,14 @@ export const InstansiInvoiceSchema = z.object({
 export type InstansiInvoiceDto = z.infer<typeof InstansiInvoiceSchema>;
 
 /** The session columns the payment list needs, nothing more. */
-export interface InstansiInvoiceSession {
-  title: string;
-  slotLimit: number;
-}
+export const InstansiInvoiceSessionSchema = z.object({
+  title: z.string(),
+  slotLimit: z.number().int(),
+});
+
+export type InstansiInvoiceSession = z.infer<
+  typeof InstansiInvoiceSessionSchema
+>;
 
 export function toInstansiInvoice(
   invoice: Invoice,

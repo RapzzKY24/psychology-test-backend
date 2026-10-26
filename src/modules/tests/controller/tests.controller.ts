@@ -13,13 +13,8 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Roles } from '@thallesp/nestjs-better-auth';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
-import { ConfigService } from '@nestjs/config';
-import * as fs from 'fs';
-import * as path from 'path';
 import type { Express } from 'express';
 import { validateTestImageFile } from '../utils/validate-test-image-file';
-import { generateTestImageFilename } from '../utils/generate-test-image-filename';
-import { ensureUploadDir } from '../../../lib/fs/ensure-upload-dir';
 import { CreateTestSchema } from '../dto/create-test.dto';
 import type { CreateTestDto } from '../dto/create-test.dto';
 import { UpdateTestSchema } from '../dto/update-test.dto';
@@ -44,7 +39,6 @@ export class TestsController {
   constructor(
     private readonly testsService: TestsService,
     private readonly publishService: TestsPublishService,
-    private readonly configService: ConfigService,
   ) {}
 
   @Post()
@@ -88,29 +82,12 @@ export class TestsController {
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<ApiResponse<{ imageUrl: string }>> {
-    // Ensure test exists — 404 if not
-    await this.testsService.findById(id);
     validateTestImageFile(file);
-    const uploadDir = this.configService.get<string>(
-      'app.uploadDir',
-      './uploads',
-    );
-    const itemDir = path.join(uploadDir, 'test-items');
-    await ensureUploadDir(itemDir);
-    const filename = generateTestImageFilename(
-      file.originalname,
-      file.mimetype,
-    );
-    const filepath = path.join(itemDir, filename);
-    await fs.promises.writeFile(filepath, file.buffer);
-    const imageUrl = `/uploads/test-items/${filename}`;
-    return { data: { imageUrl } };
+    const data = await this.testsService.saveItemImage(id, file);
+    return { data };
   }
 
-  /**
-   * Catalog cover: stored on disk, then written to the test row. The previous
-   * cover file is deleted afterwards so uploads do not accumulate.
-   */
+  /** Catalog cover — storage and cleanup live in the service. */
   @Post(':id/cover')
   @Roles(['ADMIN'])
   @UseInterceptors(FileInterceptor('file'))
@@ -118,26 +95,8 @@ export class TestsController {
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<ApiResponse<Test>> {
-    const test = await this.testsService.findById(id);
     validateTestImageFile(file);
-
-    const uploadDir = this.configService.get<string>(
-      'app.uploadDir',
-      './uploads',
-    );
-    const coverDir = path.join(uploadDir, 'test-covers');
-    await ensureUploadDir(coverDir);
-
-    const filename = generateTestImageFilename(
-      file.originalname,
-      file.mimetype,
-    );
-    await fs.promises.writeFile(path.join(coverDir, filename), file.buffer);
-
-    const data = await this.testsService.update(id, {
-      imageUrl: `/uploads/test-covers/${filename}`,
-    });
-    await this.removeCoverFile(test.imageUrl, coverDir);
+    const data = await this.testsService.saveCoverImage(id, file);
     return { data };
   }
 
@@ -177,15 +136,5 @@ export class TestsController {
   async archive(@Param('id') id: string): Promise<ApiResponse<Test>> {
     const data = await this.publishService.archive(id);
     return { data };
-  }
-
-  /** Best-effort cleanup of the replaced cover (never fails the upload). */
-  private async removeCoverFile(
-    stored: string | null,
-    coverDir: string,
-  ): Promise<void> {
-    if (!stored?.startsWith('/uploads/test-covers/')) return;
-    const full = path.join(coverDir, path.basename(stored));
-    await fs.promises.unlink(full).catch(() => undefined);
   }
 }
