@@ -7,6 +7,10 @@ import {
 import { INVOICES_REPOSITORY } from '../repository/invoices.repository';
 import type { InvoicesRepository } from '../repository/invoices.repository';
 import { EventLogService } from '../../event-log/service/event-log.service';
+import {
+  toAdminInvoiceDetail,
+  type AdminInvoiceDetailDto,
+} from '../dto/admin-invoice-detail.dto';
 import type { Invoice } from '../../../generated/prisma/client';
 
 const BREAK_GLASS_EVENT_TYPE = 'ADMIN_INVOICE_VERIFIED';
@@ -18,6 +22,16 @@ export class AdminInvoicesService {
     private readonly repo: InvoicesRepository,
     private readonly eventLog: EventLogService,
   ) {}
+
+  /**
+   * Admin invoice popup: who bought what, for how much. One query, so the
+   * dialog does not have to stitch three lists together on the client.
+   */
+  async findDetail(id: string): Promise<AdminInvoiceDetailDto> {
+    const row = await this.repo.findDetailById(id);
+    if (!row) throw new NotFoundException('Invoice not found');
+    return toAdminInvoiceDetail(row);
+  }
 
   /**
    * Emergency break-glass: mark a session invoice PAID and activate its session

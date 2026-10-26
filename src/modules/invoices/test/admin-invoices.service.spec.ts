@@ -5,7 +5,10 @@ import type { EventLogService } from '../../event-log/service/event-log.service'
 describe('AdminInvoicesService', () => {
   let service: AdminInvoicesService;
   let repo: jest.Mocked<
-    Pick<InvoicesRepository, 'findById' | 'confirmPaymentWithActivation'>
+    Pick<
+      InvoicesRepository,
+      'findById' | 'findDetailById' | 'confirmPaymentWithActivation'
+    >
   >;
   let eventLog: jest.Mocked<Pick<EventLogService, 'record' | 'markProcessed'>>;
 
@@ -17,7 +20,11 @@ describe('AdminInvoicesService', () => {
   };
 
   beforeEach(() => {
-    repo = { findById: jest.fn(), confirmPaymentWithActivation: jest.fn() };
+    repo = {
+      findById: jest.fn(),
+      findDetailById: jest.fn(),
+      confirmPaymentWithActivation: jest.fn(),
+    };
     eventLog = {
       record: jest.fn().mockResolvedValue({ id: 'ev1' }),
       markProcessed: jest.fn(),
@@ -95,5 +102,60 @@ describe('AdminInvoicesService', () => {
       service.verifyBreakGlass('inv1', 'uang masuk', 'admin1'),
     ).rejects.toThrow('invoice_not_payable');
     expect(eventLog.record).not.toHaveBeenCalled();
+  });
+
+  describe('findDetail', () => {
+    const detailRow = {
+      invoice: {
+        ...invoice,
+        number: 'INV-2026-0002',
+        status: 'PAID',
+        issuedAt: new Date('2026-10-26T07:36:45.000Z'),
+        dueDate: null,
+        expiresAt: new Date('2026-10-27T07:36:45.000Z'),
+        verifiedAt: new Date('2026-10-26T07:53:51.000Z'),
+        verifiedBySource: 'MIDTRANS',
+        paymentType: 'bank_transfer',
+        notes: 'Dibayar via BCA VA',
+      },
+      institution: { id: 'inst1', name: 'PT Contoh Sejahtera' },
+      session: {
+        id: 's1',
+        title: 'Rekrutmen Batch Oktober',
+        slotLimit: 50,
+        status: 'ACTIVE',
+        testNames: ['DISC Form A', 'CPMI'],
+      },
+    };
+
+    it('returns the institution and the tests behind the invoice', async () => {
+      repo.findDetailById.mockResolvedValue(detailRow as never);
+
+      const result = await service.findDetail('inv1');
+
+      expect(repo.findDetailById).toHaveBeenCalledWith('inv1');
+      expect(result).toMatchObject({
+        number: 'INV-2026-0002',
+        status: 'PAID',
+        amount: 200000,
+        institution: { id: 'inst1', name: 'PT Contoh Sejahtera' },
+        session: {
+          title: 'Rekrutmen Batch Oktober',
+          slotLimit: 50,
+          testNames: ['DISC Form A', 'CPMI'],
+        },
+        paidAt: '2026-10-26T07:53:51.000Z',
+        verifiedBySource: 'MIDTRANS',
+        paymentType: 'bank_transfer',
+      });
+    });
+
+    it('404s when the invoice does not exist', async () => {
+      repo.findDetailById.mockResolvedValue(null);
+
+      await expect(service.findDetail('missing')).rejects.toThrow(
+        'Invoice not found',
+      );
+    });
   });
 });

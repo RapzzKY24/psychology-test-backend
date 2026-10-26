@@ -19,6 +19,7 @@ import { VerifyInvoiceSchema } from '../dto/verify-invoice.dto';
 import type { VerifyInvoiceDto } from '../dto/verify-invoice.dto';
 import { InvoicesService } from '../service/invoices.service';
 import { AdminInvoicesService } from '../service/admin-invoices.service';
+import type { AdminInvoiceDetailDto } from '../dto/admin-invoice-detail.dto';
 import { Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import type {
@@ -62,8 +63,10 @@ export class InvoicesController {
 
   @Get(':id')
   @Roles(['ADMIN'])
-  async findOne(@Param('id') id: string): Promise<ApiResponse<Invoice>> {
-    const data = await this.invoicesService.findById(id);
+  async findOne(
+    @Param('id') id: string,
+  ): Promise<ApiResponse<AdminInvoiceDetailDto>> {
+    const data = await this.adminInvoicesService.findDetail(id);
     return { data };
   }
 

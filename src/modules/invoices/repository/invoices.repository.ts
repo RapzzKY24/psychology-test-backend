@@ -19,8 +19,23 @@ export interface ConfirmInvoicePaymentParams {
   verifiedBySource: PaymentVerifiedBySource;
 }
 
+/** Everything the admin detail popup shows, in one query. */
+export interface InvoiceDetailRow {
+  invoice: Invoice;
+  institution: { id: string; name: string } | null;
+  session: {
+    id: string;
+    title: string;
+    slotLimit: number;
+    status: string;
+    testNames: string[];
+  } | null;
+}
+
 export interface InvoicesRepository {
   findById(id: string): Promise<Invoice | null>;
+  /** Invoice with its institution and the tests bought with it (admin detail). */
+  findDetailById(id: string): Promise<InvoiceDetailRow | null>;
   /**
    * Invoice resolved by its own id or by `providerOrderId` (the id Snap echoes
    * back), restricted to invoices whose institution belongs to `ownerUserId`.

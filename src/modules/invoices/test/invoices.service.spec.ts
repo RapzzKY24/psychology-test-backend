@@ -9,6 +9,7 @@ describe('InvoicesService', () => {
   beforeEach(() => {
     mockRepo = {
       findById: jest.fn(),
+      findDetailById: jest.fn(),
       findMany: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),

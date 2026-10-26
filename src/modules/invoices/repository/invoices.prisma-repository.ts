@@ -9,6 +9,7 @@ import type {
 import type {
   ConfirmInvoicePaymentParams,
   ConfirmInvoicePaymentResult,
+  InvoiceDetailRow,
   InvoicesRepository,
 } from './invoices.repository';
 import { generateInvoiceNumber } from '../utils/generate-invoice-number';
@@ -19,6 +20,45 @@ export class PrismaInvoicesRepository implements InvoicesRepository {
 
   findById(id: string): Promise<Invoice | null> {
     return this.prisma.invoice.findUnique({ where: { id } });
+  }
+
+  async findDetailById(id: string): Promise<InvoiceDetailRow | null> {
+    const row = await this.prisma.invoice.findUnique({
+      where: { id },
+      include: {
+        institution: { select: { id: true, name: true } },
+        session: {
+          select: {
+            id: true,
+            title: true,
+            slotLimit: true,
+            status: true,
+            sessionTests: {
+              orderBy: { order: 'asc' },
+              select: { test: { select: { name: true } } },
+            },
+          },
+        },
+      },
+    });
+    if (!row) return null;
+
+    const { institution, session, ...invoice } = row;
+    return {
+      invoice,
+      institution,
+      session: session
+        ? {
+            id: session.id,
+            title: session.title,
+            slotLimit: session.slotLimit,
+            status: session.status,
+            testNames: session.sessionTests.map(
+              (sessionTest) => sessionTest.test.name,
+            ),
+          }
+        : null,
+    };
   }
 
   async findMany(params: {
