@@ -365,6 +365,26 @@ describe('PaymentsService', () => {
       );
     });
 
+    it('asks for stale invoices, not only ones past their payment window', async () => {
+      const before = Date.now();
+
+      await service.reconcileUnsettledInvoicePayments();
+
+      const args = invoices.findUnsettledInvoices.mock.calls[0][0] as {
+        createdBefore: Date;
+        notBefore: Date;
+      };
+      // createdAt < now - 5 min: an open invoice whose webhook was lost is
+      // picked up within one recovery cycle instead of after expiresAt.
+      const expected = before - 5 * 60_000;
+      expect(Math.abs(args.createdBefore.getTime() - expected)).toBeLessThan(
+        2000,
+      );
+      expect(args.notBefore.getTime()).toBeLessThan(
+        args.createdBefore.getTime(),
+      );
+    });
+
     it('attributes a Midtrans settlement to MIDTRANS', async () => {
       config.get.mockImplementation((key: string, fallback?: unknown) => {
         const map: Record<string, unknown> = {

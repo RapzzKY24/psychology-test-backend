@@ -301,7 +301,7 @@ export class PaymentsService {
     const now = new Date();
     const due = await this.invoices.findUnsettledInvoices({
       provider: this.activeProvider,
-      dueBefore: now,
+      createdBefore: new Date(now.getTime() - this.staleAfterMs),
       notBefore: new Date(now.getTime() - this.lookbackMs),
       limit: this.batchSize,
     });
@@ -330,6 +330,11 @@ export class PaymentsService {
       );
       if (result.outcome !== 'confirmed') continue;
       settled += 1;
+      // The webhook never arrived (or arrived too early): surface the rescue so
+      // a lost notification is visible in the logs instead of silent.
+      this.logger.log(
+        `reconciled invoice ${invoice.id} as paid (provider order ${invoice.providerOrderId})`,
+      );
       await this.persistPaymentType('invoice', invoice.id, status.paymentType);
     }
     return { checked, settled };

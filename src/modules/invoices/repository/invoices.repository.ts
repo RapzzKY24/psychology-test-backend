@@ -70,10 +70,15 @@ export interface InvoicesRepository {
     createdBefore: Date;
     limit: number;
   }): Promise<Invoice[]>;
-  /** UNPAID `provider` invoices past expiry, for reconciliation against the gateway. */
+  /**
+   * UNPAID `provider` invoices due for a gateway status check: older than the
+   * staleness window (webhook may have been lost) and not older than the
+   * lookback. Open invoices are included — waiting for `expiresAt` left a
+   * 24-hour blind spot.
+   */
   findUnsettledInvoices(params: {
     provider: PaymentProvider;
-    dueBefore: Date;
+    createdBefore: Date;
     notBefore: Date;
     limit: number;
   }): Promise<Invoice[]>;

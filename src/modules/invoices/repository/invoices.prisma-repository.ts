@@ -177,7 +177,7 @@ export class PrismaInvoicesRepository implements InvoicesRepository {
 
   findUnsettledInvoices(params: {
     provider: PaymentProvider;
-    dueBefore: Date;
+    createdBefore: Date;
     notBefore: Date;
     limit: number;
   }): Promise<Invoice[]> {
@@ -186,9 +186,13 @@ export class PrismaInvoicesRepository implements InvoicesRepository {
         status: 'UNPAID',
         paymentProvider: params.provider,
         providerOrderId: { not: null },
-        expiresAt: { lt: params.dueBefore, gte: params.notBefore },
+        // Stale enough that a webhook should have arrived by now, whether the
+        // payment window is still open or already closed.
+        createdAt: { lt: params.createdBefore },
+        // Expired invoices stay eligible only inside the lookback window.
+        OR: [{ expiresAt: null }, { expiresAt: { gte: params.notBefore } }],
       },
-      orderBy: { expiresAt: 'asc' },
+      orderBy: { createdAt: 'asc' },
       take: params.limit,
     });
   }

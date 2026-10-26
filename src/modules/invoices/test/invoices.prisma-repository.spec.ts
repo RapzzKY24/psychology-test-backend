@@ -160,3 +160,33 @@ describe('PrismaInvoicesRepository.regenerateAmount', () => {
     });
   });
 });
+
+describe('PrismaInvoicesRepository.findUnsettledInvoices', () => {
+  it('includes open invoices and keeps expired ones inside the lookback', async () => {
+    const findMany = jest.fn().mockResolvedValue([]);
+    const prisma = { invoice: { findMany } } as unknown as PrismaService;
+    const repo = new PrismaInvoicesRepository(prisma);
+
+    const createdBefore = new Date('2026-10-26T10:00:00Z');
+    const notBefore = new Date('2026-10-25T10:00:00Z');
+
+    await repo.findUnsettledInvoices({
+      provider: 'MIDTRANS_SNAP',
+      createdBefore,
+      notBefore,
+      limit: 50,
+    });
+
+    expect(findMany).toHaveBeenCalledWith({
+      where: {
+        status: 'UNPAID',
+        paymentProvider: 'MIDTRANS_SNAP',
+        providerOrderId: { not: null },
+        createdAt: { lt: createdBefore },
+        OR: [{ expiresAt: null }, { expiresAt: { gte: notBefore } }],
+      },
+      orderBy: { createdAt: 'asc' },
+      take: 50,
+    });
+  });
+});

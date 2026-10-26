@@ -88,7 +88,7 @@ export class InvoicesService {
 
   findUnsettledInvoices(params: {
     provider: PaymentProvider;
-    dueBefore: Date;
+    createdBefore: Date;
     notBefore: Date;
     limit: number;
   }): Promise<Invoice[]> {
