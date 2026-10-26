@@ -1,17 +1,17 @@
-import { validateItemImageFile } from '../utils/validate-item-image-file';
-import { generateItemImageFilename } from '../utils/generate-item-image-filename';
+import { validateTestImageFile } from '../utils/validate-test-image-file';
+import { generateTestImageFilename } from '../utils/generate-test-image-filename';
 
-describe('validateItemImageFile', () => {
+describe('validateTestImageFile', () => {
   it('should accept png and jpeg', () => {
     expect(() =>
-      validateItemImageFile({
+      validateTestImageFile({
         mimetype: 'image/png',
         size: 1024,
         originalname: 'a.png',
       } as never),
     ).not.toThrow();
     expect(() =>
-      validateItemImageFile({
+      validateTestImageFile({
         mimetype: 'image/jpeg',
         size: 1024,
         originalname: 'a.jpg',
@@ -21,7 +21,7 @@ describe('validateItemImageFile', () => {
 
   it('should reject unsupported type', () => {
     expect(() =>
-      validateItemImageFile({
+      validateTestImageFile({
         mimetype: 'image/svg+xml',
         size: 1024,
         originalname: 'a.svg',
@@ -31,7 +31,7 @@ describe('validateItemImageFile', () => {
 
   it('should reject too large', () => {
     expect(() =>
-      validateItemImageFile({
+      validateTestImageFile({
         mimetype: 'image/png',
         size: 3 * 1024 * 1024,
         originalname: 'a.png',
@@ -40,21 +40,21 @@ describe('validateItemImageFile', () => {
   });
 
   it('should reject missing file', () => {
-    expect(() => validateItemImageFile(null as never)).toThrow(
+    expect(() => validateTestImageFile(null as never)).toThrow(
       'file is required',
     );
   });
 });
 
-describe('generateItemImageFilename', () => {
+describe('generateTestImageFilename', () => {
   it('should generate png for image/png', () => {
-    const name = generateItemImageFilename('evil.exe', 'image/png');
+    const name = generateTestImageFilename('evil.exe', 'image/png');
     expect(name.endsWith('.png')).toBe(true);
     expect(name.includes('evil')).toBe(false);
   });
 
   it('should generate jpg for image/jpeg', () => {
-    const name = generateItemImageFilename('a.png', 'image/jpeg');
+    const name = generateTestImageFilename('a.png', 'image/jpeg');
     expect(name.endsWith('.jpg')).toBe(true);
   });
 });

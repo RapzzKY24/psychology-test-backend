@@ -203,6 +203,8 @@ model Test {
   slug                 String         @unique
   name                 String
   description          String
+  /** Public cover image URL (`/uploads/test-covers/<uuid>.<ext>`), null when unset. */
+  imageUrl             String?
   category             TestCategory
   scorerType           ScorerType
   price                Int

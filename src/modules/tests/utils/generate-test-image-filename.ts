@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 
-export function generateItemImageFilename(
+export function generateTestImageFilename(
   _originalName: string,
   mimetype: string,
 ): string {

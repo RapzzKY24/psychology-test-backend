@@ -6,6 +6,8 @@ export const PublicTestSchema = z.object({
   slug: z.string(),
   name: z.string(),
   description: z.string(),
+  /** Cover image path; null when the admin has not uploaded one. */
+  imageUrl: z.string().nullable(),
   category: z.enum([
     'PERSONALITY',
     'COGNITIVE',

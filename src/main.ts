@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import * as express from 'express';
+import * as path from 'path';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
@@ -10,6 +11,18 @@ async function bootstrap() {
     bodyParser: false,
   });
   app.use(express.json());
+
+  // Catalog media is public: item figures and test covers. Payment proofs
+  // (qris) and psychologist signatures stay behind their authenticated routes,
+  // so they are deliberately not mounted here.
+  const uploadDir = path.resolve(process.env.UPLOAD_DIR ?? './uploads');
+  for (const dir of ['test-items', 'test-covers']) {
+    app.use(
+      `/uploads/${dir}`,
+      express.static(path.join(uploadDir, dir), { index: false, maxAge: '7d' }),
+    );
+  }
+
   app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalFilters(new HttpExceptionFilter());
   // NOTE: no `trust proxy` is set on purpose. Rate limiting keys off

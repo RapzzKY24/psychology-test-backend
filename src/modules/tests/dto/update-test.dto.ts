@@ -9,6 +9,15 @@ export const UpdateTestSchema = z.object({
     .string()
     .regex(/^[a-z0-9-]+$/)
     .optional(),
+  /**
+   * Only paths produced by the cover upload endpoint — never an external URL,
+   * and `null` clears the cover.
+   */
+  imageUrl: z
+    .string()
+    .startsWith('/uploads/test-covers/')
+    .nullable()
+    .optional(),
 });
 
 export type UpdateTestDto = z.infer<typeof UpdateTestSchema>;
