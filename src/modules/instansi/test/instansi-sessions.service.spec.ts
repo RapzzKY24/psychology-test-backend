@@ -325,7 +325,12 @@ describe('InstansiSessionsService', () => {
         id: 's1',
         institutionId: INSTITUTION_ID,
       });
-      expect(result.invoice).toEqual(invoice);
+      // getDetail has no joined session row, so the list-only fields stay null.
+      expect(result.invoice).toEqual({
+        ...invoice,
+        sessionTitle: null,
+        slotLimit: null,
+      });
     });
 
     it('returns a null invoice when none is provisioned', async () => {

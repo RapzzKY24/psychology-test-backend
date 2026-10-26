@@ -39,6 +39,33 @@ export class PrismaInvoicesRepository implements InvoicesRepository {
     return { data, total };
   }
 
+  async findByInstitution(params: {
+    institutionId: string;
+    skip: number;
+    take: number;
+  }): Promise<{
+    data: Array<
+      Invoice & { session: { title: string; slotLimit: number } | null }
+    >;
+    total: number;
+  }> {
+    const where: Prisma.InvoiceWhereInput = {
+      institutionId: params.institutionId,
+    };
+    const [data, total] = await Promise.all([
+      this.prisma.invoice.findMany({
+        where,
+        skip: params.skip,
+        take: params.take,
+        // Enum ordinal, so UNPAID sorts before PAID and CANCELLED.
+        orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
+        include: { session: { select: { title: true, slotLimit: true } } },
+      }),
+      this.prisma.invoice.count({ where }),
+    ]);
+    return { data, total };
+  }
+
   create(data: Prisma.InvoiceCreateInput): Promise<Invoice> {
     return this.prisma.invoice.create({ data });
   }

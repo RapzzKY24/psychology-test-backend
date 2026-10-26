@@ -1,6 +1,7 @@
 import {
   InstansiInvoiceSchema,
   toInstansiInvoice,
+  toInstansiInvoiceRow,
 } from '../dto/instansi-invoice.dto';
 
 describe('toInstansiInvoice', () => {
@@ -38,5 +39,28 @@ describe('toInstansiInvoice', () => {
     expect(dto.vaBankCode).toBe('014');
     expect(dto.paymentUrl).toBeNull();
     expect(dto.paymentToken).toBeNull();
+  });
+
+  it('carries the batch title and seat count for the payment list', () => {
+    const dto = toInstansiInvoiceRow({
+      ...invoice,
+      session: { title: 'DISC Form A — Batch Oktober', slotLimit: 50 },
+    } as never);
+
+    expect(dto.sessionTitle).toBe('DISC Form A — Batch Oktober');
+    expect(dto.slotLimit).toBe(50);
+    expect(InstansiInvoiceSchema.safeParse(dto).success).toBe(true);
+  });
+
+  it('leaves the session fields null when the invoice has no session', () => {
+    const dto = toInstansiInvoiceRow({
+      ...invoice,
+      sessionId: null,
+      session: null,
+    } as never);
+
+    expect(dto.sessionTitle).toBeNull();
+    expect(dto.slotLimit).toBeNull();
+    expect(InstansiInvoiceSchema.safeParse(dto).success).toBe(true);
   });
 });

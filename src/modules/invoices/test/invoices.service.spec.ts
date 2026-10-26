@@ -22,6 +22,7 @@ describe('InvoicesService', () => {
       findUnpaidWithoutProviderOrderId: jest.fn(),
       findUnsettledInvoices: jest.fn(),
       findOwnedByRef: jest.fn(),
+      findByInstitution: jest.fn(),
     };
     service = new InvoicesService(mockRepo);
   });

@@ -36,6 +36,22 @@ export interface InvoicesRepository {
     take: number;
     orderBy?: Prisma.InvoiceOrderByWithRelationInput;
   }): Promise<{ data: Invoice[]; total: number }>;
+  /**
+   * An institution's invoices for the payment list, unpaid first, with the
+   * batch title and seat count so the row can be rendered without a second
+   * request. Ordering leans on the Postgres enum ordinal (UNPAID < PAID <
+   * CANCELLED).
+   */
+  findByInstitution(params: {
+    institutionId: string;
+    skip: number;
+    take: number;
+  }): Promise<{
+    data: Array<
+      Invoice & { session: { title: string; slotLimit: number } | null }
+    >;
+    total: number;
+  }>;
   create(data: Prisma.InvoiceCreateInput): Promise<Invoice>;
   update(id: string, data: Prisma.InvoiceUpdateInput): Promise<Invoice>;
   institutionExists(id: string): Promise<boolean>;

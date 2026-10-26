@@ -102,6 +102,19 @@ export class InvoicesService {
     return this.repo.findUnsettledInvoices(params);
   }
 
+  findByInstitution(params: {
+    institutionId: string;
+    skip: number;
+    take: number;
+  }): Promise<{
+    data: Array<
+      Invoice & { session: { title: string; slotLimit: number } | null }
+    >;
+    total: number;
+  }> {
+    return this.repo.findByInstitution(params);
+  }
+
   async findMany(
     query: QueryInvoicesDto,
   ): Promise<{ data: Invoice[]; total: number }> {
