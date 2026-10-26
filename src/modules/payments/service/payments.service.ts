@@ -16,10 +16,16 @@ import {
   type PaymentProviderEnv,
 } from '../../../common/constants/payment-provider';
 import { PaymentGatewayError } from '../gateway/payment-gateway.error';
-import type { GatewayPaymentStatus } from '../gateway/payment-gateway.interface';
+import type {
+  GatewayPaymentStatus,
+  PaymentStatusResult,
+} from '../gateway/payment-gateway.interface';
 import { VaCallbackSchema } from '../../jokul/dto/jokul.dto';
 import type { VaCallback } from '../../jokul/dto/jokul.dto';
-import { MidtransNotificationSchema } from '../../midtrans/dto/midtrans.dto';
+import {
+  MidtransNotificationSchema,
+  MidtransStoredNotificationSchema,
+} from '../../midtrans/dto/midtrans.dto';
 import type { MidtransNotification } from '../../midtrans/dto/midtrans.dto';
 import { mapTransactionStatus } from '../../midtrans/utils/map-status';
 import { MS_PER_MINUTE } from '../../../common/constants/time';
@@ -33,12 +39,19 @@ import {
   VA_CALLBACK_KEY_PREFIX,
   VA_CALLBACK_PAID_STATUS,
   VA_CALLBACK_SCOPE,
-  VA_INQUIRY_PAID_STATUS,
 } from '../constants/payments';
 import type { JokulAck, MidtransAck } from '../constants/payments';
 
-/** Shape returned by both payment services' `inquiryVa` (legacy Jokul status codes). */
-type VaInquiryResult = Awaited<ReturnType<OrderPaymentService['inquiryVa']>>;
+/** The fields every notification handler reads; the signature is not one. */
+type NotificationPayload = Pick<
+  MidtransNotification,
+  | 'order_id'
+  | 'status_code'
+  | 'gross_amount'
+  | 'transaction_status'
+  | 'payment_type'
+  | 'fraud_status'
+>;
 
 type CallbackOutcome =
   | { kind: 'settled' }
@@ -64,6 +77,11 @@ export class PaymentsService {
     const env = (this.config.get<string>('app.paymentProvider') ??
       'jokul') as PaymentProviderEnv;
     return PAYMENT_PROVIDER_ENV_TO_DB[env] ?? 'JOKUL_VA';
+  }
+
+  /** Attribution recorded on a settlement we discovered by polling. */
+  private get activeVerifiedBy(): 'MIDTRANS' | 'JOKUL' {
+    return this.activeProvider === 'MIDTRANS_SNAP' ? 'MIDTRANS' : 'JOKUL';
   }
 
   private get staleAfterMs(): number {
@@ -190,7 +208,12 @@ export class PaymentsService {
     return MIDTRANS_ACK;
   }
 
-  /** Replay inbound callbacks that were never finalized (e.g. a crash mid-handling). */
+  /**
+   * Replay inbound callbacks that were never finalized (e.g. a crash
+   * mid-handling). Both providers share the queue: Jokul stores the full
+   * callback body, Midtrans stores it without the signature, which the replay
+   * path does not need — the signature was already verified at ingress.
+   */
   async recoverStaleCallbacks(): Promise<number> {
     const stale = await this.eventLog.findStaleForRecovery({
       olderThan: new Date(Date.now() - this.staleAfterMs),
@@ -198,9 +221,25 @@ export class PaymentsService {
     });
     let replayed = 0;
     for (const event of stale) {
-      if (event.type !== VA_CALLBACK_EVENT_TYPE || event.payload === null) {
+      if (event.payload === null) continue;
+
+      if (event.type === MIDTRANS_NOTIFICATION_EVENT_TYPE) {
+        const parsed = MidtransStoredNotificationSchema.safeParse(
+          event.payload,
+        );
+        if (!parsed.success) {
+          await this.eventLog.markFailed(event.id, {
+            errorMessage: 'unparsable_payload',
+          });
+          continue;
+        }
+        await this.eventLog.markProcessing(event.id);
+        await this.applyNotification(parsed.data, event.id);
+        replayed += 1;
         continue;
       }
+
+      if (event.type !== VA_CALLBACK_EVENT_TYPE) continue;
       const parsed = VaCallbackSchema.safeParse(event.payload);
       if (!parsed.success) {
         await this.eventLog.markFailed(event.id, {
@@ -216,9 +255,9 @@ export class PaymentsService {
   }
 
   /**
-   * Retry VA provisioning for gateway orders whose create-va call failed
-   * (PENDING, no `vaNumber`). Reuses `order.id` as the external id, so a
-   * duplicate at DOKU is deduped and no second VA is issued.
+   * Retry provisioning for gateway orders whose create-payment call failed
+   * (PENDING, no `providerOrderId`). Reuses `order.id` as the external id, so
+   * a duplicate at the provider is deduped and no second payment is issued.
    */
   async recoverStaleProvisioning(): Promise<{
     checked: number;
@@ -248,8 +287,16 @@ export class PaymentsService {
     return { checked: due.length, provisioned };
   }
 
-  /** Poll DOKU for VA orders still unsettled after expiry and unlock any that were paid. */
-  async reconcilePendingVas(): Promise<{ checked: number; settled: number }> {
+  /**
+   * Poll the provider for orders still unsettled after their payment window
+   * closed, and unlock any that were paid but never notified. This is the
+   * safety net for a lost or delayed webhook, so it must never depend on one:
+   * the provider is asked directly.
+   */
+  async reconcilePendingPayments(): Promise<{
+    checked: number;
+    settled: number;
+  }> {
     const now = new Date();
     const due = await this.orders.findUnsettledOrders({
       provider: this.activeProvider,
@@ -260,35 +307,34 @@ export class PaymentsService {
     let checked = 0;
     let settled = 0;
     for (const order of due) {
-      if (!order.vaNumber) continue;
+      // The query already excludes orders without a provider order id; the
+      // guard keeps the type honest and skips a race with a concurrent write.
+      if (!order.providerOrderId) continue;
       checked += 1;
-      let status: VaInquiryResult;
+      let status: PaymentStatusResult;
       try {
-        status = await this.orderPayment.inquiryVa({
+        status = await this.orderPayment.getStatus({
+          providerOrderId: order.providerOrderId,
           vaNumber: order.vaNumber,
-          paymentRequestId: order.id,
-          externalId: order.id,
         });
       } catch (error) {
         if (error instanceof PaymentGatewayError) continue;
         throw error;
       }
-      if (status.status !== VA_INQUIRY_PAID_STATUS) continue;
+      if (status.status !== 'PAID') continue;
       if (!amountMatches(status.paidAmount, order.amount)) continue;
       const result = await this.orders.confirmExternalPayment(order.id);
-      if (result.outcome === 'verified') settled += 1;
+      if (result.outcome !== 'verified') continue;
+      settled += 1;
+      await this.persistPaymentType('order', order.id, status.paymentType);
     }
     return { checked, settled };
   }
 
   /**
-   * Resolve the payment target for a VA callback: a gateway order first, then a
-   * session invoice. An unknown VA is recorded and rejected (but still acked).
-   */
-  /**
-   * Retry VA provisioning for session invoices whose create-va call failed
-   * (UNPAID, no `vaNumber`). Reuses the invoice id as the external id, so a
-   * duplicate at the gateway is deduped by the idempotency layer.
+   * Retry provisioning for session invoices whose create-payment call failed
+   * (UNPAID, no `providerOrderId`). Reuses the invoice id as the external id,
+   * so a duplicate at the gateway is deduped by the idempotency layer.
    */
   async recoverStaleInvoiceProvisioning(): Promise<{
     checked: number;
@@ -324,8 +370,8 @@ export class PaymentsService {
     return { checked: due.length, provisioned };
   }
 
-  /** Poll DOKU for invoice VAs still unsettled after expiry and unlock any that were paid. */
-  async reconcileUnsettledInvoiceVas(): Promise<{
+  /** Invoice twin of `reconcilePendingPayments`. */
+  async reconcileUnsettledInvoicePayments(): Promise<{
     checked: number;
     settled: number;
   }> {
@@ -340,29 +386,30 @@ export class PaymentsService {
     let checked = 0;
     let settled = 0;
     for (const invoice of due) {
-      if (!invoice.vaNumber) continue;
+      if (!invoice.providerOrderId) continue;
       checked += 1;
-      let status: VaInquiryResult;
+      let status: PaymentStatusResult;
       try {
-        status = await this.invoicePayment.inquiryVa({
+        status = await this.invoicePayment.getStatus({
+          providerOrderId: invoice.providerOrderId,
           vaNumber: invoice.vaNumber,
-          paymentRequestId: invoice.id,
-          externalId: invoice.id,
         });
       } catch (error) {
         if (error instanceof PaymentGatewayError) continue;
         throw error;
       }
-      if (status.status !== VA_INQUIRY_PAID_STATUS) continue;
+      if (status.status !== 'PAID') continue;
       if (!amountMatches(status.paidAmount, invoice.amount)) continue;
       const result = await this.invoices.confirmPaymentWithActivation(
         invoice.id,
         {
           paidAmount: invoice.amount,
-          verifiedBySource: 'JOKUL',
+          verifiedBySource: this.activeVerifiedBy,
         },
       );
-      if (result.outcome === 'confirmed') settled += 1;
+      if (result.outcome !== 'confirmed') continue;
+      settled += 1;
+      await this.persistPaymentType('invoice', invoice.id, status.paymentType);
     }
     return { checked, settled };
   }
@@ -502,7 +549,7 @@ export class PaymentsService {
    * unknown id is recorded and rejected — but still acked.
    */
   private async applyNotification(
-    payload: MidtransNotification,
+    payload: NotificationPayload,
     eventId: string,
   ): Promise<CallbackOutcome> {
     const status = mapTransactionStatus(
@@ -528,7 +575,7 @@ export class PaymentsService {
 
   private async applyOrderNotification(
     order: Order,
-    payload: MidtransNotification,
+    payload: NotificationPayload,
     status: GatewayPaymentStatus,
     eventId: string,
   ): Promise<CallbackOutcome> {
@@ -623,7 +670,7 @@ export class PaymentsService {
 
   private async applyInvoiceNotification(
     invoice: Invoice,
-    payload: MidtransNotification,
+    payload: NotificationPayload,
     status: GatewayPaymentStatus,
     eventId: string,
   ): Promise<CallbackOutcome> {

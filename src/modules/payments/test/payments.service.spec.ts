@@ -50,9 +50,9 @@ describe('PaymentsService', () => {
     >
   >;
   let invoicePayment: jest.Mocked<
-    Pick<InvoicePaymentService, 'isEnabled' | 'provision' | 'inquiryVa'>
+    Pick<InvoicePaymentService, 'isEnabled' | 'provision' | 'getStatus'>
   >;
-  let orderPayment: jest.Mocked<Pick<OrderPaymentService, 'inquiryVa'>>;
+  let orderPayment: jest.Mocked<Pick<OrderPaymentService, 'getStatus'>>;
   let config: { get: jest.Mock };
 
   const order = { id: 'o1', amount: 200000 };
@@ -109,9 +109,9 @@ describe('PaymentsService', () => {
     invoicePayment = {
       isEnabled: jest.fn().mockReturnValue(true),
       provision: jest.fn(),
-      inquiryVa: jest.fn(),
+      getStatus: jest.fn(),
     };
-    orderPayment = { inquiryVa: jest.fn() };
+    orderPayment = { getStatus: jest.fn() };
     config = {
       get: jest.fn((key: string, fallback?: unknown) => {
         const map: Record<string, unknown> = {
@@ -387,6 +387,46 @@ describe('PaymentsService', () => {
       );
     });
 
+    it('replays a stale Midtrans notification and settles it', async () => {
+      // Stored without `signature_key`: it is verified at ingress, never kept.
+      eventLog.findStaleForRecovery.mockResolvedValue([
+        {
+          id: 'ev9',
+          type: 'PAYMENT_NOTIFICATION_RECEIVED',
+          payload: {
+            order_id: 'o1',
+            status_code: '200',
+            gross_amount: '200000.00',
+            transaction_status: 'settlement',
+            transaction_id: 'trx-1',
+            payment_type: 'bank_transfer',
+            fraud_status: 'accept',
+          },
+        } as never,
+      ]);
+      orders.findByProviderOrderId.mockResolvedValue({
+        id: 'o1',
+        amount: 200000,
+        status: 'PENDING',
+      } as never);
+      orders.confirmExternalPayment.mockResolvedValue({
+        outcome: 'verified',
+        wasLate: false,
+        sessionId: 's1',
+        attemptId: 'a1',
+      });
+
+      const replayed = await service.recoverStaleCallbacks();
+
+      expect(replayed).toBe(1);
+      expect(eventLog.markProcessing).toHaveBeenCalledWith('ev9');
+      expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1');
+      expect(eventLog.markProcessed).toHaveBeenCalledWith(
+        'ev9',
+        expect.anything(),
+      );
+    });
+
     it('marks an unparsable stale payload as failed', async () => {
       eventLog.findStaleForRecovery.mockResolvedValue([
         {
@@ -405,15 +445,21 @@ describe('PaymentsService', () => {
     });
   });
 
-  describe('reconcilePendingVas', () => {
-    const vaOrder = { id: 'o1', amount: 200000, vaNumber: '19008172' };
+  describe('reconcilePendingPayments', () => {
+    const vaOrder = {
+      id: 'o1',
+      amount: 200000,
+      vaNumber: '19008172',
+      providerOrderId: 'o1',
+    };
 
-    it('unlocks an order DOKU reports as paid', async () => {
+    it('unlocks an order the provider reports as paid', async () => {
       orders.findUnsettledOrders.mockResolvedValue([vaOrder] as never);
-      orderPayment.inquiryVa.mockResolvedValue({
-        vaNumber: '19008172',
-        status: '00',
+      orderPayment.getStatus.mockResolvedValue({
+        providerOrderId: 'o1',
+        status: 'PAID',
         paidAmount: 200000,
+        paymentType: null,
       });
       orders.confirmExternalPayment.mockResolvedValue({
         outcome: 'verified',
@@ -422,21 +468,52 @@ describe('PaymentsService', () => {
         attemptId: 'a1',
       });
 
-      const result = await service.reconcilePendingVas();
+      const result = await service.reconcilePendingPayments();
 
       expect(result).toEqual({ checked: 1, settled: 1 });
       expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1');
     });
 
-    it('skips orders DOKU still reports as unpaid', async () => {
-      orders.findUnsettledOrders.mockResolvedValue([vaOrder] as never);
-      orderPayment.inquiryVa.mockResolvedValue({
-        vaNumber: '19008172',
-        status: '03',
-        paidAmount: null,
+    it('settles a Snap order that has no VA number, using its provider order id', async () => {
+      orders.findUnsettledOrders.mockResolvedValue([
+        { id: 'o1', amount: 200000, vaNumber: null, providerOrderId: 'o1' },
+      ] as never);
+      orderPayment.getStatus.mockResolvedValue({
+        providerOrderId: 'o1',
+        status: 'PAID',
+        paidAmount: 200000,
+        paymentType: 'bank_transfer',
+      });
+      orders.confirmExternalPayment.mockResolvedValue({
+        outcome: 'verified',
+        wasLate: true,
+        sessionId: 's1',
+        attemptId: 'a1',
       });
 
-      const result = await service.reconcilePendingVas();
+      const result = await service.reconcilePendingPayments();
+
+      expect(orderPayment.getStatus).toHaveBeenCalledWith({
+        providerOrderId: 'o1',
+        vaNumber: null,
+      });
+      expect(result).toEqual({ checked: 1, settled: 1 });
+      expect(orders.updatePaymentType).toHaveBeenCalledWith(
+        'o1',
+        'bank_transfer',
+      );
+    });
+
+    it('skips orders the provider still reports as unpaid', async () => {
+      orders.findUnsettledOrders.mockResolvedValue([vaOrder] as never);
+      orderPayment.getStatus.mockResolvedValue({
+        providerOrderId: 'o1',
+        status: 'PENDING',
+        paidAmount: null,
+        paymentType: null,
+      });
+
+      const result = await service.reconcilePendingPayments();
 
       expect(result).toEqual({ checked: 1, settled: 0 });
       expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
@@ -444,11 +521,11 @@ describe('PaymentsService', () => {
 
     it('continues when the gateway call fails', async () => {
       orders.findUnsettledOrders.mockResolvedValue([vaOrder] as never);
-      orderPayment.inquiryVa.mockRejectedValue(
+      orderPayment.getStatus.mockRejectedValue(
         new JokulApiError('request_failed', 'boom', 500, '/p'),
       );
 
-      const result = await service.reconcilePendingVas();
+      const result = await service.reconcilePendingPayments();
 
       expect(result).toEqual({ checked: 1, settled: 0 });
     });
@@ -493,43 +570,79 @@ describe('PaymentsService', () => {
     });
   });
 
-  describe('reconcileUnsettledInvoiceVas', () => {
+  describe('reconcileUnsettledInvoicePayments', () => {
     const vaInvoice = {
       id: 'inv1',
       amount: 200000,
       vaNumber: '8801',
+      providerOrderId: 'inv1',
     };
 
-    it('activates an invoice DOKU reports as paid', async () => {
+    it('activates an invoice the provider reports as paid', async () => {
       invoices.findUnsettledInvoices.mockResolvedValue([vaInvoice] as never);
-      invoicePayment.inquiryVa.mockResolvedValue({
-        vaNumber: '8801',
-        status: '00',
+      invoicePayment.getStatus.mockResolvedValue({
+        providerOrderId: 'inv1',
+        status: 'PAID',
         paidAmount: 200000,
+        paymentType: null,
       });
       invoices.confirmPaymentWithActivation.mockResolvedValue({
         outcome: 'confirmed',
         invoice: vaInvoice as never,
       });
 
-      const result = await service.reconcileUnsettledInvoiceVas();
+      const result = await service.reconcileUnsettledInvoicePayments();
 
       expect(result).toEqual({ checked: 1, settled: 1 });
       expect(invoices.confirmPaymentWithActivation).toHaveBeenCalledWith(
         'inv1',
-        expect.objectContaining({ paidAmount: 200000 }),
+        expect.objectContaining({
+          paidAmount: 200000,
+          verifiedBySource: 'JOKUL',
+        }),
       );
     });
 
-    it('skips an invoice DOKU still reports as unpaid', async () => {
+    it('attributes a Midtrans settlement to MIDTRANS', async () => {
+      config.get.mockImplementation((key: string, fallback?: unknown) => {
+        const map: Record<string, unknown> = {
+          'app.paymentProvider': 'midtrans',
+          'app.recovery.lookbackMin': 1440,
+          'app.recovery.batchSize': 50,
+        };
+        return map[key] ?? fallback;
+      });
       invoices.findUnsettledInvoices.mockResolvedValue([vaInvoice] as never);
-      invoicePayment.inquiryVa.mockResolvedValue({
-        vaNumber: '8801',
-        status: '03',
-        paidAmount: null,
+      invoicePayment.getStatus.mockResolvedValue({
+        providerOrderId: 'inv1',
+        status: 'PAID',
+        paidAmount: 200000,
+        paymentType: 'qris',
+      });
+      invoices.confirmPaymentWithActivation.mockResolvedValue({
+        outcome: 'confirmed',
+        invoice: vaInvoice as never,
       });
 
-      const result = await service.reconcileUnsettledInvoiceVas();
+      await service.reconcileUnsettledInvoicePayments();
+
+      expect(invoices.confirmPaymentWithActivation).toHaveBeenCalledWith(
+        'inv1',
+        expect.objectContaining({ verifiedBySource: 'MIDTRANS' }),
+      );
+      expect(invoices.updatePaymentType).toHaveBeenCalledWith('inv1', 'qris');
+    });
+
+    it('skips an invoice the provider still reports as unpaid', async () => {
+      invoices.findUnsettledInvoices.mockResolvedValue([vaInvoice] as never);
+      invoicePayment.getStatus.mockResolvedValue({
+        providerOrderId: 'inv1',
+        status: 'PENDING',
+        paidAmount: null,
+        paymentType: null,
+      });
+
+      const result = await service.reconcileUnsettledInvoicePayments();
 
       expect(result).toEqual({ checked: 1, settled: 0 });
       expect(invoices.confirmPaymentWithActivation).not.toHaveBeenCalled();
@@ -589,8 +702,8 @@ describe('PaymentsService', () => {
 
     afterEach(() => {
       // Pure webhook handling: no gateway/client call may happen here.
-      expect(orderPayment.inquiryVa).not.toHaveBeenCalled();
-      expect(invoicePayment.inquiryVa).not.toHaveBeenCalled();
+      expect(orderPayment.getStatus).not.toHaveBeenCalled();
+      expect(invoicePayment.getStatus).not.toHaveBeenCalled();
       expect(invoicePayment.provision).not.toHaveBeenCalled();
     });
 

@@ -76,6 +76,18 @@ export const MidtransNotificationSchema = z
   .passthrough();
 export type MidtransNotification = z.infer<typeof MidtransNotificationSchema>;
 
+/**
+ * Replay shape for a notification read back from the event log. The signature
+ * is never persisted (it is derived from the server key), so a replayed
+ * payload carries every field except `signature_key`.
+ */
+export const MidtransStoredNotificationSchema = MidtransNotificationSchema.omit({
+  signature_key: true,
+});
+export type MidtransStoredNotification = z.infer<
+  typeof MidtransStoredNotificationSchema
+>;
+
 /** `GET /v2/{order_id}/status`. `signature_key` is absent on some responses. */
 export const MidtransStatusResponseSchema = z
   .object({

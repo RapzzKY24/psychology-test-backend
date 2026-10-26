@@ -9,9 +9,10 @@ import { PaymentsService } from './payments.service';
 import { MS_PER_MINUTE } from '../../../common/constants/time';
 
 /**
- * Periodically replays stale inbound callbacks and reconciles unsettled VA
- * orders against DOKU. Runs only when the gateway provider is active; the
- * exactly-once unlock lives in the repository, so overlapping runs are safe.
+ * Periodically replays stale inbound callbacks and reconciles unsettled
+ * payments against the active gateway. Runs for any provider except `manual`;
+ * the exactly-once unlock lives in the repository, so overlapping runs are
+ * safe.
  */
 @Injectable()
 export class PaymentsRecoveryService implements OnModuleInit, OnModuleDestroy {
@@ -25,12 +26,14 @@ export class PaymentsRecoveryService implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   onModuleInit(): void {
-    if (this.config.get<string>('app.paymentProvider') !== 'jokul') return;
+    if (this.config.get<string>('app.paymentProvider') === 'manual') return;
     const intervalMs =
       this.config.get<number>('app.recovery.intervalMin', 5) * MS_PER_MINUTE;
     this.timer = setInterval(() => void this.runOnce(), intervalMs);
     this.timer.unref();
-    this.logger.log(`VA recovery scheduled every ${intervalMs / 60000} min`);
+    this.logger.log(
+      `Payment recovery scheduled every ${intervalMs / MS_PER_MINUTE} min`,
+    );
   }
 
   onModuleDestroy(): void {
@@ -43,12 +46,12 @@ export class PaymentsRecoveryService implements OnModuleInit, OnModuleDestroy {
     try {
       await this.payments.recoverStaleCallbacks();
       await this.payments.recoverStaleProvisioning();
-      await this.payments.reconcilePendingVas();
+      await this.payments.reconcilePendingPayments();
       await this.payments.recoverStaleInvoiceProvisioning();
-      await this.payments.reconcileUnsettledInvoiceVas();
+      await this.payments.reconcileUnsettledInvoicePayments();
     } catch (error) {
       this.logger.warn(
-        `VA recovery pass failed: ${error instanceof Error ? error.message : 'unknown'}`,
+        `Payment recovery pass failed: ${error instanceof Error ? error.message : 'unknown'}`,
       );
     } finally {
       this.running = false;

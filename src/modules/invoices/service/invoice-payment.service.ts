@@ -15,6 +15,7 @@ import {
   PAYMENT_GATEWAY,
   type CreatePaymentResult,
   type PaymentGateway,
+  type PaymentStatusResult,
 } from '../../payments/gateway/payment-gateway.interface';
 import {
   PAYMENT_PROVIDER_ENV_TO_DB,
@@ -67,21 +68,16 @@ export class InvoicePaymentService {
     );
   }
 
-  /** Poll the provider for this payment's settlement status (reconciliation). */
-  async inquiryVa(params: {
-    vaNumber: string;
-    paymentRequestId?: string;
-    externalId?: string;
-  }): Promise<{ vaNumber: string; status: string; paidAmount: number | null }> {
-    const result = await this.gateway.getStatus({
-      providerOrderId: params.externalId ?? params.vaNumber,
-      vaNumber: params.vaNumber,
-    });
-    return {
-      vaNumber: params.vaNumber,
-      status: result.status === 'PAID' ? '00' : 'PENDING',
-      paidAmount: result.paidAmount,
-    };
+  /**
+   * Poll the provider for this payment's settlement status (reconciliation).
+   * Jokul resolves the payment by VA number, Midtrans by `providerOrderId`;
+   * the gateway picks whichever it needs and ignores the other.
+   */
+  async getStatus(params: {
+    providerOrderId: string;
+    vaNumber?: string | null;
+  }): Promise<PaymentStatusResult> {
+    return this.gateway.getStatus(params);
   }
 
   private get paymentTtlMin(): number {

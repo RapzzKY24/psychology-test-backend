@@ -170,25 +170,29 @@ describe('InvoicePaymentService', () => {
     expect(repo.update).not.toHaveBeenCalled();
   });
 
-  it('delegates inquiry to the gateway seam', async () => {
+  it('delegates status polling to the gateway seam', async () => {
     gateway.getStatus.mockResolvedValue({
       providerOrderId: 'inv1',
       status: 'PAID',
       paidAmount: 300000,
-      paymentType: null,
+      paymentType: 'qris',
     });
 
-    const result = await service.inquiryVa({
+    const result = await service.getStatus({
+      providerOrderId: 'inv1',
       vaNumber: '8801234',
-      paymentRequestId: 'inv1',
-      externalId: 'inv1',
     });
 
     expect(gateway.getStatus).toHaveBeenCalledWith({
       providerOrderId: 'inv1',
       vaNumber: '8801234',
     });
-    expect(result.status).toBe('00');
+    expect(result).toEqual({
+      providerOrderId: 'inv1',
+      status: 'PAID',
+      paidAmount: 300000,
+      paymentType: 'qris',
+    });
   });
 
   describe('reprovision', () => {

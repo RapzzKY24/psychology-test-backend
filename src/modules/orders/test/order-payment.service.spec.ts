@@ -129,25 +129,29 @@ describe('OrderPaymentService', () => {
     expect(order.vaNumber).toBe('19008172');
   });
 
-  it('delegates inquiry to the gateway seam', async () => {
+  it('delegates status polling to the gateway seam', async () => {
     gateway.getStatus.mockResolvedValue({
       providerOrderId: 'o1',
       status: 'PAID',
       paidAmount: 200000,
-      paymentType: null,
+      paymentType: 'bank_transfer',
     });
 
-    const result = await service.inquiryVa({
+    const result = await service.getStatus({
+      providerOrderId: 'o1',
       vaNumber: '19008172',
-      paymentRequestId: 'trx1',
-      externalId: 'o1',
     });
 
     expect(gateway.getStatus).toHaveBeenCalledWith({
       providerOrderId: 'o1',
       vaNumber: '19008172',
     });
-    expect(result.status).toBe('00');
+    expect(result).toEqual({
+      providerOrderId: 'o1',
+      status: 'PAID',
+      paidAmount: 200000,
+      paymentType: 'bank_transfer',
+    });
   });
 
   it('reuses the stored VA result on a completed duplicate', async () => {
@@ -195,6 +199,12 @@ describe('OrderPaymentService', () => {
         customer: { name: 'DISC Form A' },
         externalId: 'o1',
       }),
+    );
+    // The retry reuses the same external id, so the provider dedupes it instead
+    // of issuing a second payment.
+    expect(repo.update).toHaveBeenCalledWith(
+      'o1',
+      expect.objectContaining({ providerOrderId: 'o1' }),
     );
     expect(order?.vaNumber).toBe('19008172');
   });

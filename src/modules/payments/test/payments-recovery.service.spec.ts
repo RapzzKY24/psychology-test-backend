@@ -9,9 +9,9 @@ describe('PaymentsRecoveryService', () => {
       PaymentsService,
       | 'recoverStaleCallbacks'
       | 'recoverStaleProvisioning'
-      | 'reconcilePendingVas'
+      | 'reconcilePendingPayments'
       | 'recoverStaleInvoiceProvisioning'
-      | 'reconcileUnsettledInvoiceVas'
+      | 'reconcileUnsettledInvoicePayments'
     >
   >;
   let config: { get: jest.Mock };
@@ -22,13 +22,13 @@ describe('PaymentsRecoveryService', () => {
       recoverStaleProvisioning: jest
         .fn()
         .mockResolvedValue({ checked: 0, provisioned: 0 }),
-      reconcilePendingVas: jest
+      reconcilePendingPayments: jest
         .fn()
         .mockResolvedValue({ checked: 0, settled: 0 }),
       recoverStaleInvoiceProvisioning: jest
         .fn()
         .mockResolvedValue({ checked: 0, provisioned: 0 }),
-      reconcileUnsettledInvoiceVas: jest
+      reconcileUnsettledInvoicePayments: jest
         .fn()
         .mockResolvedValue({ checked: 0, settled: 0 }),
     };
@@ -49,21 +49,37 @@ describe('PaymentsRecoveryService', () => {
 
   afterEach(() => service.onModuleDestroy());
 
-  it('does not schedule when the gateway provider is inactive', () => {
+  const timerOf = () =>
+    (service as unknown as { timer?: NodeJS.Timeout }).timer;
+
+  it('does not schedule when the provider is manual', () => {
     config.get.mockImplementation((key: string, fallback?: unknown) =>
       key === 'app.paymentProvider' ? 'manual' : fallback,
     );
+
     service.onModuleInit();
-    expect(
-      (service as unknown as { timer?: NodeJS.Timeout }).timer,
-    ).toBeUndefined();
+
+    expect(timerOf()).toBeUndefined();
   });
 
-  it('runs both recovery passes', async () => {
+  it.each(['jokul', 'midtrans'])('schedules for the %s provider', (provider) => {
+    config.get.mockImplementation((key: string, fallback?: unknown) =>
+      key === 'app.paymentProvider' ? provider : fallback,
+    );
+
+    service.onModuleInit();
+
+    expect(timerOf()).toBeDefined();
+  });
+
+  it('runs every recovery pass', async () => {
     await service.runOnce();
+
     expect(payments.recoverStaleCallbacks).toHaveBeenCalled();
     expect(payments.recoverStaleProvisioning).toHaveBeenCalled();
-    expect(payments.reconcilePendingVas).toHaveBeenCalled();
+    expect(payments.reconcilePendingPayments).toHaveBeenCalled();
+    expect(payments.recoverStaleInvoiceProvisioning).toHaveBeenCalled();
+    expect(payments.reconcileUnsettledInvoicePayments).toHaveBeenCalled();
   });
 
   it('skips a pass while one is already running and swallows errors', async () => {
@@ -74,7 +90,7 @@ describe('PaymentsRecoveryService', () => {
 
     const first = service.runOnce();
     await service.runOnce();
-    expect(payments.reconcilePendingVas).not.toHaveBeenCalled();
+    expect(payments.reconcilePendingPayments).not.toHaveBeenCalled();
     release();
     await first;
 
