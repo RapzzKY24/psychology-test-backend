@@ -62,15 +62,18 @@ describe('PaymentsRecoveryService', () => {
     expect(timerOf()).toBeUndefined();
   });
 
-  it.each(['jokul', 'midtrans'])('schedules for the %s provider', (provider) => {
-    config.get.mockImplementation((key: string, fallback?: unknown) =>
-      key === 'app.paymentProvider' ? provider : fallback,
-    );
+  it.each(['jokul', 'midtrans'])(
+    'schedules for the %s provider',
+    (provider) => {
+      config.get.mockImplementation((key: string, fallback?: unknown) =>
+        key === 'app.paymentProvider' ? provider : fallback,
+      );
 
-    service.onModuleInit();
+      service.onModuleInit();
 
-    expect(timerOf()).toBeDefined();
-  });
+      expect(timerOf()).toBeDefined();
+    },
+  );
 
   it('runs every recovery pass', async () => {
     await service.runOnce();

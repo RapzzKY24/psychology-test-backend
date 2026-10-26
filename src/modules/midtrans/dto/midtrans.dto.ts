@@ -81,9 +81,11 @@ export type MidtransNotification = z.infer<typeof MidtransNotificationSchema>;
  * is never persisted (it is derived from the server key), so a replayed
  * payload carries every field except `signature_key`.
  */
-export const MidtransStoredNotificationSchema = MidtransNotificationSchema.omit({
-  signature_key: true,
-});
+export const MidtransStoredNotificationSchema = MidtransNotificationSchema.omit(
+  {
+    signature_key: true,
+  },
+);
 export type MidtransStoredNotification = z.infer<
   typeof MidtransStoredNotificationSchema
 >;

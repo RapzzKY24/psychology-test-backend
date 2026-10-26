@@ -68,14 +68,9 @@ export class InvoicePaymentService {
     );
   }
 
-  /**
-   * Poll the provider for this payment's settlement status (reconciliation).
-   * Jokul resolves the payment by VA number, Midtrans by `providerOrderId`;
-   * the gateway picks whichever it needs and ignores the other.
-   */
+  /** Poll the provider for this payment's settlement status (reconciliation). */
   async getStatus(params: {
     providerOrderId: string;
-    vaNumber?: string | null;
   }): Promise<PaymentStatusResult> {
     return this.gateway.getStatus(params);
   }
@@ -86,28 +81,25 @@ export class InvoicePaymentService {
 
   /**
    * Normalises the env value. An unknown or non-string value falls back to
-   * `jokul` instead of leaking into idempotency scopes and DB columns.
+   * `midtrans` (the only gateway left) instead of leaking into idempotency
+   * scopes and DB columns.
    */
   private get providerEnv(): PaymentProviderEnv {
-    const raw = this.config.get<string>('app.paymentProvider');
-    return raw === 'manual' || raw === 'midtrans' || raw === 'jokul'
-      ? raw
-      : 'jokul';
+    return this.config.get<string>('app.paymentProvider') === 'manual'
+      ? 'manual'
+      : 'midtrans';
   }
 
   private get paymentProvider(): PaymentProvider {
-    return PAYMENT_PROVIDER_ENV_TO_DB[this.providerEnv] ?? 'JOKUL_VA';
+    return PAYMENT_PROVIDER_ENV_TO_DB[this.providerEnv];
   }
 
   /** Audit rows must name the provider that actually served the request. */
   private get eventSource(): EventSource {
-    return this.providerEnv === 'midtrans' ? 'MIDTRANS' : 'JOKUL';
+    return 'MIDTRANS';
   }
 
-  /**
-   * Distinct namespace from orders, and provider-scoped so a Midtrans retry
-   * never replays a cached Jokul result for the same key.
-   */
+  /** Distinct namespace from orders, provider-scoped like every create scope. */
   private createScope(): string {
     return `${this.providerEnv}.invoice.payment.create`;
   }
@@ -183,8 +175,8 @@ export class InvoicePaymentService {
   }
 
   /**
-   * Snap returns a token and a redirect url but no VA number, so the VA columns
-   * stay null there; Jokul fills them instead.
+   * Snap returns a token and a redirect url but no VA number, so the legacy
+   * VA columns stay null on every new payment.
    */
   private toColumns(result: CreatePaymentResult): Prisma.InvoiceUpdateInput {
     return {
@@ -192,8 +184,8 @@ export class InvoicePaymentService {
       paymentToken: result.token || null,
       paymentUrl: result.redirectUrl || null,
       paymentProvider: this.paymentProvider,
-      vaNumber: result.vaNumber ?? null,
-      vaBankCode: result.bankCode ?? null,
+      vaNumber: null,
+      vaBankCode: null,
     };
   }
 }

@@ -20,8 +20,6 @@ import type {
   GatewayPaymentStatus,
   PaymentStatusResult,
 } from '../gateway/payment-gateway.interface';
-import { VaCallbackSchema } from '../../jokul/dto/jokul.dto';
-import type { VaCallback } from '../../jokul/dto/jokul.dto';
 import {
   MidtransNotificationSchema,
   MidtransStoredNotificationSchema,
@@ -31,16 +29,11 @@ import { mapTransactionStatus } from '../../midtrans/utils/map-status';
 import { MS_PER_MINUTE } from '../../../common/constants/time';
 import { amountMatches } from '../utils/amount-matches';
 import {
-  JOKUL_ACK,
   MIDTRANS_ACK,
   MIDTRANS_NOTIFICATION_EVENT_TYPE,
   MIDTRANS_NOTIFICATION_SCOPE,
-  VA_CALLBACK_EVENT_TYPE,
-  VA_CALLBACK_KEY_PREFIX,
-  VA_CALLBACK_PAID_STATUS,
-  VA_CALLBACK_SCOPE,
 } from '../constants/payments';
-import type { JokulAck, MidtransAck } from '../constants/payments';
+import type { MidtransAck } from '../constants/payments';
 
 /** The fields every notification handler reads; the signature is not one. */
 type NotificationPayload = Pick<
@@ -74,14 +67,9 @@ export class PaymentsService {
 
   /** DB enum of the provider selected by `PAYMENT_PROVIDER`. */
   private get activeProvider(): PaymentProvider {
-    const env = (this.config.get<string>('app.paymentProvider') ??
-      'jokul') as PaymentProviderEnv;
-    return PAYMENT_PROVIDER_ENV_TO_DB[env] ?? 'JOKUL_VA';
-  }
-
-  /** Attribution recorded on a settlement we discovered by polling. */
-  private get activeVerifiedBy(): 'MIDTRANS' | 'JOKUL' {
-    return this.activeProvider === 'MIDTRANS_SNAP' ? 'MIDTRANS' : 'JOKUL';
+    const raw = this.config.get<string>('app.paymentProvider');
+    const env: PaymentProviderEnv = raw === 'manual' ? 'manual' : 'midtrans';
+    return PAYMENT_PROVIDER_ENV_TO_DB[env];
   }
 
   private get staleAfterMs(): number {
@@ -101,59 +89,6 @@ export class PaymentsService {
   }
 
   /**
-   * Handle a VA payment callback from Doku. Idempotent per
-   * `virtualAccountNo:trxId`, always acknowledges with Doku's `2002700`
-   * envelope so the gateway does not retry on our business-level outcomes.
-   */
-  async handleVaCallback(body: unknown): Promise<JokulAck> {
-    const parsed = VaCallbackSchema.safeParse(body);
-    if (!parsed.success) {
-      // Never let a schema mismatch turn into a 422 retry storm: record it for
-      // investigation and still acknowledge.
-      const event = await this.eventLog.record({
-        source: 'JOKUL',
-        direction: 'INBOUND',
-        type: VA_CALLBACK_EVENT_TYPE,
-        payload: { raw: body },
-      });
-      await this.eventLog.markFailed(event.id, {
-        errorMessage: 'unparsable_payload',
-      });
-      return JOKUL_ACK;
-    }
-    const payload = parsed.data;
-    const reference =
-      payload.trxId ?? payload.paymentRequestId ?? payload.virtualAccountNo;
-    const key = `${VA_CALLBACK_KEY_PREFIX}${payload.virtualAccountNo}:${reference}`;
-
-    const claim = await this.idempotency.begin({
-      scope: VA_CALLBACK_SCOPE,
-      key,
-    });
-    if (!claim.acquired) return JOKUL_ACK;
-
-    const event = await this.eventLog.record({
-      source: 'JOKUL',
-      direction: 'INBOUND',
-      type: VA_CALLBACK_EVENT_TYPE,
-      reference,
-      idempotencyKey: key,
-      payload: this.redact(payload),
-    });
-
-    const outcome = await this.applyCallback(payload, event.id);
-    if (outcome.kind === 'rejected') {
-      await this.idempotency.fail(claim.id, { errorMessage: outcome.reason });
-    } else {
-      await this.idempotency.complete(claim.id, {
-        responseStatus: 200,
-        responseBody: JOKUL_ACK,
-      });
-    }
-    return JOKUL_ACK;
-  }
-
-  /**
    * Handle a Midtrans HTTP notification. Idempotent per
    * `order_id:transaction_status:status_code` and always answers
    * `{ ok: true }` so Midtrans stops retrying; business outcomes are kept in
@@ -162,8 +97,7 @@ export class PaymentsService {
   async handleNotification(body: unknown): Promise<MidtransAck> {
     const parsed = MidtransNotificationSchema.safeParse(body);
     if (!parsed.success) {
-      // Same policy as the Jokul path: an unparsable body is recorded, never
-      // turned into a retry storm.
+      // An unparsable body is recorded, never turned into a retry storm.
       const event = await this.eventLog.record({
         source: 'MIDTRANS',
         direction: 'INBOUND',
@@ -209,10 +143,9 @@ export class PaymentsService {
   }
 
   /**
-   * Replay inbound callbacks that were never finalized (e.g. a crash
-   * mid-handling). Both providers share the queue: Jokul stores the full
-   * callback body, Midtrans stores it without the signature, which the replay
-   * path does not need — the signature was already verified at ingress.
+   * Replay notifications that were never finalized (e.g. a crash mid-handling).
+   * The stored payload has no signature, and the replay path does not need it:
+   * the signature was already verified at ingress.
    */
   async recoverStaleCallbacks(): Promise<number> {
     const stale = await this.eventLog.findStaleForRecovery({
@@ -221,26 +154,13 @@ export class PaymentsService {
     });
     let replayed = 0;
     for (const event of stale) {
-      if (event.payload === null) continue;
-
-      if (event.type === MIDTRANS_NOTIFICATION_EVENT_TYPE) {
-        const parsed = MidtransStoredNotificationSchema.safeParse(
-          event.payload,
-        );
-        if (!parsed.success) {
-          await this.eventLog.markFailed(event.id, {
-            errorMessage: 'unparsable_payload',
-          });
-          continue;
-        }
-        await this.eventLog.markProcessing(event.id);
-        await this.applyNotification(parsed.data, event.id);
-        replayed += 1;
+      if (
+        event.payload === null ||
+        event.type !== MIDTRANS_NOTIFICATION_EVENT_TYPE
+      ) {
         continue;
       }
-
-      if (event.type !== VA_CALLBACK_EVENT_TYPE) continue;
-      const parsed = VaCallbackSchema.safeParse(event.payload);
+      const parsed = MidtransStoredNotificationSchema.safeParse(event.payload);
       if (!parsed.success) {
         await this.eventLog.markFailed(event.id, {
           errorMessage: 'unparsable_payload',
@@ -248,7 +168,7 @@ export class PaymentsService {
         continue;
       }
       await this.eventLog.markProcessing(event.id);
-      await this.applyCallback(parsed.data, event.id);
+      await this.applyNotification(parsed.data, event.id);
       replayed += 1;
     }
     return replayed;
@@ -315,7 +235,6 @@ export class PaymentsService {
       try {
         status = await this.orderPayment.getStatus({
           providerOrderId: order.providerOrderId,
-          vaNumber: order.vaNumber,
         });
       } catch (error) {
         if (error instanceof PaymentGatewayError) continue;
@@ -325,7 +244,7 @@ export class PaymentsService {
       if (!amountMatches(status.paidAmount, order.amount)) continue;
       const result = await this.orders.confirmExternalPayment(
         order.id,
-        this.activeVerifiedBy,
+        'MIDTRANS',
       );
       if (result.outcome !== 'verified') continue;
       settled += 1;
@@ -395,7 +314,6 @@ export class PaymentsService {
       try {
         status = await this.invoicePayment.getStatus({
           providerOrderId: invoice.providerOrderId,
-          vaNumber: invoice.vaNumber,
         });
       } catch (error) {
         if (error instanceof PaymentGatewayError) continue;
@@ -407,7 +325,7 @@ export class PaymentsService {
         invoice.id,
         {
           paidAmount: invoice.amount,
-          verifiedBySource: this.activeVerifiedBy,
+          verifiedBySource: 'MIDTRANS',
         },
       );
       if (result.outcome !== 'confirmed') continue;
@@ -415,135 +333,6 @@ export class PaymentsService {
       await this.persistPaymentType('invoice', invoice.id, status.paymentType);
     }
     return { checked, settled };
-  }
-
-  private async applyCallback(
-    payload: VaCallback,
-    eventId: string,
-  ): Promise<CallbackOutcome> {
-    const order = await this.orders.findByVaNumber(payload.virtualAccountNo);
-    if (order) return this.applyOrderCallback(order, payload, eventId);
-
-    const invoice = await this.invoices.findByVaNumber(
-      payload.virtualAccountNo,
-    );
-    if (invoice) return this.applyInvoiceCallback(invoice, payload, eventId);
-
-    await this.eventLog.markFailed(eventId, {
-      errorMessage: 'payment_not_found',
-    });
-    return { kind: 'rejected', reason: 'payment_not_found' };
-  }
-
-  private async applyOrderCallback(
-    order: Order,
-    payload: VaCallback,
-    eventId: string,
-  ): Promise<CallbackOutcome> {
-    const status = this.callbackStatus(payload);
-    if (status !== undefined && status !== VA_CALLBACK_PAID_STATUS) {
-      await this.eventLog.markProcessed(eventId, {
-        response: { ignored: status },
-      });
-      return { kind: 'ignored', reason: 'non_paid_status' };
-    }
-
-    if (!amountMatches(this.callbackAmount(payload), order.amount)) {
-      await this.eventLog.markFailed(eventId, {
-        errorMessage: 'amount_mismatch',
-      });
-      return { kind: 'rejected', reason: 'amount_mismatch' };
-    }
-
-    const result = await this.orders.confirmExternalPayment(order.id, 'JOKUL');
-    if (result.outcome === 'conflict') {
-      await this.eventLog.markProcessed(eventId, {
-        response: { alreadySettled: true, orderId: order.id },
-      });
-      return { kind: 'ignored', reason: 'already_settled' };
-    }
-    if (result.outcome !== 'verified') {
-      await this.eventLog.markFailed(eventId, {
-        errorMessage: `settle_${result.outcome}`,
-      });
-      return { kind: 'rejected', reason: `settle_${result.outcome}` };
-    }
-
-    await this.eventLog.markProcessed(eventId, {
-      response: {
-        orderId: order.id,
-        sessionId: result.sessionId,
-        wasLate: result.wasLate,
-      },
-    });
-    return { kind: 'settled' };
-  }
-
-  private async applyInvoiceCallback(
-    invoice: Invoice,
-    payload: VaCallback,
-    eventId: string,
-  ): Promise<CallbackOutcome> {
-    const status = this.callbackStatus(payload);
-    if (status !== undefined && status !== VA_CALLBACK_PAID_STATUS) {
-      await this.eventLog.markProcessed(eventId, {
-        response: { ignored: status },
-      });
-      return { kind: 'ignored', reason: 'non_paid_status' };
-    }
-
-    const result = await this.invoices.confirmPaymentWithActivation(
-      invoice.id,
-      {
-        paidAmount: Number(this.callbackAmount(payload)),
-        verifiedBySource: 'JOKUL',
-      },
-    );
-    if (result.outcome === 'already_paid') {
-      await this.eventLog.markProcessed(eventId, {
-        response: { alreadySettled: true, invoiceId: invoice.id },
-      });
-      return { kind: 'ignored', reason: 'already_settled' };
-    }
-    if (result.outcome !== 'confirmed') {
-      await this.eventLog.markFailed(eventId, {
-        errorMessage: `settle_${result.outcome}`,
-      });
-      return { kind: 'rejected', reason: `settle_${result.outcome}` };
-    }
-
-    await this.eventLog.markProcessed(eventId, {
-      response: {
-        invoiceId: invoice.id,
-        sessionId: invoice.sessionId,
-      },
-    });
-    return { kind: 'settled' };
-  }
-
-  /** Doku notifies on success; a channel may still send an explicit status. */
-  private callbackStatus(payload: VaCallback): string | undefined {
-    return (
-      payload.latestTransactionStatus ??
-      payload.additionalInfo?.latestTransactionStatus
-    );
-  }
-
-  /** Prefer the actually paid amount; fall back to the billed amount. */
-  private callbackAmount(payload: VaCallback): string | null {
-    return payload.paidAmount?.value ?? payload.totalAmount?.value ?? null;
-  }
-
-  private redact(payload: VaCallback): Record<string, unknown> {
-    return {
-      virtualAccountNo: payload.virtualAccountNo,
-      trxId: payload.trxId,
-      paymentRequestId: payload.paymentRequestId,
-      paidAmount: payload.paidAmount,
-      totalAmount: payload.totalAmount,
-      trxDateTime: payload.trxDateTime,
-      latestTransactionStatus: this.callbackStatus(payload),
-    };
   }
 
   /**
@@ -700,8 +489,7 @@ export class PaymentsService {
     }
 
     // No amount guard here on purpose: confirmPaymentWithActivation compares
-    // the paid amount with the invoice amount internally, exactly as the Jokul
-    // path relies on.
+    // the paid amount with the invoice amount internally.
     const result = await this.invoices.confirmPaymentWithActivation(
       invoice.id,
       {

@@ -1,7 +1,7 @@
 import { BadGatewayException } from '@nestjs/common';
 import { PaymentsService } from '../service/payments.service';
-import { JOKUL_ACK, MIDTRANS_ACK } from '../constants/payments';
-import { JokulApiError } from '../../jokul/errors/jokul-api.error';
+import { MIDTRANS_ACK } from '../constants/payments';
+import { MidtransApiError } from '../../midtrans/errors/midtrans-api.error';
 import type { EventLogService } from '../../event-log/service/event-log.service';
 import type { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import type { OrdersService } from '../../orders/service/orders.service';
@@ -15,7 +15,6 @@ describe('PaymentsService', () => {
   let orders: jest.Mocked<
     Pick<
       OrdersService,
-      | 'findByVaNumber'
       | 'findByProviderOrderId'
       | 'updatePaymentType'
       | 'cancel'
@@ -41,7 +40,6 @@ describe('PaymentsService', () => {
   let invoices: jest.Mocked<
     Pick<
       InvoicesService,
-      | 'findByVaNumber'
       | 'findByProviderOrderId'
       | 'updatePaymentType'
       | 'confirmPaymentWithActivation'
@@ -55,33 +53,8 @@ describe('PaymentsService', () => {
   let orderPayment: jest.Mocked<Pick<OrderPaymentService, 'getStatus'>>;
   let config: { get: jest.Mock };
 
-  const order = { id: 'o1', amount: 200000 };
-  const invoice = { id: 'inv1', amount: 300000, sessionId: 's1' };
-
-  const callback = {
-    partnerServiceId: '   DOKU',
-    customerNo: '12345',
-    virtualAccountNo: '19008172',
-    virtualAccountName: 'DISC',
-    trxId: 'o1',
-    paymentRequestId: 'pr1',
-    sourceBankCode: '014',
-    paidAmount: { value: '200000.00', currency: 'IDR' },
-    totalAmount: { value: '200000.00', currency: 'IDR' },
-    trxDateTime: '2026-10-17T06:00:00+07:00',
-    referenceNo: 'ref-1',
-    additionalInfo: {
-      paymentDate: '2026-10-17T06:00:00+07:00',
-      paymentMethod: 'TRANSFER',
-      transactionType: 'C',
-      latestTransactionStatus: '00',
-      transactionStatusDesc: 'Success',
-    },
-  };
-
   beforeEach(() => {
     orders = {
-      findByVaNumber: jest.fn(),
       findByProviderOrderId: jest.fn().mockResolvedValue(null),
       updatePaymentType: jest.fn(),
       cancel: jest.fn(),
@@ -99,7 +72,6 @@ describe('PaymentsService', () => {
     };
     idempotency = { begin: jest.fn(), complete: jest.fn(), fail: jest.fn() };
     invoices = {
-      findByVaNumber: jest.fn().mockResolvedValue(null),
       findByProviderOrderId: jest.fn().mockResolvedValue(null),
       updatePaymentType: jest.fn(),
       confirmPaymentWithActivation: jest.fn(),
@@ -141,184 +113,14 @@ describe('PaymentsService', () => {
     );
   });
 
-  it('settles a paid callback and acknowledges', async () => {
-    idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
-    orders.findByVaNumber.mockResolvedValue(order as never);
-    orders.confirmExternalPayment.mockResolvedValue({
-      outcome: 'verified',
-      wasLate: false,
-      sessionId: 's1',
-      attemptId: 'a1',
-    });
-
-    const ack = await service.handleVaCallback(callback);
-
-    expect(ack).toEqual(JOKUL_ACK);
-    expect(idempotency.begin).toHaveBeenCalledWith({
-      scope: 'jokul.va.callback',
-      key: 'jokul.va.callback:19008172:o1',
-    });
-    expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1', 'JOKUL');
-    expect(eventLog.markProcessed).toHaveBeenCalled();
-    expect(idempotency.complete).toHaveBeenCalledWith('idem1', {
-      responseStatus: 200,
-      responseBody: JOKUL_ACK,
-    });
-  });
-
-  it('short-circuits a duplicate delivery', async () => {
-    idempotency.begin.mockResolvedValue({
-      acquired: false,
-      existing: { id: 'idem1', status: 'COMPLETED' } as never,
-    });
-
-    const ack = await service.handleVaCallback(callback);
-
-    expect(ack).toEqual(JOKUL_ACK);
-    expect(eventLog.record).not.toHaveBeenCalled();
-    expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
-  });
-
-  it('records and rejects an unknown VA', async () => {
-    idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
-    orders.findByVaNumber.mockResolvedValue(null);
-
-    const ack = await service.handleVaCallback(callback);
-
-    expect(ack).toEqual(JOKUL_ACK);
-    expect(eventLog.markFailed).toHaveBeenCalledWith('ev1', {
-      errorMessage: 'payment_not_found',
-    });
-    expect(idempotency.fail).toHaveBeenCalledWith('idem1', {
-      errorMessage: 'payment_not_found',
-    });
-    expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
-  });
-
-  it('settles a paid session invoice and activates its session', async () => {
-    idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
-    orders.findByVaNumber.mockResolvedValue(null);
-    invoices.findByVaNumber.mockResolvedValue(invoice as never);
-    invoices.confirmPaymentWithActivation.mockResolvedValue({
-      outcome: 'confirmed',
-      invoice: invoice as never,
-    });
-
-    const ack = await service.handleVaCallback({
-      ...callback,
-      paidAmount: { value: '300000.00', currency: 'IDR' },
-      totalAmount: { value: '300000.00', currency: 'IDR' },
-    });
-
-    expect(ack).toEqual(JOKUL_ACK);
-    expect(invoices.confirmPaymentWithActivation).toHaveBeenCalledWith('inv1', {
-      paidAmount: 300000,
-      verifiedBySource: 'JOKUL',
-    });
-    expect(eventLog.markProcessed).toHaveBeenCalledWith('ev1', {
-      response: { invoiceId: 'inv1', sessionId: 's1' },
-    });
-    expect(idempotency.complete).toHaveBeenCalled();
-  });
-
-  it('treats a duplicate invoice callback as already settled', async () => {
-    idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
-    orders.findByVaNumber.mockResolvedValue(null);
-    invoices.findByVaNumber.mockResolvedValue(invoice as never);
-    invoices.confirmPaymentWithActivation.mockResolvedValue({
-      outcome: 'already_paid',
-      invoice: invoice as never,
-    });
-
-    await service.handleVaCallback({
-      ...callback,
-      paidAmount: { value: '300000.00', currency: 'IDR' },
-      totalAmount: { value: '300000.00', currency: 'IDR' },
-    });
-
-    expect(eventLog.markProcessed).toHaveBeenCalledWith('ev1', {
-      response: { alreadySettled: true, invoiceId: 'inv1' },
-    });
-    expect(eventLog.markFailed).not.toHaveBeenCalled();
-  });
-
-  it('rejects a paid invoice callback whose amount is wrong', async () => {
-    idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
-    orders.findByVaNumber.mockResolvedValue(null);
-    invoices.findByVaNumber.mockResolvedValue(invoice as never);
-    invoices.confirmPaymentWithActivation.mockResolvedValue({
-      outcome: 'amount_mismatch',
-    });
-
-    await service.handleVaCallback({
-      ...callback,
-      paidAmount: { value: '299999.00', currency: 'IDR' },
-      totalAmount: { value: '299999.00', currency: 'IDR' },
-    });
-
-    expect(eventLog.markFailed).toHaveBeenCalledWith('ev1', {
-      errorMessage: 'settle_amount_mismatch',
-    });
-    expect(idempotency.fail).toHaveBeenCalled();
-  });
-
-  it('rejects an amount mismatch without settling', async () => {
-    idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
-    orders.findByVaNumber.mockResolvedValue(order as never);
-
-    const ack = await service.handleVaCallback({
-      ...callback,
-      paidAmount: { value: '199999.00', currency: 'IDR' },
-      totalAmount: { value: '199999.00', currency: 'IDR' },
-    });
-
-    expect(ack).toEqual(JOKUL_ACK);
-    expect(idempotency.fail).toHaveBeenCalledWith('idem1', {
-      errorMessage: 'amount_mismatch',
-    });
-    expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
-  });
-
-  it('ignores a non-paid status transition', async () => {
-    idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
-    orders.findByVaNumber.mockResolvedValue(order as never);
-
-    const ack = await service.handleVaCallback({
-      ...callback,
-      additionalInfo: {
-        ...callback.additionalInfo,
-        latestTransactionStatus: '03',
-      },
-    });
-
-    expect(ack).toEqual(JOKUL_ACK);
-    expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
-    expect(eventLog.markProcessed).toHaveBeenCalled();
-    expect(idempotency.complete).toHaveBeenCalled();
-  });
-
-  it('still acks and records a failed event when the body is unparsable', async () => {
-    eventLog.record.mockResolvedValue({ id: 'ev1' } as never);
-
-    const ack = await service.handleVaCallback({ unexpected: true });
-
-    expect(ack).toEqual(JOKUL_ACK);
-    expect(idempotency.begin).not.toHaveBeenCalled();
-    expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
-    expect(eventLog.markFailed).toHaveBeenCalledWith('ev1', {
-      errorMessage: 'unparsable_payload',
-    });
-  });
-
   describe('recoverStaleProvisioning', () => {
-    it('reprovisions a gateway order that never got a VA', async () => {
+    it('reprovisions a gateway order that never got a payment', async () => {
       orders.findPendingOrdersWithoutProviderOrderId.mockResolvedValue([
         { id: 'o1' } as never,
       ]);
       orders.reprovision.mockResolvedValue({
         id: 'o1',
         providerOrderId: 'o1',
-        vaNumber: '19008172',
       } as never);
 
       const result = await service.recoverStaleProvisioning();
@@ -327,7 +129,9 @@ describe('PaymentsService', () => {
       expect(orders.reprovision).toHaveBeenCalledWith('o1');
       expect(
         orders.findPendingOrdersWithoutProviderOrderId,
-      ).toHaveBeenCalledWith(expect.objectContaining({ provider: 'JOKUL_VA' }));
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({ provider: 'MIDTRANS_SNAP' }),
+      );
     });
 
     it('continues when a reprovision attempt fails', async () => {
@@ -335,7 +139,7 @@ describe('PaymentsService', () => {
         { id: 'o1' } as never,
       ]);
       orders.reprovision.mockRejectedValue(
-        new JokulApiError('request_failed', 'boom', 500, '/p'),
+        new MidtransApiError('request_failed', 'boom', 500, '/p'),
       );
 
       const result = await service.recoverStaleProvisioning();
@@ -344,49 +148,7 @@ describe('PaymentsService', () => {
     });
   });
 
-  it('treats an already-settled order as processed, not failed', async () => {
-    idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
-    orders.findByVaNumber.mockResolvedValue(order as never);
-    orders.confirmExternalPayment.mockResolvedValue({
-      outcome: 'conflict',
-      reason: 'already_verified',
-    });
-
-    await service.handleVaCallback(callback);
-
-    expect(eventLog.markProcessed).toHaveBeenCalled();
-    expect(eventLog.markFailed).not.toHaveBeenCalled();
-    expect(idempotency.complete).toHaveBeenCalled();
-  });
-
   describe('recoverStaleCallbacks', () => {
-    it('replays stale VA callbacks and settles them', async () => {
-      eventLog.findStaleForRecovery.mockResolvedValue([
-        {
-          id: 'ev9',
-          type: 'VA_CALLBACK_RECEIVED',
-          payload: callback,
-        } as never,
-      ]);
-      orders.findByVaNumber.mockResolvedValue(order as never);
-      orders.confirmExternalPayment.mockResolvedValue({
-        outcome: 'verified',
-        wasLate: true,
-        sessionId: 's1',
-        attemptId: 'a1',
-      });
-
-      const replayed = await service.recoverStaleCallbacks();
-
-      expect(replayed).toBe(1);
-      expect(eventLog.markProcessing).toHaveBeenCalledWith('ev9');
-      expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1', 'JOKUL');
-      expect(eventLog.markProcessed).toHaveBeenCalledWith(
-        'ev9',
-        expect.anything(),
-      );
-    });
-
     it('replays a stale Midtrans notification and settles it', async () => {
       // Stored without `signature_key`: it is verified at ingress, never kept.
       eventLog.findStaleForRecovery.mockResolvedValue([
@@ -420,28 +182,14 @@ describe('PaymentsService', () => {
 
       expect(replayed).toBe(1);
       expect(eventLog.markProcessing).toHaveBeenCalledWith('ev9');
-      expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1', 'MIDTRANS');
+      expect(orders.confirmExternalPayment).toHaveBeenCalledWith(
+        'o1',
+        'MIDTRANS',
+      );
       expect(eventLog.markProcessed).toHaveBeenCalledWith(
         'ev9',
         expect.anything(),
       );
-    });
-
-    it('marks an unparsable stale payload as failed', async () => {
-      eventLog.findStaleForRecovery.mockResolvedValue([
-        {
-          id: 'ev9',
-          type: 'VA_CALLBACK_RECEIVED',
-          payload: { bad: true },
-        } as never,
-      ]);
-
-      const replayed = await service.recoverStaleCallbacks();
-
-      expect(replayed).toBe(0);
-      expect(eventLog.markFailed).toHaveBeenCalledWith('ev9', {
-        errorMessage: 'unparsable_payload',
-      });
     });
   });
 
@@ -471,7 +219,10 @@ describe('PaymentsService', () => {
       const result = await service.reconcilePendingPayments();
 
       expect(result).toEqual({ checked: 1, settled: 1 });
-      expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1', 'JOKUL');
+      expect(orders.confirmExternalPayment).toHaveBeenCalledWith(
+        'o1',
+        'MIDTRANS',
+      );
     });
 
     it('settles a Snap order that has no VA number, using its provider order id', async () => {
@@ -503,7 +254,6 @@ describe('PaymentsService', () => {
 
       expect(orderPayment.getStatus).toHaveBeenCalledWith({
         providerOrderId: 'o1',
-        vaNumber: null,
       });
       expect(result).toEqual({ checked: 1, settled: 1 });
       expect(orders.confirmExternalPayment).toHaveBeenCalledWith(
@@ -534,7 +284,7 @@ describe('PaymentsService', () => {
     it('continues when the gateway call fails', async () => {
       orders.findUnsettledOrders.mockResolvedValue([vaOrder] as never);
       orderPayment.getStatus.mockRejectedValue(
-        new JokulApiError('request_failed', 'boom', 500, '/p'),
+        new MidtransApiError('request_failed', 'boom', 500, '/p'),
       );
 
       const result = await service.reconcilePendingPayments();
@@ -610,7 +360,7 @@ describe('PaymentsService', () => {
         'inv1',
         expect.objectContaining({
           paidAmount: 200000,
-          verifiedBySource: 'JOKUL',
+          verifiedBySource: 'MIDTRANS',
         }),
       );
     });
@@ -735,7 +485,10 @@ describe('PaymentsService', () => {
         scope: 'midtrans.notification',
         key: 'o1:settlement:200',
       });
-      expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1', 'MIDTRANS');
+      expect(orders.confirmExternalPayment).toHaveBeenCalledWith(
+        'o1',
+        'MIDTRANS',
+      );
       expect(eventLog.markProcessed).toHaveBeenCalledWith('ev1', {
         response: { orderId: 'o1', sessionId: 's1', wasLate: false },
       });

@@ -85,10 +85,6 @@ export class PrismaInvoicesRepository implements InvoicesRepository {
     return this.prisma.invoice.findUnique({ where: { sessionId } });
   }
 
-  findByVaNumber(vaNumber: string): Promise<Invoice | null> {
-    return this.prisma.invoice.findUnique({ where: { vaNumber } });
-  }
-
   /**
    * `providerOrderId` is the only key the gateway echoes back on a
    * notification, so this is the lookup used by the notification handler.

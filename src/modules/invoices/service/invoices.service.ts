@@ -54,10 +54,6 @@ export class InvoicesService {
     return this.repo.findBySessionId(sessionId);
   }
 
-  findByVaNumber(vaNumber: string): Promise<Invoice | null> {
-    return this.repo.findByVaNumber(vaNumber);
-  }
-
   /** Provider-agnostic lookup: the id Midtrans echoes back on every notification. */
   findByProviderOrderId(providerOrderId: string): Promise<Invoice | null> {
     return this.repo.findByProviderOrderId(providerOrderId);

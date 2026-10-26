@@ -91,7 +91,7 @@ export class OrdersService {
         amount: order.amount,
         expiresAt: order.expiresAt,
         qrisImageUrl: null,
-        paymentProvider: order.paymentProvider ?? 'JOKUL_VA',
+        paymentProvider: order.paymentProvider ?? 'MIDTRANS_SNAP',
         vaNumber: order.vaNumber,
         vaBankCode: order.vaBankCode,
         paymentUrl: order.paymentUrl ?? null,
@@ -261,10 +261,6 @@ export class OrdersService {
       sessionId: result.sessionId,
       attemptId: result.attemptId,
     };
-  }
-
-  findByVaNumber(vaNumber: string): Promise<Order | null> {
-    return this.repo.findByVaNumber(vaNumber);
   }
 
   /** Provider-agnostic lookup: the id Midtrans echoes back on every notification. */

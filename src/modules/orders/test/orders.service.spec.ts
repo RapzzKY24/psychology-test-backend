@@ -26,7 +26,6 @@ describe('OrdersService', () => {
       updateClaimIfUnset: jest.fn(),
       cancelPayment: jest.fn(),
       verifyPayment: jest.fn(),
-      findByVaNumber: jest.fn(),
       confirmExternalPayment: jest.fn(),
       findByProviderOrderId: jest.fn(),
       findUnsettledOrders: jest.fn(),

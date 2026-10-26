@@ -38,7 +38,6 @@ export interface OrdersRepository {
   cancelPayment(id: string, reason: string): Promise<number>;
   /** Transactional exactly-once verify: PAID + verifiedBy + INDIVIDUAL session + attempt. */
   verifyPayment(orderId: string, adminId: string): Promise<VerifyPaymentResult>;
-  findByVaNumber(vaNumber: string): Promise<Order | null>;
   /**
    * `providerOrderId` is the only key the gateway echoes back on a
    * notification, so this is the lookup used by the notification handler.

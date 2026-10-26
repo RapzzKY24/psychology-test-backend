@@ -18,7 +18,7 @@ import { EventLogService } from '../../event-log/service/event-log.service';
 import { PrismaIdempotencyRepository } from '../../idempotency/repository/idempotency.prisma-repository';
 import { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import { PaymentsService } from '../../payments/service/payments.service';
-import { JOKUL_ACK } from '../../payments/constants/payments';
+import { MIDTRANS_ACK } from '../../payments/constants/payments';
 
 /**
  * Feature 07 integration tests against the real DB
@@ -428,11 +428,8 @@ describe('Payments E2E (integ, real DB)', () => {
     });
   });
 
-  describe('session invoice VA callback (T11)', () => {
+  describe('session invoice notification (T11)', () => {
     async function seedPendingInvoice() {
-      const invoiceVa = `88${Math.floor(Math.random() * 1e9)
-        .toString()
-        .padStart(9, '0')}`;
       const owner = await prisma.user.create({
         data: {
           id: `${prefix}-inv-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
@@ -471,49 +468,42 @@ describe('Payments E2E (integ, real DB)', () => {
           amount: 200000,
           status: 'UNPAID',
           sessionId: session.id,
-          vaNumber: invoiceVa,
-          paymentProvider: 'JOKUL_VA',
           expiresAt: new Date(Date.now() + 3600_000),
         },
       });
       invoiceIds.push(invoice.id);
-      return { session, invoice, invoiceVa };
+      // Midtrans echoes back `order_id`, which is the invoice id we sent.
+      const provisioned = await prisma.invoice.update({
+        where: { id: invoice.id },
+        data: { providerOrderId: invoice.id, paymentProvider: 'MIDTRANS_SNAP' },
+      });
+      return { session, invoice: provisioned };
     }
 
-    const callbackFor = (virtualAccountNo: string) => ({
-      partnerServiceId: '   DOKU',
-      customerNo: '12345',
-      virtualAccountNo,
-      virtualAccountName: 'INV',
-      trxId: 'trxCb',
-      paymentRequestId: 'prCb',
-      sourceBankCode: '014',
-      paidAmount: { value: '200000.00', currency: 'IDR' },
-      totalAmount: { value: '200000.00', currency: 'IDR' },
-      trxDateTime: '2026-10-17T06:00:00+07:00',
-      referenceNo: 'ref-cb',
-      additionalInfo: {
-        paymentDate: '2026-10-17T06:00:00+07:00',
-        paymentMethod: 'TRANSFER',
-        transactionType: 'C',
-        latestTransactionStatus: '00',
-        transactionStatusDesc: 'Success',
-      },
+    const notificationFor = (orderId: string) => ({
+      order_id: orderId,
+      status_code: '200',
+      gross_amount: '200000.00',
+      signature_key: 'e2e',
+      transaction_status: 'settlement',
+      transaction_id: `trx-${orderId}`,
+      payment_type: 'bank_transfer',
+      fraud_status: 'accept',
     });
 
     it('settles the invoice, activates the session, and acks', async () => {
-      const { session, invoice, invoiceVa } = await seedPendingInvoice();
+      const { session, invoice } = await seedPendingInvoice();
 
-      const ack = await paymentsService.handleVaCallback(
-        callbackFor(invoiceVa),
+      const ack = await paymentsService.handleNotification(
+        notificationFor(invoice.providerOrderId!),
       );
-      expect(ack).toEqual(JOKUL_ACK);
+      expect(ack).toEqual(MIDTRANS_ACK);
 
       const paid = await prisma.invoice.findUniqueOrThrow({
         where: { id: invoice.id },
       });
       expect(paid.status).toBe('PAID');
-      expect(paid.verifiedBySource).toBe('JOKUL');
+      expect(paid.verifiedBySource).toBe('MIDTRANS');
 
       const activated = await prisma.testSession.findUniqueOrThrow({
         where: { id: session.id },
@@ -522,10 +512,11 @@ describe('Payments E2E (integ, real DB)', () => {
     });
 
     it('is idempotent on duplicate delivery (no double activation)', async () => {
-      const { session, invoice, invoiceVa } = await seedPendingInvoice();
+      const { session, invoice } = await seedPendingInvoice();
+      const payload = notificationFor(invoice.providerOrderId!);
 
-      await paymentsService.handleVaCallback(callbackFor(invoiceVa));
-      await paymentsService.handleVaCallback(callbackFor(invoiceVa));
+      await paymentsService.handleNotification(payload);
+      await paymentsService.handleNotification(payload);
 
       const paid = await prisma.invoice.findUniqueOrThrow({
         where: { id: invoice.id },

@@ -22,9 +22,6 @@ export interface CreatePaymentResult {
   token: string;
   redirectUrl: string;
   transactionId: string;
-  /** Legacy: only VA providers (Jokul) fill these. Midtrans returns null. */
-  vaNumber?: string | null;
-  bankCode?: string | null;
 }
 
 export interface PaymentStatusResult {
@@ -35,16 +32,11 @@ export interface PaymentStatusResult {
 }
 
 /**
- * Single seam over the payment provider. Midtrans Snap is the active
- * implementation; Jokul stays behind the same interface as a rollback path.
- * Idempotency, event log, and recovery live above this seam and never know
- * which provider is active.
+ * Single seam over the payment provider (Midtrans Snap). Idempotency, event
+ * log, and recovery live above this seam and never know which transport
+ * serves the request.
  */
 export interface PaymentGateway {
   createPayment(params: CreatePaymentParams): Promise<CreatePaymentResult>;
-  /** `vaNumber` is only needed by VA providers (Jokul); Midtrans ignores it. */
-  getStatus(params: {
-    providerOrderId: string;
-    vaNumber?: string | null;
-  }): Promise<PaymentStatusResult>;
+  getStatus(params: { providerOrderId: string }): Promise<PaymentStatusResult>;
 }

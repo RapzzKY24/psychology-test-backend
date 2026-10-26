@@ -48,7 +48,6 @@ export interface InvoicesRepository {
     notes?: string;
   }): Promise<Invoice>;
   findBySessionId(sessionId: string): Promise<Invoice | null>;
-  findByVaNumber(vaNumber: string): Promise<Invoice | null>;
   /**
    * `providerOrderId` is the only key the gateway echoes back on a
    * notification, so this is the lookup used by the notification handler.

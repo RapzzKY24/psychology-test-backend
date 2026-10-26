@@ -87,8 +87,6 @@ describe('MidtransSnapProvider', () => {
         token: 'snap-token-1',
         redirectUrl: 'https://app.sandbox.midtrans.com/snap/v4/redirection/x',
         transactionId: '',
-        vaNumber: null,
-        bankCode: null,
       });
       expect(createSnapTransaction).toHaveBeenCalledTimes(1);
       expect(createSnapTransaction).toHaveBeenCalledWith({

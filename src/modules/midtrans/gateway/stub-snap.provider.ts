@@ -20,15 +20,10 @@ export class StubSnapProvider implements PaymentGateway {
       token,
       redirectUrl: `https://stub.midtrans.local/snap/${token}`,
       transactionId: '',
-      vaNumber: null,
-      bankCode: null,
     });
   }
 
-  getStatus(params: {
-    providerOrderId: string;
-    vaNumber?: string | null;
-  }): Promise<PaymentStatusResult> {
+  getStatus(params: { providerOrderId: string }): Promise<PaymentStatusResult> {
     return Promise.resolve({
       providerOrderId: params.providerOrderId,
       status: 'PENDING',

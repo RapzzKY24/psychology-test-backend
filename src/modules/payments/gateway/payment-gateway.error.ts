@@ -3,8 +3,8 @@
  * transport.
  *
  * Services above the seam catch this instead of a provider-specific class, so
- * swapping Jokul for Midtrans never leaves a raw 500 leaking to the client.
- * Each provider keeps its own narrow `code` union.
+ * a transport failure never leaves a raw 500 leaking to the client. Each
+ * transport keeps its own narrow `code` union.
  */
 export abstract class PaymentGatewayError extends Error {
   protected constructor(

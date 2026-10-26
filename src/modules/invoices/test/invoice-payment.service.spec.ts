@@ -3,8 +3,7 @@ import type { ConfigService } from '@nestjs/config';
 import { InvoicePaymentService } from '../service/invoice-payment.service';
 import type { InvoicesRepository } from '../repository/invoices.repository';
 import type { IdempotencyService } from '../../idempotency/service/idempotency.service';
-import { JokulApiError } from '../../jokul/errors/jokul-api.error';
-import { StubVaProvider } from '../../jokul/gateway/stub-va.provider';
+import { MidtransApiError } from '../../midtrans/errors/midtrans-api.error';
 
 describe('InvoicePaymentService', () => {
   let service: InvoicePaymentService;
@@ -34,11 +33,9 @@ describe('InvoicePaymentService', () => {
 
   const paymentResult = {
     providerOrderId: 'inv1',
-    token: '',
-    redirectUrl: '',
-    transactionId: 'inv1',
-    vaNumber: '8801234',
-    bankCode: '014',
+    token: 'snap-token',
+    redirectUrl: 'https://app.sandbox.midtrans.com/snap/v4/redirection/x',
+    transactionId: '',
   };
 
   beforeEach(() => {
@@ -71,25 +68,21 @@ describe('InvoicePaymentService', () => {
   });
 
   describe('isEnabled', () => {
-    it('is true when the dev stub is on and a gateway provider is selected', () => {
-      config.get.mockImplementation((key: string) => {
-        if (key === 'app.jokul.stub') return true;
-        if (key === 'app.paymentProvider') return 'jokul';
-        return undefined;
-      });
+    it('is true when the provider is midtrans', () => {
+      config.get.mockImplementation((key: string) =>
+        key === 'app.paymentProvider' ? 'midtrans' : undefined,
+      );
       expect(service.isEnabled()).toBe(true);
     });
 
-    it('is true when the payment provider is jokul', () => {
-      config.get.mockImplementation((key: string) =>
-        key === 'app.jokul.stub' ? false : 'jokul',
-      );
+    it('is true when PAYMENT_PROVIDER is unset (defaults to midtrans)', () => {
+      config.get.mockReturnValue(undefined);
       expect(service.isEnabled()).toBe(true);
     });
 
     it('is false when the provider is manual', () => {
       config.get.mockImplementation((key: string) =>
-        key === 'app.jokul.stub' ? false : 'manual',
+        key === 'app.paymentProvider' ? 'manual' : undefined,
       );
       expect(service.isEnabled()).toBe(false);
     });
@@ -102,7 +95,7 @@ describe('InvoicePaymentService', () => {
       expect.objectContaining({ externalId: 'inv1', amount: 300000 }),
     );
     expect(idempotency.begin).toHaveBeenCalledWith({
-      scope: 'jokul.invoice.payment.create',
+      scope: 'midtrans.invoice.payment.create',
       key: 'inv1',
     });
     expect(idempotency.complete).toHaveBeenCalledWith('c1', {
@@ -115,9 +108,11 @@ describe('InvoicePaymentService', () => {
     expect(repo.update).toHaveBeenCalledWith(
       'inv1',
       expect.objectContaining({
-        vaNumber: '8801234',
-        vaBankCode: '014',
-        paymentProvider: 'JOKUL_VA',
+        paymentProvider: 'MIDTRANS_SNAP',
+        paymentToken: 'snap-token',
+        paymentUrl: 'https://app.sandbox.midtrans.com/snap/v4/redirection/x',
+        vaNumber: null,
+        vaBankCode: null,
       }),
     );
   });
@@ -137,10 +132,7 @@ describe('InvoicePaymentService', () => {
       existing: {
         id: 'c1',
         status: 'COMPLETED',
-        responseBody: {
-          ...paymentResult,
-          vaNumber: '881111',
-        },
+        responseBody: paymentResult,
       },
     });
 
@@ -149,13 +141,13 @@ describe('InvoicePaymentService', () => {
     expect(gateway.createPayment).not.toHaveBeenCalled();
     expect(repo.update).toHaveBeenCalledWith(
       'inv1',
-      expect.objectContaining({ vaNumber: '881111' }),
+      expect.objectContaining({ paymentToken: 'snap-token' }),
     );
   });
 
   it('on a gateway failure marks the event and claim failed, updates nothing', async () => {
     gateway.createPayment.mockRejectedValue(
-      new JokulApiError('request_failed', 'boom', 500, '/va'),
+      new MidtransApiError('request_failed', 'boom', 500, '/va'),
     );
 
     await expect(service.provision('inv1', 'Sesi')).rejects.toThrow(
@@ -178,14 +170,10 @@ describe('InvoicePaymentService', () => {
       paymentType: 'qris',
     });
 
-    const result = await service.getStatus({
-      providerOrderId: 'inv1',
-      vaNumber: '8801234',
-    });
+    const result = await service.getStatus({ providerOrderId: 'inv1' });
 
     expect(gateway.getStatus).toHaveBeenCalledWith({
       providerOrderId: 'inv1',
-      vaNumber: '8801234',
     });
     expect(result).toEqual({
       providerOrderId: 'inv1',
@@ -196,7 +184,7 @@ describe('InvoicePaymentService', () => {
   });
 
   describe('reprovision', () => {
-    it('issues a fresh, amount-scoped VA for a still-UNPAID invoice', async () => {
+    it('issues a fresh, amount-scoped payment for a still-UNPAID invoice', async () => {
       repo.findById.mockResolvedValue({
         ...invoice,
         status: 'UNPAID',
@@ -210,7 +198,7 @@ describe('InvoicePaymentService', () => {
         expect.objectContaining({ externalId: 'inv1-150000', amount: 150000 }),
       );
       expect(idempotency.begin).toHaveBeenCalledWith({
-        scope: 'jokul.invoice.payment.reprovision',
+        scope: 'midtrans.invoice.payment.reprovision',
         key: 'inv1-150000',
       });
       expect(repo.update).toHaveBeenCalledWith(
@@ -227,23 +215,5 @@ describe('InvoicePaymentService', () => {
       expect(gateway.createPayment).not.toHaveBeenCalled();
       expect(repo.update).not.toHaveBeenCalled();
     });
-  });
-});
-
-describe('StubVaProvider', () => {
-  it('returns a deterministic VA with no network call', async () => {
-    const provider = new StubVaProvider();
-    const params = {
-      externalId: 'inv-abc',
-      amount: 300000,
-      expiresAt: new Date(),
-      customer: { name: 'Sesi' },
-    };
-    const first = await provider.createPayment(params);
-    const second = await provider.createPayment(params);
-
-    expect(first.vaNumber).toMatch(/^88\d+$/);
-    expect(first.vaNumber).toBe(second.vaNumber);
-    expect(first.bankCode).toBe('JOKUL');
   });
 });

@@ -59,7 +59,6 @@ export class MidtransSnapProvider implements PaymentGateway {
 
   async getStatus(params: {
     providerOrderId: string;
-    vaNumber?: string | null;
   }): Promise<PaymentStatusResult> {
     const { providerOrderId } = params;
     try {
@@ -105,8 +104,6 @@ export class MidtransSnapProvider implements PaymentGateway {
       // Snap assigns no transaction id until the customer picks a method, so
       // the id arrives later with the notification, never at creation.
       transactionId: '',
-      vaNumber: null,
-      bankCode: null,
     };
   }
 }

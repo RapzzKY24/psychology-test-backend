@@ -16,7 +16,6 @@ describe('InvoicesService', () => {
       createNextNumbered: jest.fn(),
       createForSession: jest.fn(),
       findBySessionId: jest.fn(),
-      findByVaNumber: jest.fn(),
       confirmPaymentWithActivation: jest.fn(),
       regenerateAmount: jest.fn(),
       findByProviderOrderId: jest.fn(),

@@ -14,7 +14,7 @@ export interface VerifyMidtransSignatureInput {
  * compared against the `signature_key` field.
  *
  * When `serverKey` is an empty string verification is skipped and `true` is
- * returned, mirroring the Jokul verifier: dev/stub mode keeps local flows
+ * returned: dev/stub mode keeps local flows
  * working without credentials.
  *
  * Neither the server key nor the signature is ever logged.

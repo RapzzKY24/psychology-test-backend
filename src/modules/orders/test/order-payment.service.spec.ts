@@ -1,6 +1,6 @@
 import { BadGatewayException } from '@nestjs/common';
 import { OrderPaymentService } from '../service/order-payment.service';
-import { JokulApiError } from '../../jokul/errors/jokul-api.error';
+import { MidtransApiError } from '../../midtrans/errors/midtrans-api.error';
 import type { PaymentGateway } from '../../payments/gateway/payment-gateway.interface';
 import type { OrdersRepository } from '../repository/orders.repository';
 import type { IdempotencyService } from '../../idempotency/service/idempotency.service';
@@ -27,17 +27,15 @@ describe('OrderPaymentService', () => {
     uniqueCode: 0,
     amount: 200000,
     status: 'PENDING',
-    paymentProvider: 'JOKUL_VA',
+    paymentProvider: 'MIDTRANS_SNAP',
     expiresAt: new Date(Date.now() + 3600_000),
   };
 
   const paymentResult = {
     providerOrderId: 'o1',
-    token: '',
-    redirectUrl: '',
-    transactionId: 'o1',
-    vaNumber: '19008172',
-    bankCode: '014',
+    token: 'snap-token',
+    redirectUrl: 'https://app.sandbox.midtrans.com/snap/v4/redirection/x',
+    transactionId: '',
   };
 
   beforeEach(() => {
@@ -93,8 +91,8 @@ describe('OrderPaymentService', () => {
     idempotency.complete.mockResolvedValue(undefined);
     repo.update.mockResolvedValue({
       ...baseOrder,
-      vaNumber: paymentResult.vaNumber,
-      vaBankCode: paymentResult.bankCode,
+      paymentToken: paymentResult.token,
+      paymentUrl: paymentResult.redirectUrl,
     } as never);
 
     const order = await service.createPaymentOrder('t1', 'u1', 200000, 'DISC');
@@ -104,7 +102,7 @@ describe('OrderPaymentService', () => {
         basePrice: 200000,
         uniqueCode: 0,
         amount: 200000,
-        paymentProvider: 'JOKUL_VA',
+        paymentProvider: 'MIDTRANS_SNAP',
       }),
     );
     expect(gateway.createPayment).toHaveBeenCalledWith(
@@ -115,7 +113,7 @@ describe('OrderPaymentService', () => {
       }),
     );
     expect(idempotency.begin).toHaveBeenCalledWith({
-      scope: 'jokul.payment.create',
+      scope: 'midtrans.payment.create',
       key: 'o1',
     });
     expect(idempotency.complete).toHaveBeenCalledWith('idem1', {
@@ -124,9 +122,14 @@ describe('OrderPaymentService', () => {
     });
     expect(repo.update).toHaveBeenCalledWith(
       'o1',
-      expect.objectContaining({ vaNumber: '19008172', vaBankCode: '014' }),
+      expect.objectContaining({
+        paymentToken: 'snap-token',
+        paymentUrl: 'https://app.sandbox.midtrans.com/snap/v4/redirection/x',
+        vaNumber: null,
+        vaBankCode: null,
+      }),
     );
-    expect(order.vaNumber).toBe('19008172');
+    expect(order.paymentToken).toBe('snap-token');
   });
 
   it('delegates status polling to the gateway seam', async () => {
@@ -137,14 +140,10 @@ describe('OrderPaymentService', () => {
       paymentType: 'bank_transfer',
     });
 
-    const result = await service.getStatus({
-      providerOrderId: 'o1',
-      vaNumber: '19008172',
-    });
+    const result = await service.getStatus({ providerOrderId: 'o1' });
 
     expect(gateway.getStatus).toHaveBeenCalledWith({
       providerOrderId: 'o1',
-      vaNumber: '19008172',
     });
     expect(result).toEqual({
       providerOrderId: 'o1',
@@ -166,7 +165,7 @@ describe('OrderPaymentService', () => {
     });
     repo.update.mockResolvedValue({
       ...baseOrder,
-      vaNumber: paymentResult.vaNumber,
+      paymentToken: paymentResult.token,
     } as never);
 
     await service.createPaymentOrder('t1', 'u1', 200000, 'DISC');
@@ -175,12 +174,15 @@ describe('OrderPaymentService', () => {
     expect(eventLog.record).not.toHaveBeenCalled();
     expect(repo.update).toHaveBeenCalledWith(
       'o1',
-      expect.objectContaining({ vaNumber: '19008172' }),
+      expect.objectContaining({ paymentToken: 'snap-token' }),
     );
   });
 
-  it('reprovisions an order that has no VA yet', async () => {
-    repo.findById.mockResolvedValue({ ...baseOrder, vaNumber: null } as never);
+  it('reprovisions an order that has no payment yet', async () => {
+    repo.findById.mockResolvedValue({
+      ...baseOrder,
+      providerOrderId: null,
+    } as never);
     repo.findTestById.mockResolvedValue({ name: 'DISC Form A' } as never);
     idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
     eventLog.record.mockResolvedValue({ id: 'ev1' } as never);
@@ -189,7 +191,7 @@ describe('OrderPaymentService', () => {
     idempotency.complete.mockResolvedValue(undefined);
     repo.update.mockResolvedValue({
       ...baseOrder,
-      vaNumber: paymentResult.vaNumber,
+      paymentToken: paymentResult.token,
     } as never);
 
     const order = await service.reprovision('o1');
@@ -206,13 +208,13 @@ describe('OrderPaymentService', () => {
       'o1',
       expect.objectContaining({ providerOrderId: 'o1' }),
     );
-    expect(order?.vaNumber).toBe('19008172');
+    expect(order?.paymentToken).toBe('snap-token');
   });
 
-  it('reprovision is a no-op once a VA exists', async () => {
+  it('reprovision is a no-op once a payment exists', async () => {
     repo.findById.mockResolvedValue({
       ...baseOrder,
-      vaNumber: '19008172',
+      providerOrderId: 'o1',
     } as never);
 
     await service.reprovision('o1');
@@ -226,7 +228,7 @@ describe('OrderPaymentService', () => {
     idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
     eventLog.record.mockResolvedValue({ id: 'ev1' } as never);
     gateway.createPayment.mockRejectedValue(
-      new JokulApiError('request_failed', 'boom', 500, '/p'),
+      new MidtransApiError('request_failed', 'boom', 500, '/p'),
     );
     idempotency.fail.mockResolvedValue(undefined);
 
