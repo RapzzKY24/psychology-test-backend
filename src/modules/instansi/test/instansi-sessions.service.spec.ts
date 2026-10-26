@@ -371,12 +371,13 @@ describe('InstansiSessionsService', () => {
     });
   });
 
-  describe('roster edits (free, invoice untouched)', () => {
+  describe('roster edits (paid batch, invoice untouched)', () => {
     const batchSession = {
       id: 's1',
       institutionId: INSTITUTION_ID,
       slotLimit: 10,
       title: 'Sesi Rekrutmen 1',
+      status: 'ACTIVE',
     };
     const invoice = {
       id: 'inv1',
@@ -531,6 +532,31 @@ describe('InstansiSessionsService', () => {
         service.addParticipants(USER_ID, 's1', { employeeIds: ['emp-3'] }),
       ).rejects.toThrow(NotFoundException);
       expect(mockSessionsRepo.createParticipants).not.toHaveBeenCalled();
+    });
+
+    it('rejects every roster edit while the batch is still unpaid', async () => {
+      mockSessionsRepo.findById.mockResolvedValue({
+        ...batchSession,
+        status: 'PENDING_PAYMENT',
+      } as never);
+
+      await expect(
+        service.addParticipants(USER_ID, 's1', { employeeIds: ['emp-3'] }),
+      ).rejects.toThrow('session_unpaid');
+      await expect(
+        service.swapParticipant(USER_ID, 's1', 'p1', { employeeId: 'emp-9' }),
+      ).rejects.toThrow('session_unpaid');
+      await expect(
+        service.removeParticipant(USER_ID, 's1', 'p1'),
+      ).rejects.toThrow('session_unpaid');
+      await expect(
+        service.resetParticipant(USER_ID, 's1', 'p1'),
+      ).rejects.toThrow('session_unpaid');
+
+      expect(mockSessionsRepo.createParticipants).not.toHaveBeenCalled();
+      expect(mockSessionsRepo.updateParticipant).not.toHaveBeenCalled();
+      expect(mockSessionsRepo.deleteParticipant).not.toHaveBeenCalled();
+      expect(mockSessionsRepo.resetParticipantToken).not.toHaveBeenCalled();
     });
   });
 });

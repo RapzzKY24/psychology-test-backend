@@ -1,5 +1,6 @@
 import {
   BadGatewayException,
+  ForbiddenException,
   Injectable,
   Inject,
   NotFoundException,
@@ -348,6 +349,7 @@ export class InstansiSessionsService {
     if (!session || session.institutionId !== institutionId) {
       throw new NotFoundException('Session not found');
     }
+    this.assertRosterEditable(session);
     const participants = await this.sessionsRepo.findParticipantsBySessionId(
       session.id,
     );
@@ -366,9 +368,19 @@ export class InstansiSessionsService {
   }
 
   /**
-   * The batch must belong to the caller's institution. Roster edits are free
-   * and administrative: the prepaid invoice/VA is never touched, so an invoice
-   * that is already PAID does not lock the roster (owner decision #2 / ADR-2).
+   * Roster edits need a paid batch: an unpaid one must be settled first,
+   * otherwise seats can be filled and then abandoned. The prepaid invoice/VA is
+   * still never touched by a roster edit.
+   */
+  private assertRosterEditable(session: TestSession): void {
+    if (session.status === 'PENDING_PAYMENT') {
+      throw new ForbiddenException('session_unpaid');
+    }
+  }
+
+  /**
+   * The batch must belong to the caller's institution and be paid before its
+   * roster can change (owner decision #2, amended 2026-10-26).
    */
   private async loadBatch(
     userId: string,
@@ -380,6 +392,7 @@ export class InstansiSessionsService {
     if (!session || session.institutionId !== institutionId) {
       throw new NotFoundException('Session not found');
     }
+    this.assertRosterEditable(session);
     const invoice = await this.invoicesService.findBySessionId(session.id);
     if (!invoice) throw new NotFoundException('Invoice not found');
     return { session, invoice };
