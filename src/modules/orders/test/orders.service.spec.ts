@@ -71,6 +71,28 @@ describe('OrdersService', () => {
       expect(result.amount).toBe(result.basePrice + result.uniqueCode);
     });
 
+    it('returns null payment url and token for a manual order', async () => {
+      mockRepo.findTestById.mockResolvedValue({
+        id: 't1',
+        price: 200000,
+        status: 'PUBLISHED',
+      } as never);
+      mockRepo.createWithUniqueCheck.mockResolvedValue({
+        id: 'o1',
+        basePrice: 200000,
+        uniqueCode: 123,
+        amount: 200123,
+        expiresAt: new Date(),
+      } as never);
+      mockRepo.getQrisImageUrl.mockResolvedValue(null);
+
+      const result = await service.create('t1', 'u1');
+
+      expect(result.paymentProvider).toBe('MANUAL_QRIS');
+      expect(result.paymentUrl).toBeNull();
+      expect(result.paymentToken).toBeNull();
+    });
+
     it('should provision a payment when the gateway provider is enabled', async () => {
       mockRepo.findTestById.mockResolvedValue({
         id: 't1',
@@ -88,6 +110,8 @@ describe('OrdersService', () => {
         paymentProvider: 'JOKUL_VA',
         vaNumber: '19008172',
         vaBankCode: '014',
+        paymentUrl: null,
+        paymentToken: null,
       });
 
       const result = await service.create('t1', 'u1');
@@ -98,6 +122,8 @@ describe('OrdersService', () => {
           vaNumber: '19008172',
           vaBankCode: '014',
           qrisImageUrl: null,
+          paymentUrl: null,
+          paymentToken: null,
         }),
       );
       expect(mockOrderPayment.createPaymentOrder).toHaveBeenCalledWith(
@@ -181,6 +207,28 @@ describe('OrdersService', () => {
       const result = await service.findById('o1', 'u1');
       expect(result.status).toBe('EXPIRED');
       expect(result.secondsRemaining).toBeNull();
+    });
+
+    it('should expose the Snap payment url and token', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: 'o1',
+        userId: 'u1',
+        status: 'PENDING',
+        expiresAt: new Date(Date.now() + 60_000),
+        amount: 200000,
+        basePrice: 200000,
+        uniqueCode: 0,
+        userClaimedAt: null,
+        paymentUrl: 'https://app.sandbox.midtrans.com/snap/v4/redirection/tok',
+        paymentToken: 'tok',
+      } as never);
+
+      const result = await service.findById('o1', 'u1');
+
+      expect(result.paymentUrl).toBe(
+        'https://app.sandbox.midtrans.com/snap/v4/redirection/tok',
+      );
+      expect(result.paymentToken).toBe('tok');
     });
 
     it('should return secondsRemaining for PENDING', async () => {

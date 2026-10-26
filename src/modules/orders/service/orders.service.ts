@@ -31,6 +31,10 @@ export interface CreateOrderResult {
   paymentProvider: PaymentProvider;
   vaNumber: string | null;
   vaBankCode: string | null;
+  /** Hosted payment page (Snap). Null for VA and manual providers. */
+  paymentUrl: string | null;
+  /** Snap token for the embedded popup. Null for VA and manual providers. */
+  paymentToken: string | null;
 }
 
 @Injectable()
@@ -89,6 +93,8 @@ export class OrdersService {
         paymentProvider: order.paymentProvider ?? 'JOKUL_VA',
         vaNumber: order.vaNumber,
         vaBankCode: order.vaBankCode,
+        paymentUrl: order.paymentUrl ?? null,
+        paymentToken: order.paymentToken ?? null,
       };
     }
 
@@ -119,6 +125,8 @@ export class OrdersService {
       paymentProvider: 'MANUAL_QRIS',
       vaNumber: null,
       vaBankCode: null,
+      paymentUrl: null,
+      paymentToken: null,
     };
   }
 
@@ -134,6 +142,8 @@ export class OrdersService {
     expiresAt: Date;
     secondsRemaining: number | null;
     userClaimedAt: Date | null;
+    paymentUrl: string | null;
+    paymentToken: string | null;
   }> {
     const order = await this.repo.findById(orderId);
     if (!order || order.userId !== userId) {
@@ -156,6 +166,8 @@ export class OrdersService {
       expiresAt: fresh.expiresAt,
       secondsRemaining,
       userClaimedAt: fresh.userClaimedAt ?? null,
+      paymentUrl: fresh.paymentUrl ?? null,
+      paymentToken: fresh.paymentToken ?? null,
     };
   }
 

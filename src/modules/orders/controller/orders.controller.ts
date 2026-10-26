@@ -35,6 +35,8 @@ export class OrdersController {
       expiresAt: Date;
       secondsRemaining: number | null;
       userClaimedAt: Date | null;
+      paymentUrl: string | null;
+      paymentToken: string | null;
     }>
   > {
     const data = await this.ordersService.findById(id, session.user.id);
