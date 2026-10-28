@@ -1,52 +1,42 @@
 import {
   Injectable,
+  Inject,
   ForbiddenException,
   NotFoundException,
   ConflictException,
 } from '@nestjs/common';
-import { PrismaService } from '../../../prisma/prisma.service';
 import type { CreateUserDto } from '../dto/create-user.dto';
 import type { CreatePsychologistDto } from '../dto/create-psychologist.dto';
 import type { PaginationDto } from '../../../common/dto/pagination.dto';
+import type { PaginatedResponse } from '../../../common/interfaces/api-response.interface';
 import type {
   PsychologistProfile,
   UserRole,
 } from '../../../generated/prisma/client';
 import { Prisma } from '../../../generated/prisma/client';
+import { ADMIN_REPOSITORY } from '../repository/admin.repository';
+import type {
+  AdminRepository,
+  AdminUserRow,
+} from '../repository/admin.repository';
 import { hashPassword } from 'better-auth/crypto';
 import { randomUUID } from 'crypto';
 
 @Injectable()
 export class AdminService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject(ADMIN_REPOSITORY)
+    private readonly repo: AdminRepository,
+  ) {}
 
-  async listUsers(query: PaginationDto & { role?: UserRole }): Promise<{
-    data: {
-      id: string;
-      name: string;
-      email: string;
-      role: string;
-      createdAt: Date;
-    }[];
-    meta: { page: number; limit: number; total: number; totalPages: number };
-  }> {
-    const where = query.role ? { role: query.role } : {};
-    const [data, total] = await Promise.all([
-      this.prisma.user.findMany({
-        where,
-        skip: (query.page - 1) * query.limit,
-        take: query.limit,
-        orderBy: { createdAt: 'desc' },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-          createdAt: true,
-        },
-      }),
-      this.prisma.user.count({ where }),
-    ]);
+  async listUsers(
+    query: PaginationDto & { role?: UserRole },
+  ): Promise<PaginatedResponse<AdminUserRow>> {
+    const { data, total } = await this.repo.findUsers({
+      role: query.role,
+      skip: (query.page - 1) * query.limit,
+      take: query.limit,
+    });
     return {
       data,
       meta: {
@@ -58,116 +48,37 @@ export class AdminService {
     };
   }
 
-  async createUser(dto: CreateUserDto) {
-    const existing = await this.prisma.user.findUnique({
-      where: { email: dto.email },
-    });
+  async createUser(dto: CreateUserDto): Promise<AdminUserRow> {
+    const existing = await this.repo.findUserByEmail(dto.email);
     if (existing) throw new ConflictException('email already exists');
 
-    const hashedPassword = await hashPassword(dto.password);
-    const userId = randomUUID();
-
-    // Atomic: a failed account insert must not leave an orphan login-less user.
-    return this.prisma.$transaction(async (tx) => {
-      const user = await tx.user.create({
-        data: {
-          id: userId,
-          name: dto.name,
-          email: dto.email,
-          emailVerified: true,
-          role: dto.role,
-        },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-          createdAt: true,
-        },
-      });
-
-      await tx.account.create({
-        data: {
-          id: randomUUID(),
-          accountId: userId,
-          providerId: 'credential',
-          issuer: 'local:credential',
-          userId,
-          password: hashedPassword,
-        },
-      });
-
-      return user;
+    return this.repo.createUserWithAccount({
+      userId: randomUUID(),
+      name: dto.name,
+      email: dto.email,
+      role: dto.role,
+      passwordHash: await hashPassword(dto.password),
     });
   }
 
   async createPsychologist(dto: CreatePsychologistDto): Promise<{
-    user: {
-      id: string;
-      name: string;
-      email: string;
-      role: string;
-      createdAt: Date;
-    };
+    user: AdminUserRow;
     profile: PsychologistProfile;
   }> {
-    const emailTaken = await this.prisma.user.findUnique({
-      where: { email: dto.email },
-    });
+    const emailTaken = await this.repo.findUserByEmail(dto.email);
     if (emailTaken) throw new ConflictException('duplicate_email');
 
-    const nikTaken = await this.prisma.psychologistProfile.findUnique({
-      where: { nik: dto.nik },
-    });
+    const nikTaken = await this.repo.findProfileByNik(dto.nik);
     if (nikTaken) throw new ConflictException('duplicate_nik');
 
-    const hashedPassword = await hashPassword(dto.password);
-    const userId = randomUUID();
-
-    // Atomic: user + account + profile succeed or roll back together.
     try {
-      return await this.prisma.$transaction(async (tx) => {
-        const user = await tx.user.create({
-          data: {
-            id: userId,
-            name: dto.name,
-            email: dto.email,
-            emailVerified: true,
-            role: 'PSYCHOLOGIST',
-          },
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-            createdAt: true,
-          },
-        });
-
-        await tx.account.create({
-          data: {
-            id: randomUUID(),
-            accountId: userId,
-            providerId: 'credential',
-            issuer: 'local:credential',
-            userId,
-            password: hashedPassword,
-          },
-        });
-
-        const profile = await tx.psychologistProfile.create({
-          data: {
-            userId,
-            fullName: dto.name,
-            degree: '',
-            licenseNumber: '',
-            nik: dto.nik,
-            institutionName: dto.institutionName,
-            signatureImagePath: '',
-          },
-        });
-
-        return { user, profile };
+      return await this.repo.createPsychologistWithAccount({
+        userId: randomUUID(),
+        name: dto.name,
+        email: dto.email,
+        nik: dto.nik,
+        institutionName: dto.institutionName,
+        passwordHash: await hashPassword(dto.password),
       });
     } catch (error) {
       // Race: two concurrent creates passing the pre-checks — the DB
@@ -191,11 +102,17 @@ export class AdminService {
     }
   }
 
-  async updateRole(userId: string, role: string, currentUserId: string) {
+  async updateRole(
+    userId: string,
+    role: UserRole,
+    currentUserId: string,
+  ): Promise<AdminUserRow> {
     if (userId === currentUserId)
       throw new ForbiddenException('cannot_change_own_role');
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+
+    const user = await this.repo.findUserById(userId);
     if (!user) throw new NotFoundException('user not found');
-    return this.prisma.user.update({ where: { id: userId }, data: { role } });
+
+    return this.repo.updateUserRole(userId, role);
   }
 }
