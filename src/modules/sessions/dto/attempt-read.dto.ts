@@ -1,34 +1,46 @@
+import { z } from 'zod';
 import type { TestResult } from '../../../generated/prisma/client';
 
-export interface AttemptReadItemDto {
-  id: string;
-  order: number;
-  content: Record<string, unknown>;
-}
+export const AttemptReadItemSchema = z.object({
+  id: z.string(),
+  order: z.number().int(),
+  content: z.record(z.string(), z.unknown()),
+});
 
-export interface AttemptReadResponseDto {
-  itemId: string;
-  value: unknown;
-}
+export type AttemptReadItemDto = z.infer<typeof AttemptReadItemSchema>;
 
-export interface AttemptReadDto {
-  id: string;
-  sessionId: string;
-  testId: string;
-  testName: string;
-  scorerType: string;
-  status: string;
-  startedAt: Date;
-  completedAt: Date | null;
-  items: AttemptReadItemDto[];
-  responses: AttemptReadResponseDto[];
-}
+export const AttemptReadResponseSchema = z.object({
+  itemId: z.string(),
+  value: z.unknown(),
+});
 
-export interface AttemptCompleteResponseDto {
-  id: string;
-  testId: string;
-  testName: string;
-  status: string;
-  completedAt: Date;
-  result: TestResult;
-}
+export type AttemptReadResponseDto = z.infer<typeof AttemptReadResponseSchema>;
+
+export const AttemptReadSchema = z.object({
+  id: z.string(),
+  sessionId: z.string(),
+  testId: z.string(),
+  testName: z.string(),
+  scorerType: z.string(),
+  status: z.string(),
+  startedAt: z.date(),
+  completedAt: z.date().nullable(),
+  items: z.array(AttemptReadItemSchema),
+  responses: z.array(AttemptReadResponseSchema),
+});
+
+export type AttemptReadDto = z.infer<typeof AttemptReadSchema>;
+
+export const AttemptCompleteResponseSchema = z.object({
+  id: z.string(),
+  testId: z.string(),
+  testName: z.string(),
+  status: z.string(),
+  completedAt: z.date(),
+  /** Prisma row, passed through untouched — not re-validated at runtime. */
+  result: z.custom<TestResult>(),
+});
+
+export type AttemptCompleteResponseDto = z.infer<
+  typeof AttemptCompleteResponseSchema
+>;

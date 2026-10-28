@@ -1,55 +1,55 @@
+import { z } from 'zod';
+import { ArticleStatus } from '../../../generated/prisma/client';
 import type { Article } from '../../../generated/prisma/client';
+import { ArticleBlockSchema } from './article-block.dto';
 import type { ArticleBlock } from './article-block.dto';
 
-export interface AdminArticleDto {
-  id: string;
-  slug: string;
-  title: string;
-  excerpt: string;
-  coverUrl: string | null;
-  content: ArticleBlock[];
-  category: string | null;
-  status: 'DRAFT' | 'PUBLISHED';
-  publishedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+export const AdminArticleSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  title: z.string(),
+  excerpt: z.string(),
+  coverUrl: z.string().nullable(),
+  content: z.array(ArticleBlockSchema),
+  category: z.string().nullable(),
+  status: z.nativeEnum(ArticleStatus),
+  publishedAt: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type AdminArticleDto = z.infer<typeof AdminArticleSchema>;
 
 /** List row — omits the (potentially large) rich-text body. */
-export interface AdminArticleListItemDto {
-  id: string;
-  slug: string;
-  title: string;
-  excerpt: string;
-  coverUrl: string | null;
-  category: string | null;
-  status: 'DRAFT' | 'PUBLISHED';
-  publishedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-}
+export const AdminArticleListItemSchema = AdminArticleSchema.omit({
+  content: true,
+});
 
-export interface PublicArticleDto {
-  id: string;
-  slug: string;
-  title: string;
-  excerpt: string;
-  coverUrl: string | null;
-  content: ArticleBlock[];
-  category: string | null;
-  publishedAt: string | null;
-}
+export type AdminArticleListItemDto = z.infer<
+  typeof AdminArticleListItemSchema
+>;
+
+export const PublicArticleSchema = z.object({
+  id: z.string(),
+  slug: z.string(),
+  title: z.string(),
+  excerpt: z.string(),
+  coverUrl: z.string().nullable(),
+  content: z.array(ArticleBlockSchema),
+  category: z.string().nullable(),
+  publishedAt: z.string().nullable(),
+});
+
+export type PublicArticleDto = z.infer<typeof PublicArticleSchema>;
 
 /** List/card item — omits the rich-text body. */
-export interface PublicArticleListItemDto {
-  id: string;
-  slug: string;
-  title: string;
-  excerpt: string;
-  coverUrl: string | null;
-  category: string | null;
-  publishedAt: string | null;
-}
+export const PublicArticleListItemSchema = PublicArticleSchema.omit({
+  content: true,
+});
+
+export type PublicArticleListItemDto = z.infer<
+  typeof PublicArticleListItemSchema
+>;
 
 export function toAdminArticleDto(article: Article): AdminArticleDto {
   return {
