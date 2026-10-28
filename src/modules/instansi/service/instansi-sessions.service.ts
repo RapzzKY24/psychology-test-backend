@@ -394,7 +394,7 @@ export class InstansiSessionsService {
     }
     this.assertRosterEditable(session);
     const invoice = await this.invoicesService.findBySessionId(session.id);
-    if (!invoice) throw new NotFoundException('Invoice not found');
+    if (!invoice) throw new NotFoundException('invoice_not_found');
     return { session, invoice };
   }
 

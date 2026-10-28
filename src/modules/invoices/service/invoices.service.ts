@@ -61,7 +61,7 @@ export class InvoicesService {
     verificationToken: string,
   ): Promise<PublicInvoiceVerificationDto> {
     const row = await this.repo.findByVerificationToken(verificationToken);
-    if (!row) throw new NotFoundException('Invoice not found');
+    if (!row) throw new NotFoundException('invoice_not_found');
     return toPublicInvoiceVerification(row);
   }
 
@@ -138,7 +138,7 @@ export class InvoicesService {
 
   async findById(id: string): Promise<Invoice> {
     const invoice = await this.repo.findById(id);
-    if (!invoice) throw new NotFoundException('Invoice not found');
+    if (!invoice) throw new NotFoundException('invoice_not_found');
     return invoice;
   }
 
@@ -148,7 +148,7 @@ export class InvoicesService {
     notes?: string,
   ): Promise<Invoice> {
     const invoice = await this.repo.findById(id);
-    if (!invoice) throw new NotFoundException('Invoice not found');
+    if (!invoice) throw new NotFoundException('invoice_not_found');
     return this.repo.update(id, {
       status,
       notes,

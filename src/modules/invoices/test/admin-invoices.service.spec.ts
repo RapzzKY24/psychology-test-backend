@@ -88,7 +88,7 @@ describe('AdminInvoicesService', () => {
 
     await expect(
       service.verifyBreakGlass('missing', 'uang masuk', 'admin1'),
-    ).rejects.toThrow('Invoice not found');
+    ).rejects.toThrow('invoice_not_found');
   });
 
   it('maps a lost race (already paid) to 409', async () => {
@@ -154,7 +154,7 @@ describe('AdminInvoicesService', () => {
       repo.findDetailById.mockResolvedValue(null);
 
       await expect(service.findDetail('missing')).rejects.toThrow(
-        'Invoice not found',
+        'invoice_not_found',
       );
     });
   });

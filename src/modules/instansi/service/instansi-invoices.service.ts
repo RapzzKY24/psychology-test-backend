@@ -38,7 +38,7 @@ export class InstansiInvoicesService {
       await this.participantsService.resolveInstitutionId(userId);
     const invoice = await this.invoicesService.findById(invoiceId);
     if (invoice.institutionId !== institutionId) {
-      throw new NotFoundException('Invoice not found');
+      throw new NotFoundException('invoice_not_found');
     }
     return toInstansiInvoice(invoice);
   }

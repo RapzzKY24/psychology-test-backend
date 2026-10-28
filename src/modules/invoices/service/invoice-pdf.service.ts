@@ -26,7 +26,7 @@ export class InvoicePdfService {
     institutionId?: string;
   }): Promise<InvoicePdfFile> {
     const row = await this.repo.findForPdf(params);
-    if (!row) throw new NotFoundException('Invoice not found');
+    if (!row) throw new NotFoundException('invoice_not_found');
 
     const bytes = await renderInvoicePdf({
       ...row,

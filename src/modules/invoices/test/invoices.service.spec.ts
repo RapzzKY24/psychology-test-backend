@@ -88,7 +88,7 @@ describe('InvoicesService', () => {
   describe('findById', () => {
     it('should throw 404 if not found', async () => {
       mockRepo.findById.mockResolvedValue(null);
-      await expect(service.findById('id')).rejects.toThrow('Invoice not found');
+      await expect(service.findById('id')).rejects.toThrow('invoice_not_found');
     });
   });
 
@@ -148,7 +148,7 @@ describe('InvoicesService', () => {
     it('should throw 404 if not found', async () => {
       mockRepo.findById.mockResolvedValue(null);
       await expect(service.updateStatus('id', 'PAID')).rejects.toThrow(
-        'Invoice not found',
+        'invoice_not_found',
       );
     });
 
@@ -180,7 +180,7 @@ describe('InvoicesService', () => {
 
     it('should throw 404 for an unknown token', async () => {
       mockRepo.findByVerificationToken.mockResolvedValue(null);
-      await expect(service.verify('nope')).rejects.toThrow('Invoice not found');
+      await expect(service.verify('nope')).rejects.toThrow('invoice_not_found');
     });
 
     it('should expose the VA while the invoice is still unpaid', async () => {

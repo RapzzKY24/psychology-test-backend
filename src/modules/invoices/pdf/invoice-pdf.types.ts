@@ -1,8 +1,11 @@
+import type { Invoice } from '../../../generated/prisma/client';
+
 /** Semua yang dibutuhkan renderer. Tanggal sudah dalam bentuk Date (UTC). */
 export interface InvoicePdfInput {
   number: string;
   amount: number;
-  status: 'UNPAID' | 'PAID' | 'CANCELLED';
+  /** Diturunkan dari Prisma supaya tidak ada dua definisi yang bisa drift. */
+  status: Invoice['status'];
   issuedAt: Date;
   dueDate: Date | null;
   paidAt: Date | null;

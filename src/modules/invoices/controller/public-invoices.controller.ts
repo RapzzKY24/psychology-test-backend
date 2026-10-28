@@ -1,6 +1,11 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
+import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
 import { InvoicesService } from '../service/invoices.service';
+import {
+  InvoiceVerificationParamSchema,
+  type InvoiceVerificationParamDto,
+} from '../dto/invoice-verification-param.dto';
 import type { PublicInvoiceVerificationDto } from '../dto/public-invoice-verification.dto';
 import type { ApiResponse } from '../../../common/interfaces/api-response.interface';
 
@@ -14,9 +19,10 @@ export class PublicInvoicesController {
 
   @Get('verify/:verificationToken')
   async verify(
-    @Param('verificationToken') verificationToken: string,
+    @Param(new ZodValidationPipe(InvoiceVerificationParamSchema))
+    params: InvoiceVerificationParamDto,
   ): Promise<ApiResponse<PublicInvoiceVerificationDto>> {
-    const data = await this.invoicesService.verify(verificationToken);
+    const data = await this.invoicesService.verify(params.verificationToken);
     return { data };
   }
 }

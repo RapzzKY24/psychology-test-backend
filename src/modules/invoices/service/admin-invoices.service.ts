@@ -29,7 +29,7 @@ export class AdminInvoicesService {
    */
   async findDetail(id: string): Promise<AdminInvoiceDetailDto> {
     const row = await this.repo.findDetailById(id);
-    if (!row) throw new NotFoundException('Invoice not found');
+    if (!row) throw new NotFoundException('invoice_not_found');
     return toAdminInvoiceDetail(row);
   }
 
@@ -43,7 +43,7 @@ export class AdminInvoicesService {
     actorId: string,
   ): Promise<Invoice> {
     const invoice = await this.repo.findById(id);
-    if (!invoice) throw new NotFoundException('Invoice not found');
+    if (!invoice) throw new NotFoundException('invoice_not_found');
     if (invoice.status === 'PAID' || invoice.status === 'CANCELLED') {
       throw new ConflictException('invoice_not_payable');
     }
