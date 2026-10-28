@@ -6,6 +6,7 @@ import {
   Param,
   Query,
   Body,
+  StreamableFile,
 } from '@nestjs/common';
 import { Roles } from '@thallesp/nestjs-better-auth';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
@@ -19,6 +20,7 @@ import { VerifyInvoiceSchema } from '../dto/verify-invoice.dto';
 import type { VerifyInvoiceDto } from '../dto/verify-invoice.dto';
 import { InvoicesService } from '../service/invoices.service';
 import { AdminInvoicesService } from '../service/admin-invoices.service';
+import { InvoicePdfService } from '../service/invoice-pdf.service';
 import type { AdminInvoiceDetailDto } from '../dto/admin-invoice-detail.dto';
 import { Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
@@ -33,6 +35,7 @@ export class InvoicesController {
   constructor(
     private readonly invoicesService: InvoicesService,
     private readonly adminInvoicesService: AdminInvoicesService,
+    private readonly invoicePdfService: InvoicePdfService,
   ) {}
 
   @Post()
@@ -59,6 +62,17 @@ export class InvoicesController {
         totalPages: Math.ceil(total / query.limit),
       },
     };
+  }
+
+  @Get(':id/pdf')
+  @Roles(['ADMIN'])
+  async downloadPdf(@Param('id') id: string): Promise<StreamableFile> {
+    const { buffer, filename } = await this.invoicePdfService.render({ id });
+    return new StreamableFile(buffer, {
+      type: 'application/pdf',
+      disposition: `attachment; filename="${filename}"`,
+      length: buffer.length,
+    });
   }
 
   @Get(':id')

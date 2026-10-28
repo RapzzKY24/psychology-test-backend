@@ -4,6 +4,7 @@ import { PublicInvoicesController } from './controller/public-invoices.controlle
 import { InvoicesService } from './service/invoices.service';
 import { InvoicePaymentService } from './service/invoice-payment.service';
 import { AdminInvoicesService } from './service/admin-invoices.service';
+import { InvoicePdfService } from './service/invoice-pdf.service';
 import { PrismaInvoicesRepository } from './repository/invoices.prisma-repository';
 import { INVOICES_REPOSITORY } from './repository/invoices.repository';
 import { PaymentGatewayModule } from '../payments/gateway/payment-gateway.module';
@@ -16,9 +17,10 @@ import { IdempotencyModule } from '../idempotency/idempotency.module';
   providers: [
     InvoicesService,
     AdminInvoicesService,
+    InvoicePdfService,
     InvoicePaymentService,
     { provide: INVOICES_REPOSITORY, useClass: PrismaInvoicesRepository },
   ],
-  exports: [InvoicesService, InvoicePaymentService],
+  exports: [InvoicesService, InvoicePaymentService, InvoicePdfService],
 })
 export class InvoicesModule {}
