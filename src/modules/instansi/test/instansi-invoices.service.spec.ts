@@ -3,9 +3,11 @@ import { InstansiInvoicesService } from '../service/instansi-invoices.service';
 describe('InstansiInvoicesService.list', () => {
   const invoicesService = { findByInstitution: jest.fn() };
   const participantsService = { resolveInstitutionId: jest.fn() };
+  const pdfService = { render: jest.fn() };
   const service = new InstansiInvoicesService(
     invoicesService as never,
     participantsService as never,
+    pdfService as never,
   );
 
   const row = {
@@ -64,6 +66,22 @@ describe('InstansiInvoicesService.list', () => {
     expect(result.data[0]).toMatchObject({
       sessionTitle: null,
       slotLimit: null,
+    });
+  });
+  describe('renderPdf', () => {
+    it('scopes the PDF to the caller institution', async () => {
+      pdfService.render.mockResolvedValue({
+        buffer: Buffer.from('%PDF-'),
+        filename: 'Invoice-INV-2026-0002.pdf',
+      });
+
+      const result = await service.renderPdf('user-1', 'inv1');
+
+      expect(pdfService.render).toHaveBeenCalledWith({
+        id: 'inv1',
+        institutionId: 'inst1',
+      });
+      expect(result.filename).toBe('Invoice-INV-2026-0002.pdf');
     });
   });
 });

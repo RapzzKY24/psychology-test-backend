@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, StreamableFile } from '@nestjs/common';
 import { Roles, Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
@@ -22,6 +22,22 @@ export class InstansiInvoicesController {
     @Query(new ZodValidationPipe(PaginationSchema)) query: PaginationDto,
   ): Promise<PaginatedResponse<InstansiInvoiceDto>> {
     return this.invoicesService.list(session.user.id, query);
+  }
+
+  @Get(':id/pdf')
+  async downloadPdf(
+    @Session() session: UserSession,
+    @Param('id') id: string,
+  ): Promise<StreamableFile> {
+    const { buffer, filename } = await this.invoicesService.renderPdf(
+      session.user.id,
+      id,
+    );
+    return new StreamableFile(buffer, {
+      type: 'application/pdf',
+      disposition: `attachment; filename="${filename}"`,
+      length: buffer.length,
+    });
   }
 
   @Get(':id')

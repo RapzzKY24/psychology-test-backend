@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InvoicesService } from '../../invoices/service/invoices.service';
+import { InvoicePdfService } from '../../invoices/service/invoice-pdf.service';
+import type { InvoicePdfFile } from '../../invoices/service/invoice-pdf.service';
 import { InstansiParticipantsService } from './instansi-participants.service';
 import {
   toInstansiInvoice,
@@ -14,7 +16,19 @@ export class InstansiInvoicesService {
   constructor(
     private readonly invoicesService: InvoicesService,
     private readonly participantsService: InstansiParticipantsService,
+    private readonly pdfService: InvoicePdfService,
   ) {}
+
+  /**
+   * Unduh ulang invoice dari dashboard. Kepemilikan dicek di query, jadi
+   * invoice milik institusi lain menghasilkan 404 — bukan 403 — supaya
+   * keberadaan barisnya tidak bocor.
+   */
+  async renderPdf(userId: string, invoiceId: string): Promise<InvoicePdfFile> {
+    const institutionId =
+      await this.participantsService.resolveInstitutionId(userId);
+    return this.pdfService.render({ id: invoiceId, institutionId });
+  }
 
   async getById(
     userId: string,
