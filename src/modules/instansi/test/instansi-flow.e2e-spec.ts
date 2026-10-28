@@ -12,6 +12,8 @@ import { SessionsPublicService } from '../../sessions/service/sessions-public.se
 import { InstansiParticipantsService } from '../service/instansi-participants.service';
 import { InstansiSessionsService } from '../service/instansi-sessions.service';
 import { InstansiOverviewService } from '../service/instansi-overview.service';
+import { InstansiStatsService } from '../service/instansi-stats.service';
+import { PrismaInstansiStatsRepository } from '../repository/instansi-stats.prisma-repository';
 
 /**
  * T3 end-to-end (real DB, real services, no HTTP):
@@ -327,5 +329,112 @@ describe('Instansi flow (integration, DB real)', () => {
     await prisma.testSession.delete({ where: { id: otherSession.id } });
     await prisma.institution.delete({ where: { id: otherInstitution.id } });
     await prisma.user.delete({ where: { id: otherUser.id } });
+  });
+
+  it('reports per-session progress for the caller institution only', async () => {
+    // Given: a fresh session with three seats — one finished, one running, one untouched.
+    const statsSession = await prisma.testSession.create({
+      data: {
+        title: `${tag} Stats Sesi`,
+        kind: 'GROUP',
+        token: `${tag}-stats-token`,
+        slotLimit: 5,
+        expiresAt: new Date(Date.now() + 3600_000),
+        joinMode: 'ROSTER',
+        institutionId,
+      },
+    });
+    const seats = await Promise.all(
+      ['Selesai', 'Berjalan', 'Belum'].map((name, index) =>
+        prisma.sessionParticipant.create({
+          data: {
+            sessionId: statsSession.id,
+            name: `${tag} ${name}`,
+            candidateNumber: `S${index + 1}`,
+          },
+        }),
+      ),
+    );
+    const [doneSeat, runningSeat] = seats;
+    const doneAttempt = await prisma.attempt.create({
+      data: {
+        sessionId: statsSession.id,
+        testId,
+        participantId: doneSeat.id,
+        status: 'COMPLETED',
+      },
+    });
+    const runningAttempt = await prisma.attempt.create({
+      data: {
+        sessionId: statsSession.id,
+        testId,
+        participantId: runningSeat.id,
+        status: 'IN_PROGRESS',
+      },
+    });
+
+    // And a session owned by somebody else, which must never show up.
+    const foreignUser = await prisma.user.create({
+      data: {
+        id: `${tag}-stats-foreign`,
+        name: 'Foreign Owner',
+        email: `${tag}-stats-foreign@example.com`,
+        role: 'INSTANSI',
+      },
+    });
+    const foreignInstitution = await prisma.institution.create({
+      data: {
+        name: `${tag} Stats Foreign`,
+        contactName: 'Foreign',
+        contactEmail: `${tag}-stats-foreign@example.com`,
+        ownerUserId: foreignUser.id,
+      },
+    });
+    const foreignSession = await prisma.testSession.create({
+      data: {
+        title: `${tag} Foreign Sesi`,
+        kind: 'GROUP',
+        token: `${tag}-stats-foreign-token`,
+        slotLimit: 3,
+        expiresAt: new Date(Date.now() + 3600_000),
+        institutionId: foreignInstitution.id,
+      },
+    });
+
+    const statsService = new InstansiStatsService(
+      new PrismaInstansiStatsRepository(prisma),
+      new InstansiParticipantsService(
+        new InstansiParticipantsPrismaRepository(prisma),
+        new PrismaInstitutionsRepository(prisma),
+      ),
+    );
+
+    // When
+    const { sessions } = await statsService.getProgress(userId, 10);
+
+    // Then
+    const progress = sessions.find((row) => row.sessionId === statsSession.id);
+    expect(progress).toMatchObject({
+      slotLimit: 5,
+      completed: 1,
+      inProgress: 1,
+      notStarted: 1,
+      empty: 2,
+    });
+    expect(sessions.some((row) => row.sessionId === foreignSession.id)).toBe(
+      false,
+    );
+
+    // Cleanup
+    await prisma.attempt.deleteMany({
+      where: { id: { in: [doneAttempt.id, runningAttempt.id] } },
+    });
+    await prisma.sessionParticipant.deleteMany({
+      where: { sessionId: statsSession.id },
+    });
+    await prisma.testSession.delete({ where: { id: statsSession.id } });
+    await prisma.testSession.delete({ where: { id: foreignSession.id } });
+    await prisma.institution.delete({ where: { id: foreignInstitution.id } });
+    await prisma.user.delete({ where: { id: foreignUser.id } });
   });
 });
