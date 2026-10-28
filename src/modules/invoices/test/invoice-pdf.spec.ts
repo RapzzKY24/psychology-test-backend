@@ -90,4 +90,23 @@ describe('renderInvoicePdf', () => {
       renderInvoicePdf({ ...baseInput, publicUrl: '' }),
     ).rejects.toThrow('APP_PUBLIC_URL');
   });
+  it('embeds the logo when the asset exists', async () => {
+    const bytes = await renderInvoicePdf({
+      ...baseInput,
+      logoPath: 'assets/invoice/logo.jpeg',
+    });
+
+    const parsed = await PDFDocument.load(bytes);
+    expect(parsed.getPageCount()).toBe(1);
+  });
+
+  it('still renders when the logo asset is missing', async () => {
+    const bytes = await renderInvoicePdf({
+      ...baseInput,
+      logoPath: 'assets/invoice/does-not-exist.jpeg',
+    });
+
+    const parsed = await PDFDocument.load(bytes);
+    expect(parsed.getPageCount()).toBe(1);
+  });
 });
