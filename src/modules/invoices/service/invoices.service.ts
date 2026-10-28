@@ -11,6 +11,8 @@ import type {
   Prisma,
 } from '../../../generated/prisma/client';
 import type { QueryInvoicesDto } from '../dto/query-invoices.dto';
+import { toPublicInvoiceVerification } from '../dto/public-invoice-verification.dto';
+import type { PublicInvoiceVerificationDto } from '../dto/public-invoice-verification.dto';
 
 @Injectable()
 export class InvoicesService {
@@ -52,6 +54,15 @@ export class InvoicesService {
 
   findBySessionId(sessionId: string): Promise<Invoice | null> {
     return this.repo.findBySessionId(sessionId);
+  }
+
+  /** Dipakai halaman publik /validasi/<token> — dipindai dari QR di PDF. */
+  async verify(
+    verificationToken: string,
+  ): Promise<PublicInvoiceVerificationDto> {
+    const row = await this.repo.findByVerificationToken(verificationToken);
+    if (!row) throw new NotFoundException('Invoice not found');
+    return toPublicInvoiceVerification(row);
   }
 
   /** Provider-agnostic lookup: the id Midtrans echoes back on every notification. */

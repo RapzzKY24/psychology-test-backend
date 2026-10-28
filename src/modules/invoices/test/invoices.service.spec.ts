@@ -165,4 +165,76 @@ describe('InvoicesService', () => {
       expect(result.status).toBe('PAID');
     });
   });
+  describe('verify', () => {
+    const row = {
+      number: 'INV/2026/10/001',
+      amount: 1500000,
+      status: 'UNPAID' as const,
+      issuedAt: new Date('2026-10-28T03:00:00.000Z'),
+      dueDate: new Date('2026-11-04T03:00:00.000Z'),
+      verifiedAt: null,
+      vaNumber: '8808123456789012',
+      vaBankCode: 'BCA',
+      institution: { name: 'PT Contoh Sejahtera' },
+    };
+
+    it('should throw 404 for an unknown token', async () => {
+      mockRepo.findByVerificationToken.mockResolvedValue(null);
+      await expect(service.verify('nope')).rejects.toThrow('Invoice not found');
+    });
+
+    it('should expose the VA while the invoice is still unpaid', async () => {
+      mockRepo.findByVerificationToken.mockResolvedValue(row);
+
+      const result = await service.verify('token');
+
+      expect(result.payment).toEqual({
+        bank: 'BCA',
+        vaNumber: '8808123456789012',
+      });
+      expect(result.paidAt).toBeNull();
+    });
+
+    it('should hide the VA and expose paidAt once the invoice is paid', async () => {
+      mockRepo.findByVerificationToken.mockResolvedValue({
+        ...row,
+        status: 'PAID',
+        verifiedAt: new Date('2026-10-29T02:00:00.000Z'),
+      });
+
+      const result = await service.verify('token');
+
+      expect(result.payment).toBeNull();
+      expect(result.paidAt).toEqual(new Date('2026-10-29T02:00:00.000Z'));
+    });
+
+    it('should omit payment when the invoice has no VA', async () => {
+      mockRepo.findByVerificationToken.mockResolvedValue({
+        ...row,
+        vaNumber: null,
+        vaBankCode: null,
+      });
+
+      const result = await service.verify('token');
+
+      expect(result.payment).toBeNull();
+    });
+
+    it('should not leak payment tokens, notes or contact email', async () => {
+      mockRepo.findByVerificationToken.mockResolvedValue(row);
+
+      const result = await service.verify('token');
+
+      expect(Object.keys(result).sort()).toEqual([
+        'amount',
+        'dueDate',
+        'institutionName',
+        'issuedAt',
+        'number',
+        'paidAt',
+        'payment',
+        'status',
+      ]);
+    });
+  });
 });
