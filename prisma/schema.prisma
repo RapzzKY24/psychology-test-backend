@@ -134,15 +134,15 @@ enum IdempotencyStatus {
 
 // Better Auth — see docs/standards/better-auth.md §4 (additionalFields role) + §5 admin plugin
 model User {
-  id            String    @id
+  id            String        @id
   name          String
-  email         String    @unique
-  emailVerified Boolean   @default(false)
+  email         String        @unique
+  emailVerified Boolean       @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
-  role          String    @default("PARTICIPANT")
-  banned        Boolean   @default(false)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now()) @updatedAt
+  role          String        @default("PARTICIPANT")
+  banned        Boolean       @default(false)
   banReason     String?
   banExpires    DateTime?
   sessions      Session[]
@@ -199,19 +199,21 @@ model Verification {
 }
 
 model Test {
-  id                   String         @id @default(uuid()) @db.Uuid
-  slug                 String         @unique
+  id                   String           @id @default(uuid()) @db.Uuid
+  slug                 String           @unique
   name                 String
   description          String
-  /** Public cover image URL (`/uploads/test-covers/<uuid>.<ext>`), null when unset. */
+  /**
+   * Public cover image URL (`/uploads/test-covers/<uuid>.<ext>`), null when unset.
+   */
   imageUrl             String?
   category             TestCategory
   scorerType           ScorerType
   price                Int
   estimatedDurationMin Int
-  status               TestStatus     @default(DRAFT)
-  createdAt            DateTime       @default(now())
-  updatedAt            DateTime       @updatedAt
+  status               TestStatus       @default(DRAFT)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
   items                TestItem[]
   interpretations      Interpretation[]
   sessionTests         SessionTest[]
@@ -263,19 +265,19 @@ model Article {
 }
 
 model Institution {
-  id           String        @id @default(uuid()) @db.Uuid
-  name         String
-  contactName  String
-  contactEmail String
-  phone        String?
-  address      String?
-  notes        String?
-  ownerUserId  String?       @unique
-  ownerUser    User?         @relation(fields: [ownerUserId], references: [id], onDelete: Restrict)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  sessions     TestSession[]
-  invoices     Invoice[]
+  id                      String                   @id @default(uuid()) @db.Uuid
+  name                    String
+  contactName             String
+  contactEmail            String
+  phone                   String?
+  address                 String?
+  notes                   String?
+  ownerUserId             String?                  @unique
+  ownerUser               User?                    @relation(fields: [ownerUserId], references: [id], onDelete: Restrict)
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  sessions                TestSession[]
+  invoices                Invoice[]
   institutionParticipants InstitutionParticipant[]
 
   @@map("institutions")
@@ -295,7 +297,7 @@ model InstitutionParticipant {
   updatedAt          DateTime    @updatedAt
   institution        Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
 
-  seats           SessionParticipant[]
+  seats SessionParticipant[]
 
   @@unique([institutionId, idNumber])
   @@index([institutionId])
@@ -341,10 +343,10 @@ model PsychologistProfile {
 }
 
 model SessionTest {
-  id        String @id @default(uuid()) @db.Uuid
-  sessionId String @db.Uuid
-  testId    String @db.Uuid
-  order     Int
+  id           String @id @default(uuid()) @db.Uuid
+  sessionId    String @db.Uuid
+  testId       String @db.Uuid
+  order        Int
   timeLimitSec Int? // reserved for the timer engine (cognitive phase, test-library-mechanics §2.E/F) — no logic in MVP
 
   session TestSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
@@ -355,35 +357,35 @@ model SessionTest {
 }
 
 model SessionParticipant {
-  id              String   @id @default(uuid()) @db.Uuid
-  sessionId       String   @db.Uuid
-  name            String
-  email           String?
-  candidateNumber String?
-  tokenHash       String?  @unique
-  claimedAt       DateTime?
-  phone           String?
-  institutionParticipantId String? @db.Uuid
-  joinedAt        DateTime @default(now())
-  session         TestSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  institutionParticipant InstitutionParticipant? @relation(fields: [institutionParticipantId], references: [id], onDelete: SetNull)
-  attempts        Attempt[]
+  id                       String                  @id @default(uuid()) @db.Uuid
+  sessionId                String                  @db.Uuid
+  name                     String
+  email                    String?
+  candidateNumber          String?
+  tokenHash                String?                 @unique
+  claimedAt                DateTime?
+  phone                    String?
+  institutionParticipantId String?                 @db.Uuid
+  joinedAt                 DateTime                @default(now())
+  session                  TestSession             @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  institutionParticipant   InstitutionParticipant? @relation(fields: [institutionParticipantId], references: [id], onDelete: SetNull)
+  attempts                 Attempt[]
 
   @@index([institutionParticipantId])
   @@map("session_participants")
 }
 
 model Attempt {
-  id            String        @id @default(uuid()) @db.Uuid
-  sessionId     String        @db.Uuid
-  testId        String        @db.Uuid
+  id            String              @id @default(uuid()) @db.Uuid
+  sessionId     String              @db.Uuid
+  testId        String              @db.Uuid
   userId        String?
-  participantId String?       @db.Uuid
-  status        AttemptStatus @default(IN_PROGRESS)
-  startedAt     DateTime      @default(now())
+  participantId String?             @db.Uuid
+  status        AttemptStatus       @default(IN_PROGRESS)
+  startedAt     DateTime            @default(now())
   completedAt   DateTime?
-  session       TestSession        @relation(fields: [sessionId], references: [id])
-  test          Test               @relation(fields: [testId], references: [id])
+  session       TestSession         @relation(fields: [sessionId], references: [id])
+  test          Test                @relation(fields: [testId], references: [id])
   participant   SessionParticipant? @relation(fields: [participantId], references: [id])
   responses     Response[]
   result        TestResult?
@@ -406,8 +408,8 @@ model Response {
 }
 
 model TestResult {
-  id                   String       @id @default(uuid()) @db.Uuid
-  attemptId            String       @unique @db.Uuid
+  id                   String           @id @default(uuid()) @db.Uuid
+  attemptId            String           @unique @db.Uuid
   scores               Json
   patternCode          String
   correctedScores      Json?
@@ -417,13 +419,13 @@ model TestResult {
   correctedAt          DateTime?
   notes                String?
   notesUpdatedAt       DateTime?
-  status               ResultStatus @default(PENDING_REVIEW)
+  status               ResultStatus     @default(PENDING_REVIEW)
   reviewedById         String?
   reviewedAt           DateTime?
   reviewNote           String?
-  verifyCode           String?      @unique
-  computedAt           DateTime     @default(now())
-  attempt              Attempt      @relation(fields: [attemptId], references: [id])
+  verifyCode           String?          @unique
+  computedAt           DateTime         @default(now())
+  attempt              Attempt          @relation(fields: [attemptId], references: [id])
   deliveries           ReportDelivery[]
 
   @@index([status])
@@ -431,58 +433,59 @@ model TestResult {
 }
 
 model Invoice {
-  id               String                    @id @default(uuid()) @db.Uuid
-  institutionId    String                    @db.Uuid
-  number           String                    @unique
-  amount           Int
-  status           InvoiceStatus             @default(UNPAID)
-  issuedAt         DateTime                  @default(now())
-  dueDate          DateTime?
-  notes            String?
-  sessionId        String?                   @unique @db.Uuid
-  expiresAt        DateTime?
-  paymentProvider  PaymentProvider?
-  vaNumber         String?                   @unique
-  vaBankCode       String?
-  providerOrderId  String?                   @unique
-  paymentToken     String?
-  paymentUrl       String?
-  paymentType      String?
-  verifiedBySource PaymentVerifiedBySource?
-  verifiedAt       DateTime?
-  createdAt        DateTime                  @default(now())
-  updatedAt        DateTime                  @updatedAt
-  institution      Institution               @relation(fields: [institutionId], references: [id])
-  session          TestSession?              @relation(fields: [sessionId], references: [id])
+  id                String                   @id @default(uuid()) @db.Uuid
+  institutionId     String                   @db.Uuid
+  number            String                   @unique
+  verificationToken String                   @unique @default(uuid())
+  amount            Int
+  status            InvoiceStatus            @default(UNPAID)
+  issuedAt          DateTime                 @default(now())
+  dueDate           DateTime?
+  notes             String?
+  sessionId         String?                  @unique @db.Uuid
+  expiresAt         DateTime?
+  paymentProvider   PaymentProvider?
+  vaNumber          String?                  @unique
+  vaBankCode        String?
+  providerOrderId   String?                  @unique
+  paymentToken      String?
+  paymentUrl        String?
+  paymentType       String?
+  verifiedBySource  PaymentVerifiedBySource?
+  verifiedAt        DateTime?
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+  institution       Institution              @relation(fields: [institutionId], references: [id])
+  session           TestSession?             @relation(fields: [sessionId], references: [id])
 
   @@index([vaNumber])
   @@map("invoices")
 }
 
 model Order {
-  id            String      @id @default(uuid()) @db.Uuid
-  userId        String
-  testId        String      @db.Uuid
-  basePrice     Int
-  uniqueCode    Int
-  amount        Int
-  status            OrderStatus                @default(PENDING)
-  expiresAt         DateTime
-  userClaimedAt     DateTime?
-  verifiedById      String?
-  verifiedBySource  PaymentVerifiedBySource?
-  verifiedAt        DateTime?
-  cancelReason      String?
-  paymentProvider   PaymentProvider?
-  vaNumber          String?
-  vaBankCode        String?
-  providerOrderId   String?                   @unique
-  paymentToken      String?
-  paymentUrl        String?
-  paymentType       String?
-  createdAt         DateTime                   @default(now())
-  updatedAt         DateTime                   @updatedAt
-  test              Test                       @relation(fields: [testId], references: [id])
+  id               String                   @id @default(uuid()) @db.Uuid
+  userId           String
+  testId           String                   @db.Uuid
+  basePrice        Int
+  uniqueCode       Int
+  amount           Int
+  status           OrderStatus              @default(PENDING)
+  expiresAt        DateTime
+  userClaimedAt    DateTime?
+  verifiedById     String?
+  verifiedBySource PaymentVerifiedBySource?
+  verifiedAt       DateTime?
+  cancelReason     String?
+  paymentProvider  PaymentProvider?
+  vaNumber         String?
+  vaBankCode       String?
+  providerOrderId  String?                  @unique
+  paymentToken     String?
+  paymentUrl       String?
+  paymentType      String?
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+  test             Test                     @relation(fields: [testId], references: [id])
 
   @@index([userId])
   @@index([status, amount])
@@ -499,14 +502,14 @@ model Setting {
 }
 
 model ReportDelivery {
-  id        String         @id @default(uuid()) @db.Uuid
-  resultId  String         @db.Uuid
+  id        String          @id @default(uuid()) @db.Uuid
+  resultId  String          @db.Uuid
   channel   DeliveryChannel
   recipient String
   status    DeliveryStatus
   sentAt    DateTime
   error     String?
-  result    TestResult     @relation(fields: [resultId], references: [id])
+  result    TestResult      @relation(fields: [resultId], references: [id])
 
   @@map("report_deliveries")
 }
