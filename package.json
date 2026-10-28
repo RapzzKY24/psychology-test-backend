@@ -26,7 +26,8 @@
     "seed:disc": "tsx src/scripts/seed-disc.ts",
     "seed:cpmi": "tsx src/scripts/seed-cpmi.ts",
     "seed:wpt": "tsx src/scripts/seed-wpt.ts",
-    "seed:instansi": "tsx src/scripts/seed-instansi.ts"
+    "seed:instansi": "tsx src/scripts/seed-instansi.ts",
+    "seed:articles": "tsx src/scripts/seed-articles.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
