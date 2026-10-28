@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { InvoicesController } from './controller/invoices.controller';
+import { PublicInvoicesController } from './controller/public-invoices.controller';
 import { InvoicesService } from './service/invoices.service';
 import { InvoicePaymentService } from './service/invoice-payment.service';
 import { AdminInvoicesService } from './service/admin-invoices.service';
@@ -11,7 +12,7 @@ import { IdempotencyModule } from '../idempotency/idempotency.module';
 
 @Module({
   imports: [PaymentGatewayModule, EventLogModule, IdempotencyModule],
-  controllers: [InvoicesController],
+  controllers: [InvoicesController, PublicInvoicesController],
   providers: [
     InvoicesService,
     AdminInvoicesService,

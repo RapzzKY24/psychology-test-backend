@@ -103,4 +103,24 @@ describe('Invoices E2E (integ, real DB)', () => {
     expect(updated.status).toBe('PAID');
     expect(updated.notes).toBe('settled by transfer');
   });
+  it('resolves an invoice by its verification token', async () => {
+    const invoice = await service.create({
+      institutionId,
+      amount: 1250000,
+    });
+    createdIds.push(invoice.id);
+
+    const verified = await service.verify(invoice.verificationToken);
+
+    expect(verified.number).toBe(invoice.number);
+    expect(verified.amount).toBe(1250000);
+    expect(verified.status).toBe('UNPAID');
+    expect(verified.institutionName).toContain(prefix);
+  });
+
+  it('throws 404 for an unknown verification token', async () => {
+    await expect(
+      service.verify('00000000-0000-0000-0000-000000000000'),
+    ).rejects.toThrow(NotFoundException);
+  });
 });
