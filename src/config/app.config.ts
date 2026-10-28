@@ -7,6 +7,11 @@ export default registerAs('app', () => ({
     10,
   ),
   uploadDir: process.env.UPLOAD_DIR ?? './uploads',
+  // Basis URL untuk QR verifikasi di PDF invoice. Wajib diisi: QR yang menunjuk
+  // ke path relatif tidak bisa dipindai dari kertas.
+  publicUrl: process.env.APP_PUBLIC_URL ?? '',
+  invoiceLogoPath:
+    process.env.INVOICE_LOGO_PATH ?? './assets/invoice/logo.jpeg',
   // Midtrans is the only gateway left; 'manual' still disables it entirely.
   paymentProvider: process.env.PAYMENT_PROVIDER ?? 'midtrans',
   recovery: {
