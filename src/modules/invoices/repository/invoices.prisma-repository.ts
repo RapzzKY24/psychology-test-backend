@@ -10,9 +10,38 @@ import type {
   ConfirmInvoicePaymentParams,
   ConfirmInvoicePaymentResult,
   InvoiceDetailRow,
+  InvoicePdfRow,
+  InvoiceVerificationRow,
   InvoicesRepository,
 } from './invoices.repository';
 import { generateInvoiceNumber } from '../utils/generate-invoice-number';
+
+const VERIFICATION_SELECT = {
+  number: true,
+  amount: true,
+  status: true,
+  issuedAt: true,
+  dueDate: true,
+  verifiedAt: true,
+  vaNumber: true,
+  vaBankCode: true,
+  institution: { select: { name: true } },
+} satisfies Prisma.InvoiceSelect;
+
+const PDF_SELECT = {
+  number: true,
+  amount: true,
+  status: true,
+  issuedAt: true,
+  dueDate: true,
+  verifiedAt: true,
+  notes: true,
+  verificationToken: true,
+  vaNumber: true,
+  vaBankCode: true,
+  institution: { select: { name: true, address: true, contactEmail: true } },
+  session: { select: { title: true, slotLimit: true } },
+} satisfies Prisma.InvoiceSelect;
 
 @Injectable()
 export class PrismaInvoicesRepository implements InvoicesRepository {
@@ -20,6 +49,26 @@ export class PrismaInvoicesRepository implements InvoicesRepository {
 
   findById(id: string): Promise<Invoice | null> {
     return this.prisma.invoice.findUnique({ where: { id } });
+  }
+
+  findByVerificationToken(
+    token: string,
+  ): Promise<InvoiceVerificationRow | null> {
+    return this.prisma.invoice.findUnique({
+      where: { verificationToken: token },
+      select: VERIFICATION_SELECT,
+    });
+  }
+
+  findForPdf(params: {
+    id: string;
+    institutionId?: string;
+  }): Promise<InvoicePdfRow | null> {
+    const { id, institutionId } = params;
+    return this.prisma.invoice.findFirst({
+      where: institutionId ? { id, institutionId } : { id },
+      select: PDF_SELECT,
+    });
   }
 
   async findDetailById(id: string): Promise<InvoiceDetailRow | null> {

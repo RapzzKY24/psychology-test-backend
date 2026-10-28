@@ -32,8 +32,53 @@ export interface InvoiceDetailRow {
   } | null;
 }
 
+/** Public verification payload. Never carries payment tokens or notes. */
+export interface InvoiceVerificationRow {
+  number: string;
+  amount: number;
+  status: Invoice['status'];
+  issuedAt: Date;
+  dueDate: Date | null;
+  verifiedAt: Date | null;
+  vaNumber: string | null;
+  vaBankCode: string | null;
+  institution: { name: string } | null;
+}
+
+/** Everything the PDF renderer needs for one invoice. */
+export interface InvoicePdfRow {
+  number: string;
+  amount: number;
+  status: Invoice['status'];
+  issuedAt: Date;
+  dueDate: Date | null;
+  verifiedAt: Date | null;
+  notes: string | null;
+  verificationToken: string;
+  vaNumber: string | null;
+  vaBankCode: string | null;
+  institution: {
+    name: string;
+    address: string | null;
+    contactEmail: string;
+  } | null;
+  session: { title: string; slotLimit: number } | null;
+}
+
 export interface InvoicesRepository {
   findById(id: string): Promise<Invoice | null>;
+  /** Public QR lookup. Returns only fields the verification page may show. */
+  findByVerificationToken(
+    token: string,
+  ): Promise<InvoiceVerificationRow | null>;
+  /**
+   * Invoice shaped for the PDF renderer. Pass `institutionId` to scope the
+   * lookup to one institution (instansi download); omit it for admin.
+   */
+  findForPdf(params: {
+    id: string;
+    institutionId?: string;
+  }): Promise<InvoicePdfRow | null>;
   /** Invoice with its institution and the tests bought with it (admin detail). */
   findDetailById(id: string): Promise<InvoiceDetailRow | null>;
   /**
