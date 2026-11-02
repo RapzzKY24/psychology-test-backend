@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { AdminReportsService } from '../service/admin-reports.service';
 import type {
+  ReportCandidate,
   ReportDocument,
   ReportsRepository,
 } from '../repository/reports.repository';
@@ -46,6 +47,17 @@ function document(overrides: Partial<ReportDocument> = {}): ReportDocument {
   };
 }
 
+function candidate(participantId: string): ReportCandidate {
+  return {
+    participantId,
+    participantName: 'Budi',
+    sessionId: 's1',
+    sessionTitle: 'Psikotes',
+    testsApproved: 1,
+    testsTotal: 1,
+  };
+}
+
 describe('AdminReportsService', () => {
   let service: AdminReportsService;
   let repo: jest.Mocked<ReportsRepository>;
@@ -69,7 +81,7 @@ describe('AdminReportsService', () => {
       supersede: jest.fn(),
       revoke: jest.fn(),
       findByVerifyCode: jest.fn(),
-      findBackfillCandidates: jest.fn(),
+      findReportCandidates: jest.fn(),
     };
     service = new AdminReportsService(repo);
   });
@@ -198,7 +210,10 @@ describe('AdminReportsService', () => {
 
   describe('backfill', () => {
     it('counts the backlog on a dry run without writing', async () => {
-      repo.findBackfillCandidates.mockResolvedValue(['p1', 'p2']);
+      repo.findReportCandidates.mockResolvedValue({
+        data: [candidate('p1'), candidate('p2')],
+        total: 2,
+      });
 
       const result = await service.backfill({ dryRun: true });
 
@@ -212,7 +227,10 @@ describe('AdminReportsService', () => {
     });
 
     it('creates one empty draft per candidate', async () => {
-      repo.findBackfillCandidates.mockResolvedValue(['p1', 'p2']);
+      repo.findReportCandidates.mockResolvedValue({
+        data: [candidate('p1'), candidate('p2')],
+        total: 2,
+      });
       repo.createDraft.mockResolvedValue({} as never);
 
       const result = await service.backfill({ dryRun: false });
@@ -235,7 +253,7 @@ describe('AdminReportsService', () => {
     });
 
     it('is a no-op on the second run', async () => {
-      repo.findBackfillCandidates.mockResolvedValue([]);
+      repo.findReportCandidates.mockResolvedValue({ data: [], total: 0 });
 
       const result = await service.backfill({ dryRun: false });
 
@@ -244,7 +262,10 @@ describe('AdminReportsService', () => {
     });
 
     it('counts a participant who was claimed mid-run as skipped', async () => {
-      repo.findBackfillCandidates.mockResolvedValue(['p1', 'p2']);
+      repo.findReportCandidates.mockResolvedValue({
+        data: [candidate('p1'), candidate('p2')],
+        total: 2,
+      });
       repo.createDraft
         .mockResolvedValueOnce({} as never)
         .mockRejectedValueOnce({ code: 'P2002' });
@@ -260,14 +281,14 @@ describe('AdminReportsService', () => {
     });
 
     it('scopes the scan to one session when asked', async () => {
-      repo.findBackfillCandidates.mockResolvedValue([]);
+      repo.findReportCandidates.mockResolvedValue({ data: [], total: 0 });
 
       await service.backfill({
         sessionId: '6f1a2b3c-4d5e-4f60-8a9b-0c1d2e3f4a5b',
         dryRun: true,
       });
 
-      expect(repo.findBackfillCandidates).toHaveBeenCalledWith({
+      expect(repo.findReportCandidates).toHaveBeenCalledWith({
         sessionId: '6f1a2b3c-4d5e-4f60-8a9b-0c1d2e3f4a5b',
       });
     });

@@ -6,6 +6,7 @@ import type {
   ReportRevisionPatch,
   ReportIssuePatch,
   ReportListItem,
+  ReportCandidate,
   ReportParticipantContext,
   ReportRecord,
   ReportVerification,
@@ -23,6 +24,8 @@ const DRAFT_SELECT = {
   ratings: true,
   narratives: true,
   recommendation: true,
+  number: true,
+  issuedAt: true,
   updatedAt: true,
 } as const;
 
@@ -33,6 +36,8 @@ interface DraftRow {
   ratings: unknown;
   narratives: unknown;
   recommendation: ReportRecord['recommendation'];
+  number: string | null;
+  issuedAt: Date | null;
   updatedAt: Date;
 }
 
@@ -79,6 +84,8 @@ function toRecord(row: DraftRow): ReportRecord {
     ratings: (row.ratings ?? {}) as Record<string, string>,
     narratives: (row.narratives ?? {}) as Record<string, string>,
     recommendation: row.recommendation,
+    number: row.number,
+    issuedAt: row.issuedAt,
     updatedAt: row.updatedAt,
   };
 }
@@ -326,27 +333,53 @@ export class PrismaReportsRepository implements ReportsRepository {
     return toDocument(row);
   }
 
-  async findBackfillCandidates(params: {
+  async findReportCandidates(params: {
     sessionId?: string;
-  }): Promise<string[]> {
-    const rows = await this.prisma.sessionParticipant.findMany({
-      where: {
-        session: {
-          institutionId: { not: null },
-          ...(params.sessionId ? { id: params.sessionId } : {}),
-        },
-        // Any existing row — draft, issued, revised or cancelled — means this
-        // participant was already handled, so a re-run creates nothing.
-        reports: { none: {} },
-        attempts: {
-          some: {},
-          every: { result: { is: { status: 'APPROVED' } } },
-        },
+    skip?: number;
+    take?: number;
+  }): Promise<{ data: ReportCandidate[]; total: number }> {
+    const where: Prisma.SessionParticipantWhereInput = {
+      session: {
+        institutionId: { not: null },
+        ...(params.sessionId ? { id: params.sessionId } : {}),
       },
-      orderBy: { joinedAt: 'asc' },
-      select: { id: true },
-    });
-    return rows.map((row) => row.id);
+      // Any existing row — draft, issued, revised or cancelled — means this
+      // participant was already handled, so a re-run creates nothing.
+      reports: { none: {} },
+      attempts: {
+        some: {},
+        every: { result: { is: { status: 'APPROVED' } } },
+      },
+    };
+
+    const [rows, total] = await Promise.all([
+      this.prisma.sessionParticipant.findMany({
+        where,
+        orderBy: { joinedAt: 'asc' },
+        ...(params.skip === undefined ? {} : { skip: params.skip }),
+        ...(params.take === undefined ? {} : { take: params.take }),
+        select: {
+          id: true,
+          name: true,
+          session: { select: { id: true, title: true } },
+          attempts: { select: { result: { select: { status: true } } } },
+        },
+      }),
+      this.prisma.sessionParticipant.count({ where }),
+    ]);
+
+    const data: ReportCandidate[] = rows.map((row) => ({
+      participantId: row.id,
+      participantName: row.name,
+      sessionId: row.session.id,
+      sessionTitle: row.session.title,
+      testsTotal: row.attempts.length,
+      testsApproved: row.attempts.filter(
+        (attempt) => attempt.result?.status === 'APPROVED',
+      ).length,
+    }));
+
+    return { data, total };
   }
 
   async findByVerifyCode(code: string): Promise<ReportVerification | null> {

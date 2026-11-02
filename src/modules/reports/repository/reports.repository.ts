@@ -37,6 +37,9 @@ export interface ReportRecord {
   /** Narrative key → text. */
   narratives: Record<string, string>;
   recommendation: Recommendation | null;
+  /** Filled once the draft is issued; null while it is still a draft. */
+  number: string | null;
+  issuedAt: Date | null;
   updatedAt: Date;
 }
 
@@ -59,6 +62,15 @@ export interface ReportListItem {
   revision: number | null;
   status: ReportStatus;
   issuedAt: Date | null;
+  testsApproved: number;
+  testsTotal: number;
+}
+
+export interface ReportCandidate {
+  participantId: string;
+  participantName: string;
+  sessionId: string;
+  sessionTitle: string;
   testsApproved: number;
   testsTotal: number;
 }
@@ -146,10 +158,15 @@ export interface ReportsRepository {
 
   /**
    * Participants of institution sessions whose tests are all approved but who
-   * have no report row yet — the backlog left behind before this feature
-   * shipped. Ordered oldest first so a partial run still makes progress.
+   * have no report row yet. Feeds both the psychologist's work queue and the
+   * admin backfill, so the two can never disagree about who is pending.
+   * Ordered oldest first so a partial run still makes progress.
    */
-  findBackfillCandidates(params: { sessionId?: string }): Promise<string[]>;
+  findReportCandidates(params: {
+    sessionId?: string;
+    skip?: number;
+    take?: number;
+  }): Promise<{ data: ReportCandidate[]; total: number }>;
 
   /**
    * Public QR lookup. Only rows carrying a verify code are reachable: a

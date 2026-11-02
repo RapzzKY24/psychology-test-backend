@@ -45,6 +45,8 @@ function draft(overrides: Partial<ReportRecord> = {}): ReportRecord {
     ratings: {},
     narratives: {},
     recommendation: null,
+    number: null,
+    issuedAt: null,
     updatedAt: new Date(),
     ...overrides,
   };
@@ -87,13 +89,57 @@ describe('ReportsService', () => {
       supersede: jest.fn(),
       revoke: jest.fn(),
       findByVerifyCode: jest.fn(),
-      findBackfillCandidates: jest.fn(),
+      findReportCandidates: jest.fn(),
     };
     repo.findSettings.mockResolvedValue({});
     repo.nextSeq.mockResolvedValue(50);
     repo.nextRevision.mockResolvedValue(1);
     service = new ReportsService(repo);
     repo.findPsychologist.mockResolvedValue(profile);
+  });
+
+  describe('listPendingReports', () => {
+    it('returns the work queue with pagination meta', async () => {
+      repo.findReportCandidates.mockResolvedValue({
+        data: [
+          {
+            participantId: 'p1',
+            participantName: 'Budi',
+            sessionId: 's1',
+            sessionTitle: 'Psikotes',
+            testsApproved: 2,
+            testsTotal: 2,
+          },
+        ],
+        total: 3,
+      });
+
+      const result = await service.listPendingReports({ page: 1, limit: 10 });
+
+      expect(result.data).toHaveLength(1);
+      expect(result.meta).toEqual({
+        page: 1,
+        limit: 10,
+        total: 3,
+        totalPages: 1,
+      });
+      expect(repo.findReportCandidates).toHaveBeenCalledWith({
+        skip: 0,
+        take: 10,
+      });
+    });
+
+    it('offsets by page', async () => {
+      repo.findReportCandidates.mockResolvedValue({ data: [], total: 25 });
+
+      const result = await service.listPendingReports({ page: 3, limit: 10 });
+
+      expect(repo.findReportCandidates).toHaveBeenCalledWith({
+        skip: 20,
+        take: 10,
+      });
+      expect(result.meta.totalPages).toBe(3);
+    });
   });
 
   describe('getForm', () => {

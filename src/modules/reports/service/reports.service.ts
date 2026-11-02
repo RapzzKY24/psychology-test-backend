@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { REPORTS_REPOSITORY } from '../repository/reports.repository';
 import type {
+  ReportCandidate,
   ReportListItem,
   ReportParticipantContext,
   ReportRecord,
@@ -19,6 +20,7 @@ import {
 } from '../utils/validate-report';
 import type { ReportInput } from '../utils/validate-report';
 import type { QueryReportsDto } from '../dto/query-reports.dto';
+import type { PaginationDto } from '../../../common/dto/pagination.dto';
 import type { PaginatedResponse } from '../../../common/interfaces/api-response.interface';
 import { calculateAge } from '../utils/calculate-age';
 import { buildReportNumber } from '../utils/build-report-number';
@@ -61,6 +63,9 @@ export interface ReportForm {
     ratings: Record<string, string>;
     narratives: Record<string, string>;
     recommendation: Recommendation | null;
+    /** Present once the report is ACTIVE — the UI shows it read-only. */
+    number: string | null;
+    issuedAt: Date | null;
     updatedAt: Date;
   } | null;
   readiness: {
@@ -85,6 +90,29 @@ export class ReportsService {
       take: query.limit,
       status: query.status,
       sessionId: query.sessionId,
+    });
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        total,
+        totalPages: Math.ceil(total / query.limit),
+      },
+    };
+  }
+
+  /**
+   * The psychologist's work queue: participants whose tests are all approved
+   * but who have no report yet. Without this the form would be unreachable —
+   * the report list only contains rows that already exist.
+   */
+  async listPendingReports(
+    query: PaginationDto,
+  ): Promise<PaginatedResponse<ReportCandidate>> {
+    const { data, total } = await this.repo.findReportCandidates({
+      skip: (query.page - 1) * query.limit,
+      take: query.limit,
     });
     return {
       data,
@@ -349,6 +377,8 @@ export class ReportsService {
         ratings: report.ratings,
         narratives: report.narratives,
         recommendation: report.recommendation,
+        number: report.number,
+        issuedAt: report.issuedAt,
         updatedAt: report.updatedAt,
       },
       readiness: {

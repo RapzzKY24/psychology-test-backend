@@ -23,7 +23,12 @@ import type {
   ApiResponse,
   PaginatedResponse,
 } from '../../../common/interfaces/api-response.interface';
-import type { ReportListItem } from '../repository/reports.repository';
+import type {
+  ReportCandidate,
+  ReportListItem,
+} from '../repository/reports.repository';
+import { PaginationSchema } from '../../../common/dto/pagination.dto';
+import type { PaginationDto } from '../../../common/dto/pagination.dto';
 
 const UuidPipe = new ZodValidationPipe(z.string().uuid());
 
@@ -40,6 +45,14 @@ export class PsychologistReportsController {
     @Query(new ZodValidationPipe(QueryReportsSchema)) query: QueryReportsDto,
   ): Promise<PaginatedResponse<ReportListItem>> {
     return this.reportsService.listReports(query);
+  }
+
+  /** Work queue — declared before `:participantId` so the literal wins. */
+  @Get('pending')
+  async pending(
+    @Query(new ZodValidationPipe(PaginationSchema)) query: PaginationDto,
+  ): Promise<PaginatedResponse<ReportCandidate>> {
+    return this.reportsService.listPendingReports(query);
   }
 
   @Get(':id/pdf')

@@ -463,19 +463,19 @@ model Report {
   ratings        Json               @default("{}")
   narratives     Json               @default("{}")
   recommendation Recommendation?
-  filledById     String?            @db.Uuid
+  filledById     String?
   filledAt       DateTime?
-  number         String?            @unique
+  number         String?
   seq            Int?
   year           Int?
   revision       Int?
   verifyCode     String?            @unique
   snapshot       Json?
   issuedAt       DateTime?
-  issuedById     String?            @db.Uuid
+  issuedById     String?
   supersedesId   String?            @unique @db.Uuid
   revokedAt      DateTime?
-  revokedById    String?            @db.Uuid
+  revokedById    String?
   revokeReason   String?
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt

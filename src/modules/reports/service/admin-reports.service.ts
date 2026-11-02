@@ -109,7 +109,7 @@ export class AdminReportsService {
    * anyone who already has any report row, so a second run creates nothing.
    */
   async backfill(input: BackfillReportsDto): Promise<BackfillResult> {
-    const candidates = await this.repo.findBackfillCandidates({
+    const { data: candidates } = await this.repo.findReportCandidates({
       sessionId: input.sessionId,
     });
 
@@ -124,9 +124,9 @@ export class AdminReportsService {
 
     let created = 0;
     let skipped = 0;
-    for (const participantId of candidates) {
+    for (const candidate of candidates) {
       try {
-        await this.repo.createDraft(participantId, {
+        await this.repo.createDraft(candidate.participantId, {
           ratings: {},
           narratives: {},
           recommendation: null,
