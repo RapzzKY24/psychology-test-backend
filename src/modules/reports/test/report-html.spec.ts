@@ -170,6 +170,20 @@ describe('renderReportHtml', () => {
     expect(html).toContain(assets.qr);
   });
 
+  it('prints the QR on the last page, under the signature block', () => {
+    const html = render();
+    const pages = html.split('</section>');
+    const cover = pages[0];
+    const last = pages[pages.length - 2];
+
+    // A reader checks authenticity where the credentials are, not on the cover.
+    expect(cover).not.toContain(assets.qr);
+    expect(last).toContain('class="verify-block"');
+    expect(last).toContain(assets.qr);
+    expect(last).toContain('Pindai untuk verifikasi');
+    expect(last).toContain(assets.mypsikologLogo);
+  });
+
   it('uses A4 page sizing and print colour', () => {
     const html = render();
     expect(html).toContain('size: A4');

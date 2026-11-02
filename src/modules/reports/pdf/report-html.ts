@@ -95,9 +95,20 @@ body {
 .cover-identity .label { width: 26mm; }
 .cover-identity .sep { width: 4mm; }
 .cover-identity .line { border-bottom: 0.25mm dashed #666; padding-left: 2mm; }
-.qr-block { position: absolute; left: 14mm; bottom: 14mm; text-align: center; }
-.qr-block img { width: 24mm; height: 24mm; }
-.qr-block span { display: block; font-size: 7pt; color: #555; margin-top: 1mm; }
+/* QR sits under the signature block on the last page — where a reader looks
+   for the psychologist's credentials, not on the cover. */
+.verify-block {
+  position: absolute;
+  right: 14mm;
+  bottom: 8mm;
+  display: flex;
+  align-items: center;
+  gap: 3mm;
+}
+.verify-qr { width: 17mm; height: 17mm; }
+.verify-meta { display: flex; flex-direction: column; align-items: flex-start; }
+.verify-logo { height: 6mm; }
+.verify-caption { font-size: 7pt; color: #555; margin-top: 1.5mm; line-height: 1.25; }
 
 .resume-head { text-align: center; margin-bottom: 6mm; }
 .resume-head h1 { font-size: 12pt; margin: 0; letter-spacing: 0.4mm; }
@@ -163,12 +174,12 @@ table.grid { width: 100%; border-collapse: collapse; table-layout: fixed; }
   line-height: 3.6mm;
 }
 .reco-note { font-size: 8.5pt; margin-top: 2mm; }
-.signature { margin-top: 3mm; }
+.signature { margin-top: 1.5mm; }
 .sig-row { display: flex; align-items: flex-end; font-size: 9pt; margin-bottom: 1mm; }
 .sig-label { width: 62mm; }
 .sig-sep { width: 4mm; }
 .sig-value { flex: 1; border-bottom: 0.25mm dotted #666; min-height: 5mm; }
-.sig-sign { min-height: 15mm; display: flex; align-items: flex-end; }
+.sig-sign { min-height: 13mm; display: flex; align-items: flex-end; }
 .sig-img { height: 13mm; margin-bottom: 1mm; }
 `;
 
@@ -184,6 +195,21 @@ function renderFooter(assets: ReportAssets): string {
   <img class="logo-mypsikolog" src="${assets.mypsikologLogo}" alt="mypsikolog.id">
   <img class="tagline" src="${assets.tagline}" alt="Platform Tes Psikologi">
 </footer>`;
+}
+
+/**
+ * QR + wordmark in the bottom-right corner of the last page, directly under the
+ * STR/SIK and SIPP lines — the reader checks authenticity where the signature
+ * is, not on the cover.
+ */
+function renderVerification(assets: ReportAssets): string {
+  return `<div class="verify-block">
+  <img class="verify-qr" src="${assets.qr}" alt="QR verifikasi">
+  <div class="verify-meta">
+    <img class="verify-logo" src="${assets.mypsikologLogo}" alt="mypsikolog.id">
+    <span class="verify-caption">Pindai untuk verifikasi</span>
+  </div>
+</div>`;
 }
 
 function renderConclusion(snapshot: ReportSnapshot, key: string): string {
@@ -273,10 +299,6 @@ function renderCover(params: RenderReportParams): string {
       )
       .join('\n')}
   </table>
-  <div class="qr-block">
-    <img src="${assets.qr}" alt="QR verifikasi">
-    <span>Pindai untuk verifikasi</span>
-  </div>
   ${renderFooter(assets)}
 </section>`;
 }
@@ -395,7 +417,7 @@ function renderFinal(params: RenderReportParams): string {
     ${renderRecommendation(snapshot)}
   </div>
   ${renderSignature(snapshot, assets)}
-  ${renderFooter(assets)}
+  ${renderVerification(assets)}
 </section>`;
 }
 
