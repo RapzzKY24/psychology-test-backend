@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -32,9 +33,22 @@ export class ReportDocumentService {
    * document that looks valid, and a superseded one would contradict the
    * revision that replaced it.
    */
-  async renderPdf(reportId: string): Promise<RenderedReport> {
-    const document = await this.repo.findForPdf(reportId);
-    if (!document) throw new NotFoundException('report_not_found');
+  async renderPdf(
+    reportId: string,
+    options?: { institutionId?: string },
+  ): Promise<RenderedReport> {
+    const document = options?.institutionId
+      ? await this.repo.findForPdfInInstitution(reportId, options.institutionId)
+      : await this.repo.findForPdf(reportId);
+
+    if (!document) {
+      // An institution asking for someone else's report gets a 403, never a 404
+      // — otherwise the status code leaks which report ids exist.
+      if (options?.institutionId) {
+        throw new ForbiddenException('report_not_found');
+      }
+      throw new NotFoundException('report_not_found');
+    }
     if (document.status !== 'ACTIVE') {
       throw new ConflictException(`report_${document.status.toLowerCase()}`);
     }

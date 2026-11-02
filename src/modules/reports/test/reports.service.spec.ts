@@ -82,6 +82,10 @@ describe('ReportsService', () => {
       findSettings: jest.fn(),
       listReports: jest.fn(),
       findForPdf: jest.fn(),
+      listForInstitution: jest.fn(),
+      findForPdfInInstitution: jest.fn(),
+      supersede: jest.fn(),
+      revoke: jest.fn(),
     };
     repo.findSettings.mockResolvedValue({});
     repo.nextSeq.mockResolvedValue(50);

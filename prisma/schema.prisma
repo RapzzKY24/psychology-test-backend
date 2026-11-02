@@ -484,6 +484,9 @@ model Report {
   supersededBy   Report?            @relation("ReportRevision")
 
   @@unique([participantId, revision])
+  // A revision keeps the same number, so uniqueness is per revision — not per
+  // number alone.
+  @@unique([number, revision])
   @@index([status])
   @@index([year, seq])
   @@map("reports")

@@ -66,9 +66,21 @@ export interface ReportDocument {
   id: string;
   participantId: string;
   number: string;
+  revision: number;
   verifyCode: string;
   status: ReportStatus;
   snapshot: ReportSnapshot;
+}
+
+export interface ReportRevisionPatch {
+  ratings: Record<string, string>;
+  narratives: Record<string, string>;
+  recommendation: Recommendation;
+  snapshot: ReportSnapshot;
+  issuedAt: Date;
+  issuedById: string;
+  revision: number;
+  verifyCode: string;
 }
 
 export interface ReportIssuePatch {
@@ -109,4 +121,22 @@ export interface ReportsRepository {
     sessionId?: string;
   }): Promise<{ data: ReportListItem[]; total: number }>;
   findForPdf(id: string): Promise<ReportDocument | null>;
+
+  listForInstitution(params: {
+    institutionId: string;
+    sessionId?: string;
+    skip: number;
+    take: number;
+  }): Promise<{ data: ReportListItem[]; total: number }>;
+  findForPdfInInstitution(
+    id: string,
+    institutionId: string,
+  ): Promise<ReportDocument | null>;
+
+  /** Marks the current revision SUPERSEDED and inserts the next one. */
+  supersede(id: string, patch: ReportRevisionPatch): Promise<ReportRecord>;
+  revoke(
+    id: string,
+    patch: { reason: string; revokedAt: Date; revokedById: string },
+  ): Promise<ReportRecord>;
 }

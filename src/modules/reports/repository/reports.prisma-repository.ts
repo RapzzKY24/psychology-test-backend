@@ -3,6 +3,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import type {
   ReportDocument,
   ReportDraftPatch,
+  ReportRevisionPatch,
   ReportIssuePatch,
   ReportListItem,
   ReportParticipantContext,
@@ -32,6 +33,41 @@ interface DraftRow {
   narratives: unknown;
   recommendation: ReportRecord['recommendation'];
   updatedAt: Date;
+}
+
+const DOCUMENT_SELECT = {
+  id: true,
+  participantId: true,
+  number: true,
+  revision: true,
+  verifyCode: true,
+  status: true,
+  snapshot: true,
+} as const;
+
+interface DocumentRow {
+  id: string;
+  participantId: string;
+  number: string | null;
+  revision: number | null;
+  verifyCode: string | null;
+  status: ReportDocument['status'];
+  snapshot: unknown;
+}
+
+function toDocument(row: DocumentRow | null): ReportDocument | null {
+  if (!row?.number || !row.verifyCode || !row.snapshot || !row.revision) {
+    return null;
+  }
+  return {
+    id: row.id,
+    participantId: row.participantId,
+    number: row.number,
+    revision: row.revision,
+    verifyCode: row.verifyCode,
+    status: row.status,
+    snapshot: row.snapshot as ReportDocument['snapshot'],
+  };
 }
 
 function toRecord(row: DraftRow): ReportRecord {
@@ -184,21 +220,16 @@ export class PrismaReportsRepository implements ReportsRepository {
     return toRecord(row);
   }
 
-  async listReports(params: {
-    skip: number;
-    take: number;
-    status?: ReportRecord['status'];
-    sessionId?: string;
-  }): Promise<{ data: ReportListItem[]; total: number }> {
-    const where: Prisma.ReportWhereInput = {};
-    if (params.status) where.status = params.status;
-    if (params.sessionId) where.participant = { sessionId: params.sessionId };
-
+  private async listRows(
+    where: Prisma.ReportWhereInput,
+    skip: number,
+    take: number,
+  ): Promise<{ data: ReportListItem[]; total: number }> {
     const [rows, total] = await Promise.all([
       this.prisma.report.findMany({
         where,
-        skip: params.skip,
-        take: params.take,
+        skip,
+        take,
         // Enum order is DRAFT, ACTIVE, SUPERSEDED, REVOKED — drafts float up,
         // which is exactly the psychologist's work queue.
         orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
@@ -240,27 +271,119 @@ export class PrismaReportsRepository implements ReportsRepository {
     return { data, total };
   }
 
+  async listReports(params: {
+    skip: number;
+    take: number;
+    status?: ReportRecord['status'];
+    sessionId?: string;
+  }): Promise<{ data: ReportListItem[]; total: number }> {
+    const where: Prisma.ReportWhereInput = {};
+    if (params.status) where.status = params.status;
+    if (params.sessionId) where.participant = { sessionId: params.sessionId };
+    return this.listRows(where, params.skip, params.take);
+  }
+
+  async listForInstitution(params: {
+    institutionId: string;
+    sessionId?: string;
+    skip: number;
+    take: number;
+  }): Promise<{ data: ReportListItem[]; total: number }> {
+    // Institutions only ever see documents that exist: an issued report or one
+    // that was cancelled. Drafts are the psychologist's working notes.
+    const where: Prisma.ReportWhereInput = {
+      status: { in: ['ACTIVE', 'REVOKED'] },
+      participant: {
+        session: {
+          institutionId: params.institutionId,
+          ...(params.sessionId ? { id: params.sessionId } : {}),
+        },
+      },
+    };
+    return this.listRows(where, params.skip, params.take);
+  }
+
   async findForPdf(id: string): Promise<ReportDocument | null> {
     const row = await this.prisma.report.findUnique({
       where: { id },
-      select: {
-        id: true,
-        participantId: true,
-        number: true,
-        verifyCode: true,
-        status: true,
-        snapshot: true,
-      },
+      select: DOCUMENT_SELECT,
     });
-    if (!row || !row.number || !row.verifyCode || !row.snapshot) return null;
-    return {
-      id: row.id,
-      participantId: row.participantId,
-      number: row.number,
-      verifyCode: row.verifyCode,
-      status: row.status,
-      snapshot: row.snapshot as unknown as ReportDocument['snapshot'],
-    };
+    return toDocument(row);
+  }
+
+  async findForPdfInInstitution(
+    id: string,
+    institutionId: string,
+  ): Promise<ReportDocument | null> {
+    const row = await this.prisma.report.findFirst({
+      where: {
+        id,
+        participant: { session: { institutionId } },
+      },
+      select: DOCUMENT_SELECT,
+    });
+    return toDocument(row);
+  }
+
+  /**
+   * One transaction: release the ACTIVE slot (and the verify code) on the old
+   * row, then insert the next revision with the same number. The old row keeps
+   * its number so the history stays readable.
+   */
+  async supersede(
+    id: string,
+    patch: ReportRevisionPatch,
+  ): Promise<ReportRecord> {
+    return this.prisma.$transaction(async (tx) => {
+      const previous = await tx.report.findUnique({ where: { id } });
+      if (!previous) throw new Error('report_not_found');
+
+      await tx.report.update({
+        where: { id },
+        data: { status: 'SUPERSEDED', verifyCode: null },
+      });
+
+      const created = await tx.report.create({
+        data: {
+          participantId: previous.participantId,
+          status: 'ACTIVE',
+          ratings: patch.ratings,
+          narratives: patch.narratives,
+          recommendation: patch.recommendation,
+          filledById: previous.filledById,
+          filledAt: previous.filledAt,
+          number: previous.number,
+          seq: previous.seq,
+          year: previous.year,
+          revision: patch.revision,
+          verifyCode: patch.verifyCode,
+          snapshot: patch.snapshot as unknown as Prisma.InputJsonValue,
+          issuedAt: patch.issuedAt,
+          issuedById: patch.issuedById,
+          supersedesId: id,
+        },
+        select: DRAFT_SELECT,
+      });
+
+      return toRecord(created);
+    });
+  }
+
+  async revoke(
+    id: string,
+    patch: { reason: string; revokedAt: Date; revokedById: string },
+  ): Promise<ReportRecord> {
+    const row = await this.prisma.report.update({
+      where: { id },
+      data: {
+        status: 'REVOKED',
+        revokedAt: patch.revokedAt,
+        revokedById: patch.revokedById,
+        revokeReason: patch.reason,
+      },
+      select: DRAFT_SELECT,
+    });
+    return toRecord(row);
   }
 
   async findSettings(

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/unbound-method */
 import {
   ConflictException,
+  ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
@@ -78,6 +79,10 @@ describe('ReportDocumentService', () => {
       findSettings: jest.fn(),
       listReports: jest.fn(),
       findForPdf: jest.fn(),
+      listForInstitution: jest.fn(),
+      findForPdfInInstitution: jest.fn(),
+      supersede: jest.fn(),
+      revoke: jest.fn(),
     };
     assetService = {
       build: jest.fn().mockResolvedValue(assets),
@@ -94,6 +99,25 @@ describe('ReportDocumentService', () => {
     await expect(service.renderPdf('r1')).rejects.toBeInstanceOf(
       NotFoundException,
     );
+  });
+
+  it('scopes the lookup to the institution when one is given', async () => {
+    repo.findForPdfInInstitution.mockResolvedValue(document());
+
+    await service.renderPdf('r1', { institutionId: 'inst-1' });
+
+    expect(repo.findForPdfInInstitution).toHaveBeenCalledWith('r1', 'inst-1');
+    expect(repo.findForPdf).not.toHaveBeenCalled();
+  });
+
+  it('answers 403 for a report owned by another institution', async () => {
+    repo.findForPdfInInstitution.mockResolvedValue(null);
+
+    const error = await service
+      .renderPdf('r1', { institutionId: 'inst-1' })
+      .catch((e) => e);
+
+    expect(error).toBeInstanceOf(ForbiddenException);
   });
 
   it('refuses to render a revoked report', async () => {
