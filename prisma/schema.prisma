@@ -133,6 +133,27 @@ enum IdempotencyStatus {
 }
 
 // Better Auth — see docs/standards/better-auth.md §4 (additionalFields role) + §5 admin plugin
+enum ReportStatus {
+  DRAFT
+  ACTIVE
+  SUPERSEDED
+  REVOKED
+}
+
+enum RatingCategory {
+  R
+  K
+  C
+  B
+  T
+}
+
+enum Recommendation {
+  LAYAK
+  BELUM_LAYAK
+  TIDAK_LAYAK
+}
+
 model User {
   id            String        @id
   name          String
@@ -291,6 +312,7 @@ model InstitutionParticipant {
   idType             IdType
   idNumber           String
   birthDate          DateTime?
+  education          String?
   phone              String?
   notes              String?
   createdAt          DateTime    @default(now())
@@ -333,6 +355,7 @@ model PsychologistProfile {
   fullName           String
   degree             String
   licenseNumber      String
+  sippNumber         String?
   nik                String?  @unique
   institutionName    String?
   signatureImagePath String
@@ -370,6 +393,7 @@ model SessionParticipant {
   session                  TestSession             @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   institutionParticipant   InstitutionParticipant? @relation(fields: [institutionParticipantId], references: [id], onDelete: SetNull)
   attempts                 Attempt[]
+  reports                  Report[]
 
   @@index([institutionParticipantId])
   @@map("session_participants")
@@ -430,6 +454,39 @@ model TestResult {
 
   @@index([status])
   @@map("test_results")
+}
+
+model Report {
+  id             String             @id @default(uuid()) @db.Uuid
+  participantId  String             @db.Uuid
+  status         ReportStatus       @default(DRAFT)
+  ratings        Json               @default("{}")
+  narratives     Json               @default("{}")
+  recommendation Recommendation?
+  filledById     String?            @db.Uuid
+  filledAt       DateTime?
+  number         String?            @unique
+  seq            Int?
+  year           Int?
+  revision       Int?
+  verifyCode     String?            @unique
+  snapshot       Json?
+  issuedAt       DateTime?
+  issuedById     String?            @db.Uuid
+  supersedesId   String?            @unique @db.Uuid
+  revokedAt      DateTime?
+  revokedById    String?            @db.Uuid
+  revokeReason   String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  participant    SessionParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  supersedes     Report?            @relation("ReportRevision", fields: [supersedesId], references: [id])
+  supersededBy   Report?            @relation("ReportRevision")
+
+  @@unique([participantId, revision])
+  @@index([status])
+  @@index([year, seq])
+  @@map("reports")
 }
 
 model Invoice {
