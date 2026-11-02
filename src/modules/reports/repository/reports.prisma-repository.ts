@@ -326,6 +326,29 @@ export class PrismaReportsRepository implements ReportsRepository {
     return toDocument(row);
   }
 
+  async findBackfillCandidates(params: {
+    sessionId?: string;
+  }): Promise<string[]> {
+    const rows = await this.prisma.sessionParticipant.findMany({
+      where: {
+        session: {
+          institutionId: { not: null },
+          ...(params.sessionId ? { id: params.sessionId } : {}),
+        },
+        // Any existing row — draft, issued, revised or cancelled — means this
+        // participant was already handled, so a re-run creates nothing.
+        reports: { none: {} },
+        attempts: {
+          some: {},
+          every: { result: { is: { status: 'APPROVED' } } },
+        },
+      },
+      orderBy: { joinedAt: 'asc' },
+      select: { id: true },
+    });
+    return rows.map((row) => row.id);
+  }
+
   async findByVerifyCode(code: string): Promise<ReportVerification | null> {
     const row = await this.prisma.report.findUnique({
       where: { verifyCode: code },

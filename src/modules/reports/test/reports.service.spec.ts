@@ -87,6 +87,7 @@ describe('ReportsService', () => {
       supersede: jest.fn(),
       revoke: jest.fn(),
       findByVerifyCode: jest.fn(),
+      findBackfillCandidates: jest.fn(),
     };
     repo.findSettings.mockResolvedValue({});
     repo.nextSeq.mockResolvedValue(50);

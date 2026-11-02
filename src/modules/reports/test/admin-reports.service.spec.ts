@@ -69,6 +69,7 @@ describe('AdminReportsService', () => {
       supersede: jest.fn(),
       revoke: jest.fn(),
       findByVerifyCode: jest.fn(),
+      findBackfillCandidates: jest.fn(),
     };
     service = new AdminReportsService(repo);
   });
@@ -192,6 +193,83 @@ describe('AdminReportsService', () => {
           revokedById: 'admin',
         }),
       );
+    });
+  });
+
+  describe('backfill', () => {
+    it('counts the backlog on a dry run without writing', async () => {
+      repo.findBackfillCandidates.mockResolvedValue(['p1', 'p2']);
+
+      const result = await service.backfill({ dryRun: true });
+
+      expect(result).toEqual({
+        scanned: 2,
+        created: 0,
+        skipped: 0,
+        dryRun: true,
+      });
+      expect(repo.createDraft).not.toHaveBeenCalled();
+    });
+
+    it('creates one empty draft per candidate', async () => {
+      repo.findBackfillCandidates.mockResolvedValue(['p1', 'p2']);
+      repo.createDraft.mockResolvedValue({} as never);
+
+      const result = await service.backfill({ dryRun: false });
+
+      expect(result).toEqual({
+        scanned: 2,
+        created: 2,
+        skipped: 0,
+        dryRun: false,
+      });
+      expect(repo.createDraft).toHaveBeenCalledWith(
+        'p1',
+        expect.objectContaining({
+          ratings: {},
+          narratives: {},
+          recommendation: null,
+          filledById: null,
+        }),
+      );
+    });
+
+    it('is a no-op on the second run', async () => {
+      repo.findBackfillCandidates.mockResolvedValue([]);
+
+      const result = await service.backfill({ dryRun: false });
+
+      expect(result.created).toBe(0);
+      expect(repo.createDraft).not.toHaveBeenCalled();
+    });
+
+    it('counts a participant who was claimed mid-run as skipped', async () => {
+      repo.findBackfillCandidates.mockResolvedValue(['p1', 'p2']);
+      repo.createDraft
+        .mockResolvedValueOnce({} as never)
+        .mockRejectedValueOnce({ code: 'P2002' });
+
+      const result = await service.backfill({ dryRun: false });
+
+      expect(result).toEqual({
+        scanned: 2,
+        created: 1,
+        skipped: 1,
+        dryRun: false,
+      });
+    });
+
+    it('scopes the scan to one session when asked', async () => {
+      repo.findBackfillCandidates.mockResolvedValue([]);
+
+      await service.backfill({
+        sessionId: '6f1a2b3c-4d5e-4f60-8a9b-0c1d2e3f4a5b',
+        dryRun: true,
+      });
+
+      expect(repo.findBackfillCandidates).toHaveBeenCalledWith({
+        sessionId: '6f1a2b3c-4d5e-4f60-8a9b-0c1d2e3f4a5b',
+      });
     });
   });
 });

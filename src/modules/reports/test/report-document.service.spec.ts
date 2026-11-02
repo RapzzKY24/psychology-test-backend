@@ -84,6 +84,7 @@ describe('ReportDocumentService', () => {
       supersede: jest.fn(),
       revoke: jest.fn(),
       findByVerifyCode: jest.fn(),
+      findBackfillCandidates: jest.fn(),
     };
     assetService = {
       build: jest.fn().mockResolvedValue(assets),

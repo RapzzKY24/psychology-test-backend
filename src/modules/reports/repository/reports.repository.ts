@@ -44,7 +44,8 @@ export interface ReportDraftPatch {
   ratings: Record<string, string>;
   narratives: Record<string, string>;
   recommendation: Recommendation | null;
-  filledById: string;
+  /** Null for drafts created by a backfill — no psychologist has filled them. */
+  filledById: string | null;
   filledAt: Date;
 }
 
@@ -142,6 +143,13 @@ export interface ReportsRepository {
     id: string,
     institutionId: string,
   ): Promise<ReportDocument | null>;
+
+  /**
+   * Participants of institution sessions whose tests are all approved but who
+   * have no report row yet — the backlog left behind before this feature
+   * shipped. Ordered oldest first so a partial run still makes progress.
+   */
+  findBackfillCandidates(params: { sessionId?: string }): Promise<string[]>;
 
   /**
    * Public QR lookup. Only rows carrying a verify code are reachable: a

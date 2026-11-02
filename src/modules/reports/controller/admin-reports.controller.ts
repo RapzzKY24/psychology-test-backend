@@ -8,7 +8,12 @@ import type { ReviseReportDto } from '../dto/revise-report.dto';
 import { RevokeReportSchema } from '../dto/revise-report.dto';
 import type { RevokeReportDto } from '../dto/revise-report.dto';
 import { AdminReportsService } from '../service/admin-reports.service';
-import type { RevisedReport } from '../service/admin-reports.service';
+import type {
+  BackfillResult,
+  RevisedReport,
+} from '../service/admin-reports.service';
+import { BackfillReportsSchema } from '../dto/backfill-reports.dto';
+import type { BackfillReportsDto } from '../dto/backfill-reports.dto';
 import type { ApiResponse } from '../../../common/interfaces/api-response.interface';
 
 const UuidPipe = new ZodValidationPipe(z.string().uuid());
@@ -17,6 +22,15 @@ const UuidPipe = new ZodValidationPipe(z.string().uuid());
 @Roles(['ADMIN'])
 export class AdminReportsController {
   constructor(private readonly reports: AdminReportsService) {}
+
+  /** One-off migration for participants who finished before this feature. */
+  @Post('backfill')
+  async backfill(
+    @Body(new ZodValidationPipe(BackfillReportsSchema)) dto: BackfillReportsDto,
+  ): Promise<ApiResponse<BackfillResult>> {
+    const data = await this.reports.backfill(dto);
+    return { data, message: 'report_backfill_done' };
+  }
 
   @Patch(':id')
   async revise(

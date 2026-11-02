@@ -8,8 +8,18 @@ import {
 import { REPORTS_REPOSITORY } from '../repository/reports.repository';
 import type { ReportsRepository } from '../repository/reports.repository';
 import type { ReviseReportDto } from '../dto/revise-report.dto';
+import type { BackfillReportsDto } from '../dto/backfill-reports.dto';
 import { validateReportInput } from '../utils/validate-report';
 import type { ReportSnapshot } from '../utils/report-snapshot';
+
+export interface BackfillResult {
+  /** Participants found eligible but without a report row. */
+  scanned: number;
+  created: number;
+  /** Lost a race to a psychologist who opened the form first. */
+  skipped: number;
+  dryRun: boolean;
+}
 
 export interface RevisedReport {
   id: string;
@@ -91,6 +101,52 @@ export class AdminReportsService {
       status: 'ACTIVE',
       supersedesId: reportId,
     };
+  }
+
+  /**
+   * Creates the missing DRAFT rows for participants who finished before this
+   * feature existed. Idempotent by construction: the candidate query excludes
+   * anyone who already has any report row, so a second run creates nothing.
+   */
+  async backfill(input: BackfillReportsDto): Promise<BackfillResult> {
+    const candidates = await this.repo.findBackfillCandidates({
+      sessionId: input.sessionId,
+    });
+
+    if (input.dryRun) {
+      return {
+        scanned: candidates.length,
+        created: 0,
+        skipped: 0,
+        dryRun: true,
+      };
+    }
+
+    let created = 0;
+    let skipped = 0;
+    for (const participantId of candidates) {
+      try {
+        await this.repo.createDraft(participantId, {
+          ratings: {},
+          narratives: {},
+          recommendation: null,
+          // Nobody has filled this yet, and an admin id may not be a uuid.
+          filledById: null,
+          filledAt: new Date(),
+        });
+        created += 1;
+      } catch (error) {
+        // A psychologist opened the form between the scan and this insert; the
+        // partial unique index rejects the second draft and that is fine.
+        if ((error as { code?: string })?.code === 'P2002') {
+          skipped += 1;
+          continue;
+        }
+        throw error;
+      }
+    }
+
+    return { scanned: candidates.length, created, skipped, dryRun: false };
   }
 
   async revoke(
