@@ -16,6 +16,8 @@ export const NARRATIVE_MAX_LENGTH = 800;
 export interface RatingAspect {
   readonly key: string;
   readonly label: string;
+  /** The URAIAN column of the template, verbatim. */
+  readonly description: string;
 }
 
 export interface RatingSection {
@@ -29,37 +31,100 @@ export const RATING_SECTIONS: readonly RatingSection[] = [
     id: 'intellectual',
     label: 'I. KEMAMPUAN INTELEKTUAL',
     aspects: [
-      { key: 'intellectual.logic', label: 'Logika Berpikir' },
-      { key: 'intellectual.analysis', label: 'Daya Analisis' },
-      { key: 'intellectual.numeric', label: 'Kemampuan Numerikal' },
-      { key: 'intellectual.verbal', label: 'Kemampuan Verbal' },
+      {
+        key: 'intellectual.logic',
+        label: 'Logika Berpikir',
+        description: 'Kemampuan untuk berpikir secara logis dan sistematis.',
+      },
+      {
+        key: 'intellectual.analysis',
+        label: 'Daya Analisis',
+        description:
+          'Kemampuan untuk melihat permasalahan dan memahami hubungan sebab akibat permasalahan.',
+      },
+      {
+        key: 'intellectual.numeric',
+        label: 'Kemampuan Numerikal',
+        description:
+          'Kemampuan untuk berpikir praktis dalam memahami konsep angka dan hitungan.',
+      },
+      {
+        key: 'intellectual.verbal',
+        label: 'Kemampuan Verbal',
+        description:
+          'Kemampuan untuk memahami konsep dan pola dalam bentuk kata-kata dan mengekspresikan gagasan secara verbal.',
+      },
     ],
   },
   {
     id: 'attitude',
     label: 'II. SIKAP DAN CARA KERJA',
     aspects: [
-      { key: 'attitude.result', label: 'Orientasi Hasil' },
-      { key: 'attitude.flexibility', label: 'Fleksibilitas' },
-      { key: 'attitude.systematic', label: 'Sistematika Kerja' },
+      {
+        key: 'attitude.result',
+        label: 'Orientasi Hasil',
+        description:
+          'Kemampuan untuk mempertahankan komitmen menyelesaikan tugas secara bertanggungjawab dan memperhatikan keterhubungan antara perencanaan dan hasil kerja.',
+      },
+      {
+        key: 'attitude.flexibility',
+        label: 'Fleksibilitas',
+        description:
+          'Kemampuan untuk menyesuaikan diri dalam menghadapi permasalahan.',
+      },
+      {
+        key: 'attitude.systematic',
+        label: 'Sistematika Kerja',
+        description:
+          'Kemampuan untuk merencanakan hingga mengorganisasikan cara kerja dalam proses penyelesaian pekerjaan.',
+      },
     ],
   },
   {
     id: 'personality',
     label: 'III. KEPRIBADIAN',
     aspects: [
-      { key: 'personality.motivation', label: 'Motivasi' },
-      { key: 'personality.cooperation', label: 'Kerjasama' },
-      { key: 'personality.interpersonal', label: 'Keterampilan Interpersonal' },
-      { key: 'personality.emotion', label: 'Stabilitas Emosi' },
+      {
+        key: 'personality.motivation',
+        label: 'Motivasi',
+        description:
+          'Kemampuan untuk menunjukkan prestasi dan mencapai target.',
+      },
+      {
+        key: 'personality.cooperation',
+        label: 'Kerjasama',
+        description:
+          'Kemampuan untuk menjalin, membina dan mengoptimalkan hubungan kerja yang efektif demi tercapainya tujuan bersama.',
+      },
+      {
+        key: 'personality.interpersonal',
+        label: 'Keterampilan Interpersonal',
+        description:
+          'Kemampuan untuk menjalin hubungan sosial dan mampu memahami kebutuhan orang lain.',
+      },
+      {
+        key: 'personality.emotion',
+        label: 'Stabilitas Emosi',
+        description: 'Kemampuan untuk memahami dan mengontrol emosi.',
+      },
     ],
   },
   {
     id: 'learning',
     label: 'IV. KEMAMPUAN BELAJAR',
     aspects: [
-      { key: 'learning.change', label: 'Mengelola Perubahan' },
-      { key: 'learning.development', label: 'Pengembangan Diri' },
+      {
+        key: 'learning.change',
+        label: 'Mengelola Perubahan',
+        description:
+          'Kemampuan dalam menyesuaikan diri dengan situasi yang baru.',
+      },
+      {
+        key: 'learning.development',
+        label: 'Pengembangan Diri',
+        description:
+          'Kemampuan meningkatkan pengetahuan dan penyempurnaan keterampilan diri.',
+      },
     ],
   },
 ];
