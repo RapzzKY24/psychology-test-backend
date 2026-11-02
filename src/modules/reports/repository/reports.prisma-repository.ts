@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import type {
+  ReportDocument,
   ReportDraftPatch,
   ReportIssuePatch,
+  ReportListItem,
   ReportParticipantContext,
   ReportRecord,
   ReportsRepository,
@@ -180,6 +182,85 @@ export class PrismaReportsRepository implements ReportsRepository {
       select: DRAFT_SELECT,
     });
     return toRecord(row);
+  }
+
+  async listReports(params: {
+    skip: number;
+    take: number;
+    status?: ReportRecord['status'];
+    sessionId?: string;
+  }): Promise<{ data: ReportListItem[]; total: number }> {
+    const where: Prisma.ReportWhereInput = {};
+    if (params.status) where.status = params.status;
+    if (params.sessionId) where.participant = { sessionId: params.sessionId };
+
+    const [rows, total] = await Promise.all([
+      this.prisma.report.findMany({
+        where,
+        skip: params.skip,
+        take: params.take,
+        // Enum order is DRAFT, ACTIVE, SUPERSEDED, REVOKED — drafts float up,
+        // which is exactly the psychologist's work queue.
+        orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
+        select: {
+          id: true,
+          participantId: true,
+          number: true,
+          revision: true,
+          status: true,
+          issuedAt: true,
+          participant: {
+            select: {
+              name: true,
+              session: { select: { id: true, title: true } },
+              attempts: { select: { result: { select: { status: true } } } },
+            },
+          },
+        },
+      }),
+      this.prisma.report.count({ where }),
+    ]);
+
+    const data: ReportListItem[] = rows.map((row) => ({
+      id: row.id,
+      participantId: row.participantId,
+      participantName: row.participant.name,
+      sessionId: row.participant.session.id,
+      sessionTitle: row.participant.session.title,
+      number: row.number,
+      revision: row.revision,
+      status: row.status,
+      issuedAt: row.issuedAt,
+      testsTotal: row.participant.attempts.length,
+      testsApproved: row.participant.attempts.filter(
+        (attempt) => attempt.result?.status === 'APPROVED',
+      ).length,
+    }));
+
+    return { data, total };
+  }
+
+  async findForPdf(id: string): Promise<ReportDocument | null> {
+    const row = await this.prisma.report.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        participantId: true,
+        number: true,
+        verifyCode: true,
+        status: true,
+        snapshot: true,
+      },
+    });
+    if (!row || !row.number || !row.verifyCode || !row.snapshot) return null;
+    return {
+      id: row.id,
+      participantId: row.participantId,
+      number: row.number,
+      verifyCode: row.verifyCode,
+      status: row.status,
+      snapshot: row.snapshot as unknown as ReportDocument['snapshot'],
+    };
   }
 
   async findSettings(

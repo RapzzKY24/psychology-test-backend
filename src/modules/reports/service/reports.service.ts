@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { REPORTS_REPOSITORY } from '../repository/reports.repository';
 import type {
+  ReportListItem,
   ReportParticipantContext,
   ReportRecord,
   ReportTestItem,
@@ -17,6 +18,8 @@ import {
   validateReportInput,
 } from '../utils/validate-report';
 import type { ReportInput } from '../utils/validate-report';
+import type { QueryReportsDto } from '../dto/query-reports.dto';
+import type { PaginatedResponse } from '../../../common/interfaces/api-response.interface';
 import { calculateAge } from '../utils/calculate-age';
 import { buildReportNumber } from '../utils/build-report-number';
 import { buildReportSnapshot } from '../utils/report-snapshot';
@@ -73,6 +76,26 @@ export class ReportsService {
     @Inject(REPORTS_REPOSITORY)
     private readonly repo: ReportsRepository,
   ) {}
+
+  async listReports(
+    query: QueryReportsDto,
+  ): Promise<PaginatedResponse<ReportListItem>> {
+    const { data, total } = await this.repo.listReports({
+      skip: (query.page - 1) * query.limit,
+      take: query.limit,
+      status: query.status,
+      sessionId: query.sessionId,
+    });
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        total,
+        totalPages: Math.ceil(total / query.limit),
+      },
+    };
+  }
 
   /**
    * Opens the assessment form. Creates the DRAFT row on first open so the

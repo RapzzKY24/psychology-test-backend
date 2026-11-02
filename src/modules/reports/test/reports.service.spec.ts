@@ -80,6 +80,8 @@ describe('ReportsService', () => {
       nextRevision: jest.fn(),
       issueDraft: jest.fn(),
       findSettings: jest.fn(),
+      listReports: jest.fn(),
+      findForPdf: jest.fn(),
     };
     repo.findSettings.mockResolvedValue({});
     repo.nextSeq.mockResolvedValue(50);
@@ -316,6 +318,40 @@ describe('ReportsService', () => {
 
       expect(repo.createDraft).toHaveBeenCalled();
       expect(repo.updateDraft).toHaveBeenCalled();
+    });
+  });
+
+  describe('listReports', () => {
+    it('paginates and passes the filters through', async () => {
+      repo.listReports.mockResolvedValue({ data: [], total: 0 });
+
+      const result = await service.listReports({
+        page: 2,
+        limit: 10,
+        status: 'DRAFT',
+        sessionId: '11111111-1111-1111-1111-111111111111',
+      });
+
+      expect(repo.listReports).toHaveBeenCalledWith({
+        skip: 10,
+        take: 10,
+        status: 'DRAFT',
+        sessionId: '11111111-1111-1111-1111-111111111111',
+      });
+      expect(result.meta).toEqual({
+        page: 2,
+        limit: 10,
+        total: 0,
+        totalPages: 0,
+      });
+    });
+
+    it('rounds the page count up', async () => {
+      repo.listReports.mockResolvedValue({ data: [], total: 21 });
+
+      const result = await service.listReports({ page: 1, limit: 10 });
+
+      expect(result.meta.totalPages).toBe(3);
     });
   });
 

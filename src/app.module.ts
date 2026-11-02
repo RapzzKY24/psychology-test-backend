@@ -21,6 +21,7 @@ import { InvoicesModule } from './modules/invoices/invoices.module';
 import { IdempotencyModule } from './modules/idempotency/idempotency.module';
 import { EventLogModule } from './modules/event-log/event-log.module';
 import { PaymentsModule } from './modules/payments/payments.module';
+import { ReportsModule } from './modules/reports/reports.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
     IdempotencyModule,
     EventLogModule,
     PaymentsModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

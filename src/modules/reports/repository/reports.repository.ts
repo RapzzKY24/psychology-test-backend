@@ -48,6 +48,29 @@ export interface ReportDraftPatch {
   filledAt: Date;
 }
 
+export interface ReportListItem {
+  id: string;
+  participantId: string;
+  participantName: string;
+  sessionId: string;
+  sessionTitle: string;
+  number: string | null;
+  revision: number | null;
+  status: ReportStatus;
+  issuedAt: Date | null;
+  testsApproved: number;
+  testsTotal: number;
+}
+
+export interface ReportDocument {
+  id: string;
+  participantId: string;
+  number: string;
+  verifyCode: string;
+  status: ReportStatus;
+  snapshot: ReportSnapshot;
+}
+
 export interface ReportIssuePatch {
   number: string;
   seq: number;
@@ -78,4 +101,12 @@ export interface ReportsRepository {
   nextRevision(participantId: string): Promise<number>;
   issueDraft(id: string, patch: ReportIssuePatch): Promise<ReportRecord>;
   findSettings(keys: readonly string[]): Promise<Record<string, unknown>>;
+
+  listReports(params: {
+    skip: number;
+    take: number;
+    status?: ReportStatus;
+    sessionId?: string;
+  }): Promise<{ data: ReportListItem[]; total: number }>;
+  findForPdf(id: string): Promise<ReportDocument | null>;
 }
