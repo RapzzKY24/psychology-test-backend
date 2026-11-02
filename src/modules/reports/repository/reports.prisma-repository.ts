@@ -2,11 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import type {
   ReportDraftPatch,
+  ReportIssuePatch,
   ReportParticipantContext,
   ReportRecord,
   ReportsRepository,
 } from './reports.repository';
-import type { PsychologistProfile } from '../../../generated/prisma/client';
+import type {
+  Prisma,
+  PsychologistProfile,
+} from '../../../generated/prisma/client';
 
 const DRAFT_SELECT = {
   id: true,
@@ -65,6 +69,7 @@ export class PrismaReportsRepository implements ReportsRepository {
         attempts: {
           orderBy: { startedAt: 'asc' },
           select: {
+            completedAt: true,
             test: { select: { name: true } },
             result: {
               select: {
@@ -96,6 +101,7 @@ export class PrismaReportsRepository implements ReportsRepository {
           attempt.result?.patternCode ??
           null,
         status: attempt.result?.status ?? 'NOT_SUBMITTED',
+        completedAt: attempt.completedAt,
       })),
     };
   }
@@ -145,5 +151,43 @@ export class PrismaReportsRepository implements ReportsRepository {
 
   findPsychologist(userId: string): Promise<PsychologistProfile | null> {
     return this.prisma.psychologistProfile.findUnique({ where: { userId } });
+  }
+
+  async nextSeq(year: number): Promise<number> {
+    const aggregate = await this.prisma.report.aggregate({
+      where: { year },
+      _max: { seq: true },
+    });
+    return (aggregate._max.seq ?? 49) + 1;
+  }
+
+  async nextRevision(participantId: string): Promise<number> {
+    const aggregate = await this.prisma.report.aggregate({
+      where: { participantId },
+      _max: { revision: true },
+    });
+    return (aggregate._max.revision ?? 0) + 1;
+  }
+
+  async issueDraft(id: string, patch: ReportIssuePatch): Promise<ReportRecord> {
+    const row = await this.prisma.report.update({
+      where: { id },
+      data: {
+        ...patch,
+        status: 'ACTIVE',
+        snapshot: patch.snapshot as unknown as Prisma.InputJsonValue,
+      },
+      select: DRAFT_SELECT,
+    });
+    return toRecord(row);
+  }
+
+  async findSettings(
+    keys: readonly string[],
+  ): Promise<Record<string, unknown>> {
+    const rows = await this.prisma.setting.findMany({
+      where: { key: { in: [...keys] } },
+    });
+    return Object.fromEntries(rows.map((row) => [row.key, row.value]));
   }
 }

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/unbound-method */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return, @typescript-eslint/unbound-method */
 import {
   ConflictException,
   NotFoundException,
@@ -10,7 +10,7 @@ import type {
   ReportRecord,
   ReportsRepository,
 } from '../repository/reports.repository';
-import { RATING_KEYS } from '../rubric';
+import { NARRATIVE_KEYS, RATING_KEYS } from '../rubric';
 import type { PsychologistProfile } from '../../../generated/prisma/client';
 
 function context(
@@ -25,7 +25,14 @@ function context(
     birthDate: new Date(1999, 0, 11),
     education: 'SMA/SMK',
     destinationCountry: 'Taiwan',
-    tests: [{ testName: 'DISC', patternCode: 'I', status: 'APPROVED' }],
+    tests: [
+      {
+        testName: 'DISC',
+        patternCode: 'I',
+        status: 'APPROVED',
+        completedAt: new Date(2026, 0, 11, 9, 0, 0),
+      },
+    ],
     ...overrides,
   };
 }
@@ -69,7 +76,14 @@ describe('ReportsService', () => {
       createDraft: jest.fn(),
       updateDraft: jest.fn(),
       findPsychologist: jest.fn(),
+      nextSeq: jest.fn(),
+      nextRevision: jest.fn(),
+      issueDraft: jest.fn(),
+      findSettings: jest.fn(),
     };
+    repo.findSettings.mockResolvedValue({});
+    repo.nextSeq.mockResolvedValue(50);
+    repo.nextRevision.mockResolvedValue(1);
     service = new ReportsService(repo);
     repo.findPsychologist.mockResolvedValue(profile);
   });
@@ -172,8 +186,18 @@ describe('ReportsService', () => {
       repo.findParticipantContext.mockResolvedValue(
         context({
           tests: [
-            { testName: 'DISC', patternCode: 'I', status: 'APPROVED' },
-            { testName: 'IST', patternCode: null, status: 'PENDING_REVIEW' },
+            {
+              testName: 'DISC',
+              patternCode: 'I',
+              status: 'APPROVED',
+              completedAt: null,
+            },
+            {
+              testName: 'IST',
+              patternCode: null,
+              status: 'PENDING_REVIEW',
+              completedAt: null,
+            },
           ],
         }),
       );
@@ -292,6 +316,174 @@ describe('ReportsService', () => {
 
       expect(repo.createDraft).toHaveBeenCalled();
       expect(repo.updateDraft).toHaveBeenCalled();
+    });
+  });
+
+  describe('issue', () => {
+    function completeDraft(): ReportRecord {
+      return draft({
+        ratings: Object.fromEntries(RATING_KEYS.map((k) => [k, 'B'])),
+        narratives: Object.fromEntries(
+          NARRATIVE_KEYS.map((k) => [k, 'Cukup baik.']),
+        ),
+        recommendation: 'LAYAK',
+      });
+    }
+
+    beforeEach(() => {
+      repo.findParticipantContext.mockResolvedValue(context());
+      repo.findActiveByParticipant.mockResolvedValue(null);
+      repo.findDraftByParticipant.mockResolvedValue(completeDraft());
+      repo.issueDraft.mockResolvedValue({
+        ...completeDraft(),
+        status: 'ACTIVE',
+      });
+    });
+
+    it('refuses when a report is already issued', async () => {
+      repo.findActiveByParticipant.mockResolvedValue(
+        draft({ status: 'ACTIVE' }),
+      );
+      await expect(service.issue('u1', 'p1')).rejects.toBeInstanceOf(
+        ConflictException,
+      );
+    });
+
+    it('refuses when there is no draft yet', async () => {
+      repo.findDraftByParticipant.mockResolvedValue(null);
+      await expect(service.issue('u1', 'p1')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+    });
+
+    it('refuses when the psychologist profile is incomplete', async () => {
+      repo.findPsychologist.mockResolvedValue(null);
+      await expect(service.issue('u1', 'p1')).rejects.toMatchObject({
+        status: 422,
+      });
+    });
+
+    it('refuses while fields are missing and names them', async () => {
+      repo.findDraftByParticipant.mockResolvedValue(draft());
+      const error = await service.issue('u1', 'p1').catch((e) => e);
+      expect(error.getStatus()).toBe(422);
+      expect(
+        (error.getResponse() as { details: string[] }).details,
+      ).toHaveLength(20);
+    });
+
+    it('refuses while a test is not approved', async () => {
+      repo.findParticipantContext.mockResolvedValue(
+        context({
+          tests: [
+            {
+              testName: 'DISC',
+              patternCode: 'I',
+              status: 'PENDING_REVIEW',
+              completedAt: null,
+            },
+          ],
+        }),
+      );
+      const error = await service.issue('u1', 'p1').catch((e) => e);
+      expect((error.getResponse() as { details: string[] }).details).toEqual([
+        'tests: not_approved',
+      ]);
+    });
+
+    it('refuses when the participant has no test at all', async () => {
+      repo.findParticipantContext.mockResolvedValue(context({ tests: [] }));
+      await expect(service.issue('u1', 'p1')).rejects.toMatchObject({
+        status: 422,
+      });
+    });
+
+    it('numbers the first report of the year 050', async () => {
+      const issued = await service.issue('u1', 'p1');
+      expect(issued.number).toMatch(
+        // "PSIKOTES-BATCH-NOVEMBER" is 22 characters, so it is cut to 20.
+        /^050\/PSIKOTES-BATCH-NOVEM\/YM\/(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)\/\d{4}$/,
+      );
+      expect(issued.status).toBe('ACTIVE');
+      expect(issued.verifyCode).toHaveLength(10);
+    });
+
+    it('uses the institution name and code from settings when present', async () => {
+      repo.findSettings.mockResolvedValue({
+        'report.institution_name': 'KLINIK LAIN',
+        'report.institution_code': 'KL',
+      });
+      repo.nextSeq.mockResolvedValue(77);
+
+      const issued = await service.issue('u1', 'p1');
+
+      expect(issued.number).toContain('/KL/');
+      expect(issued.number.startsWith('077/')).toBe(true);
+    });
+
+    it('falls back to the default institution when settings are empty', async () => {
+      repo.findSettings.mockResolvedValue({});
+      await service.issue('u1', 'p1');
+      expect(repo.issueDraft).toHaveBeenCalledWith(
+        'r1',
+        expect.objectContaining({
+          snapshot: expect.objectContaining({
+            institution: 'YULIARPAN MEDIKA/ETP',
+          }),
+        }),
+      );
+    });
+
+    it('uses the next revision so a revoked report is never reused', async () => {
+      repo.nextRevision.mockResolvedValue(2);
+      const issued = await service.issue('u1', 'p1');
+      expect(issued.revision).toBe(2);
+    });
+
+    it('retries with the next sequence when the number collides', async () => {
+      repo.nextSeq.mockResolvedValueOnce(50).mockResolvedValueOnce(51);
+      repo.issueDraft
+        .mockRejectedValueOnce({ code: 'P2002' })
+        .mockResolvedValueOnce({ ...completeDraft(), status: 'ACTIVE' });
+
+      const issued = await service.issue('u1', 'p1');
+
+      expect(repo.nextSeq).toHaveBeenCalledTimes(2);
+      expect(issued.number.startsWith('051/')).toBe(true);
+    });
+
+    it('reports a conflict when the retry loses the race', async () => {
+      repo.issueDraft.mockRejectedValue({ code: 'P2002' });
+      repo.findActiveByParticipant
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(draft({ status: 'ACTIVE' }));
+
+      await expect(service.issue('u1', 'p1')).rejects.toBeInstanceOf(
+        ConflictException,
+      );
+    });
+
+    it('freezes the participant identity into the snapshot', async () => {
+      await service.issue('u1', 'p1');
+      expect(repo.issueDraft).toHaveBeenCalledWith(
+        'r1',
+        expect.objectContaining({
+          snapshot: expect.objectContaining({
+            holder: expect.objectContaining({
+              name: 'Budi Santoso',
+              education: 'SMA/SMK',
+              destination: 'Taiwan',
+            }),
+            assessor: expect.objectContaining({
+              fullName: 'Faradila Ishara Lestari',
+              licenseNumber: '25022211674',
+              sippNumber: '20211226',
+            }),
+            recommendation: 'LAYAK',
+            examDate: '2026-01-11',
+          }),
+        }),
+      );
     });
   });
 });

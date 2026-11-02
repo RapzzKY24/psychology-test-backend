@@ -3,6 +3,7 @@ import type {
   Recommendation,
   ReportStatus,
 } from '../../../generated/prisma/client';
+import type { ReportSnapshot } from '../utils/report-snapshot';
 
 export const REPORTS_REPOSITORY = 'ReportsRepository';
 
@@ -11,6 +12,7 @@ export interface ReportTestItem {
   /** Effective pattern: corrected value wins over the system value. */
   patternCode: string | null;
   status: string;
+  completedAt: Date | null;
 }
 
 export interface ReportParticipantContext {
@@ -46,6 +48,17 @@ export interface ReportDraftPatch {
   filledAt: Date;
 }
 
+export interface ReportIssuePatch {
+  number: string;
+  seq: number;
+  year: number;
+  revision: number;
+  verifyCode: string;
+  snapshot: ReportSnapshot;
+  issuedAt: Date;
+  issuedById: string;
+}
+
 export interface ReportsRepository {
   findParticipantContext(
     participantId: string,
@@ -58,4 +71,11 @@ export interface ReportsRepository {
   ): Promise<ReportRecord>;
   updateDraft(id: string, patch: ReportDraftPatch): Promise<ReportRecord>;
   findPsychologist(userId: string): Promise<PsychologistProfile | null>;
+
+  /** Next free sequence number for the given year (50 when the year is empty). */
+  nextSeq(year: number): Promise<number>;
+  /** Revision counter for a participant, so a re-issue never reuses revision 1. */
+  nextRevision(participantId: string): Promise<number>;
+  issueDraft(id: string, patch: ReportIssuePatch): Promise<ReportRecord>;
+  findSettings(keys: readonly string[]): Promise<Record<string, unknown>>;
 }

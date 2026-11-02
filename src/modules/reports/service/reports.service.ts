@@ -18,11 +18,29 @@ import {
 } from '../utils/validate-report';
 import type { ReportInput } from '../utils/validate-report';
 import { calculateAge } from '../utils/calculate-age';
+import { buildReportNumber } from '../utils/build-report-number';
+import { buildReportSnapshot } from '../utils/report-snapshot';
+import { jakartaDateParts } from '../utils/jakarta-date';
+import { generateVerifyCode } from '../../reviews/utils/generate-verify-code';
+import {
+  DEFAULT_INSTITUTION_CODE,
+  DEFAULT_INSTITUTION_NAME,
+  REPORT_SETTING_KEYS,
+} from '../report-settings';
 import { isProfileComplete } from '../../psychologist/utils/is-profile-complete';
 import type {
   PsychologistProfile,
   Recommendation,
 } from '../../../generated/prisma/client';
+
+export interface IssuedReport {
+  id: string;
+  number: string;
+  revision: number;
+  status: 'ACTIVE';
+  issuedAt: Date;
+  verifyCode: string;
+}
 
 export interface ReportForm {
   participant: {
@@ -120,6 +138,128 @@ export class ReportsService {
 
     const profile = await this.repo.findPsychologist(userId);
     return this.toForm(context, updated, profile);
+  }
+
+  /**
+   * Issues the report: assigns the number, freezes the snapshot and flips the
+   * draft to ACTIVE. Everything printed on the PDF is validated first, so a
+   * number is never burned on a document that cannot be rendered.
+   */
+  async issue(userId: string, participantId: string): Promise<IssuedReport> {
+    const context = await this.requireInstitutionContext(participantId);
+
+    if (await this.repo.findActiveByParticipant(participantId)) {
+      throw new ConflictException('report_already_issued');
+    }
+
+    const draft = await this.repo.findDraftByParticipant(participantId);
+    if (!draft) throw new NotFoundException('report_not_started');
+
+    const profile = await this.repo.findPsychologist(userId);
+    if (!profile || !isProfileComplete(profile)) {
+      throw new UnprocessableEntityException('profile_incomplete');
+    }
+
+    const notReady = collectMissingFields({
+      ratings: draft.ratings,
+      narratives: draft.narratives,
+      recommendation: draft.recommendation,
+    });
+    if (
+      context.tests.length === 0 ||
+      !context.tests.every((test) => test.status === 'APPROVED')
+    ) {
+      notReady.push('tests: not_approved');
+    }
+    if (notReady.length > 0) {
+      throw new UnprocessableEntityException({
+        statusCode: 422,
+        message: 'report_not_ready',
+        error: 'Unprocessable Entity',
+        details: notReady,
+      });
+    }
+
+    const settings = await this.loadSettings();
+    const issuedAt = new Date();
+    const { year, month } = jakartaDateParts(issuedAt);
+    const revision = await this.repo.nextRevision(participantId);
+
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        const seq = await this.repo.nextSeq(year);
+        const number = buildReportNumber({
+          seq,
+          sessionTitle: context.sessionTitle,
+          institutionCode: settings.institutionCode,
+          month,
+          year,
+        });
+        const verifyCode = generateVerifyCode();
+        const snapshot = buildReportSnapshot({
+          context,
+          report: draft,
+          profile,
+          institutionName: settings.institutionName,
+          issuedAt,
+        });
+
+        const row = await this.repo.issueDraft(draft.id, {
+          number,
+          seq,
+          year,
+          revision,
+          verifyCode,
+          snapshot,
+          issuedAt,
+          issuedById: userId,
+        });
+
+        return {
+          id: row.id,
+          number,
+          revision,
+          status: 'ACTIVE',
+          issuedAt,
+          verifyCode,
+        };
+      } catch (error) {
+        if ((error as { code?: string })?.code !== 'P2002') throw error;
+        // Two issues raced: the loser sees the winner's ACTIVE row.
+        if (await this.repo.findActiveByParticipant(participantId)) {
+          throw new ConflictException('report_already_issued');
+        }
+        // Otherwise the number collided — take the next sequence and retry.
+      }
+    }
+
+    throw new ConflictException('report_issue_conflict');
+  }
+
+  private async loadSettings(): Promise<{
+    institutionName: string;
+    institutionCode: string;
+  }> {
+    const rows = await this.repo.findSettings([
+      REPORT_SETTING_KEYS.institutionName,
+      REPORT_SETTING_KEYS.institutionCode,
+    ]);
+    const pick = (key: string, fallback: string): string => {
+      const value = rows[key];
+      return typeof value === 'string' && value.trim().length > 0
+        ? value.trim()
+        : fallback;
+    };
+    return {
+      institutionName: pick(
+        REPORT_SETTING_KEYS.institutionName,
+        DEFAULT_INSTITUTION_NAME,
+      ),
+      institutionCode: pick(
+        REPORT_SETTING_KEYS.institutionCode,
+        DEFAULT_INSTITUTION_CODE,
+      ),
+    };
   }
 
   private async requireInstitutionContext(
