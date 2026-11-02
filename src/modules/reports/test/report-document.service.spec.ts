@@ -83,6 +83,7 @@ describe('ReportDocumentService', () => {
       findForPdfInInstitution: jest.fn(),
       supersede: jest.fn(),
       revoke: jest.fn(),
+      findByVerifyCode: jest.fn(),
     };
     assetService = {
       build: jest.fn().mockResolvedValue(assets),

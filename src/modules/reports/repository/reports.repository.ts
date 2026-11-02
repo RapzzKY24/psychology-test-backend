@@ -83,6 +83,16 @@ export interface ReportRevisionPatch {
   verifyCode: string;
 }
 
+export interface ReportVerification {
+  number: string;
+  revision: number;
+  status: ReportStatus;
+  snapshot: ReportSnapshot;
+  issuedAt: Date | null;
+  revokedAt: Date | null;
+  revokeReason: string | null;
+}
+
 export interface ReportIssuePatch {
   number: string;
   seq: number;
@@ -132,6 +142,13 @@ export interface ReportsRepository {
     id: string,
     institutionId: string,
   ): Promise<ReportDocument | null>;
+
+  /**
+   * Public QR lookup. Only rows carrying a verify code are reachable: a
+   * superseded revision has its code cleared, so the QR always lands on the
+   * revision that is currently valid.
+   */
+  findByVerifyCode(code: string): Promise<ReportVerification | null>;
 
   /** Marks the current revision SUPERSEDED and inserts the next one. */
   supersede(id: string, patch: ReportRevisionPatch): Promise<ReportRecord>;

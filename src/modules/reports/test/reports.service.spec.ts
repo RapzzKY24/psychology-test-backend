@@ -86,6 +86,7 @@ describe('ReportsService', () => {
       findForPdfInInstitution: jest.fn(),
       supersede: jest.fn(),
       revoke: jest.fn(),
+      findByVerifyCode: jest.fn(),
     };
     repo.findSettings.mockResolvedValue({});
     repo.nextSeq.mockResolvedValue(50);

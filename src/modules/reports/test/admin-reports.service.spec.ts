@@ -68,6 +68,7 @@ describe('AdminReportsService', () => {
       findForPdfInInstitution: jest.fn(),
       supersede: jest.fn(),
       revoke: jest.fn(),
+      findByVerifyCode: jest.fn(),
     };
     service = new AdminReportsService(repo);
   });

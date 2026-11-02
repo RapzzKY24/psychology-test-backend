@@ -8,12 +8,19 @@ import { ReportDocumentService } from './service/report-document.service';
 import { PsychologistReportsController } from './controller/psychologist-reports.controller';
 import { AdminReportsController } from './controller/admin-reports.controller';
 import { AdminReportsService } from './service/admin-reports.service';
+import { PublicReportsController } from './controller/public-reports.controller';
+import { PublicReportsService } from './service/public-reports.service';
 
 @Module({
-  controllers: [PsychologistReportsController, AdminReportsController],
+  controllers: [
+    PsychologistReportsController,
+    AdminReportsController,
+    PublicReportsController,
+  ],
   providers: [
     ReportsService,
     AdminReportsService,
+    PublicReportsService,
     ReportDocumentService,
     ReportAssetsService,
     ReportPdfService,

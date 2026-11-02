@@ -8,6 +8,7 @@ import type {
   ReportListItem,
   ReportParticipantContext,
   ReportRecord,
+  ReportVerification,
   ReportsRepository,
 } from './reports.repository';
 import type {
@@ -323,6 +324,32 @@ export class PrismaReportsRepository implements ReportsRepository {
       select: DOCUMENT_SELECT,
     });
     return toDocument(row);
+  }
+
+  async findByVerifyCode(code: string): Promise<ReportVerification | null> {
+    const row = await this.prisma.report.findUnique({
+      where: { verifyCode: code },
+      select: {
+        number: true,
+        revision: true,
+        status: true,
+        snapshot: true,
+        issuedAt: true,
+        revokedAt: true,
+        revokeReason: true,
+      },
+    });
+    if (!row?.number || row.revision === null || !row.snapshot) return null;
+
+    return {
+      number: row.number,
+      revision: row.revision,
+      status: row.status,
+      snapshot: row.snapshot as unknown as ReportVerification['snapshot'],
+      issuedAt: row.issuedAt,
+      revokedAt: row.revokedAt,
+      revokeReason: row.revokeReason,
+    };
   }
 
   /**
