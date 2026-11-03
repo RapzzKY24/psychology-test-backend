@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, Inject } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { INVOICES_REPOSITORY } from '../repository/invoices.repository';
 import type {
   ConfirmInvoicePaymentParams,
@@ -19,6 +20,7 @@ export class InvoicesService {
   constructor(
     @Inject(INVOICES_REPOSITORY)
     private readonly repo: InvoicesRepository,
+    private readonly config: ConfigService,
   ) {}
 
   async create(dto: {
@@ -49,7 +51,17 @@ export class InvoicesService {
     if (!(await this.repo.institutionExists(data.institutionId))) {
       throw new NotFoundException('Institution not found');
     }
-    return this.repo.createForSession(data);
+    // The payment window is the invoice's own clock, not the session's: a batch
+    // stays open for a month, a payable link does not.
+    return this.repo.createForSession({
+      ...data,
+      expiresAt: data.expiresAt ?? this.defaultPaymentWindow(),
+    });
+  }
+
+  private defaultPaymentWindow(): Date {
+    const minutes = this.config.get<number>('app.invoicePaymentTtlMin', 1440);
+    return new Date(Date.now() + minutes * 60_000);
   }
 
   findBySessionId(sessionId: string): Promise<Invoice | null> {

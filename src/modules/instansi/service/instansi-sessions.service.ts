@@ -167,11 +167,12 @@ export class InstansiSessionsService {
 
     // Prepaid slots: the batch is billed for every slot bought up front
     // (Σ test price × slotLimit), independent of how many names are filled.
+    // No expiry passed: the invoice owns its own payment window
+    // (INVOICE_PAYMENT_TTL_MIN), which is shorter than the session TTL.
     let invoice = await this.invoicesService.createForSession({
       institutionId,
       amount: pricePerSeat * dto.slotLimit,
       sessionId: session.id,
-      expiresAt: session.expiresAt,
     });
 
     // Best-effort VA provisioning: on a gateway failure the invoice stays

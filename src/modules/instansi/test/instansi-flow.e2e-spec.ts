@@ -46,7 +46,10 @@ describe('Instansi flow (integration, DB real)', () => {
       participantsRepo,
       institutionsRepo,
     );
-    invoicesService = new InvoicesService(new PrismaInvoicesRepository(prisma));
+    invoicesService = new InvoicesService(
+      new PrismaInvoicesRepository(prisma),
+      { get: (_key: string, fallback?: unknown) => fallback } as never,
+    );
     sessionsService = new InstansiSessionsService(
       sessionsRepo,
       participantsRepo,

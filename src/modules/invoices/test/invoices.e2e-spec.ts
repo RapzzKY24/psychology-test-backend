@@ -31,7 +31,9 @@ describe('Invoices E2E (integ, real DB)', () => {
       },
     });
     institutionId = institution.id;
-    service = new InvoicesService(new PrismaInvoicesRepository(prisma));
+    service = new InvoicesService(new PrismaInvoicesRepository(prisma), {
+      get: (_key: string, fallback?: unknown) => fallback,
+    } as never);
   });
 
   afterAll(async () => {

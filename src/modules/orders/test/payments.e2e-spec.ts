@@ -156,7 +156,10 @@ describe('Payments E2E (integ, real DB)', () => {
     );
     paymentsService = new PaymentsService(
       ordersService,
-      new InvoicesService(new PrismaInvoicesRepository(prisma)),
+      new InvoicesService(
+        new PrismaInvoicesRepository(prisma),
+        configStub as never,
+      ),
       {
         isEnabled: () => false,
         provision: () => Promise.resolve(null),
@@ -502,10 +505,10 @@ describe('Payments E2E (integ, real DB)', () => {
         where: { id: invoice.id },
       });
       expect(paid.status).toBe('PAID');
-      // The suite runs with PAYMENT_PROVIDER=manual (to keep order creation off
-      // the gateway), and a manual settlement is attributed to the admin who
-      // cleared it — not to a provider that never touched it.
-      expect(paid.verifiedBySource).toBe('ADMIN');
+      // Attribution follows the sender, not PAYMENT_PROVIDER: this suite runs in
+      // manual mode, but the notification above came from Midtrans, so Midtrans
+      // is what settled it. An admin break-glass verify records ADMIN instead.
+      expect(paid.verifiedBySource).toBe('MIDTRANS');
 
       const activated = await prisma.testSession.findUniqueOrThrow({
         where: { id: session.id },

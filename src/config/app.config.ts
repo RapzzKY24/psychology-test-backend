@@ -2,6 +2,13 @@ import { registerAs } from '@nestjs/config';
 
 export default registerAs('app', () => ({
   paymentTtlMin: parseInt(process.env.PAYMENT_TTL_MIN ?? '60', 10),
+  // How long an invoice stays payable. Deliberately separate from the session
+  // TTL: a batch may stay open for a month, but a payment link that old is a
+  // liability — and gateways cap how far ahead a due date may be.
+  invoicePaymentTtlMin: parseInt(
+    process.env.INVOICE_PAYMENT_TTL_MIN ?? '1440',
+    10,
+  ),
   sessionDefaultTtlDays: parseInt(
     process.env.SESSION_DEFAULT_TTL_DAYS ?? '30',
     10,

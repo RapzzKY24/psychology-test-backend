@@ -28,7 +28,9 @@ describe('InvoicesService', () => {
       findOwnedByRef: jest.fn(),
       findByInstitution: jest.fn(),
     };
-    service = new InvoicesService(mockRepo);
+    service = new InvoicesService(mockRepo, {
+      get: (_key: string, fallback?: unknown) => fallback,
+    } as never);
   });
 
   describe('create', () => {
@@ -121,6 +123,43 @@ describe('InvoicesService', () => {
       expect(result.sessionId).toBe('sess1');
       expect(mockRepo.createForSession).toHaveBeenCalledWith(
         expect.objectContaining({ sessionId: 'sess1', amount: 300000 }),
+      );
+    });
+
+    it('gives the invoice its own payment window, not the session TTL', async () => {
+      mockRepo.institutionExists.mockResolvedValue(true);
+      mockRepo.createForSession.mockResolvedValue({ id: 'inv1' } as never);
+
+      const before = Date.now();
+      await service.createForSession({
+        institutionId: 'inst1',
+        amount: 300000,
+        sessionId: 'sess1',
+      });
+
+      const passed = mockRepo.createForSession.mock.calls[0][0] as unknown as {
+        expiresAt: Date;
+      };
+      const windowMs = passed.expiresAt.getTime() - before;
+      // 1440 minutes by default — a day, not the 30-day session TTL.
+      expect(windowMs).toBeGreaterThan(1439 * 60_000);
+      expect(windowMs).toBeLessThanOrEqual(1440 * 60_000 + 5_000);
+    });
+
+    it('keeps an explicit expiry when the caller passes one', async () => {
+      mockRepo.institutionExists.mockResolvedValue(true);
+      mockRepo.createForSession.mockResolvedValue({ id: 'inv1' } as never);
+      const explicit = new Date('2027-01-01T00:00:00Z');
+
+      await service.createForSession({
+        institutionId: 'inst1',
+        amount: 300000,
+        sessionId: 'sess1',
+        expiresAt: explicit,
+      });
+
+      expect(mockRepo.createForSession).toHaveBeenCalledWith(
+        expect.objectContaining({ expiresAt: explicit }),
       );
     });
   });
