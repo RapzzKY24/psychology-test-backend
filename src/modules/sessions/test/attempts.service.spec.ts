@@ -27,6 +27,8 @@ function makeDetail(
       name: 'DISC',
       scorerType: 'FORCED_CHOICE_DISC',
       status: 'PUBLISHED',
+      timeLimitMin: null,
+      normTable: null,
     },
     session: {
       id: 'sess-1',
@@ -246,6 +248,116 @@ describe('AttemptsService', () => {
           attemptId: 'att-1',
           patternCode: expect.any(String),
         }),
+      );
+    });
+  });
+  describe('time limit', () => {
+    const rawTest = {
+      id: 't-1',
+      name: 'WPT',
+      scorerType: 'RIGHT_WRONG_NORM',
+      status: 'PUBLISHED',
+      timeLimitMin: 12,
+      normTable: [{ raw: 0, iq: 59 }],
+    };
+    const rawItems = [
+      {
+        id: 'it-1',
+        order: 1,
+        content: { question: 'Q1', options: ['a', 'b'], correctIndexes: [0] },
+      },
+    ];
+
+    it('derives deadlineAt from startedAt and exposes the server clock', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({ test: rawTest, items: rawItems }),
+      );
+      const out = await service.read('att-1', 'p-1');
+      expect(out.timeLimitMin).toBe(12);
+      expect(out.deadlineAt).toEqual(new Date(NOW + 12 * 60 * 1000));
+      expect(out.serverNow).toBeInstanceOf(Date);
+    });
+
+    it('leaves deadlineAt null when the test is untimed', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(makeDetail());
+      const out = await service.read('att-1', 'p-1');
+      expect(out.deadlineAt).toBeNull();
+    });
+
+    it('rejects a late response with attempt_time_expired', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({
+          test: rawTest,
+          items: rawItems,
+          attempt: {
+            ...makeDetail().attempt,
+            startedAt: new Date(NOW - 13 * 60 * 1000),
+          },
+        }),
+      );
+      await expect(
+        service.respond(
+          'att-1',
+          { itemId: 'it-1', value: { chosen: 0 } },
+          'p-1',
+        ),
+      ).rejects.toThrow('attempt_time_expired');
+      expect(mockRepo.upsertResponse).not.toHaveBeenCalled();
+    });
+
+    it('still accepts a response inside the window', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({
+          test: rawTest,
+          items: rawItems,
+          attempt: {
+            ...makeDetail().attempt,
+            startedAt: new Date(NOW - 11 * 60 * 1000),
+          },
+        }),
+      );
+      await service.respond(
+        'att-1',
+        { itemId: 'it-1', value: { chosen: 0 } },
+        'p-1',
+      );
+      expect(mockRepo.upsertResponse).toHaveBeenCalled();
+    });
+
+    it('lets a raw-score attempt be submitted with blanks (blank = wrong)', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({ test: rawTest, items: rawItems, responses: [] }),
+      );
+      mockRepo.completeAndCreateResult.mockResolvedValue({
+        id: 'res-1',
+        patternCode: 'RAW_0',
+      } as any);
+      const out = await service.complete('att-1', 'p-1');
+      expect(out.status).toBe('COMPLETED');
+      expect(mockRepo.completeAndCreateResult).toHaveBeenCalledWith(
+        expect.objectContaining({ patternCode: 'RAW_0' }),
+      );
+    });
+
+    it('passes the norm table to the scorer', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({ test: rawTest, items: rawItems, responses: [] }),
+      );
+      mockRepo.completeAndCreateResult.mockResolvedValue({
+        id: 'res-1',
+        patternCode: 'RAW_0',
+      } as any);
+      await service.complete('att-1', 'p-1');
+      const [scores] = mockRepo.completeAndCreateResult.mock.calls[0];
+      expect(scores.scores).toEqual(
+        expect.objectContaining({ raw: 0, total: 1, iq: 59 }),
+      );
+    });
+
+    it('still refuses a DISC attempt with missing word pairs', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(makeDetail());
+      await expect(service.complete('att-1', 'p-1')).rejects.toThrow(
+        'validation_failed',
       );
     });
   });

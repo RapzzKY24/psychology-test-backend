@@ -11,7 +11,7 @@ export class InstansiTestsController {
   @Get()
   @Roles(['INSTANSI'])
   async listForInstansi(): Promise<PaginatedResponse<PublicTestDto>> {
-    // Whitelist: instansi only sees CPMI (WPT hidden)
-    return this.testsService.findManyPublicFiltered({ slug: 'cpmi' });
+    // Whitelist: instansi only sees WPT (CPMI is an alias of it).
+    return this.testsService.findManyPublicFiltered({ slug: 'wpt' });
   }
 }

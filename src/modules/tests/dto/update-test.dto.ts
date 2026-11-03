@@ -1,10 +1,18 @@
 import { z } from 'zod';
+import { NormTableSchema } from '../../../scorers/schemas/right-wrong-norm';
 
 export const UpdateTestSchema = z.object({
   name: z.string().min(3).max(100).optional(),
   description: z.string().min(10).optional(),
   price: z.number().int().min(0).optional(),
   estimatedDurationMin: z.number().int().min(1).optional(),
+  /**
+   * Hard limit enforced server-side from `startedAt`; `null` removes it.
+   * `estimatedDurationMin` stays catalog copy.
+   */
+  timeLimitMin: z.number().int().min(1).max(240).nullable().optional(),
+  /** Raw -> IQ rows; `null` removes the norm. */
+  normTable: NormTableSchema.nullable().optional(),
   slug: z
     .string()
     .regex(/^[a-z0-9-]+$/)

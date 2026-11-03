@@ -12,7 +12,16 @@ export interface AttemptAccessDetail {
     completedAt: Date | null;
     participantId: string | null;
   };
-  test: { id: string; name: string; scorerType: string; status: string };
+  test: {
+    id: string;
+    name: string;
+    scorerType: string;
+    status: string;
+    /** Hard limit in minutes; null = untimed. */
+    timeLimitMin: number | null;
+    /** Raw -> IQ rows, null when the test has no norm. */
+    normTable: unknown;
+  };
   session: { id: string; status: string; expiresAt: Date };
   items: { id: string; order: number; content: unknown }[];
   responses: { itemId: string; value: unknown }[];

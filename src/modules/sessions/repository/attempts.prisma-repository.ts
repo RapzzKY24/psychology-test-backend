@@ -18,7 +18,14 @@ export class PrismaAttemptsRepository implements AttemptsRepository {
       where: { id },
       include: {
         test: {
-          select: { id: true, name: true, scorerType: true, status: true },
+          select: {
+            id: true,
+            name: true,
+            scorerType: true,
+            status: true,
+            timeLimitMin: true,
+            normTable: true,
+          },
         },
         session: { select: { id: true, status: true, expiresAt: true } },
         responses: { select: { itemId: true, value: true } },

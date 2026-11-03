@@ -33,6 +33,19 @@ export class AttemptsService {
     }
   }
 
+  /**
+   * Server-side clock: the deadline is derived from `startedAt`, so a browser
+   * refresh, a paused tab or a clock change cannot buy extra time.
+   */
+  private deadlineOf(detail: {
+    attempt: { startedAt: Date };
+    test: { timeLimitMin: number | null };
+  }): Date | null {
+    const limit = detail.test.timeLimitMin;
+    if (!limit) return null;
+    return new Date(detail.attempt.startedAt.getTime() + limit * 60_000);
+  }
+
   private assertWithinGrace(session: {
     status: string;
     expiresAt: Date;
@@ -63,6 +76,9 @@ export class AttemptsService {
       status: detail.attempt.status,
       startedAt: detail.attempt.startedAt,
       completedAt: detail.attempt.completedAt,
+      timeLimitMin: detail.test.timeLimitMin,
+      deadlineAt: this.deadlineOf(detail),
+      serverNow: new Date(),
       items: detail.items.map((item) => ({
         id: item.id,
         order: item.order,
@@ -85,6 +101,11 @@ export class AttemptsService {
       throw new ConflictException('attempt_not_in_progress');
     }
     this.assertWithinGrace(detail.session);
+
+    const deadline = this.deadlineOf(detail);
+    if (deadline && Date.now() > deadline.getTime()) {
+      throw new ConflictException('attempt_time_expired');
+    }
 
     const item = detail.items.find((it) => it.id === dto.itemId);
     if (!item) {
@@ -149,7 +170,10 @@ export class AttemptsService {
     const missing = detail.items
       .filter((item) => !answered.has(item.id))
       .map((item) => item.id);
-    if (missing.length > 0) {
+    // A raw-score test treats a blank as wrong, so a timed attempt can be
+    // submitted at the buzzer. DISC needs every word pair to form a pattern.
+    const allowsBlank = detail.test.scorerType === 'RIGHT_WRONG_NORM';
+    if (missing.length > 0 && !allowsBlank) {
       throw new UnprocessableEntityException({
         message: 'validation_failed',
         details: [`missing responses for items: ${missing.join(', ')}`],
@@ -167,6 +191,7 @@ export class AttemptsService {
     const output = await scorer.score({
       items: detail.items,
       responses: detail.responses,
+      normTable: detail.test.normTable,
     });
     const result = await this.repo.completeAndCreateResult({
       attemptId,

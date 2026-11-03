@@ -15,7 +15,8 @@ import { ensureUploadDir } from '../../../lib/fs/ensure-upload-dir';
 import { generateTestImageFilename } from '../utils/generate-test-image-filename';
 import type { CreateTestDto } from '../dto/create-test.dto';
 import type { UpdateTestDto } from '../dto/update-test.dto';
-import type { Test, Prisma } from '../../../generated/prisma/client';
+import { Prisma } from '../../../generated/prisma/client';
+import type { Test } from '../../../generated/prisma/client';
 import type { PaginatedResponse } from '../../../common/interfaces/api-response.interface';
 import type { QueryTestDto } from '../dto/query-test.dto';
 import type { PublicTestDto } from '../dto/public-test.dto';
@@ -216,7 +217,15 @@ export class TestsService {
     if (dto.scorerType && dto.scorerType !== test.scorerType) {
       await this.assertScorerSwitchable(id, test);
     }
-    return this.repo.update(id, dto);
+
+    // Prisma needs `DbNull` to clear a nullable Json column; `null` is not a
+    // valid InputJsonValue.
+    const { normTable, ...rest } = dto;
+    const data: Prisma.TestUpdateInput = { ...rest };
+    if (normTable !== undefined) {
+      data.normTable = normTable === null ? Prisma.DbNull : normTable;
+    }
+    return this.repo.update(id, data);
   }
 
   /**

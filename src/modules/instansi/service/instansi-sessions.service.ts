@@ -91,19 +91,11 @@ export class InstansiSessionsService {
     if (!institution) throw new NotFoundException('Institution not found');
     const institutionId = institution.id;
 
-    // WPT hidden from instansi — only CPMI (and existing non-WPT tests) allowed
     const tests = await this.testsRepo.findMany({
       skip: 0,
       take: dto.testIds.length,
       where: { id: { in: dto.testIds } },
     });
-    const wptTests = tests.data.filter((t) => t.slug === 'wpt');
-    if (wptTests.length > 0) {
-      throw new UnprocessableEntityException({
-        message: 'validation_failed',
-        details: [`instansi cannot use WPT directly, use CPMI`],
-      });
-    }
 
     if (dto.employeeIds.length > dto.slotLimit) {
       throw new UnprocessableEntityException({

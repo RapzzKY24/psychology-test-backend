@@ -232,6 +232,13 @@ model Test {
   scorerType           ScorerType
   price                Int
   estimatedDurationMin Int
+  /**
+   * Hard time limit enforced from `Attempt.startedAt`; null means untimed.
+   * Distinct from `estimatedDurationMin`, which is only catalog copy.
+   */
+  timeLimitMin         Int?
+  /** Raw -> IQ conversion rows (`{ raw, iq }`); null when the test has no norm. */
+  normTable            Json?
   status               TestStatus       @default(DRAFT)
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt

@@ -28,6 +28,8 @@ export interface Scorer {
   score(input: {
     items: { id: string; content: unknown }[];
     responses: { itemId: string; value: unknown }[];
+    /** Optional conversion table carried by the test (raw -> IQ). */
+    normTable?: unknown;
   }): Promise<ScorerOutput>;
 }
 
