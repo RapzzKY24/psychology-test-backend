@@ -12,6 +12,7 @@ import type {
   OrdersRepository,
   VerifyPaymentResult,
 } from './orders.repository';
+import type { CreatePaymentCustomer } from '../../payments/gateway/payment-gateway.interface';
 import { randomInt } from 'crypto';
 import { generateInviteToken } from '../../sessions/utils/generate-invite-token';
 
@@ -21,6 +22,14 @@ export class PrismaOrdersRepository implements OrdersRepository {
 
   findById(id: string): Promise<Order | null> {
     return this.prisma.order.findUnique({ where: { id } });
+  }
+
+  async findUserContact(userId: string): Promise<CreatePaymentCustomer | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true, email: true },
+    });
+    return user ? { name: user.name, email: user.email } : null;
   }
 
   async findOwnedByRef(

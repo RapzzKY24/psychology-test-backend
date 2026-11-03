@@ -10,7 +10,10 @@ import type { ConfigService } from '@nestjs/config';
 describe('OrderPaymentService', () => {
   let service: OrderPaymentService;
   let repo: jest.Mocked<
-    Pick<OrdersRepository, 'create' | 'update' | 'findById' | 'findTestById'>
+    Pick<
+      OrdersRepository,
+      'create' | 'update' | 'findById' | 'findTestById' | 'findUserContact'
+    >
   >;
   let idempotency: jest.Mocked<
     Pick<IdempotencyService, 'begin' | 'complete' | 'fail'>
@@ -44,6 +47,7 @@ describe('OrderPaymentService', () => {
       update: jest.fn(),
       findById: jest.fn(),
       findTestById: jest.fn(),
+      findUserContact: jest.fn().mockResolvedValue(null),
     };
     idempotency = { begin: jest.fn(), complete: jest.fn(), fail: jest.fn() };
     eventLog = { record: jest.fn(), markProcessed: jest.fn() };

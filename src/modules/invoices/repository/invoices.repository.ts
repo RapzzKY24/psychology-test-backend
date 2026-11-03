@@ -4,6 +4,7 @@ import type {
   PaymentVerifiedBySource,
   Prisma,
 } from '../../../generated/prisma/client';
+import type { CreatePaymentCustomer } from '../../payments/gateway/payment-gateway.interface';
 
 export const INVOICES_REPOSITORY = 'InvoicesRepository';
 
@@ -67,6 +68,11 @@ export interface InvoicePdfRow {
 
 export interface InvoicesRepository {
   findById(id: string): Promise<Invoice | null>;
+  /**
+   * Institution contact for the gateway's customer block. Doku requires an
+   * email; Snap ignores it. Null when the invoice has no institution.
+   */
+  findBillingContact(invoiceId: string): Promise<CreatePaymentCustomer | null>;
   /** Public QR lookup. Returns only fields the verification page may show. */
   findByVerificationToken(
     token: string,

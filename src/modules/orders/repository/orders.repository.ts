@@ -5,6 +5,7 @@ import type {
   Prisma,
   Test,
 } from '../../../generated/prisma/client';
+import type { CreatePaymentCustomer } from '../../payments/gateway/payment-gateway.interface';
 
 export const ORDERS_REPOSITORY = 'OrdersRepository';
 
@@ -20,6 +21,11 @@ export type VerifyPaymentResult =
 
 export interface OrdersRepository {
   findById(id: string): Promise<Order | null>;
+  /**
+   * Buyer name and email for the gateway's customer block. Doku requires an
+   * email; Snap ignores it. Null when the account is gone.
+   */
+  findUserContact(userId: string): Promise<CreatePaymentCustomer | null>;
   /**
    * Order resolved by its own id or by `providerOrderId`, restricted to the
    * owner. Also returns the test name for the checkout result page.

@@ -14,7 +14,12 @@ import type {
   InvoiceVerificationRow,
   InvoicesRepository,
 } from './invoices.repository';
+import type { CreatePaymentCustomer } from '../../payments/gateway/payment-gateway.interface';
 import { generateInvoiceNumber } from '../utils/generate-invoice-number';
+
+const BILLING_CONTACT_SELECT = {
+  institution: { select: { contactName: true, contactEmail: true } },
+} as const;
 
 const VERIFICATION_SELECT = {
   number: true,
@@ -49,6 +54,20 @@ export class PrismaInvoicesRepository implements InvoicesRepository {
 
   findById(id: string): Promise<Invoice | null> {
     return this.prisma.invoice.findUnique({ where: { id } });
+  }
+
+  async findBillingContact(
+    invoiceId: string,
+  ): Promise<CreatePaymentCustomer | null> {
+    const invoice = await this.prisma.invoice.findUnique({
+      where: { id: invoiceId },
+      select: BILLING_CONTACT_SELECT,
+    });
+    if (!invoice?.institution) return null;
+    return {
+      name: invoice.institution.contactName,
+      email: invoice.institution.contactEmail,
+    };
   }
 
   findByVerificationToken(

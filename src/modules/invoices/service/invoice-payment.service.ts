@@ -130,6 +130,11 @@ export class InvoicePaymentService {
     }
     const claimId = claim.acquired ? claim.id : claim.existing.id;
 
+    // Doku requires a customer email; Snap ignores it. The institution contact
+    // is the only person who can be billed for a prepaid batch.
+    const contact = await this.repo.findBillingContact(invoice.id);
+    const customer = { name: contact?.name ?? name, email: contact?.email };
+
     const event = await this.eventLog.record({
       source: this.eventSource,
       direction: 'OUTBOUND',
@@ -141,7 +146,7 @@ export class InvoicePaymentService {
         providerOrderId: externalId,
         amount: invoice.amount,
         expiresAt: invoice.expiresAt,
-        customerName: name,
+        customerName: customer.name,
       },
     });
 
@@ -153,7 +158,7 @@ export class InvoicePaymentService {
         expiresAt:
           invoice.expiresAt ??
           new Date(Date.now() + this.paymentTtlMin * 60 * 1000),
-        customer: { name },
+        customer,
       });
     } catch (error) {
       const errorMessage =

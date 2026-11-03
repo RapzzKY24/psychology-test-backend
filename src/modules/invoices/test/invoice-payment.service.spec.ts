@@ -9,6 +9,7 @@ describe('InvoicePaymentService', () => {
   let service: InvoicePaymentService;
   let repo: {
     findById: jest.Mock;
+    findBillingContact: jest.Mock;
     update: jest.Mock;
   };
   let idempotency: {
@@ -41,6 +42,7 @@ describe('InvoicePaymentService', () => {
   beforeEach(() => {
     repo = {
       findById: jest.fn().mockResolvedValue(invoice),
+      findBillingContact: jest.fn().mockResolvedValue(null),
       update: jest.fn(),
     };
     idempotency = {

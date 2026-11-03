@@ -16,6 +16,7 @@ describe('OrdersService', () => {
   beforeEach(() => {
     mockRepo = {
       findById: jest.fn(),
+      findUserContact: jest.fn(),
       findOwnedByRef: jest.fn(),
       findPendingOrPaidByAmount: jest.fn(),
       findTestById: jest.fn(),

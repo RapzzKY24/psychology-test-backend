@@ -142,6 +142,14 @@ export class OrderPaymentService {
     }
     const claimId = claim.acquired ? claim.id : claim.existing.id;
 
+    // Doku requires a customer email; Snap ignores it. Resolve the buyer once
+    // and use the same value for the audit row and the provider call.
+    const contact = await this.repo.findUserContact(order.userId);
+    const customer = {
+      name: contact?.name ?? virtualAccountName,
+      email: contact?.email,
+    };
+
     const event = await this.eventLog.record({
       source: this.eventSource,
       direction: 'OUTBOUND',
@@ -153,7 +161,7 @@ export class OrderPaymentService {
         providerOrderId: externalId,
         amount: order.amount,
         expiresAt: order.expiresAt,
-        customerName: virtualAccountName,
+        customerName: customer.name,
       },
     });
 
@@ -163,7 +171,7 @@ export class OrderPaymentService {
         externalId,
         amount: order.amount,
         expiresAt: order.expiresAt,
-        customer: { name: virtualAccountName },
+        customer,
       });
     } catch (error) {
       await this.idempotency.fail(claimId, {
