@@ -158,6 +158,18 @@ enum Recommendation {
   TIDAK_LAYAK
 }
 
+enum CertificateStatus {
+  DRAFT
+  ACTIVE
+  SUPERSEDED
+  REVOKED
+}
+
+enum CertificateVerdict {
+  MEMENUHI_SYARAT
+  TIDAK_MEMENUHI_SYARAT
+}
+
 model User {
   id            String        @id
   name          String
@@ -462,6 +474,7 @@ model TestResult {
   computedAt           DateTime         @default(now())
   attempt              Attempt          @relation(fields: [attemptId], references: [id])
   deliveries           ReportDelivery[]
+  certificates         Certificate[]
 
   @@index([status])
   @@map("test_results")
@@ -501,6 +514,54 @@ model Report {
   @@index([status])
   @@index([year, seq])
   @@map("reports")
+}
+
+/// One-page certificate for a non-WPT test result. Same numbering and revision
+/// rules as Report, but anchored on TestResult: a personal purchase has no
+/// SessionParticipant, so the result is the only anchor covering both flows.
+model Certificate {
+  id       String            @id @default(uuid()) @db.Uuid
+  resultId String            @db.Uuid
+  status   CertificateStatus @default(DRAFT)
+
+  // entered by the psychologist
+  identity   Json                @default("{}")
+  verdict    CertificateVerdict?
+  purpose    String?
+  validUntil DateTime?
+  photoPath  String?
+  filledById String?
+  filledAt   DateTime?
+
+  // issued document
+  number     String?
+  seq        Int?
+  year       Int?
+  revision   Int?
+  verifyCode String?   @unique
+  snapshot   Json?
+  issuedAt   DateTime?
+  issuedById String?
+
+  supersedesId String?   @unique @db.Uuid
+  revokedAt    DateTime?
+  revokedById  String?
+  revokeReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  result       TestResult   @relation(fields: [resultId], references: [id], onDelete: Cascade)
+  supersedes   Certificate? @relation("CertificateRevision", fields: [supersedesId], references: [id])
+  supersededBy Certificate? @relation("CertificateRevision")
+
+  @@unique([resultId, revision])
+  // A revision keeps the same number, so uniqueness is per revision — not per
+  // number alone.
+  @@unique([number, revision])
+  @@index([status])
+  @@index([year, seq])
+  @@map("certificates")
 }
 
 model Invoice {
