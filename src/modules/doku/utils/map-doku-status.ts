@@ -27,8 +27,3 @@ export function mapDokuStatus(raw: string): GatewayPaymentStatus {
       return 'PENDING';
   }
 }
-
-/** Terminal at the provider: the invoice cannot be paid again. */
-export function isDokuTerminalFailure(raw: string): boolean {
-  return mapDokuStatus(raw) === 'FAILED';
-}

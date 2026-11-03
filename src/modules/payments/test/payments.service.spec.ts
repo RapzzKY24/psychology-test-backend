@@ -193,13 +193,50 @@ describe('PaymentsService', () => {
       );
     });
 
+    it('replays a stale Doku notification from its stored payload', async () => {
+      // The stored payload is flat, not the nested callback body; the recovery
+      // path reshapes it so both providers share one mapping.
+      eventLog.findStaleForRecovery.mockResolvedValue([
+        {
+          id: 'ev11',
+          source: 'DOKU',
+          type: 'PAYMENT_NOTIFICATION_RECEIVED',
+          payload: {
+            invoice_number: 'o1-250000',
+            amount: '250000.00',
+            status: 'SUCCESS',
+            channel: 'VIRTUAL_ACCOUNT_BCA',
+            reference_no: 'req-1',
+            transaction_date: '2026-11-03T09:15:00Z',
+          },
+        } as never,
+      ]);
+      orders.findByProviderOrderId.mockResolvedValue({
+        id: 'o1',
+        amount: 250000,
+        status: 'PENDING',
+      } as never);
+      orders.confirmExternalPayment.mockResolvedValue({
+        outcome: 'verified',
+        wasLate: false,
+        sessionId: 's1',
+        attemptId: 'a1',
+      });
+
+      const replayed = await service.recoverStaleCallbacks();
+
+      expect(replayed).toBe(1);
+      expect(eventLog.markProcessing).toHaveBeenCalledWith('ev11');
+      expect(orders.confirmExternalPayment).toHaveBeenCalledWith('o1', 'DOKU');
+    });
+
     it('leaves a provider this build cannot rebuild untouched', async () => {
       // A backlog written by a provider this build has no mapper for must not be
       // failed: another deployment owns it.
       eventLog.findStaleForRecovery.mockResolvedValue([
         {
           id: 'ev10',
-          source: 'DOKU',
+          source: 'JOKUL',
           type: 'PAYMENT_NOTIFICATION_RECEIVED',
           payload: { order: { invoice_number: 'x' } },
         } as never,

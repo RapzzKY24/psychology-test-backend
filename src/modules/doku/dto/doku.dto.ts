@@ -55,3 +55,21 @@ export const DokuNotificationSchema = z
   .passthrough();
 
 export type DokuNotification = z.infer<typeof DokuNotificationSchema>;
+
+/**
+ * The redacted payload `event_log` keeps for a callback. It is flat, not the
+ * nested callback body, so the recovery pass needs its own schema rather than
+ * re-parsing the original shape.
+ */
+export const DokuStoredNotificationSchema = z.object({
+  invoice_number: z.string().min(1),
+  amount: AmountSchema.nullish(),
+  status: z.string().min(1),
+  channel: z.string().nullish(),
+  reference_no: z.string().nullish(),
+  transaction_date: z.string().nullish(),
+});
+
+export type DokuStoredNotification = z.infer<
+  typeof DokuStoredNotificationSchema
+>;

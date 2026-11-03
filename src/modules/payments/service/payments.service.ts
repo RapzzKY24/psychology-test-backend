@@ -27,6 +27,7 @@ import { MS_PER_MINUTE } from '../../../common/constants/time';
 import { amountMatches } from '../utils/amount-matches';
 import { PAYMENT_NOTIFICATION_EVENT_TYPE } from '../constants/payments';
 import { toStoredPaymentNotification } from '../../midtrans/utils/to-payment-notification';
+import { toStoredDokuPaymentNotification } from '../../doku/utils/to-payment-notification';
 
 /**
  * Recovery-side twin of the ingress mappers: only the provider that wrote an
@@ -38,6 +39,7 @@ const NOTIFICATION_REBUILDERS: Partial<
   Record<EventSource, (payload: unknown) => PaymentNotification | null>
 > = {
   MIDTRANS: toStoredPaymentNotification,
+  DOKU: toStoredDokuPaymentNotification,
 };
 
 type CallbackOutcome =

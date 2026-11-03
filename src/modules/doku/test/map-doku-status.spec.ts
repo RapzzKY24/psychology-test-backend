@@ -1,4 +1,4 @@
-import { isDokuTerminalFailure, mapDokuStatus } from '../utils/map-doku-status';
+import { mapDokuStatus } from '../utils/map-doku-status';
 
 describe('mapDokuStatus', () => {
   it('maps the settlement states', () => {
@@ -26,13 +26,5 @@ describe('mapDokuStatus', () => {
 
   it('ignores case and surrounding whitespace', () => {
     expect(mapDokuStatus(' success ')).toBe('PAID');
-  });
-});
-
-describe('isDokuTerminalFailure', () => {
-  it('is true only for states the buyer cannot retry', () => {
-    expect(isDokuTerminalFailure('VOID')).toBe(true);
-    expect(isDokuTerminalFailure('EXPIRED')).toBe(false);
-    expect(isDokuTerminalFailure('SUCCESS')).toBe(false);
   });
 });
