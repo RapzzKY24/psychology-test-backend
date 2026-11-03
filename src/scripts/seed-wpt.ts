@@ -2,33 +2,21 @@ import 'dotenv/config';
 import { copyFileSync, existsSync, mkdirSync, readFileSync } from 'fs';
 import { basename, join } from 'path';
 import { PrismaClient } from '../generated/prisma/client';
-import type { Prisma } from '../generated/prisma/client';
-import { TestCategory, ScorerType } from '../generated/prisma/enums';
 import { PrismaPg } from '@prisma/adapter-pg';
+import {
+  describeSync,
+  isForce,
+  syncInterpretations,
+  syncItems,
+  upsertSeedTest,
+  type SeedData,
+} from './lib/seed-test';
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
 const SEED_DIR = join(__dirname, '../../prisma/seed-data');
 const ASSET_DIR = join(SEED_DIR, 'assets/wpt');
-
-type SeedData = {
-  test: {
-    slug: string;
-    name: string;
-    description: string;
-    category: string;
-    scorerType: string;
-    price: number;
-    estimatedDurationMin: number;
-    /** Hard limit enforced by the attempt service; null = untimed. */
-    timeLimitMin?: number | null;
-    /** Raw -> IQ conversion rows consumed by the scorer. */
-    normTable?: { raw: number; iq: number }[] | null;
-  };
-  items: { order: number; content: unknown }[];
-  interpretations: { patternCode: string; title: string; body: string }[];
-};
 
 type AssetManifest = {
   items: { item: number; file: string; imageUrl: string }[];
@@ -58,58 +46,21 @@ function installAssets(): number {
 }
 
 async function main(): Promise<void> {
+  // Without --force a routine seed never touches price or status: both are
+  // admin-owned once the test exists (see lib/seed-test.ts).
+  const force = isForce(process.argv);
   const data = JSON.parse(
     readFileSync(join(SEED_DIR, 'wpt.json'), 'utf-8'),
   ) as SeedData;
 
   const assets = installAssets();
-
-  const fields = {
-    name: data.test.name,
-    description: data.test.description,
-    category: data.test.category as unknown as TestCategory,
-    scorerType: data.test.scorerType as unknown as ScorerType,
-    price: data.test.price,
-    estimatedDurationMin: data.test.estimatedDurationMin,
-    timeLimitMin: data.test.timeLimitMin ?? null,
-    normTable: (data.test.normTable ?? null) as Prisma.InputJsonValue,
-    status: 'PUBLISHED' as const,
-  };
-
-  const test = await prisma.test.upsert({
-    where: { slug: data.test.slug },
-    update: fields,
-    create: { slug: data.test.slug, ...fields },
-  });
-
-  // Items: delete + create in transaction for idempotency
-  await prisma.$transaction(async (tx) => {
-    await tx.testItem.deleteMany({ where: { testId: test.id } });
-    if (data.items.length > 0) {
-      await tx.testItem.createMany({
-        data: data.items.map((it) => ({
-          testId: test.id,
-          order: it.order,
-          content: it.content as Prisma.InputJsonValue,
-        })),
-      });
-    }
-  });
-
-  // Interpretations: delete + create
-  await prisma.$transaction(async (tx) => {
-    await tx.interpretation.deleteMany({ where: { testId: test.id } });
-    if (data.interpretations.length > 0) {
-      await tx.interpretation.createMany({
-        data: data.interpretations.map((interp) => ({
-          testId: test.id,
-          patternCode: interp.patternCode,
-          title: interp.title,
-          body: interp.body,
-        })),
-      });
-    }
-  });
+  const test = await upsertSeedTest(prisma, data.test, force);
+  const items = await syncItems(prisma, test.id, data.items);
+  const interps = await syncInterpretations(
+    prisma,
+    test.id,
+    data.interpretations,
+  );
 
   // CPMI is another name for WPT: archive the legacy instrument instead of
   // deleting it, so old sessions and attempts keep resolving. Public links
@@ -123,12 +74,13 @@ async function main(): Promise<void> {
     },
   });
 
-  const itemCount = await prisma.testItem.count({ where: { testId: test.id } });
-  const interpCount = await prisma.interpretation.count({
-    where: { testId: test.id },
-  });
   console.log(
-    `Seeded ${data.test.slug}: ${itemCount} items, ${interpCount} interpretations, ${assets} figures, status PUBLISHED`,
+    `Seeded ${data.test.slug}: items ${describeSync(items)}, interpretations ${describeSync(interps)}, ${assets} figures`,
+  );
+  console.log(
+    force
+      ? 'price + status overwritten (--force).'
+      : 'price + status left untouched — add --force to overwrite them.',
   );
   if (archived.count > 0) {
     console.log('Archived legacy "cpmi" test (alias of wpt).');
