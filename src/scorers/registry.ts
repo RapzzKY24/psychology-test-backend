@@ -73,11 +73,7 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     patternCatalog: [],
     patternCodesFor: pairPatternCodes,
     score: (input) =>
-      Promise.resolve(
-        scoreForcedChoicePair(
-          input as unknown as Parameters<typeof scoreForcedChoicePair>[0],
-        ) as unknown as ScorerOutput,
-      ),
+      Promise.resolve(scoreForcedChoicePair(input) as unknown as ScorerOutput),
   },
   RIGHT_WRONG_NORM: {
     type: 'RIGHT_WRONG_NORM',
