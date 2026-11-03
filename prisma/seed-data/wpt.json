@@ -1,380 +1,1157 @@
 {
   "test": {
     "slug": "wpt",
-    "name": "WPT",
-    "description": "WPT — 20 soal pilihan ganda simple (RIGHT_WRONG_NORM raw)",
+    "name": "WPT (Wonderlic Personnel Test)",
+    "description": "Tes kemampuan memecahkan masalah: 50 soal penalaran verbal, numerik, dan logika dalam 12 menit. Jawaban berupa pilihan dan isian singkat.",
     "category": "COGNITIVE",
     "scorerType": "RIGHT_WRONG_NORM",
     "price": 0,
-    "estimatedDurationMin": 20
+    "estimatedDurationMin": 12,
+    "timeLimitMin": 12,
+    "normTable": [
+      {
+        "raw": 0,
+        "iq": 59
+      },
+      {
+        "raw": 1,
+        "iq": 59
+      },
+      {
+        "raw": 2,
+        "iq": 61
+      },
+      {
+        "raw": 3,
+        "iq": 64
+      },
+      {
+        "raw": 4,
+        "iq": 67
+      },
+      {
+        "raw": 5,
+        "iq": 69
+      },
+      {
+        "raw": 6,
+        "iq": 71
+      },
+      {
+        "raw": 7,
+        "iq": 73
+      },
+      {
+        "raw": 8,
+        "iq": 75
+      },
+      {
+        "raw": 9,
+        "iq": 78
+      },
+      {
+        "raw": 10,
+        "iq": 80
+      },
+      {
+        "raw": 11,
+        "iq": 81
+      },
+      {
+        "raw": 12,
+        "iq": 83
+      },
+      {
+        "raw": 13,
+        "iq": 86
+      },
+      {
+        "raw": 14,
+        "iq": 88
+      },
+      {
+        "raw": 15,
+        "iq": 90
+      },
+      {
+        "raw": 16,
+        "iq": 93
+      },
+      {
+        "raw": 17,
+        "iq": 95
+      },
+      {
+        "raw": 18,
+        "iq": 97
+      },
+      {
+        "raw": 19,
+        "iq": 98
+      },
+      {
+        "raw": 20,
+        "iq": 100
+      },
+      {
+        "raw": 21,
+        "iq": 102
+      },
+      {
+        "raw": 22,
+        "iq": 104
+      },
+      {
+        "raw": 23,
+        "iq": 106
+      },
+      {
+        "raw": 24,
+        "iq": 108
+      },
+      {
+        "raw": 25,
+        "iq": 111
+      },
+      {
+        "raw": 26,
+        "iq": 113
+      },
+      {
+        "raw": 27,
+        "iq": 114
+      },
+      {
+        "raw": 28,
+        "iq": 116
+      },
+      {
+        "raw": 29,
+        "iq": 118
+      },
+      {
+        "raw": 30,
+        "iq": 120
+      },
+      {
+        "raw": 31,
+        "iq": 121
+      },
+      {
+        "raw": 32,
+        "iq": 123
+      },
+      {
+        "raw": 33,
+        "iq": 125
+      },
+      {
+        "raw": 34,
+        "iq": 126
+      },
+      {
+        "raw": 35,
+        "iq": 128
+      },
+      {
+        "raw": 36,
+        "iq": 130
+      },
+      {
+        "raw": 37,
+        "iq": 132
+      },
+      {
+        "raw": 38,
+        "iq": 134
+      },
+      {
+        "raw": 39,
+        "iq": 136
+      },
+      {
+        "raw": 40,
+        "iq": 138
+      },
+      {
+        "raw": 41,
+        "iq": 140
+      },
+      {
+        "raw": 42,
+        "iq": 142
+      },
+      {
+        "raw": 43,
+        "iq": 143
+      },
+      {
+        "raw": 44,
+        "iq": 146
+      },
+      {
+        "raw": 45,
+        "iq": 146
+      },
+      {
+        "raw": 46,
+        "iq": 146
+      },
+      {
+        "raw": 47,
+        "iq": 146
+      },
+      {
+        "raw": 48,
+        "iq": 146
+      },
+      {
+        "raw": 49,
+        "iq": 146
+      },
+      {
+        "raw": 50,
+        "iq": 146
+      }
+    ]
   },
   "items": [
     {
       "order": 1,
       "content": {
-        "question": "2 + 3 = ?",
+        "answerMode": "choice",
+        "question": "Bulan lalu pada awal tahun ini adalah",
         "options": [
-          "4",
-          "5",
-          "6",
-          "7"
+          "Januari",
+          "Maret",
+          "Juli",
+          "Desember",
+          "Oktober"
         ],
-        "correctIndex": 1
+        "correctIndexes": [
+          3
+        ]
       }
     },
     {
       "order": 2,
       "content": {
-        "question": "Lawan kata 'Besar' adalah",
+        "answerMode": "choice",
+        "question": "MENANGKAP adalah lawan kata dari",
         "options": [
-          "Kecil",
-          "Luas",
-          "Tinggi",
-          "Lebar"
+          "meletakkan",
+          "membebaskan",
+          "beresiko",
+          "berusaha",
+          "turun tingkat"
         ],
-        "correctIndex": 0
+        "correctIndexes": [
+          1
+        ]
       }
     },
     {
       "order": 3,
       "content": {
-        "question": "5 x 4 = ?",
+        "answerMode": "choice",
+        "question": "Sebagian besar hal di bawah ini serupa satu sama lain. Manakah yang kurang serupa dengan yang lain?",
         "options": [
-          "15",
-          "20",
-          "25",
-          "30"
+          "Januari",
+          "Agustus",
+          "Rabu",
+          "Oktober",
+          "Desember"
         ],
-        "correctIndex": 1
+        "correctIndexes": [
+          2
+        ]
       }
     },
     {
       "order": 4,
       "content": {
-        "question": "Ibukota Indonesia adalah",
+        "answerMode": "choice",
+        "question": "Jawablah dengan menuliskan YA atau TIDAK. Apakah RSVP berarti ‘jawablah yang tidak perlu’?",
         "options": [
-          "Bali",
-          "Jakarta",
-          "Surabaya",
-          "Medan"
+          "YA",
+          "TIDAK"
         ],
-        "correctIndex": 1
+        "correctIndexes": [
+          1
+        ]
       }
     },
     {
       "order": 5,
       "content": {
-        "question": "3, 6, 9, 12, ...",
+        "answerMode": "choice",
+        "question": "Dalam kelompok kata berikut, manakah kata yang berbeda dari kata yang lain?",
         "options": [
-          "13",
-          "15",
-          "14",
-          "18"
+          "pasukan",
+          "liga",
+          "berpartisipasi",
+          "pak",
+          "kelompok"
         ],
-        "correctIndex": 1
+        "correctIndexes": [
+          2
+        ]
       }
     },
     {
       "order": 6,
       "content": {
-        "question": "Sinonim 'Cepat' adalah",
+        "answerMode": "choice",
+        "question": "BIASA adalah lawan kata dari",
         "options": [
-          "Lambat",
-          "Gesit",
-          "Berat",
-          "Kuat"
+          "jarang",
+          "terbiasa",
+          "tetap",
+          "berhenti",
+          "selalu"
         ],
-        "correctIndex": 1
+        "correctIndexes": [
+          0
+        ]
       }
     },
     {
       "order": 7,
       "content": {
-        "question": "10 - 7 = ?",
+        "answerMode": "choice",
+        "question": "Gambar manakah yang terbuat dari dua gambar di dalam tanda kurung?",
         "options": [
+          "1",
           "2",
           "3",
           "4",
           "5"
         ],
-        "correctIndex": 1
+        "correctIndexes": [
+          2
+        ],
+        "imageUrl": "/uploads/test-items/4b1f9c22-63ba-4d20-9b2f-b19364e37dd4.png"
       }
     },
     {
       "order": 8,
       "content": {
-        "question": "Warna bendera Indonesia",
-        "options": [
-          "Merah Putih",
-          "Biru Putih",
-          "Hijau Kuning",
-          "Hitam Putih"
-        ],
-        "correctIndex": 0
+        "answerMode": "short",
+        "question": "Perhatikan urutan angka berikut. Angka berapa yang selanjutnya muncul?\n8  4  2  1  ½  ¼  ?",
+        "accepted": [
+          "0.125",
+          "1/8",
+          ".125"
+        ]
       }
     },
     {
       "order": 9,
       "content": {
-        "question": "Jika A lebih tinggi dari B, B lebih tinggi dari C, maka A ... C",
+        "answerMode": "choice",
+        "question": "Klien dan Pelanggan. Apakah kata-kata ini:",
         "options": [
-          "Lebih tinggi dari",
-          "Lebih pendek dari",
-          "Sama dengan",
-          "Tidak dapat ditentukan"
+          "Memiliki arti yang sama",
+          "Memiliki arti berlawanan",
+          "Tidak memiliki arti sama atau berlawanan"
         ],
-        "correctIndex": 0
+        "correctIndexes": [
+          0
+        ]
       }
     },
     {
       "order": 10,
       "content": {
-        "question": "12 : 4 = ?",
+        "answerMode": "choice",
+        "question": "Manakah kata berikut ini yang berhubungan dengan aroma saat gigi mengunyah?",
         "options": [
-          "2",
-          "3",
-          "4",
-          "6"
+          "manis",
+          "bau tak sedap",
+          "bau wangi",
+          "hidung",
+          "bersih"
         ],
-        "correctIndex": 1
+        "correctIndexes": [
+          3
+        ]
       }
     },
     {
       "order": 11,
       "content": {
-        "question": "Antonim 'Panas' adalah",
+        "answerMode": "choice",
+        "question": "MUSIM GUGUR adalah lawan dari:",
         "options": [
-          "Hangat",
-          "Dingin",
-          "Terik",
-          "Gersang"
+          "liburan",
+          "musim panas",
+          "musim semi",
+          "musim dingin",
+          "musim gugur"
         ],
-        "correctIndex": 1
+        "correctIndexes": [
+          2
+        ]
       }
     },
     {
       "order": 12,
       "content": {
-        "question": "7 + 8 = ?",
-        "options": [
-          "14",
-          "15",
-          "16",
-          "13"
-        ],
-        "correctIndex": 1
+        "answerMode": "short",
+        "question": "Sebuah pesawat terbang 300 kaki dalam ½ detik. Pada kecepatan yang sama, berapa kaki ia terbang dalam 10 detik?",
+        "accepted": [
+          "6000"
+        ]
       }
     },
     {
       "order": 13,
       "content": {
-        "question": "Hewan berkaki 4",
+        "answerMode": "choice",
+        "question": "Anggaplah dua pernyataan pertama benar. Apakah pernyataan terakhir?\nAnak-anak lelaki ini adalah anak yang normal. Semua anak normal sifatnya aktif. Anak-anak lelaki ini aktif.",
         "options": [
-          "Ayam",
-          "Kucing",
-          "Ular",
-          "Ikan"
+          "Benar",
+          "Salah",
+          "Tidak tahu"
         ],
-        "correctIndex": 1
+        "correctIndexes": [
+          0
+        ]
       }
     },
     {
       "order": 14,
       "content": {
-        "question": "20% dari 100 adalah",
+        "answerMode": "choice",
+        "question": "JAUH adalah lawan kata dari",
         "options": [
-          "10",
-          "20",
-          "25",
-          "30"
+          "terpencil",
+          "dekat",
+          "jauh",
+          "terburu-buru",
+          "pasti"
         ],
-        "correctIndex": 1
+        "correctIndexes": [
+          1
+        ]
       }
     },
     {
       "order": 15,
       "content": {
-        "question": "Lengkapi: Senin, Selasa, Rabu, ...",
-        "options": [
-          "Kamis",
-          "Jumat",
-          "Sabtu",
-          "Minggu"
-        ],
-        "correctIndex": 0
+        "answerMode": "short",
+        "question": "3 permen lemon seharga 10 rupiah. Berapa harga ½ lusin?",
+        "accepted": [
+          "20"
+        ]
       }
     },
     {
       "order": 16,
       "content": {
-        "question": "9 x 3 = ?",
-        "options": [
-          "26",
-          "27",
-          "28",
-          "29"
-        ],
-        "correctIndex": 1
+        "answerMode": "short",
+        "question": "Berapa banyak duplikasi yang sama dari lima pasangan angka di bawah ini?\n84721        84721\n9210651      9210561\n14201201     14210210\n96101101     96101161\n88884444     88884444",
+        "accepted": [
+          "2"
+        ]
       }
     },
     {
       "order": 17,
       "content": {
-        "question": "Lawan 'Benar' adalah",
-        "options": [
-          "Salah",
-          "Baik",
-          "Tepat",
-          "Lurus"
-        ],
-        "correctIndex": 0
+        "answerMode": "short",
+        "question": "Susunlah kata-kata berikut sehingga menjadi pernyataan yang benar, lalu tuliskan huruf terakhir dari kata terakhir sebagai jawaban.\nSelalu sebuah kata kerja kalimat suatu memiliki",
+        "accepted": [
+          "a"
+        ]
       }
     },
     {
       "order": 18,
       "content": {
-        "question": "4, 8, 12, 16, ...",
-        "options": [
-          "18",
-          "20",
-          "22",
-          "24"
-        ],
-        "correctIndex": 1
+        "answerMode": "short",
+        "question": "Anak lelaki berumur 5 tahun dan saudara perempuannya dua kali lebih tua. Ketika anak lelaki itu berumur 8 tahun, berapa umur saudara perempuannya?",
+        "accepted": [
+          "13"
+        ]
       }
     },
     {
       "order": 19,
       "content": {
-        "question": "Ibukota Jawa Barat",
+        "answerMode": "choice",
+        "question": "IT'S — ITS. Apakah kata ini:",
         "options": [
-          "Bandung",
-          "Semarang",
-          "Surabaya",
-          "Jakarta"
+          "Memiliki arti yang sama",
+          "Memiliki arti yang berlawanan",
+          "Tidak memiliki arti yang sama atau berlawanan"
         ],
-        "correctIndex": 0
+        "correctIndexes": [
+          2
+        ]
       }
     },
     {
       "order": 20,
       "content": {
-        "question": "15 + 15 = ?",
+        "answerMode": "choice",
+        "question": "Anggaplah dua pernyataan pertama benar. Apakah pernyataan terakhir?\nJohn seusia dengan Sally. Sally lebih muda dari Bill. John lebih muda dari Bill.",
         "options": [
-          "25",
-          "30",
-          "35",
-          "40"
+          "Benar",
+          "Salah",
+          "Tidak tahu"
         ],
-        "correctIndex": 1
+        "correctIndexes": [
+          0
+        ]
+      }
+    },
+    {
+      "order": 21,
+      "content": {
+        "answerMode": "short",
+        "question": "Seorang dealer membeli beberapa barrel seharga 4.000 rupiah. Ia menjualnya dengan harga 5.000 rupiah, mendapat untung 50 rupiah setiap barrel. Berapa banyak barel yang dijual?",
+        "accepted": [
+          "20"
+        ]
+      }
+    },
+    {
+      "order": 22,
+      "content": {
+        "answerMode": "choice",
+        "question": "Susunlah kata-kata berikut sehingga menjadi kalimat lengkap. Jika kalimat itu benar tulislah (B), jika salah tulislah (S).\ntelur menghasilkan semua ayam",
+        "options": [
+          "B",
+          "S"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 23,
+      "content": {
+        "answerMode": "choice",
+        "question": "Dua dari peribahasa berikut ini memiliki arti sama. Manakah itu?",
+        "options": [
+          "Semakin banyak memiliki sapi, akan memiliki satu anak sapi yang buruk.",
+          "Anak seperti Ayahnya.",
+          "Bila tertinggal sama jauhnya dengan satu mil.",
+          "Seorang dikenal dari persahabatan yang dijalin.",
+          "Mereka adalah benih dari mangkuk yang sama."
+        ],
+        "correctIndexes": [
+          1,
+          4
+        ]
+      }
+    },
+    {
+      "order": 24,
+      "content": {
+        "answerMode": "short",
+        "question": "Sebuah jam terlambat 1 menit 18 detik dalam 39 hari. Berapa detik ia terlambat dalam sehari?",
+        "accepted": [
+          "2"
+        ]
+      }
+    },
+    {
+      "order": 25,
+      "content": {
+        "answerMode": "choice",
+        "question": "CANVASS — CANVAS. Apakah kata-kata ini:",
+        "options": [
+          "Memiliki arti yang sama",
+          "Memiliki arti berlawanan",
+          "Tidak memiliki arti sama atau berlawanan"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 26,
+      "content": {
+        "answerMode": "choice",
+        "question": "Anggaplah dua pernyataan pertama benar. Pernyataan terakhir?\nSemua siswa mengikuti ujian. Beberapa orang di ruangan ini adalah siswa. Beberapa orang di ruangan ini mengikuti ujian.",
+        "options": [
+          "Benar",
+          "Salah",
+          "Tidak tahu"
+        ],
+        "correctIndexes": [
+          0
+        ]
+      }
+    },
+    {
+      "order": 27,
+      "content": {
+        "answerMode": "short",
+        "question": "Dalam 30 hari seorang menabung 1 dolar. Berapa rata-rata tabungannya setiap hari?",
+        "accepted": [
+          "1/30",
+          "0.0333",
+          "0.033"
+        ]
+      }
+    },
+    {
+      "order": 28,
+      "content": {
+        "answerMode": "choice",
+        "question": "INGENIOUS — INGENUOUS. Apakah kata-kata ini:",
+        "options": [
+          "Memiliki arti yang sama",
+          "Memiliki arti berlawanan",
+          "Tidak memiliki arti sama atau berlawanan"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 29,
+      "content": {
+        "answerMode": "short",
+        "question": "Dua orang menangkap 36 ikan. X menangkap 5 kali lebih banyak dari Y. Berapa ikan yang ditangkap Y?",
+        "accepted": [
+          "6"
+        ]
+      }
+    },
+    {
+      "order": 30,
+      "content": {
+        "answerMode": "short",
+        "question": "Sebuah kotak segi empat yang terisi penuh memuat 800 kubik kaki gandum. Jika kotak itu lebarnya 8 kaki dan panjangnya 10 kaki, berapa kedalaman kotak itu?",
+        "accepted": [
+          "10"
+        ]
+      }
+    },
+    {
+      "order": 31,
+      "content": {
+        "answerMode": "short",
+        "question": "Satu angka dari rangkaian berikut tidak cocok dengan pola angka yang lainnya. Angka berapakah itu?\n½   ¼   1/6   1/8   1/9   1/12",
+        "accepted": [
+          "1/9",
+          "0.1111",
+          "0.111"
+        ]
+      }
+    },
+    {
+      "order": 32,
+      "content": {
+        "answerMode": "choice",
+        "question": "Jawablah pertanyaan ini dengan menulis YA atau TIDAK. Apakah P.M. berarti ‘post merediem’?",
+        "options": [
+          "YA",
+          "TIDAK"
+        ],
+        "correctIndexes": [
+          0
+        ]
+      }
+    },
+    {
+      "order": 33,
+      "content": {
+        "answerMode": "choice",
+        "question": "DAPAT DIPERCAYA — GAMPANG PERCAYA. Apakah kata-kata ini:",
+        "options": [
+          "Memiliki arti yang sama",
+          "Memiliki arti berlawanan",
+          "Tidak memiliki arti sama atau berlawanan"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 34,
+      "content": {
+        "answerMode": "short",
+        "question": "Sebuah rok membutuhkan 2 ¼ meter kain. Berapa banyak potong yang dihasilkan dari 45 meter kain?",
+        "accepted": [
+          "20"
+        ]
+      }
+    },
+    {
+      "order": 35,
+      "content": {
+        "answerMode": "short",
+        "question": "Sebuah jam menunjuk tepat pukul 12 siang pada hari Senin. Pada pukul 2 siang hari Rabu, jam itu terlambat 26 detik. Pada rata-rata yang sama, berapa detik jam itu terlambat dalam ½ jam?",
+        "accepted": [
+          "0.25",
+          "1/4",
+          ".25"
+        ]
+      }
+    },
+    {
+      "order": 36,
+      "content": {
+        "answerMode": "short",
+        "question": "Tim bisbol kami kalah 9 permainan musim ini. Ini merupakan 3/8 bagian dari semua pertandingan mereka. Berapa banyak pertandingan yang mereka mainkan musim ini?",
+        "accepted": [
+          "24"
+        ]
+      }
+    },
+    {
+      "order": 37,
+      "content": {
+        "answerMode": "short",
+        "question": "Apakah angka selanjutnya dari seri ini?\n1   .5   .25   .125   ?",
+        "accepted": [
+          "0.0625",
+          "1/16",
+          ".0625"
+        ]
+      }
+    },
+    {
+      "order": 38,
+      "content": {
+        "answerMode": "short",
+        "question": "Bentuk geometris ini dapat dibagi oleh suatu garis lurus menjadi dua bagian yang dapat disatukan hingga membentuk bujur sangkar sempurna. Gambarlah garis yang menghubungkan dua dari angka-angka yang ada, lalu tuliskan kedua angka itu.",
+        "accepted": [
+          "6,9",
+          "9,6"
+        ],
+        "imageUrl": "/uploads/test-items/794e9160-c323-44ef-b085-9817c99d3911.png"
+      }
+    },
+    {
+      "order": 39,
+      "content": {
+        "answerMode": "choice",
+        "question": "Apakah arti dari kalimat berikut?\nSebuah sapu yang baru menyapu dengan bersih. Sepatu yang sudah lama sifatnya makin lunak.",
+        "options": [
+          "Memiliki arti yang sama",
+          "Memiliki arti berlawanan",
+          "Tidak memiliki arti sama atau berlawanan"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 40,
+      "content": {
+        "answerMode": "short",
+        "question": "Berapa duplikasi dari pasangan kata berikut ini?\nRexford, J.D.        Rockford, J.D\nSingleton, M.O.      Simbleten, M.O.\nRichards, W.E.       Richad, W.E.\nSiegel, A.B.         Seigel, A.B.\nWood, A.O.           Wood, A.O.",
+        "accepted": [
+          "1"
+        ]
+      }
+    },
+    {
+      "order": 41,
+      "content": {
+        "answerMode": "choice",
+        "question": "Dua dari peribahasa ini memiliki makna yang serupa. Manakah itu?",
+        "options": [
+          "Anda tidak dapat membuat dompet sutra dari kuping babi betina.",
+          "Orang yang mencuri telur akan mencuri sapi.",
+          "Batu yang berguling tidak akan mengumpulkan lumut.",
+          "Anda tidak mungkin menghancurkan kapal yang sudah rusak.",
+          "Ini ketidakmungkinan yang terjadi."
+        ],
+        "correctIndexes": [
+          0,
+          3
+        ]
+      }
+    },
+    {
+      "order": 42,
+      "content": {
+        "answerMode": "short",
+        "question": "Gambar geometris ini dapat dibagi dengan garis lurus menjadi dua bagian yang dapat disatukan untuk membentuk sebuah bujur sangkar sempurna. Gambarlah garis dengan menghubungkan dua angka, lalu tuliskan kedua angka itu.",
+        "accepted": [
+          "3,22",
+          "22,3"
+        ],
+        "imageUrl": "/uploads/test-items/22aebc60-bb26-45e8-9632-aac8cb7a19a8.png"
+      }
+    },
+    {
+      "order": 43,
+      "content": {
+        "answerMode": "short",
+        "question": "Dalam kelompok angka berikut ini, manakah angka yang terkecil?\n10   1   .999   .33   11",
+        "accepted": [
+          "0.33",
+          ".33"
+        ]
+      }
+    },
+    {
+      "order": 44,
+      "content": {
+        "answerMode": "choice",
+        "question": "Apakah makna dari kalimat berikut?\nTidak ada orang jujur meminta maaf atas kejujurannya. Kejujuran dihormati dan lapar pujian.",
+        "options": [
+          "Memiliki arti yang sama",
+          "Memiliki arti berlawanan",
+          "Tidak memiliki arti sama atau berlawanan"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 45,
+      "content": {
+        "answerMode": "short",
+        "question": "Dengan harga 1,80 dolar, seorang grosir membeli satu kardus buah berisi 12 lusin. Ia tahu dua lusin akan busuk sebelum dijual. Dengan harga berapa per lusin ia harus menjual buah itu untuk mendapat 1/3 dari harga seluruhnya?",
+        "accepted": [
+          "24"
+        ]
+      }
+    },
+    {
+      "order": 46,
+      "content": {
+        "answerMode": "choice",
+        "question": "Dalam rangkaian kata berikut ini, manakah kata yang berbeda dari yang lainnya?",
+        "options": [
+          "koloni",
+          "perkawanan",
+          "kawanan",
+          "kru",
+          "konstelasi"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 47,
+      "content": {
+        "answerMode": "choice",
+        "question": "Anggaplah dua pernyataan pertama benar. Apakah pernyataan terakhir?\nOrang besar dibodohi. Saya dibodohi. Saya adalah orang besar.",
+        "options": [
+          "Benar",
+          "Salah",
+          "Tidak tahu"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 48,
+      "content": {
+        "answerMode": "short",
+        "question": "Tiga orang membentuk kemitraan dan setuju membagi keuntungan secara rata. X menginvestasikan 4.500 dolar, Y 3.500 dolar, dan Z 2.000 dolar. Jika keuntungan mencapai 1.500 dolar, lebih kurang berapa yang akan diperoleh X dibanding jika keuntungan dibagi berdasarkan besarnya investasi?",
+        "accepted": [
+          "175"
+        ]
+      }
+    },
+    {
+      "order": 49,
+      "content": {
+        "answerMode": "choice",
+        "question": "Empat dari 5 bagian ini dapat digabungkan untuk membuat segitiga. Manakah keempat gambar ini?",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "correctIndexes": [
+          0,
+          1,
+          3,
+          4
+        ],
+        "imageUrl": "/uploads/test-items/da3f9b2d-6a02-4ce0-b345-8dcbe2a3262a.png"
+      }
+    },
+    {
+      "order": 50,
+      "content": {
+        "answerMode": "short",
+        "question": "Untuk mencetak artikel berisi 30.000 kata, percetakan memakai dua ukuran jenis huruf. Dengan tipe lebih besar, satu halaman memuat 1.200 kata; dengan tipe lebih kecil, satu halaman memuat 1.500 kata. Artikel itu masuk dalam 22 halaman majalah. Berapa banyak halaman yang dibutuhkan untuk tipe yang lebih kecil?",
+        "accepted": [
+          "12"
+        ]
       }
     }
   ],
   "interpretations": [
     {
       "patternCode": "RAW_0",
-      "title": "0 benar",
-      "body": "Skor 0 dari 20"
+      "title": "Skor 0 dari 50 — IQ 59",
+      "body": "Kemampuan memecahkan masalah di bawah rata-rata. Perlu pendampingan pada tugas yang menuntut penalaran cepat, berhitung, dan pemahaman verbal."
     },
     {
       "patternCode": "RAW_1",
-      "title": "1 benar",
-      "body": "Skor 1 dari 20"
+      "title": "Skor 1 dari 50 — IQ 59",
+      "body": "Kemampuan memecahkan masalah di bawah rata-rata. Perlu pendampingan pada tugas yang menuntut penalaran cepat, berhitung, dan pemahaman verbal."
     },
     {
       "patternCode": "RAW_2",
-      "title": "2 benar",
-      "body": "Skor 2 dari 20"
+      "title": "Skor 2 dari 50 — IQ 61",
+      "body": "Kemampuan memecahkan masalah di bawah rata-rata. Perlu pendampingan pada tugas yang menuntut penalaran cepat, berhitung, dan pemahaman verbal."
     },
     {
       "patternCode": "RAW_3",
-      "title": "3 benar",
-      "body": "Skor 3 dari 20"
+      "title": "Skor 3 dari 50 — IQ 64",
+      "body": "Kemampuan memecahkan masalah di bawah rata-rata. Perlu pendampingan pada tugas yang menuntut penalaran cepat, berhitung, dan pemahaman verbal."
     },
     {
       "patternCode": "RAW_4",
-      "title": "4 benar",
-      "body": "Skor 4 dari 20"
+      "title": "Skor 4 dari 50 — IQ 67",
+      "body": "Kemampuan memecahkan masalah di bawah rata-rata. Perlu pendampingan pada tugas yang menuntut penalaran cepat, berhitung, dan pemahaman verbal."
     },
     {
       "patternCode": "RAW_5",
-      "title": "5 benar",
-      "body": "Skor 5 dari 20"
+      "title": "Skor 5 dari 50 — IQ 69",
+      "body": "Kemampuan memecahkan masalah di bawah rata-rata. Perlu pendampingan pada tugas yang menuntut penalaran cepat, berhitung, dan pemahaman verbal."
     },
     {
       "patternCode": "RAW_6",
-      "title": "6 benar",
-      "body": "Skor 6 dari 20"
+      "title": "Skor 6 dari 50 — IQ 71",
+      "body": "Kemampuan memecahkan masalah di bawah rata-rata. Perlu pendampingan pada tugas yang menuntut penalaran cepat, berhitung, dan pemahaman verbal."
     },
     {
       "patternCode": "RAW_7",
-      "title": "7 benar",
-      "body": "Skor 7 dari 20"
+      "title": "Skor 7 dari 50 — IQ 73",
+      "body": "Kemampuan memecahkan masalah di bawah rata-rata. Perlu pendampingan pada tugas yang menuntut penalaran cepat, berhitung, dan pemahaman verbal."
     },
     {
       "patternCode": "RAW_8",
-      "title": "8 benar",
-      "body": "Skor 8 dari 20"
+      "title": "Skor 8 dari 50 — IQ 75",
+      "body": "Kemampuan memecahkan masalah di bawah rata-rata. Perlu pendampingan pada tugas yang menuntut penalaran cepat, berhitung, dan pemahaman verbal."
     },
     {
       "patternCode": "RAW_9",
-      "title": "9 benar",
-      "body": "Skor 9 dari 20"
+      "title": "Skor 9 dari 50 — IQ 78",
+      "body": "Kemampuan memecahkan masalah di bawah rata-rata. Perlu pendampingan pada tugas yang menuntut penalaran cepat, berhitung, dan pemahaman verbal."
     },
     {
       "patternCode": "RAW_10",
-      "title": "10 benar",
-      "body": "Skor 10 dari 20"
+      "title": "Skor 10 dari 50 — IQ 80",
+      "body": "Kemampuan memecahkan masalah sedikit di bawah rata-rata. Masih dapat menangani tugas rutin, namun perlu waktu lebih pada soal berhitung dan penalaran."
     },
     {
       "patternCode": "RAW_11",
-      "title": "11 benar",
-      "body": "Skor 11 dari 20"
+      "title": "Skor 11 dari 50 — IQ 81",
+      "body": "Kemampuan memecahkan masalah sedikit di bawah rata-rata. Masih dapat menangani tugas rutin, namun perlu waktu lebih pada soal berhitung dan penalaran."
     },
     {
       "patternCode": "RAW_12",
-      "title": "12 benar",
-      "body": "Skor 12 dari 20"
+      "title": "Skor 12 dari 50 — IQ 83",
+      "body": "Kemampuan memecahkan masalah sedikit di bawah rata-rata. Masih dapat menangani tugas rutin, namun perlu waktu lebih pada soal berhitung dan penalaran."
     },
     {
       "patternCode": "RAW_13",
-      "title": "13 benar",
-      "body": "Skor 13 dari 20"
+      "title": "Skor 13 dari 50 — IQ 86",
+      "body": "Kemampuan memecahkan masalah sedikit di bawah rata-rata. Masih dapat menangani tugas rutin, namun perlu waktu lebih pada soal berhitung dan penalaran."
     },
     {
       "patternCode": "RAW_14",
-      "title": "14 benar",
-      "body": "Skor 14 dari 20"
+      "title": "Skor 14 dari 50 — IQ 88",
+      "body": "Kemampuan memecahkan masalah sedikit di bawah rata-rata. Masih dapat menangani tugas rutin, namun perlu waktu lebih pada soal berhitung dan penalaran."
     },
     {
       "patternCode": "RAW_15",
-      "title": "15 benar",
-      "body": "Skor 15 dari 20"
+      "title": "Skor 15 dari 50 — IQ 90",
+      "body": "Kemampuan memecahkan masalah pada rentang rata-rata. Mampu menangani tugas administratif dan operasional dengan penalaran yang memadai."
     },
     {
       "patternCode": "RAW_16",
-      "title": "16 benar",
-      "body": "Skor 16 dari 20"
+      "title": "Skor 16 dari 50 — IQ 93",
+      "body": "Kemampuan memecahkan masalah pada rentang rata-rata. Mampu menangani tugas administratif dan operasional dengan penalaran yang memadai."
     },
     {
       "patternCode": "RAW_17",
-      "title": "17 benar",
-      "body": "Skor 17 dari 20"
+      "title": "Skor 17 dari 50 — IQ 95",
+      "body": "Kemampuan memecahkan masalah pada rentang rata-rata. Mampu menangani tugas administratif dan operasional dengan penalaran yang memadai."
     },
     {
       "patternCode": "RAW_18",
-      "title": "18 benar",
-      "body": "Skor 18 dari 20"
+      "title": "Skor 18 dari 50 — IQ 97",
+      "body": "Kemampuan memecahkan masalah pada rentang rata-rata. Mampu menangani tugas administratif dan operasional dengan penalaran yang memadai."
     },
     {
       "patternCode": "RAW_19",
-      "title": "19 benar",
-      "body": "Skor 19 dari 20"
+      "title": "Skor 19 dari 50 — IQ 98",
+      "body": "Kemampuan memecahkan masalah pada rentang rata-rata. Mampu menangani tugas administratif dan operasional dengan penalaran yang memadai."
     },
     {
       "patternCode": "RAW_20",
-      "title": "20 benar",
-      "body": "Skor 20 dari 20"
+      "title": "Skor 20 dari 50 — IQ 100",
+      "body": "Kemampuan memecahkan masalah pada rentang rata-rata. Mampu menangani tugas administratif dan operasional dengan penalaran yang memadai."
+    },
+    {
+      "patternCode": "RAW_21",
+      "title": "Skor 21 dari 50 — IQ 102",
+      "body": "Kemampuan memecahkan masalah pada rentang rata-rata. Mampu menangani tugas administratif dan operasional dengan penalaran yang memadai."
+    },
+    {
+      "patternCode": "RAW_22",
+      "title": "Skor 22 dari 50 — IQ 104",
+      "body": "Kemampuan memecahkan masalah pada rentang rata-rata. Mampu menangani tugas administratif dan operasional dengan penalaran yang memadai."
+    },
+    {
+      "patternCode": "RAW_23",
+      "title": "Skor 23 dari 50 — IQ 106",
+      "body": "Kemampuan memecahkan masalah pada rentang rata-rata. Mampu menangani tugas administratif dan operasional dengan penalaran yang memadai."
+    },
+    {
+      "patternCode": "RAW_24",
+      "title": "Skor 24 dari 50 — IQ 108",
+      "body": "Kemampuan memecahkan masalah pada rentang rata-rata. Mampu menangani tugas administratif dan operasional dengan penalaran yang memadai."
+    },
+    {
+      "patternCode": "RAW_25",
+      "title": "Skor 25 dari 50 — IQ 111",
+      "body": "Kemampuan memecahkan masalah di atas rata-rata. Cepat memahami instruksi, kuat pada penalaran verbal dan numerik."
+    },
+    {
+      "patternCode": "RAW_26",
+      "title": "Skor 26 dari 50 — IQ 113",
+      "body": "Kemampuan memecahkan masalah di atas rata-rata. Cepat memahami instruksi, kuat pada penalaran verbal dan numerik."
+    },
+    {
+      "patternCode": "RAW_27",
+      "title": "Skor 27 dari 50 — IQ 114",
+      "body": "Kemampuan memecahkan masalah di atas rata-rata. Cepat memahami instruksi, kuat pada penalaran verbal dan numerik."
+    },
+    {
+      "patternCode": "RAW_28",
+      "title": "Skor 28 dari 50 — IQ 116",
+      "body": "Kemampuan memecahkan masalah di atas rata-rata. Cepat memahami instruksi, kuat pada penalaran verbal dan numerik."
+    },
+    {
+      "patternCode": "RAW_29",
+      "title": "Skor 29 dari 50 — IQ 118",
+      "body": "Kemampuan memecahkan masalah di atas rata-rata. Cepat memahami instruksi, kuat pada penalaran verbal dan numerik."
+    },
+    {
+      "patternCode": "RAW_30",
+      "title": "Skor 30 dari 50 — IQ 120",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
+    },
+    {
+      "patternCode": "RAW_31",
+      "title": "Skor 31 dari 50 — IQ 121",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
+    },
+    {
+      "patternCode": "RAW_32",
+      "title": "Skor 32 dari 50 — IQ 123",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
+    },
+    {
+      "patternCode": "RAW_33",
+      "title": "Skor 33 dari 50 — IQ 125",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
+    },
+    {
+      "patternCode": "RAW_34",
+      "title": "Skor 34 dari 50 — IQ 126",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
+    },
+    {
+      "patternCode": "RAW_35",
+      "title": "Skor 35 dari 50 — IQ 128",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
+    },
+    {
+      "patternCode": "RAW_36",
+      "title": "Skor 36 dari 50 — IQ 130",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
+    },
+    {
+      "patternCode": "RAW_37",
+      "title": "Skor 37 dari 50 — IQ 132",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
+    },
+    {
+      "patternCode": "RAW_38",
+      "title": "Skor 38 dari 50 — IQ 134",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
+    },
+    {
+      "patternCode": "RAW_39",
+      "title": "Skor 39 dari 50 — IQ 136",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
+    },
+    {
+      "patternCode": "RAW_40",
+      "title": "Skor 40 dari 50 — IQ 138",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
+    },
+    {
+      "patternCode": "RAW_41",
+      "title": "Skor 41 dari 50 — IQ 140",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
+    },
+    {
+      "patternCode": "RAW_42",
+      "title": "Skor 42 dari 50 — IQ 142",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
+    },
+    {
+      "patternCode": "RAW_43",
+      "title": "Skor 43 dari 50 — IQ 143",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
+    },
+    {
+      "patternCode": "RAW_44",
+      "title": "Skor 44 dari 50 — IQ 146",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
+    },
+    {
+      "patternCode": "RAW_45",
+      "title": "Skor 45 dari 50 — IQ 146",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
+    },
+    {
+      "patternCode": "RAW_46",
+      "title": "Skor 46 dari 50 — IQ 146",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
+    },
+    {
+      "patternCode": "RAW_47",
+      "title": "Skor 47 dari 50 — IQ 146",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
+    },
+    {
+      "patternCode": "RAW_48",
+      "title": "Skor 48 dari 50 — IQ 146",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
+    },
+    {
+      "patternCode": "RAW_49",
+      "title": "Skor 49 dari 50 — IQ 146",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
+    },
+    {
+      "patternCode": "RAW_50",
+      "title": "Skor 50 dari 50 — IQ 146",
+      "body": "Kemampuan memecahkan masalah jauh di atas rata-rata. Sangat cepat dan akurat pada tugas baru yang menuntut penalaran kompleks."
     }
   ]
 }

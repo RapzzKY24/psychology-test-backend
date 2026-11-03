@@ -24,7 +24,6 @@
     "test:e2e": "node --experimental-vm-modules ./node_modules/.bin/jest --config ./test/jest-e2e.json",
     "seed:admin": "tsx src/scripts/seed-admin.ts",
     "seed:disc": "tsx src/scripts/seed-disc.ts",
-    "seed:cpmi": "tsx src/scripts/seed-cpmi.ts",
     "seed:wpt": "tsx src/scripts/seed-wpt.ts",
     "seed:instansi": "tsx src/scripts/seed-instansi.ts",
     "seed:articles": "tsx src/scripts/seed-articles.ts",

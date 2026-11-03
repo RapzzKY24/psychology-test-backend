@@ -1,0 +1,25 @@
+{
+  "note": "Gambar soal WPT dipotong dari 'Soal WPT.pdf' (Wonderlic Form A) halaman 2-3. imageUrl dipakai apa adanya oleh seed agar idempoten.",
+  "items": [
+    {
+      "item": 7,
+      "file": "wpt-07.png",
+      "imageUrl": "/uploads/test-items/4b1f9c22-63ba-4d20-9b2f-b19364e37dd4.png"
+    },
+    {
+      "item": 38,
+      "file": "wpt-38.png",
+      "imageUrl": "/uploads/test-items/794e9160-c323-44ef-b085-9817c99d3911.png"
+    },
+    {
+      "item": 42,
+      "file": "wpt-42.png",
+      "imageUrl": "/uploads/test-items/22aebc60-bb26-45e8-9632-aac8cb7a19a8.png"
+    },
+    {
+      "item": 49,
+      "file": "wpt-49.png",
+      "imageUrl": "/uploads/test-items/da3f9b2d-6a02-4ce0-b345-8dcbe2a3262a.png"
+    }
+  ]
+}
