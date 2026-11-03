@@ -21,35 +21,24 @@ import {
   type PaymentProviderEnv,
 } from '../../../common/constants/payment-provider';
 import { PaymentGatewayError } from '../gateway/payment-gateway.error';
-import type {
-  GatewayPaymentStatus,
-  PaymentStatusResult,
-} from '../gateway/payment-gateway.interface';
-import {
-  MidtransNotificationSchema,
-  MidtransStoredNotificationSchema,
-} from '../../midtrans/dto/midtrans.dto';
-import type { MidtransNotification } from '../../midtrans/dto/midtrans.dto';
-import { mapTransactionStatus } from '../../midtrans/utils/map-status';
+import type { PaymentStatusResult } from '../gateway/payment-gateway.interface';
+import type { PaymentNotification } from '../gateway/payment-notification';
 import { MS_PER_MINUTE } from '../../../common/constants/time';
 import { amountMatches } from '../utils/amount-matches';
-import {
-  MIDTRANS_ACK,
-  MIDTRANS_NOTIFICATION_EVENT_TYPE,
-  MIDTRANS_NOTIFICATION_SCOPE,
-} from '../constants/payments';
-import type { MidtransAck } from '../constants/payments';
+import { PAYMENT_NOTIFICATION_EVENT_TYPE } from '../constants/payments';
+import { toStoredPaymentNotification } from '../../midtrans/utils/to-payment-notification';
 
-/** The fields every notification handler reads; the signature is not one. */
-type NotificationPayload = Pick<
-  MidtransNotification,
-  | 'order_id'
-  | 'status_code'
-  | 'gross_amount'
-  | 'transaction_status'
-  | 'payment_type'
-  | 'fraud_status'
->;
+/**
+ * Recovery-side twin of the ingress mappers: only the provider that wrote an
+ * event can rebuild it from its stored payload. A source with no entry here is
+ * left untouched rather than failed, so a build that does not know a provider
+ * cannot corrupt its backlog.
+ */
+const NOTIFICATION_REBUILDERS: Partial<
+  Record<EventSource, (payload: unknown) => PaymentNotification | null>
+> = {
+  MIDTRANS: toStoredPaymentNotification,
+};
 
 type CallbackOutcome =
   | { kind: 'settled' }
@@ -106,57 +95,62 @@ export class PaymentsService {
   }
 
   /**
-   * Handle a Midtrans HTTP notification. Idempotent per
-   * `order_id:transaction_status:status_code` and always answers
-   * `{ ok: true }` so Midtrans stops retrying; business outcomes are kept in
-   * the event log instead of the HTTP status.
+   * Settle one inbound callback. Idempotent per `notification.idempotencyKey`,
+   * which the transport computed: a redelivery is dropped, a genuine state
+   * change (pending -> settlement) is not.
+   *
+   * The provider's HTTP answer is the controller's business. Business outcomes
+   * are recorded in the event log, never turned into a status code.
    */
-  async handleNotification(body: unknown): Promise<MidtransAck> {
-    const parsed = MidtransNotificationSchema.safeParse(body);
-    if (!parsed.success) {
-      // An unparsable body is recorded, never turned into a retry storm.
-      const event = await this.eventLog.record({
-        source: this.eventSource,
-        direction: 'INBOUND',
-        type: MIDTRANS_NOTIFICATION_EVENT_TYPE,
-        payload: { raw: body },
-      });
-      await this.eventLog.markFailed(event.id, {
-        errorMessage: 'unparsable_payload',
-      });
-      return MIDTRANS_ACK;
-    }
-
-    const payload = parsed.data;
-    // A retried notification carries the same triple, so a redelivery is
-    // dropped; a genuine state change (pending -> settlement) is not.
-    const key = `${payload.order_id}:${payload.transaction_status}:${payload.status_code}`;
-
+  async handleNotification(notification: PaymentNotification): Promise<void> {
     const claim = await this.idempotency.begin({
-      scope: MIDTRANS_NOTIFICATION_SCOPE,
-      key,
+      scope: this.notificationScope(notification.source),
+      key: notification.idempotencyKey,
     });
-    if (!claim.acquired) return MIDTRANS_ACK;
+    if (!claim.acquired) return;
 
     const event = await this.eventLog.record({
-      source: this.eventSource,
+      source: notification.source,
       direction: 'INBOUND',
-      type: MIDTRANS_NOTIFICATION_EVENT_TYPE,
-      reference: payload.order_id,
-      idempotencyKey: key,
-      payload: this.redactMidtrans(payload),
+      type: PAYMENT_NOTIFICATION_EVENT_TYPE,
+      reference: notification.providerOrderId,
+      idempotencyKey: notification.idempotencyKey,
+      payload: notification.payload,
     });
 
-    const outcome = await this.applyNotification(payload, event.id);
+    const outcome = await this.applyNotification(notification, event.id);
     if (outcome.kind === 'rejected') {
       await this.idempotency.fail(claim.id, { errorMessage: outcome.reason });
     } else {
       await this.idempotency.complete(claim.id, {
         responseStatus: 200,
-        responseBody: MIDTRANS_ACK,
+        responseBody: { outcome: outcome.kind },
       });
     }
-    return MIDTRANS_ACK;
+  }
+
+  /**
+   * Record a callback that did not parse. A schema mismatch must never become a
+   * retry storm, so this writes the audit row and returns.
+   */
+  async recordUnparsable(input: {
+    source: PaymentNotification['source'];
+    payload: unknown;
+  }): Promise<void> {
+    const event = await this.eventLog.record({
+      source: input.source,
+      direction: 'INBOUND',
+      type: PAYMENT_NOTIFICATION_EVENT_TYPE,
+      payload: { raw: input.payload },
+    });
+    await this.eventLog.markFailed(event.id, {
+      errorMessage: 'unparsable_payload',
+    });
+  }
+
+  /** Keeps the historical `midtrans.notification` scope for existing rows. */
+  private notificationScope(source: PaymentNotification['source']): string {
+    return `${source.toLowerCase()}.notification`;
   }
 
   /**
@@ -173,19 +167,21 @@ export class PaymentsService {
     for (const event of stale) {
       if (
         event.payload === null ||
-        event.type !== MIDTRANS_NOTIFICATION_EVENT_TYPE
+        event.type !== PAYMENT_NOTIFICATION_EVENT_TYPE
       ) {
         continue;
       }
-      const parsed = MidtransStoredNotificationSchema.safeParse(event.payload);
-      if (!parsed.success) {
+      const rebuild = NOTIFICATION_REBUILDERS[event.source];
+      if (!rebuild) continue;
+      const notification = rebuild(event.payload);
+      if (!notification) {
         await this.eventLog.markFailed(event.id, {
           errorMessage: 'unparsable_payload',
         });
         continue;
       }
       await this.eventLog.markProcessing(event.id);
-      await this.applyNotification(parsed.data, event.id);
+      await this.applyNotification(notification, event.id);
       replayed += 1;
     }
     return replayed;
@@ -381,26 +377,25 @@ export class PaymentsService {
 
   /**
    * Resolve the notification target: a gateway order first, then a session
-   * invoice. Midtrans only echoes `order_id` (our `providerOrderId`), so an
-   * unknown id is recorded and rejected — but still acked.
+   * invoice. A provider echoes exactly one id (our `providerOrderId`), so an
+   * unknown one is recorded and rejected — but still acked.
    */
   private async applyNotification(
-    payload: NotificationPayload,
+    notification: PaymentNotification,
     eventId: string,
   ): Promise<CallbackOutcome> {
-    const status = mapTransactionStatus(
-      payload.transaction_status,
-      payload.fraud_status ?? null,
+    const order = await this.orders.findByProviderOrderId(
+      notification.providerOrderId,
     );
-
-    const order = await this.orders.findByProviderOrderId(payload.order_id);
     if (order) {
-      return this.applyOrderNotification(order, payload, status, eventId);
+      return this.applyOrderNotification(order, notification, eventId);
     }
 
-    const invoice = await this.invoices.findByProviderOrderId(payload.order_id);
+    const invoice = await this.invoices.findByProviderOrderId(
+      notification.providerOrderId,
+    );
     if (invoice) {
-      return this.applyInvoiceNotification(invoice, payload, status, eventId);
+      return this.applyInvoiceNotification(invoice, notification, eventId);
     }
 
     await this.eventLog.markFailed(eventId, {
@@ -411,17 +406,17 @@ export class PaymentsService {
 
   private async applyOrderNotification(
     order: Order,
-    payload: NotificationPayload,
-    status: GatewayPaymentStatus,
+    notification: PaymentNotification,
     eventId: string,
   ): Promise<CallbackOutcome> {
+    const { status } = notification;
     // Monotonic guard: a paid order never slides back to a non-paid state, no
     // matter what the provider reports afterwards.
     if (order.status === 'PAID' && status !== 'PAID') {
       await this.eventLog.markProcessed(eventId, {
         response: {
           ignored: 'already_paid',
-          incoming: payload.transaction_status,
+          incoming: notification.rawStatus,
         },
       });
       return { kind: 'ignored', reason: 'already_paid' };
@@ -429,7 +424,7 @@ export class PaymentsService {
 
     switch (status) {
       case 'PAID': {
-        if (!amountMatches(payload.gross_amount, order.amount)) {
+        if (!amountMatches(notification.paidAmount, order.amount)) {
           await this.eventLog.markFailed(eventId, {
             errorMessage: 'amount_mismatch',
           });
@@ -456,7 +451,7 @@ export class PaymentsService {
         await this.persistPaymentType(
           'order',
           order.id,
-          payload.payment_type ?? null,
+          notification.paymentType,
         );
         await this.eventLog.markProcessed(eventId, {
           response: {
@@ -478,24 +473,24 @@ export class PaymentsService {
         return { kind: 'ignored', reason: 'expired' };
 
       case 'FAILED':
-        // A deny/failure is retryable: Midtrans lets the customer pay the same
-        // order_id again, so the order must NOT be cancelled. A `cancel` is
+        // A deny/failure is retryable: the provider lets the customer pay the
+        // same order again, so the order must NOT be cancelled. A `cancel` is
         // different — that transaction is dead.
-        if (
-          payload.transaction_status.toLowerCase() === 'cancel' &&
-          order.status === 'PENDING'
-        ) {
+        if (notification.cancelled && order.status === 'PENDING') {
           try {
-            await this.orders.cancel(order.id, 'midtrans_cancel');
+            await this.orders.cancel(
+              order.id,
+              `${notification.source.toLowerCase()}_cancel`,
+            );
           } catch (error) {
             // A concurrent settle/cancel won the race; nothing to undo.
             this.logger.warn(
-              `midtrans cancel ${order.id} skipped: ${error instanceof Error ? error.message : 'unknown_error'}`,
+              `${notification.source} cancel ${order.id} skipped: ${error instanceof Error ? error.message : 'unknown_error'}`,
             );
           }
         }
         await this.eventLog.markProcessed(eventId, {
-          response: { ignored: payload.transaction_status },
+          response: { ignored: notification.rawStatus },
         });
         return { kind: 'ignored', reason: 'non_paid_status' };
 
@@ -509,15 +504,15 @@ export class PaymentsService {
 
   private async applyInvoiceNotification(
     invoice: Invoice,
-    payload: NotificationPayload,
-    status: GatewayPaymentStatus,
+    notification: PaymentNotification,
     eventId: string,
   ): Promise<CallbackOutcome> {
+    const { status } = notification;
     if (invoice.status === 'PAID' && status !== 'PAID') {
       await this.eventLog.markProcessed(eventId, {
         response: {
           ignored: 'already_paid',
-          incoming: payload.transaction_status,
+          incoming: notification.rawStatus,
         },
       });
       return { kind: 'ignored', reason: 'already_paid' };
@@ -527,17 +522,25 @@ export class PaymentsService {
       // InvoiceStatus has no EXPIRED and an unpaid invoice stays payable, so
       // the stored status is never touched here.
       await this.eventLog.markProcessed(eventId, {
-        response: { ignored: payload.transaction_status },
+        response: { ignored: notification.rawStatus },
       });
       return { kind: 'ignored', reason: 'non_paid_status' };
     }
 
-    // No amount guard here on purpose: confirmPaymentWithActivation compares
-    // the paid amount with the invoice amount internally.
+    // The exact amount is compared inside confirmPaymentWithActivation, but a
+    // settlement that carries no amount at all must never reach it: it would be
+    // read as zero rather than as "unknown".
+    if (notification.paidAmount === null) {
+      await this.eventLog.markFailed(eventId, {
+        errorMessage: 'amount_mismatch',
+      });
+      return { kind: 'rejected', reason: 'amount_mismatch' };
+    }
+
     const result = await this.invoices.confirmPaymentWithActivation(
       invoice.id,
       {
-        paidAmount: Number(payload.gross_amount),
+        paidAmount: notification.paidAmount,
         verifiedBySource: this.verifiedBySource,
       },
     );
@@ -557,7 +560,7 @@ export class PaymentsService {
     await this.persistPaymentType(
       'invoice',
       invoice.id,
-      payload.payment_type ?? null,
+      notification.paymentType,
     );
     await this.eventLog.markProcessed(eventId, {
       response: { invoiceId: invoice.id, sessionId: invoice.sessionId },
@@ -586,22 +589,5 @@ export class PaymentsService {
         `persist paymentType ${kind} ${id} failed: ${error instanceof Error ? error.message : 'unknown_error'}`,
       );
     }
-  }
-
-  /** Notification payload without the signature or any credential. */
-  private redactMidtrans(
-    payload: MidtransNotification,
-  ): Record<string, unknown> {
-    return {
-      order_id: payload.order_id,
-      transaction_id: payload.transaction_id,
-      transaction_status: payload.transaction_status,
-      status_code: payload.status_code,
-      fraud_status: payload.fraud_status,
-      payment_type: payload.payment_type,
-      gross_amount: payload.gross_amount,
-      transaction_time: payload.transaction_time,
-      expiry_time: payload.expiry_time,
-    };
   }
 }

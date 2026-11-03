@@ -18,7 +18,7 @@ import { EventLogService } from '../../event-log/service/event-log.service';
 import { PrismaIdempotencyRepository } from '../../idempotency/repository/idempotency.prisma-repository';
 import { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import { PaymentsService } from '../../payments/service/payments.service';
-import { MIDTRANS_ACK } from '../../payments/constants/payments';
+import { toPaymentNotification } from '../../midtrans/utils/to-payment-notification';
 
 /**
  * Feature 07 integration tests against the real DB
@@ -494,10 +494,9 @@ describe('Payments E2E (integ, real DB)', () => {
     it('settles the invoice, activates the session, and acks', async () => {
       const { session, invoice } = await seedPendingInvoice();
 
-      const ack = await paymentsService.handleNotification(
-        notificationFor(invoice.providerOrderId!),
+      await paymentsService.handleNotification(
+        toPaymentNotification(notificationFor(invoice.providerOrderId!)),
       );
-      expect(ack).toEqual(MIDTRANS_ACK);
 
       const paid = await prisma.invoice.findUniqueOrThrow({
         where: { id: invoice.id },
@@ -515,8 +514,8 @@ describe('Payments E2E (integ, real DB)', () => {
       const { session, invoice } = await seedPendingInvoice();
       const payload = notificationFor(invoice.providerOrderId!);
 
-      await paymentsService.handleNotification(payload);
-      await paymentsService.handleNotification(payload);
+      await paymentsService.handleNotification(toPaymentNotification(payload));
+      await paymentsService.handleNotification(toPaymentNotification(payload));
 
       const paid = await prisma.invoice.findUniqueOrThrow({
         where: { id: invoice.id },

@@ -1,6 +1,6 @@
 import { BadGatewayException } from '@nestjs/common';
 import { PaymentsService } from '../service/payments.service';
-import { MIDTRANS_ACK } from '../constants/payments';
+import { toPaymentNotification } from '../../midtrans/utils/to-payment-notification';
 import { MidtransApiError } from '../../midtrans/errors/midtrans-api.error';
 import type { EventLogService } from '../../event-log/service/event-log.service';
 import type { IdempotencyService } from '../../idempotency/service/idempotency.service';
@@ -154,6 +154,7 @@ describe('PaymentsService', () => {
       eventLog.findStaleForRecovery.mockResolvedValue([
         {
           id: 'ev9',
+          source: 'MIDTRANS',
           type: 'PAYMENT_NOTIFICATION_RECEIVED',
           payload: {
             order_id: 'o1',
@@ -188,6 +189,28 @@ describe('PaymentsService', () => {
       );
       expect(eventLog.markProcessed).toHaveBeenCalledWith(
         'ev9',
+        expect.anything(),
+      );
+    });
+
+    it('leaves a provider this build cannot rebuild untouched', async () => {
+      // A backlog written by a provider this build has no mapper for must not be
+      // failed: another deployment owns it.
+      eventLog.findStaleForRecovery.mockResolvedValue([
+        {
+          id: 'ev10',
+          source: 'DOKU',
+          type: 'PAYMENT_NOTIFICATION_RECEIVED',
+          payload: { order: { invoice_number: 'x' } },
+        } as never,
+      ]);
+
+      const replayed = await service.recoverStaleCallbacks();
+
+      expect(replayed).toBe(0);
+      expect(eventLog.markProcessing).not.toHaveBeenCalledWith('ev10');
+      expect(eventLog.markFailed).not.toHaveBeenCalledWith(
+        'ev10',
         expect.anything(),
       );
     });
@@ -478,6 +501,10 @@ describe('PaymentsService', () => {
       fraud_status: 'accept',
     };
 
+    /** Same body through the real mapper, so every case exercises it too. */
+    const notify = (overrides: Partial<typeof notification> = {}) =>
+      toPaymentNotification({ ...notification, ...overrides });
+
     let orderRepo: RepositorySeam;
     let invoiceRepo: RepositorySeam;
     let cancelOrder: jest.Mock;
@@ -526,9 +553,7 @@ describe('PaymentsService', () => {
         attemptId: 'a1',
       });
 
-      const ack = await service.handleNotification(notification);
-
-      expect(ack).toEqual(MIDTRANS_ACK);
+      await service.handleNotification(notify());
       expect(idempotency.begin).toHaveBeenCalledWith({
         scope: 'midtrans.notification',
         key: 'o1:settlement:200',
@@ -542,7 +567,7 @@ describe('PaymentsService', () => {
       });
       expect(idempotency.complete).toHaveBeenCalledWith('idem1', {
         responseStatus: 200,
-        responseBody: MIDTRANS_ACK,
+        responseBody: { outcome: 'settled' },
       });
       expect(eventLog.markFailed).not.toHaveBeenCalled();
     });
@@ -553,9 +578,7 @@ describe('PaymentsService', () => {
         existing: { id: 'idem1', status: 'COMPLETED' } as never,
       });
 
-      const ack = await service.handleNotification(notification);
-
-      expect(ack).toEqual(MIDTRANS_ACK);
+      await service.handleNotification(notify());
       expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
       expect(eventLog.record).not.toHaveBeenCalled();
       expect(idempotency.complete).not.toHaveBeenCalled();
@@ -564,12 +587,7 @@ describe('PaymentsService', () => {
     it('rejects a settlement whose gross_amount does not match the order', async () => {
       orderRepo.findByProviderOrderId.mockResolvedValue(pendingOrder);
 
-      const ack = await service.handleNotification({
-        ...notification,
-        gross_amount: '199999.00',
-      });
-
-      expect(ack).toEqual(MIDTRANS_ACK);
+      await service.handleNotification(notify({ gross_amount: '199999.00' }));
       expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
       expect(eventLog.markFailed).toHaveBeenCalledWith('ev1', {
         errorMessage: 'amount_mismatch',
@@ -587,13 +605,9 @@ describe('PaymentsService', () => {
         status: 'PAID',
       });
 
-      const ack = await service.handleNotification({
-        ...notification,
-        transaction_status: 'pending',
-        status_code: '201',
-      });
-
-      expect(ack).toEqual(MIDTRANS_ACK);
+      await service.handleNotification(
+        notify({ transaction_status: 'pending', status_code: '201' }),
+      );
       expect(orderRepo.update).not.toHaveBeenCalled();
       expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
       expect(eventLog.markProcessed).toHaveBeenCalledWith('ev1', {
@@ -606,9 +620,7 @@ describe('PaymentsService', () => {
       orderRepo.findByProviderOrderId.mockResolvedValue(null);
       invoiceRepo.findByProviderOrderId.mockResolvedValue(null);
 
-      const ack = await service.handleNotification(notification);
-
-      expect(ack).toEqual(MIDTRANS_ACK);
+      await service.handleNotification(notify());
       expect(eventLog.markFailed).toHaveBeenCalledWith('ev1', {
         errorMessage: 'payment_not_found',
       });
@@ -622,12 +634,9 @@ describe('PaymentsService', () => {
     it('records an expired order without settling or cancelling it', async () => {
       orderRepo.findByProviderOrderId.mockResolvedValue(pendingOrder);
 
-      const ack = await service.handleNotification({
-        ...notification,
-        transaction_status: 'expire',
-      });
-
-      expect(ack).toEqual(MIDTRANS_ACK);
+      await service.handleNotification(
+        notify({ transaction_status: 'expire' }),
+      );
       expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
       expect(cancelOrder).not.toHaveBeenCalled();
       expect(eventLog.markProcessed).toHaveBeenCalledWith('ev1', {
@@ -639,13 +648,9 @@ describe('PaymentsService', () => {
     it('keeps a denied payment retryable: no cancel, no settle', async () => {
       orderRepo.findByProviderOrderId.mockResolvedValue(pendingOrder);
 
-      const ack = await service.handleNotification({
-        ...notification,
-        transaction_status: 'deny',
-        status_code: '202',
-      });
-
-      expect(ack).toEqual(MIDTRANS_ACK);
+      await service.handleNotification(
+        notify({ transaction_status: 'deny', status_code: '202' }),
+      );
       expect(cancelOrder).not.toHaveBeenCalled();
       expect(orders.confirmExternalPayment).not.toHaveBeenCalled();
       expect(eventLog.markProcessed).toHaveBeenCalledWith('ev1', {
@@ -661,13 +666,9 @@ describe('PaymentsService', () => {
         invoice: unpaidInvoice as never,
       });
 
-      const ack = await service.handleNotification({
-        ...notification,
-        order_id: 'inv1',
-        gross_amount: '300000.00',
-      });
-
-      expect(ack).toEqual(MIDTRANS_ACK);
+      await service.handleNotification(
+        notify({ order_id: 'inv1', gross_amount: '300000.00' }),
+      );
       expect(invoices.confirmPaymentWithActivation).toHaveBeenCalledWith(
         'inv1',
         { paidAmount: 300000, verifiedBySource: 'MIDTRANS' },
@@ -688,13 +689,9 @@ describe('PaymentsService', () => {
         invoice: unpaidInvoice as never,
       });
 
-      const ack = await service.handleNotification({
-        ...notification,
-        order_id: 'inv1',
-        gross_amount: '300000.00',
-      });
-
-      expect(ack).toEqual(MIDTRANS_ACK);
+      await service.handleNotification(
+        notify({ order_id: 'inv1', gross_amount: '300000.00' }),
+      );
       expect(invoices.confirmPaymentWithActivation).toHaveBeenCalledTimes(1);
       expect(eventLog.markProcessed).toHaveBeenCalledWith('ev1', {
         response: { alreadySettled: true, invoiceId: 'inv1' },
@@ -702,10 +699,27 @@ describe('PaymentsService', () => {
       expect(eventLog.markFailed).not.toHaveBeenCalled();
     });
 
-    it('acks an unparsable body without throwing', async () => {
-      await expect(
-        service.handleNotification({ unexpected: true }),
-      ).resolves.toEqual(MIDTRANS_ACK);
+    it('rejects an invoice settlement that carries no amount', async () => {
+      invoiceRepo.findByProviderOrderId.mockResolvedValue(unpaidInvoice);
+
+      await service.handleNotification(
+        notify({ order_id: 'inv1', gross_amount: '' }),
+      );
+
+      expect(invoices.confirmPaymentWithActivation).not.toHaveBeenCalled();
+      expect(eventLog.markFailed).toHaveBeenCalledWith('ev1', {
+        errorMessage: 'amount_mismatch',
+      });
+      expect(idempotency.fail).toHaveBeenCalledWith('idem1', {
+        errorMessage: 'amount_mismatch',
+      });
+    });
+
+    it('records an unparsable body without throwing', async () => {
+      await service.recordUnparsable({
+        source: 'MIDTRANS',
+        payload: { unexpected: true },
+      });
 
       expect(eventLog.record).toHaveBeenCalled();
       expect(eventLog.markFailed).toHaveBeenCalledWith('ev1', {
