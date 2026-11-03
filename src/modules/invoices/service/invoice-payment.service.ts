@@ -41,8 +41,13 @@ export class InvoicePaymentService {
     return this.providerEnv !== 'manual';
   }
 
-  /** Idempotently provision a payment for a session-linked invoice. */
-  async provision(invoiceId: string, name: string): Promise<Invoice | null> {
+  /**
+   * Idempotently provision a payment for a session-linked invoice.
+   *
+   * `name` is only a fallback for the gateway's customer block: the billing
+   * contact on the invoice wins, so a retry from the checkout page needs no name.
+   */
+  async provision(invoiceId: string, name?: string): Promise<Invoice | null> {
     const invoice = await this.repo.findById(invoiceId);
     if (!invoice) return null;
     if (invoice.providerOrderId || invoice.vaNumber) return invoice;
@@ -111,7 +116,7 @@ export class InvoicePaymentService {
 
   private async issuePayment(
     invoice: Invoice,
-    name: string,
+    name: string | undefined,
     scope: string,
     externalId: string,
   ): Promise<Invoice> {
@@ -146,7 +151,7 @@ export class InvoicePaymentService {
         providerOrderId: externalId,
         amount: invoice.amount,
         expiresAt: invoice.expiresAt,
-        customerName: customer.name,
+        customerName: customer.name ?? null,
       },
     });
 

@@ -4,10 +4,12 @@ describe('InstansiInvoicesService.list', () => {
   const invoicesService = { findByInstitution: jest.fn() };
   const participantsService = { resolveInstitutionId: jest.fn() };
   const pdfService = { render: jest.fn() };
+  const invoicePayment = { provision: jest.fn() };
   const service = new InstansiInvoicesService(
     invoicesService as never,
     participantsService as never,
     pdfService as never,
+    invoicePayment as never,
   );
 
   const row = {
@@ -82,6 +84,51 @@ describe('InstansiInvoicesService.list', () => {
         institutionId: 'inst1',
       });
       expect(result.filename).toBe('Invoice-INV-2026-0002.pdf');
+    });
+  });
+
+  describe('retryPayment', () => {
+    const invoice = {
+      ...row,
+      institutionId: 'inst1',
+      providerOrderId: null,
+    };
+
+    it('re-issues the payment for an unpaid invoice of the caller', async () => {
+      invoicesService.findById = jest.fn().mockResolvedValue(invoice);
+      invoicePayment.provision.mockResolvedValue({
+        ...invoice,
+        paymentUrl: 'https://api-sandbox.doku.com/checkout/abc',
+      });
+
+      const result = await service.retryPayment('user1', 'inv1');
+
+      expect(invoicePayment.provision).toHaveBeenCalledWith('inv1');
+      expect(result.paymentUrl).toBe(
+        'https://api-sandbox.doku.com/checkout/abc',
+      );
+    });
+
+    it('hides another institution invoice behind a 404', async () => {
+      invoicesService.findById = jest
+        .fn()
+        .mockResolvedValue({ ...invoice, institutionId: 'inst2' });
+
+      await expect(service.retryPayment('user1', 'inv1')).rejects.toThrow(
+        'invoice_not_found',
+      );
+      expect(invoicePayment.provision).not.toHaveBeenCalled();
+    });
+
+    it('refuses to re-issue a paid invoice', async () => {
+      invoicesService.findById = jest
+        .fn()
+        .mockResolvedValue({ ...invoice, status: 'PAID' });
+
+      await expect(service.retryPayment('user1', 'inv1')).rejects.toThrow(
+        'invoice_not_payable',
+      );
+      expect(invoicePayment.provision).not.toHaveBeenCalled();
     });
   });
 });

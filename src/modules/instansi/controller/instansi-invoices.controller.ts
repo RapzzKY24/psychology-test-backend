@@ -1,4 +1,11 @@
-import { Controller, Get, Param, Query, StreamableFile } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  StreamableFile,
+} from '@nestjs/common';
 import { Roles, Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
@@ -38,6 +45,19 @@ export class InstansiInvoicesController {
       disposition: `attachment; filename="${filename}"`,
       length: buffer.length,
     });
+  }
+
+  /**
+   * Re-issue a payment link whose provisioning failed. Idempotent: an invoice
+   * that already has a provider order comes back unchanged.
+   */
+  @Post(':id/payment')
+  async retryPayment(
+    @Session() session: UserSession,
+    @Param('id') id: string,
+  ): Promise<ApiResponse<InstansiInvoiceDto>> {
+    const data = await this.invoicesService.retryPayment(session.user.id, id);
+    return { data };
   }
 
   @Get(':id')

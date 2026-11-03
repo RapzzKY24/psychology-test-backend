@@ -1,5 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InvoicesService } from '../../invoices/service/invoices.service';
+import { InvoicePaymentService } from '../../invoices/service/invoice-payment.service';
 import { InvoicePdfService } from '../../invoices/service/invoice-pdf.service';
 import type { InvoicePdfFile } from '../../invoices/service/invoice-pdf.service';
 import { InstansiParticipantsService } from './instansi-participants.service';
@@ -17,6 +22,7 @@ export class InstansiInvoicesService {
     private readonly invoicesService: InvoicesService,
     private readonly participantsService: InstansiParticipantsService,
     private readonly pdfService: InvoicePdfService,
+    private readonly invoicePayment: InvoicePaymentService,
   ) {}
 
   /**
@@ -41,6 +47,32 @@ export class InstansiInvoicesService {
       throw new NotFoundException('invoice_not_found');
     }
     return toInstansiInvoice(invoice);
+  }
+
+  /**
+   * Re-issue the payment link after a provisioning failure (gateway down, a
+   * rejected request). Safe to call when a link already exists: `provision`
+   * returns the invoice untouched once it has a provider order.
+   */
+  async retryPayment(
+    userId: string,
+    invoiceId: string,
+  ): Promise<InstansiInvoiceDto> {
+    const institutionId =
+      await this.participantsService.resolveInstitutionId(userId);
+    const invoice = await this.invoicesService.findById(invoiceId);
+    if (invoice.institutionId !== institutionId) {
+      throw new NotFoundException('invoice_not_found');
+    }
+    if (invoice.status !== 'UNPAID') {
+      throw new ConflictException('invoice_not_payable');
+    }
+
+    // No name passed: the billing contact on the invoice is what the gateway
+    // needs, and it is resolved inside the payment service.
+    const updated = await this.invoicePayment.provision(invoice.id);
+    if (!updated) throw new NotFoundException('invoice_not_found');
+    return toInstansiInvoice(updated);
   }
 
   /**
