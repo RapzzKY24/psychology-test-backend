@@ -29,9 +29,17 @@ export function createPaymentGateway(
   );
 
   if (provider === 'doku') {
-    return config.get<boolean>('app.doku.stub')
-      ? new StubDokuProvider()
-      : new DokuCheckoutProvider(doku, config);
+    if (config.get<boolean>('app.doku.stub')) return new StubDokuProvider();
+    // Booting without credentials would accept every callback unverified
+    // (verifyDokuSignature passes when the secret is empty), so a paid invoice
+    // could be forged. Fail at boot instead of at the first charge.
+    if (!doku.isConfigured()) {
+      throw new Error(
+        'PAYMENT_PROVIDER=doku needs DOKU_CLIENT_ID and DOKU_SECRET_KEY. ' +
+          'Set them, or set DOKU_STUB=true for local development.',
+      );
+    }
+    return new DokuCheckoutProvider(doku, config);
   }
 
   return config.get<boolean>('app.midtrans.stub')

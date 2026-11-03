@@ -17,7 +17,14 @@ function config(settings: Record<string, unknown>): ConfigService {
 }
 
 const midtrans = {} as MidtransClient;
-const doku = {} as DokuClient;
+const doku = dokuClient();
+
+/** Only the lookups the factory makes; anything else is a bug. */
+function dokuClient(configured = true): DokuClient {
+  return {
+    isConfigured: jest.fn().mockReturnValue(configured),
+  } as unknown as DokuClient;
+}
 
 describe('createPaymentGateway', () => {
   it('binds Doku Checkout for doku', () => {
@@ -28,6 +35,28 @@ describe('createPaymentGateway', () => {
     );
 
     expect(gateway).toBeInstanceOf(DokuCheckoutProvider);
+  });
+
+  it('refuses to boot Doku without credentials', () => {
+    // An empty secret makes verifyDokuSignature accept every callback, so a
+    // forged SUCCESS could settle an invoice. Fail at boot instead.
+    expect(() =>
+      createPaymentGateway(
+        config({ 'app.paymentProvider': 'doku' }),
+        midtrans,
+        dokuClient(false),
+      ),
+    ).toThrow(/DOKU_CLIENT_ID/);
+  });
+
+  it('binds the stub without credentials, since it never calls Doku', () => {
+    expect(
+      createPaymentGateway(
+        config({ 'app.paymentProvider': 'doku', 'app.doku.stub': true }),
+        midtrans,
+        dokuClient(false),
+      ),
+    ).toBeInstanceOf(StubDokuProvider);
   });
 
   it('binds the Doku stub without touching the Snap stub flag', () => {
