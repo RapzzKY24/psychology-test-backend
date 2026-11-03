@@ -11,7 +11,8 @@ export class InstansiTestsController {
   @Get()
   @Roles(['INSTANSI'])
   async listForInstansi(): Promise<PaginatedResponse<PublicTestDto>> {
-    // Whitelist: instansi only sees WPT (CPMI is an alias of it).
-    return this.testsService.findManyPublicFiltered({ slug: 'wpt' });
+    // Every published test is sellable to an institution — the old single-slug
+    // whitelist hid new instruments from the checkout.
+    return this.testsService.findManyPublic({ page: 1, limit: 100 });
   }
 }

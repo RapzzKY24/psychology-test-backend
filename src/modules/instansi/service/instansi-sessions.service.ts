@@ -91,11 +91,29 @@ export class InstansiSessionsService {
     if (!institution) throw new NotFoundException('Institution not found');
     const institutionId = institution.id;
 
+    // Only a published test is sellable: a draft or archived id in the body
+    // must never produce an invoice.
     const tests = await this.testsRepo.findMany({
       skip: 0,
       take: dto.testIds.length,
-      where: { id: { in: dto.testIds } },
+      where: { id: { in: dto.testIds }, status: 'PUBLISHED' },
     });
+    if (tests.data.length !== dto.testIds.length) {
+      throw new UnprocessableEntityException({
+        message: 'validation_failed',
+        details: ['testIds: one or more tests are not published'],
+      });
+    }
+
+    // A zero price would create a Rp 0 invoice that can never be paid. Refuse
+    // before the session exists so nothing is left half-created.
+    const pricePerSeat = tests.data.reduce((sum, t) => sum + t.price, 0);
+    if (pricePerSeat <= 0) {
+      throw new UnprocessableEntityException({
+        message: 'validation_failed',
+        details: ['price: test price is not set'],
+      });
+    }
 
     if (dto.employeeIds.length > dto.slotLimit) {
       throw new UnprocessableEntityException({
@@ -149,7 +167,6 @@ export class InstansiSessionsService {
 
     // Prepaid slots: the batch is billed for every slot bought up front
     // (Σ test price × slotLimit), independent of how many names are filled.
-    const pricePerSeat = tests.data.reduce((sum, t) => sum + t.price, 0);
     let invoice = await this.invoicesService.createForSession({
       institutionId,
       amount: pricePerSeat * dto.slotLimit,

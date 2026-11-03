@@ -121,34 +121,6 @@ export class TestsService {
     };
   }
 
-  async findManyPublicFiltered(filter: {
-    slug: string;
-  }): Promise<PaginatedResponse<PublicTestDto>> {
-    const where: Prisma.TestWhereInput = {
-      status: 'PUBLISHED',
-      slug: filter.slug,
-    };
-    const { data, total } = await this.repo.findMany({
-      skip: 0,
-      take: 100,
-      where,
-    });
-    const publicData = data.map((t) => ({
-      id: t.id,
-      slug: t.slug,
-      name: t.name,
-      description: t.description,
-      imageUrl: t.imageUrl,
-      category: t.category,
-      price: t.price,
-      estimatedDurationMin: t.estimatedDurationMin,
-    }));
-    return {
-      data: publicData,
-      meta: { page: 1, limit: 100, total, totalPages: 1 },
-    };
-  }
-
   async findBySlugPublic(slug: string): Promise<PublicTestDto> {
     const test = await this.repo.findBySlug(slug);
     if (!test || test.status !== 'PUBLISHED')

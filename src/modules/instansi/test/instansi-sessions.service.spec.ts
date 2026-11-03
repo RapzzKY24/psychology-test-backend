@@ -239,6 +239,35 @@ describe('InstansiSessionsService', () => {
       );
     });
 
+    it('only sells published tests', async () => {
+      mockTestsRepo.findMany.mockResolvedValue({ data: [], total: 0 });
+
+      await expect(service.create(USER_ID, dto)).rejects.toThrow(
+        'validation_failed',
+      );
+
+      expect(mockTestsRepo.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: { in: dto.testIds }, status: 'PUBLISHED' },
+        }),
+      );
+      expect(mockSessionsService.create).not.toHaveBeenCalled();
+    });
+
+    it('refuses a batch whose test price is not set', async () => {
+      mockTestsRepo.findMany.mockResolvedValue({
+        data: [{ id: 'test-1', slug: 'wpt', name: 'WPT', price: 0 }],
+        total: 1,
+      });
+
+      await expect(service.create(USER_ID, dto)).rejects.toThrow(
+        'validation_failed',
+      );
+
+      expect(mockSessionsService.create).not.toHaveBeenCalled();
+      expect(mockInvoicesService.createForSession).not.toHaveBeenCalled();
+    });
+
     it('throws 422 when employees exceed slotLimit', async () => {
       await expect(
         service.create(USER_ID, { ...dto, slotLimit: 1 }),

@@ -5,7 +5,7 @@
     "description": "Tes kemampuan memecahkan masalah: 50 soal penalaran verbal, numerik, dan logika dalam 12 menit. Jawaban berupa pilihan dan isian singkat.",
     "category": "COGNITIVE",
     "scorerType": "RIGHT_WRONG_NORM",
-    "price": 0,
+    "price": 20000,
     "estimatedDurationMin": 12,
     "timeLimitMin": 12,
     "normTable": [
