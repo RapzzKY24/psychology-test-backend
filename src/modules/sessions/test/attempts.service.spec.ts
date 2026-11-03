@@ -268,20 +268,43 @@ describe('AttemptsService', () => {
       },
     ];
 
-    it('derives deadlineAt from startedAt and exposes the server clock', async () => {
+    it('reports the seconds left, derived from startedAt', async () => {
       mockRepo.findAccessDetail.mockResolvedValue(
-        makeDetail({ test: rawTest, items: rawItems }),
+        makeDetail({
+          test: rawTest,
+          items: rawItems,
+          attempt: {
+            ...makeDetail().attempt,
+            startedAt: new Date(Date.now() - 60_000),
+          },
+        }),
       );
       const out = await service.read('att-1', 'p-1');
       expect(out.timeLimitMin).toBe(12);
-      expect(out.deadlineAt).toEqual(new Date(NOW + 12 * 60 * 1000));
-      expect(out.serverNow).toBeInstanceOf(Date);
+      // 12 minutes minus the one already spent.
+      expect(out.remainingSeconds).toBeGreaterThanOrEqual(659);
+      expect(out.remainingSeconds).toBeLessThanOrEqual(660);
     });
 
-    it('leaves deadlineAt null when the test is untimed', async () => {
+    it('never reports a negative countdown after the deadline', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({
+          test: rawTest,
+          items: rawItems,
+          attempt: {
+            ...makeDetail().attempt,
+            startedAt: new Date(Date.now() - 20 * 60_000),
+          },
+        }),
+      );
+      const out = await service.read('att-1', 'p-1');
+      expect(out.remainingSeconds).toBe(0);
+    });
+
+    it('leaves remainingSeconds null when the test is untimed', async () => {
       mockRepo.findAccessDetail.mockResolvedValue(makeDetail());
       const out = await service.read('att-1', 'p-1');
-      expect(out.deadlineAt).toBeNull();
+      expect(out.remainingSeconds).toBeNull();
     });
 
     it('rejects a late response with attempt_time_expired', async () => {

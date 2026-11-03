@@ -46,6 +46,16 @@ export class AttemptsService {
     return new Date(detail.attempt.startedAt.getTime() + limit * 60_000);
   }
 
+  /** Server-truth for the client countdown; null when the test is untimed. */
+  private remainingSecondsOf(detail: {
+    attempt: { startedAt: Date };
+    test: { timeLimitMin: number | null };
+  }): number | null {
+    const deadline = this.deadlineOf(detail);
+    if (!deadline) return null;
+    return Math.max(0, Math.round((deadline.getTime() - Date.now()) / 1000));
+  }
+
   private assertWithinGrace(session: {
     status: string;
     expiresAt: Date;
@@ -77,8 +87,7 @@ export class AttemptsService {
       startedAt: detail.attempt.startedAt,
       completedAt: detail.attempt.completedAt,
       timeLimitMin: detail.test.timeLimitMin,
-      deadlineAt: this.deadlineOf(detail),
-      serverNow: new Date(),
+      remainingSeconds: this.remainingSecondsOf(detail),
       items: detail.items.map((item) => ({
         id: item.id,
         order: item.order,

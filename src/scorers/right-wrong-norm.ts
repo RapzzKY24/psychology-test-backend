@@ -1,7 +1,7 @@
 import {
   NormTableSchema,
-  parseRightWrongItem,
-  parseRightWrongResponse,
+  RightWrongItemContentSchema,
+  RightWrongResponseSchema,
 } from './schemas/right-wrong-norm';
 import type { NormEntry } from './schemas/right-wrong-norm';
 import { answersMatch, sameIndexSet } from './utils/answer-match';
@@ -20,18 +20,18 @@ export interface RightWrongScorerOutput {
 }
 
 function isCorrect(content: unknown, value: unknown): boolean {
-  const item = parseRightWrongItem(content);
-  const response = parseRightWrongResponse(value);
-  if (!item || !response) return false;
+  const item = RightWrongItemContentSchema.safeParse(content);
+  const response = RightWrongResponseSchema.safeParse(value);
+  if (!item.success || !response.success) return false;
 
-  if (item.answerMode === 'short') {
-    if (!('text' in response)) return false;
-    return item.accepted.some((variant) =>
-      answersMatch(response.text, variant),
-    );
+  const answer = response.data;
+  if (item.data.answerMode === 'short') {
+    if (!('text' in answer)) return false;
+    const typed = answer.text;
+    return item.data.accepted.some((variant) => answersMatch(typed, variant));
   }
-  if (!('chosen' in response)) return false;
-  return sameIndexSet(response.chosen, item.correctIndexes);
+  if (!('chosen' in answer)) return false;
+  return sameIndexSet(answer.chosen, item.data.correctIndexes);
 }
 
 function parseNormTable(normTable: unknown): NormEntry[] | null {

@@ -27,10 +27,11 @@ export const AttemptReadSchema = z.object({
   completedAt: z.date().nullable(),
   /** Hard limit in minutes; null = untimed. */
   timeLimitMin: z.number().int().nullable(),
-  /** `startedAt + timeLimitMin`; null when untimed. Server truth for the countdown. */
-  deadlineAt: z.date().nullable(),
-  /** Server clock, so the client never trusts the local one. */
-  serverNow: z.date(),
+  /**
+   * Seconds left, computed from `startedAt + timeLimitMin`. Null when untimed.
+   * The client ticks locally from this and refetches to re-sync.
+   */
+  remainingSeconds: z.number().int().nullable(),
   items: z.array(AttemptReadItemSchema),
   responses: z.array(AttemptReadResponseSchema),
 });
