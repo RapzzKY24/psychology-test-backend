@@ -22,6 +22,20 @@ import type { QueryTestDto } from '../dto/query-test.dto';
 import type { PublicTestDto } from '../dto/public-test.dto';
 import { getItemSchema } from '../../../scorers/schemas';
 
+/** Public projection — the only test fields a participant or institution may see. */
+function toPublicTestDto(test: Test): PublicTestDto {
+  return {
+    id: test.id,
+    slug: test.slug,
+    name: test.name,
+    description: test.description,
+    imageUrl: test.imageUrl,
+    category: test.category,
+    price: test.price,
+    estimatedDurationMin: test.estimatedDurationMin,
+  };
+}
+
 /** Admin builder detail: full test plus its ordered items and interpretations. */
 export type TestDetail = Test & {
   items: { id: string; order: number; content: unknown }[];
@@ -100,18 +114,8 @@ export class TestsService {
       take: query.limit,
       where,
     });
-    const publicData = data.map((t) => ({
-      id: t.id,
-      slug: t.slug,
-      name: t.name,
-      description: t.description,
-      imageUrl: t.imageUrl,
-      category: t.category,
-      price: t.price,
-      estimatedDurationMin: t.estimatedDurationMin,
-    }));
     return {
-      data: publicData,
+      data: data.map(toPublicTestDto),
       meta: {
         page: query.page,
         limit: query.limit,
@@ -121,20 +125,26 @@ export class TestsService {
     };
   }
 
+  /**
+   * Every published test, unpaginated. The institution checkout resolves
+   * `?testId=` against this list, so a page cap would hide tests from the
+   * catalog once the library outgrows it.
+   */
+  async findAllPublic(): Promise<PaginatedResponse<PublicTestDto>> {
+    const where: Prisma.TestWhereInput = { status: 'PUBLISHED' };
+    const { data, total } = await this.repo.findMany({ skip: 0, where });
+    const limit = total > 0 ? total : 1;
+    return {
+      data: data.map(toPublicTestDto),
+      meta: { page: 1, limit, total, totalPages: Math.ceil(total / limit) },
+    };
+  }
+
   async findBySlugPublic(slug: string): Promise<PublicTestDto> {
     const test = await this.repo.findBySlug(slug);
     if (!test || test.status !== 'PUBLISHED')
       throw new NotFoundException('Test not found');
-    return {
-      id: test.id,
-      slug: test.slug,
-      name: test.name,
-      description: test.description,
-      imageUrl: test.imageUrl,
-      category: test.category,
-      price: test.price,
-      estimatedDurationMin: test.estimatedDurationMin,
-    };
+    return toPublicTestDto(test);
   }
 
   /**

@@ -11,9 +11,10 @@ export interface TestsRepository {
     interpretations: { patternCode: string; title: string; body: string }[];
   } | null>;
   findBySlug(slug: string): Promise<Test | null>;
+  /** `take` omitted = every matching row (used by the unpaginated instansi list). */
   findMany(params: {
     skip: number;
-    take: number;
+    take?: number;
     where?: Prisma.TestWhereInput;
     orderBy?: Prisma.TestOrderByWithRelationInput;
   }): Promise<{ data: Test[]; total: number }>;

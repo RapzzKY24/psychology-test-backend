@@ -13,6 +13,6 @@ export class InstansiTestsController {
   async listForInstansi(): Promise<PaginatedResponse<PublicTestDto>> {
     // Every published test is sellable to an institution — the old single-slug
     // whitelist hid new instruments from the checkout.
-    return this.testsService.findManyPublic({ page: 1, limit: 100 });
+    return this.testsService.findAllPublic();
   }
 }

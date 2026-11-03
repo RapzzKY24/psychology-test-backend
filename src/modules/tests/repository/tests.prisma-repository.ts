@@ -37,7 +37,7 @@ export class PrismaTestsRepository implements TestsRepository {
 
   async findMany(params: {
     skip: number;
-    take: number;
+    take?: number;
     where?: Prisma.TestWhereInput;
     orderBy?: Prisma.TestOrderByWithRelationInput;
   }): Promise<{ data: Test[]; total: number }> {

@@ -187,6 +187,43 @@ describe('TestsService', () => {
     });
   });
 
+  describe('findAllPublic', () => {
+    it('returns every published test without a page cap', async () => {
+      mockRepo.findMany.mockResolvedValue({
+        data: [{ id: '1', slug: 'wpt' } as any],
+        total: 1,
+      });
+
+      const result = await service.findAllPublic();
+
+      const args = mockRepo.findMany.mock.calls[0][0] as {
+        where: unknown;
+        take?: number;
+      };
+      expect(args.where).toEqual({ status: 'PUBLISHED' });
+      expect(args.take).toBeUndefined();
+      expect(result.meta).toEqual({
+        page: 1,
+        limit: 1,
+        total: 1,
+        totalPages: 1,
+      });
+    });
+
+    it('keeps the meta sane when nothing is published', async () => {
+      mockRepo.findMany.mockResolvedValue({ data: [], total: 0 });
+
+      const result = await service.findAllPublic();
+
+      expect(result.meta).toEqual({
+        page: 1,
+        limit: 1,
+        total: 0,
+        totalPages: 0,
+      });
+    });
+  });
+
   describe('findManyPublic', () => {
     it('should only expose PUBLISHED tests with pagination meta', async () => {
       mockRepo.findMany.mockResolvedValue({
