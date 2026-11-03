@@ -11,6 +11,7 @@ import { CertificatesService } from '../service/certificates.service';
 import type { CertificateActor } from '../service/certificates.service';
 import { EMPTY_IDENTITY } from '../repository/certificates.repository';
 import type { EventLogService } from '../../event-log/service/event-log.service';
+import type { CertificateDocumentService } from '../service/certificate-document.service';
 import type {
   CertificateRecord,
   CertificateResultContext,
@@ -66,6 +67,7 @@ describe('CertificatesService', () => {
   let service: CertificatesService;
   let repo: jest.Mocked<CertificatesRepository>;
   let eventLog: { record: jest.Mock; markProcessed: jest.Mock };
+  let documents: { renderDocument: jest.Mock };
 
   beforeEach(() => {
     repo = {
@@ -91,10 +93,12 @@ describe('CertificatesService', () => {
       get: jest.fn().mockReturnValue('./uploads'),
     } as unknown as ConfigService;
     eventLog = { record: jest.fn(), markProcessed: jest.fn() };
+    documents = { renderDocument: jest.fn() };
     service = new CertificatesService(
       repo,
       config,
       eventLog as unknown as EventLogService,
+      documents as unknown as CertificateDocumentService,
     );
   });
 

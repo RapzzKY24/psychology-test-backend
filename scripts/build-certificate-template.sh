@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Regenerates assets/certificate/template.svg from the client's PDF.
+# Regenerates assets/certificate/template.png from the client's PDF.
 #
 # Run this after replacing assets/certificate/template.pdf. The output is
 # committed: the build must not depend on poppler being installed on the
@@ -9,12 +9,19 @@
 # The source is the *blank* template (template_kosong.pdf): it carries only the
 # static labels, so nothing has to be erased before the values are overlaid.
 #
+# Why a raster and not the SVG pdftocairo can also emit: the template's drop
+# shadows are images behind a filter-inside-a-mask chain, and Blink — the
+# engine Puppeteer prints with — draws those as opaque black boxes. Rasterising
+# the page sidesteps every renderer difference; at 400 dpi it is pixel
+# identical to the PDF at print size.
+#
 # Requires: pdftocairo (poppler-utils).
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 src="$root/assets/certificate/template.pdf"
-out="$root/assets/certificate/template.svg"
+out="$root/assets/certificate/template.png"
+dpi=400
 
 if ! command -v pdftocairo >/dev/null; then
   echo "pdftocairo not found — install poppler-utils" >&2
@@ -22,15 +29,7 @@ if ! command -v pdftocairo >/dev/null; then
 fi
 [ -f "$src" ] || { echo "missing $src" >&2; exit 1; }
 
-# -svg keeps the page as one vector document; the template is a single A4 page.
-pdftocairo -svg -f 1 -l 1 "$src" "$out"
+# -singlefile writes `template.png` instead of `template-1.png`.
+pdftocairo -png -r "$dpi" -f 1 -l 1 -singlefile "$src" "${out%.png}"
 
-# A live <text> node would be laid out with a font we do not ship, so the server
-# would silently fall back to another face. pdftocairo turns every run into
-# glyph outlines, which is why this has to stay at zero.
-if grep -q "<text" "$out"; then
-  echo "template.svg still contains <text> nodes" >&2
-  exit 1
-fi
-
-echo "wrote ${out#$root/}"
+echo "wrote ${out#$root/} (${dpi} dpi)"

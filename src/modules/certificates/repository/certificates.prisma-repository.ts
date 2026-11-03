@@ -276,6 +276,7 @@ export class PrismaCertificatesRepository implements CertificatesRepository {
         revision: true,
         status: true,
         snapshot: true,
+        verifyCode: true,
       },
     });
     if (!row || !row.number || row.revision === null) return null;
@@ -285,6 +286,7 @@ export class PrismaCertificatesRepository implements CertificatesRepository {
       revision: row.revision,
       status: row.status,
       snapshot: row.snapshot,
+      verifyCode: row.verifyCode,
     };
   }
 

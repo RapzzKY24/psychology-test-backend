@@ -26,6 +26,13 @@ import { PublicReportsService } from './service/public-reports.service';
     ReportPdfService,
     { provide: REPORTS_REPOSITORY, useClass: PrismaReportsRepository },
   ],
-  exports: [ReportsService, ReportDocumentService, REPORTS_REPOSITORY],
+  // The PDF pipeline is shared: a certificate is one more HTML page printed
+  // through the same Chromium instance.
+  exports: [
+    ReportsService,
+    ReportDocumentService,
+    ReportPdfService,
+    REPORTS_REPOSITORY,
+  ],
 })
 export class ReportsModule {}

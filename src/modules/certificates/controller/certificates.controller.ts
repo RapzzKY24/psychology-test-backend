@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Get,
   Param,
   Patch,
   Post,
+  StreamableFile,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -20,6 +22,7 @@ import type { UpdateCertificateDto } from '../dto/update-certificate.dto';
 import { RevokeCertificateSchema } from '../dto/revoke-certificate.dto';
 import type { RevokeCertificateDto } from '../dto/revoke-certificate.dto';
 import { CertificatesService } from '../service/certificates.service';
+import { CertificateDocumentService } from '../service/certificate-document.service';
 import type {
   CertificateActor,
   IssuedCertificate,
@@ -42,7 +45,10 @@ function actorOf(session: UserSession): CertificateActor {
 
 @Controller('api/v1/certificates')
 export class CertificatesController {
-  constructor(private readonly certificates: CertificatesService) {}
+  constructor(
+    private readonly certificates: CertificatesService,
+    private readonly documents: CertificateDocumentService,
+  ) {}
 
   /** Opens (or reopens) the draft for an approved, non-WPT result. */
   @Post()
@@ -107,6 +113,33 @@ export class CertificatesController {
     return { data };
   }
 
+  /**
+   * The signed document. Only an issued certificate prints here; a draft has
+   * no number to print and is served by the preview route instead.
+   */
+  @Get(':id/pdf')
+  @Roles(['PSYCHOLOGIST', 'ADMIN'])
+  async downloadPdf(
+    @Param('id', UuidPipe) id: string,
+  ): Promise<StreamableFile> {
+    const { buffer, filename } = await this.documents.renderIssued(id);
+    return this.stream(buffer, filename);
+  }
+
+  /** The draft as it will look once signed, watermarked and without a number. */
+  @Get(':id/preview')
+  @Roles(['PSYCHOLOGIST', 'ADMIN'])
+  async previewPdf(
+    @Session() session: UserSession,
+    @Param('id', UuidPipe) id: string,
+  ): Promise<StreamableFile> {
+    const { buffer, filename } = await this.certificates.preview(
+      actorOf(session),
+      id,
+    );
+    return this.stream(buffer, filename);
+  }
+
   @Post(':id/photo')
   @Roles(['PSYCHOLOGIST', 'ADMIN'])
   @UseInterceptors(
@@ -123,5 +156,14 @@ export class CertificatesController {
       file,
     );
     return { data };
+  }
+
+  /** Inline so the browser opens the PDF instead of saving it silently. */
+  private stream(buffer: Buffer, filename: string): StreamableFile {
+    return new StreamableFile(buffer, {
+      type: 'application/pdf',
+      disposition: `inline; filename="${filename}"`,
+      length: buffer.length,
+    });
   }
 }

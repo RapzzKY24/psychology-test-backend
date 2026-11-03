@@ -15,18 +15,18 @@ import { ensureUploadDir } from '../../../lib/fs/ensure-upload-dir';
 import { validateImageFile } from '../../../lib/upload/validate-image-file';
 import { ageFromIsoDate } from '../utils/age-from-iso-date';
 import { buildCertificateNumber } from '../utils/build-certificate-number';
-import { buildCertificateSnapshot } from '../utils/certificate-snapshot';
+import {
+  buildCertificateSnapshot,
+  buildPreviewSnapshot,
+} from '../utils/certificate-snapshot';
+import { DRAFT_CERTIFICATE_FILENAME } from '../utils/certificate-filename';
+import { CertificateDocumentService } from './certificate-document.service';
+import type { RenderedCertificate } from './certificate-document.service';
 import { jakartaDateParts } from '../../reports/utils/jakarta-date';
 import { generateVerifyCode } from '../../reviews/utils/generate-verify-code';
 import { isProfileComplete } from '../../psychologist/utils/is-profile-complete';
-import {
-  REPORT_SETTING_KEYS,
-  DEFAULT_INSTITUTION_CODE,
-} from '../../reports/report-settings';
-import {
-  CERTIFICATE_SETTING_KEYS,
-  DEFAULT_CERTIFICATE_CITY,
-} from '../certificate-settings';
+import { readCertificateSettings } from '../certificate-settings';
+import type { CertificateSettings } from '../certificate-settings';
 import { EventLogService } from '../../event-log/service/event-log.service';
 import type { CreateCertificateDto } from '../dto/create-certificate.dto';
 import type { UpdateCertificateDto } from '../dto/update-certificate.dto';
@@ -76,6 +76,7 @@ export class CertificatesService {
     private readonly repo: CertificatesRepository,
     private readonly config: ConfigService,
     private readonly eventLog: EventLogService,
+    private readonly documents: CertificateDocumentService,
   ) {}
 
   /**
@@ -144,6 +145,37 @@ export class CertificatesService {
     // the upload the psychologist just completed.
     await this.removePhoto(draft.photoPath, dir);
     return updated;
+  }
+
+  /**
+   * Renders the draft as it stands, watermarked and without a number. The
+   * psychologist is about to sign this page, so it must be drawn from the same
+   * rows the issue step will freeze — not from the browser's copy of the form.
+   */
+  async preview(
+    actor: CertificateActor,
+    id: string,
+  ): Promise<RenderedCertificate> {
+    const draft = await this.findEditable(actor, id);
+    const [context, profile, settings] = await Promise.all([
+      this.repo.findResultContext(draft.resultId),
+      this.repo.findPsychologist(actor.id),
+      this.loadSettings(),
+    ]);
+    if (!context) throw new NotFoundException('result_not_found');
+
+    const view = buildPreviewSnapshot({
+      record: draft,
+      context,
+      profile,
+      city: settings.city,
+      at: new Date(),
+    });
+    const buffer = await this.documents.renderDocument(view, {
+      verifyCode: null,
+      draft: true,
+    });
+    return { buffer, filename: DRAFT_CERTIFICATE_FILENAME };
   }
 
   private async findEditable(
@@ -358,27 +390,8 @@ export class CertificatesService {
     return missing;
   }
 
-  private async loadSettings(): Promise<{
-    institutionCode: string;
-    city: string;
-  }> {
-    const rows = await this.repo.findSettings([
-      REPORT_SETTING_KEYS.institutionCode,
-      CERTIFICATE_SETTING_KEYS.city,
-    ]);
-    const pick = (key: string, fallback: string): string => {
-      const value = rows[key];
-      return typeof value === 'string' && value.trim().length > 0
-        ? value.trim()
-        : fallback;
-    };
-    return {
-      institutionCode: pick(
-        REPORT_SETTING_KEYS.institutionCode,
-        DEFAULT_INSTITUTION_CODE,
-      ),
-      city: pick(CERTIFICATE_SETTING_KEYS.city, DEFAULT_CERTIFICATE_CITY),
-    };
+  private loadSettings(): Promise<CertificateSettings> {
+    return readCertificateSettings(this.repo);
   }
 
   private async photoDir(): Promise<string> {

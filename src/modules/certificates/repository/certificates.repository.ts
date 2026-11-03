@@ -100,6 +100,8 @@ export interface CertificateDocument {
   revision: number;
   status: CertificateStatus;
   snapshot: unknown;
+  /** Null on a superseded revision, whose QR must stop resolving. */
+  verifyCode: string | null;
 }
 
 /** What the service needs to decide whether a result may get a certificate. */

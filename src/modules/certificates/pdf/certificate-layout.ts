@@ -8,11 +8,14 @@
  *
  * The values below are the *gaps* the template leaves between its baked
  * labels, so they sit next to text the renderer must not move. Changing a
- * label means regenerating template.svg, not editing this file.
+ * label means regenerating template.png, not editing this file.
  *
- * Sizes are the ones the PDF declares for the neighbouring label. They are
- * confirmed against a render in the render phase; if a value looks a hair too
- * large next to its label, fix it here rather than compensating in CSS.
+ * Sizes are the ones the PDF declares, not the ones it prints. The file was
+ * laid out on a canvas larger than the page and every run carries a text
+ * matrix that scales it down, so a label the PDF calls 18 pt prints at ~12.6 pt
+ * (measured against a 200 dpi raster of the template). `DECLARED_TO_PRINTED`
+ * is that factor, applied by the renderer; the numbers below stay as the PDF
+ * declares them so they can still be checked against `pdftohtml -xml`.
  */
 
 export const PAGE = { width: 595.5, height: 842.25 } as const;
@@ -21,10 +24,20 @@ export const PAGE = { width: 595.5, height: 842.25 } as const;
 export const INK = '#123b73';
 
 /**
+ * Declared font size -> printed font size.
+ *
+ * Derived twice over, and both agree: by advance width (SERTIFIKAT declares
+ * 46 pt, its ink is 174.9 pt wide, Raleway ExtraBold needs 259.6 pt at 46 pt)
+ * and by cap height (the same run's caps are 22.3 pt tall against a 0.710 cap
+ * ratio, i.e. 31.4 pt). Weight- and size-independent within 1 %.
+ */
+export const DECLARED_TO_PRINTED = 0.7;
+
+/**
  * Raleway ships as one variable file (weight axis 100-900), so a slot names a
  * weight instead of a separate font file.
  */
-export type FontWeight = 400 | 600 | 800;
+export type FontWeight = 400 | 600 | 700 | 800;
 
 export interface TextSlot {
   /** Left edge of the text box. */
@@ -48,25 +61,37 @@ export const TEXT = {
     maxWidth: 150,
     align: 'left',
   },
-  /** Continues `No Sertifikat : `. */
+  /**
+   * Continues `No Sertifikat : `. The placeholder in the template is only
+   * 105 pt wide, but a real number (`060/TES-KRAEPELIN/YM/XI/2026`) is twice
+   * that, so the box runs to the page margin instead.
+   */
   number: {
     x: 286,
     top: 210.7,
     size: 15,
     weight: 400,
-    maxWidth: 110,
+    maxWidth: 215,
     align: 'left',
   },
-  /** Continues `Sertifikat ini berlaku sampai dengan `. */
+  /**
+   * Continues `Sertifikat ini berlaku sampai dengan `. The placeholder in the
+   * template is Raleway-Bold, unlike the Regular sentence in front of it.
+   */
   validUntil: {
     x: 352.7,
     top: 545.3,
     size: 18,
-    weight: 400,
+    weight: 700,
     maxWidth: 150,
     align: 'left',
   },
-  /** The whole `<verdict> untuk <purpose>.` sentence. */
+  /**
+   * The whole `<verdict> untuk <purpose>.` sentence. The template mixes
+   * weights inside this line — the verdict and the purpose are Bold, the word
+   * "untuk" between them is Regular — so `weight` is the base and the renderer
+   * marks the two bold runs up.
+   */
   verdict: {
     x: 122.7,
     top: 513,
@@ -75,12 +100,16 @@ export const TEXT = {
     maxWidth: 380.7,
     align: 'left',
   },
-  /** `<KOTA>, <tanggal>` above the sign-off block. */
+  /**
+   * `<KOTA>, <tanggal>` above the sign-off block. The template prints the city
+   * SemiBold and the date Bold; one weight for the line reads better than a
+   * seam in the middle of it, so both are SemiBold.
+   */
   cityDate: {
     x: 334,
     top: 587.5,
     size: 18,
-    weight: 400,
+    weight: 600,
     maxWidth: 185,
     align: 'left',
   },
@@ -89,16 +118,16 @@ export const TEXT = {
     x: 348.4,
     top: 702,
     size: 18,
-    weight: 600,
+    weight: 700,
     maxWidth: 160,
     align: 'center',
   },
-  /** Continues the baked `SIPP NO ` prefix. */
+  /** Continues the baked `SIPP NO ` prefix, one word space after it. */
   sippNumber: {
-    x: 411.5,
+    x: 414.5,
     top: 721.8,
     size: 18,
-    weight: 600,
+    weight: 700,
     maxWidth: 96,
     align: 'left',
   },
@@ -123,7 +152,11 @@ export const IDENTITY = {
     { key: 'gender', top: 338.7 },
     { key: 'birthPlaceDate', top: 352.7 },
     { key: 'age', top: 367.3 },
-    { key: 'address', top: 382 },
+    // 382 is where the row *should* sit, but the template prints this row's
+    // colon and placeholder 3.9 pt lower than its "Alamat" label. The colon is
+    // baked into the background, so the value follows it; a value on the label
+    // line would leave a colon floating on its own below.
+    { key: 'address', top: 385.9 },
   ],
 } as const;
 
