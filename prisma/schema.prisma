@@ -100,18 +100,21 @@ enum PaymentProvider {
   MANUAL_QRIS
   JOKUL_VA
   MIDTRANS_SNAP
+  DOKU_CHECKOUT
 }
 
 enum PaymentVerifiedBySource {
   ADMIN
   JOKUL
   MIDTRANS
+  DOKU
 }
 
 enum EventSource {
   JOKUL
   MANUAL
   MIDTRANS
+  DOKU
 }
 
 enum EventDirection {
