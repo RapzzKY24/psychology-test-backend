@@ -1,0 +1,157 @@
+import type {
+  CertificateStatus,
+  CertificateVerdict,
+} from '../../../generated/prisma/client';
+
+export const CERTIFICATES_REPOSITORY = 'CertificatesRepository';
+
+/**
+ * The identity block exactly as the certificate prints it. Typed by the
+ * psychologist (spec D3): no participant row carries gender, birthplace or
+ * address, so these cannot be derived.
+ *
+ * `birthDate` is an ISO date (YYYY-MM-DD) rather than a timestamp — only the
+ * calendar day is printed, and a Date would drag a timezone into it. `age` is
+ * stored, not recomputed, because the document must not change as the person
+ * has another birthday.
+ */
+export interface CertificateIdentity {
+  fullName: string;
+  idNumber: string;
+  gender: string;
+  birthPlace: string;
+  birthDate: string;
+  age: number;
+  address: string;
+}
+
+export const EMPTY_IDENTITY: CertificateIdentity = {
+  fullName: '',
+  idNumber: '',
+  gender: '',
+  birthPlace: '',
+  birthDate: '',
+  age: 0,
+  address: '',
+};
+
+export interface CertificateRecord {
+  id: string;
+  resultId: string;
+  status: CertificateStatus;
+  identity: CertificateIdentity;
+  verdict: CertificateVerdict | null;
+  purpose: string | null;
+  validUntil: Date | null;
+  photoPath: string | null;
+  number: string | null;
+  revision: number | null;
+  verifyCode: string | null;
+  issuedAt: Date | null;
+  revokedAt: Date | null;
+  updatedAt: Date;
+}
+
+/** Everything the draft editor may change. Only legal while status is DRAFT. */
+export interface CertificateDraftPatch {
+  identity: CertificateIdentity;
+  verdict: CertificateVerdict | null;
+  purpose: string | null;
+  validUntil: Date | null;
+  photoPath: string | null;
+  filledById: string | null;
+  filledAt: Date;
+}
+
+export interface CertificateIssuePatch {
+  number: string;
+  seq: number;
+  year: number;
+  revision: number;
+  verifyCode: string;
+  snapshot: unknown;
+  issuedAt: Date;
+  issuedById: string;
+}
+
+export interface CertificateRevokePatch {
+  reason: string;
+  revokedAt: Date;
+  revokedById: string;
+}
+
+/** An issued certificate as the PDF renderer needs it. */
+export interface CertificateDocument {
+  id: string;
+  number: string;
+  revision: number;
+  status: CertificateStatus;
+  snapshot: unknown;
+}
+
+/** An approved result that has no live certificate yet. */
+export interface PendingResult {
+  resultId: string;
+  testName: string;
+  testSlug: string;
+  /** Null for a personal purchase — there is no participant row. */
+  participantName: string | null;
+  approvedAt: Date | null;
+  sessionTitle: string | null;
+}
+
+/** Public QR lookup. */
+export interface CertificateVerification {
+  number: string;
+  revision: number;
+  status: CertificateStatus;
+  snapshot: unknown;
+  issuedAt: Date | null;
+  revokedAt: Date | null;
+  revokeReason: string | null;
+}
+
+export interface CertificatesRepository {
+  findById(id: string): Promise<CertificateRecord | null>;
+
+  /** Every revision of a result, newest first. */
+  findByResult(resultId: string): Promise<CertificateRecord[]>;
+
+  /** The editable draft for a result, if the psychologist already started one. */
+  findDraftForResult(resultId: string): Promise<CertificateRecord | null>;
+
+  createDraft(resultId: string): Promise<CertificateRecord>;
+
+  updateDraft(
+    id: string,
+    patch: CertificateDraftPatch,
+  ): Promise<CertificateRecord>;
+
+  /**
+   * Assigns the number and freezes the snapshot. Re-checks the status inside
+   * the transaction, so a double submit cannot issue twice.
+   */
+  issue(id: string, patch: CertificateIssuePatch): Promise<CertificateRecord>;
+
+  revoke(id: string, patch: CertificateRevokePatch): Promise<CertificateRecord>;
+
+  findForPdf(id: string): Promise<CertificateDocument | null>;
+
+  /**
+   * Approved, non-WPT results with no DRAFT or ACTIVE certificate. Oldest
+   * first, so a partial run still makes progress.
+   */
+  findPendingResults(params: {
+    skip: number;
+    take: number;
+  }): Promise<{ data: PendingResult[]; total: number }>;
+
+  /**
+   * Only rows that still carry a verify code are reachable: a superseded
+   * revision has its code cleared, so a QR always lands on the valid revision.
+   */
+  findByVerifyCode(code: string): Promise<CertificateVerification | null>;
+
+  /** Next free sequence for the year. 60 when the year is empty. */
+  nextSeq(year: number): Promise<number>;
+}

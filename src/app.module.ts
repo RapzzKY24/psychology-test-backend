@@ -22,6 +22,7 @@ import { IdempotencyModule } from './modules/idempotency/idempotency.module';
 import { EventLogModule } from './modules/event-log/event-log.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { CertificatesModule } from './modules/certificates/certificates.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { ReportsModule } from './modules/reports/reports.module';
     EventLogModule,
     PaymentsModule,
     ReportsModule,
+    CertificatesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
