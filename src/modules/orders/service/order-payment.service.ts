@@ -18,6 +18,8 @@ import {
 } from '../../payments/gateway/payment-gateway.interface';
 import {
   PAYMENT_PROVIDER_ENV_TO_DB,
+  resolveProviderEnv,
+  toEventSource,
   type PaymentProviderEnv,
 } from '../../../common/constants/payment-provider';
 import { VA_UNIQUE_CODE } from '../constants/payment';
@@ -97,15 +99,9 @@ export class OrderPaymentService {
     return this.config.get<number>('app.paymentTtlMin', 60);
   }
 
-  /**
-   * Normalises the env value. An unknown or non-string value falls back to
-   * `midtrans` (the only gateway left) instead of leaking into idempotency
-   * scopes and DB columns.
-   */
+  /** Normalises the env value; see `resolveProviderEnv`. */
   private get providerEnv(): PaymentProviderEnv {
-    return this.config.get<string>('app.paymentProvider') === 'manual'
-      ? 'manual'
-      : 'midtrans';
+    return resolveProviderEnv(this.config.get<string>('app.paymentProvider'));
   }
 
   private get paymentProvider(): PaymentProvider {
@@ -114,7 +110,7 @@ export class OrderPaymentService {
 
   /** Audit rows must name the provider that actually served the request. */
   private get eventSource(): EventSource {
-    return 'MIDTRANS';
+    return toEventSource(this.providerEnv);
   }
 
   /**

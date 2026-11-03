@@ -19,6 +19,8 @@ import {
 } from '../../payments/gateway/payment-gateway.interface';
 import {
   PAYMENT_PROVIDER_ENV_TO_DB,
+  resolveProviderEnv,
+  toEventSource,
   type PaymentProviderEnv,
 } from '../../../common/constants/payment-provider';
 
@@ -85,9 +87,7 @@ export class InvoicePaymentService {
    * scopes and DB columns.
    */
   private get providerEnv(): PaymentProviderEnv {
-    return this.config.get<string>('app.paymentProvider') === 'manual'
-      ? 'manual'
-      : 'midtrans';
+    return resolveProviderEnv(this.config.get<string>('app.paymentProvider'));
   }
 
   private get paymentProvider(): PaymentProvider {
@@ -96,7 +96,7 @@ export class InvoicePaymentService {
 
   /** Audit rows must name the provider that actually served the request. */
   private get eventSource(): EventSource {
-    return 'MIDTRANS';
+    return toEventSource(this.providerEnv);
   }
 
   /** Distinct namespace from orders, provider-scoped like every create scope. */

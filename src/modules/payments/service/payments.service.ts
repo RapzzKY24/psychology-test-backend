@@ -7,12 +7,17 @@ import { OrderPaymentService } from '../../orders/service/order-payment.service'
 import { InvoicesService } from '../../invoices/service/invoices.service';
 import { InvoicePaymentService } from '../../invoices/service/invoice-payment.service';
 import type {
+  EventSource,
   Invoice,
   Order,
   PaymentProvider,
+  PaymentVerifiedBySource,
 } from '../../../generated/prisma/client';
 import {
   PAYMENT_PROVIDER_ENV_TO_DB,
+  resolveProviderEnv,
+  toEventSource,
+  toVerifiedBySource,
   type PaymentProviderEnv,
 } from '../../../common/constants/payment-provider';
 import { PaymentGatewayError } from '../gateway/payment-gateway.error';
@@ -65,11 +70,23 @@ export class PaymentsService {
     private readonly config: ConfigService,
   ) {}
 
+  private get providerEnv(): PaymentProviderEnv {
+    return resolveProviderEnv(this.config.get<string>('app.paymentProvider'));
+  }
+
   /** DB enum of the provider selected by `PAYMENT_PROVIDER`. */
   private get activeProvider(): PaymentProvider {
-    const raw = this.config.get<string>('app.paymentProvider');
-    const env: PaymentProviderEnv = raw === 'manual' ? 'manual' : 'midtrans';
-    return PAYMENT_PROVIDER_ENV_TO_DB[env];
+    return PAYMENT_PROVIDER_ENV_TO_DB[this.providerEnv];
+  }
+
+  /** Audit rows must name the provider that actually served the request. */
+  private get eventSource(): EventSource {
+    return toEventSource(this.providerEnv);
+  }
+
+  /** Settlement attribution; `manual` is cleared by an admin, so it maps to ADMIN. */
+  private get verifiedBySource(): PaymentVerifiedBySource {
+    return toVerifiedBySource(this.providerEnv);
   }
 
   private get staleAfterMs(): number {
@@ -99,7 +116,7 @@ export class PaymentsService {
     if (!parsed.success) {
       // An unparsable body is recorded, never turned into a retry storm.
       const event = await this.eventLog.record({
-        source: 'MIDTRANS',
+        source: this.eventSource,
         direction: 'INBOUND',
         type: MIDTRANS_NOTIFICATION_EVENT_TYPE,
         payload: { raw: body },
@@ -122,7 +139,7 @@ export class PaymentsService {
     if (!claim.acquired) return MIDTRANS_ACK;
 
     const event = await this.eventLog.record({
-      source: 'MIDTRANS',
+      source: this.eventSource,
       direction: 'INBOUND',
       type: MIDTRANS_NOTIFICATION_EVENT_TYPE,
       reference: payload.order_id,
@@ -257,7 +274,7 @@ export class PaymentsService {
     if (!amountMatches(status.paidAmount, order.amount)) return false;
     const result = await this.orders.confirmExternalPayment(
       order.id,
-      'MIDTRANS',
+      this.verifiedBySource,
     );
     if (result.outcome !== 'verified') return false;
     await this.persistPaymentType('order', order.id, status.paymentType);
@@ -349,7 +366,7 @@ export class PaymentsService {
       invoice.id,
       {
         paidAmount: invoice.amount,
-        verifiedBySource: 'MIDTRANS',
+        verifiedBySource: this.verifiedBySource,
       },
     );
     if (result.outcome !== 'confirmed') return false;
@@ -421,7 +438,7 @@ export class PaymentsService {
 
         const result = await this.orders.confirmExternalPayment(
           order.id,
-          'MIDTRANS',
+          this.verifiedBySource,
         );
         if (result.outcome === 'conflict') {
           await this.eventLog.markProcessed(eventId, {
@@ -521,7 +538,7 @@ export class PaymentsService {
       invoice.id,
       {
         paidAmount: Number(payload.gross_amount),
-        verifiedBySource: 'MIDTRANS',
+        verifiedBySource: this.verifiedBySource,
       },
     );
     if (result.outcome === 'already_paid') {
