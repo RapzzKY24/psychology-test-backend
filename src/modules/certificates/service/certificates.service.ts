@@ -1,9 +1,11 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
+  UnprocessableEntityException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
@@ -12,6 +14,20 @@ import * as path from 'path';
 import { ensureUploadDir } from '../../../lib/fs/ensure-upload-dir';
 import { validateImageFile } from '../../../lib/upload/validate-image-file';
 import { ageFromIsoDate } from '../utils/age-from-iso-date';
+import { buildCertificateNumber } from '../utils/build-certificate-number';
+import { buildCertificateSnapshot } from '../utils/certificate-snapshot';
+import { jakartaDateParts } from '../../reports/utils/jakarta-date';
+import { generateVerifyCode } from '../../reviews/utils/generate-verify-code';
+import { isProfileComplete } from '../../psychologist/utils/is-profile-complete';
+import {
+  REPORT_SETTING_KEYS,
+  DEFAULT_INSTITUTION_CODE,
+} from '../../reports/report-settings';
+import {
+  CERTIFICATE_SETTING_KEYS,
+  DEFAULT_CERTIFICATE_CITY,
+} from '../certificate-settings';
+import { EventLogService } from '../../event-log/service/event-log.service';
 import type { CreateCertificateDto } from '../dto/create-certificate.dto';
 import type { UpdateCertificateDto } from '../dto/update-certificate.dto';
 import { CERTIFICATES_REPOSITORY } from '../repository/certificates.repository';
@@ -38,12 +54,28 @@ function jakartaMidnight(isoDate: string): Date {
   return new Date(`${isoDate}T00:00:00+07:00`);
 }
 
+/** Audit trail entry written when an issued certificate is withdrawn. */
+const CERTIFICATE_REVOKED_EVENT = 'certificate.revoked';
+
+/** How many times a number collision is retried before giving up. */
+const ISSUE_ATTEMPTS = 5;
+
+export interface IssuedCertificate {
+  id: string;
+  number: string;
+  revision: number;
+  status: 'ACTIVE';
+  issuedAt: Date;
+  verifyCode: string;
+}
+
 @Injectable()
 export class CertificatesService {
   constructor(
     @Inject(CERTIFICATES_REPOSITORY)
     private readonly repo: CertificatesRepository,
     private readonly config: ConfigService,
+    private readonly eventLog: EventLogService,
   ) {}
 
   /**
@@ -118,17 +150,24 @@ export class CertificatesService {
     actor: CertificateActor,
     id: string,
   ): Promise<CertificateRecord> {
-    const draft = await this.repo.findById(id);
-    if (!draft) throw new NotFoundException('certificate_not_found');
-
+    const row = await this.loadOwned(actor, id);
     // An issued certificate is immutable; a correction is a new revision.
-    if (draft.status !== 'DRAFT') {
+    if (row.status !== 'DRAFT') {
       throw new ConflictException('certificate_not_editable');
     }
-    if (!actor.isAdmin && draft.filledById !== actor.id) {
+    return row;
+  }
+
+  private async loadOwned(
+    actor: CertificateActor,
+    id: string,
+  ): Promise<CertificateRecord> {
+    const row = await this.repo.findById(id);
+    if (!row) throw new NotFoundException('certificate_not_found');
+    if (!actor.isAdmin && row.filledById !== actor.id) {
       throw new ForbiddenException('certificate_not_owned');
     }
-    return draft;
+    return row;
   }
 
   /** Partial save: a field the request omits keeps the value already stored. */
@@ -146,6 +185,200 @@ export class CertificatesService {
       merged.age = ageFromIsoDate(patch.birthDate, new Date()) ?? merged.age;
     }
     return merged;
+  }
+
+  /**
+   * Assigns the number, freezes the snapshot and flips the row to ACTIVE.
+   *
+   * Every reason to refuse is checked before anything is written, so a
+   * rejected issue never leaves a half-filled row behind.
+   */
+  async issue(actor: CertificateActor, id: string): Promise<IssuedCertificate> {
+    const draft = await this.loadOwned(actor, id);
+    if (draft.status === 'ACTIVE')
+      throw new ConflictException('already_issued');
+    if (draft.status !== 'DRAFT') {
+      throw new ConflictException('certificate_not_editable');
+    }
+
+    if (!draft.photoPath) throw new BadRequestException('photo_required');
+    const missing = this.collectMissing(draft);
+    if (missing.length > 0) {
+      throw new BadRequestException({
+        statusCode: 400,
+        message: 'incomplete_draft',
+        error: 'Bad Request',
+        details: missing,
+      });
+    }
+
+    const profile = await this.repo.findPsychologist(actor.id);
+    if (!profile || !isProfileComplete(profile)) {
+      throw new UnprocessableEntityException('profile_incomplete');
+    }
+
+    const context = await this.repo.findResultContext(draft.resultId);
+    if (!context) throw new NotFoundException('result_not_found');
+
+    const settings = await this.loadSettings();
+    const issuedAt = new Date();
+    const { year, month } = jakartaDateParts(issuedAt);
+    const revision = await this.repo.nextRevision(draft.resultId);
+    // A correction keeps the number it was issued under; only a first issue
+    // takes a new one from the series.
+    const isRevision = Boolean(draft.supersedesId);
+
+    for (let attempt = 0; attempt < ISSUE_ATTEMPTS; attempt++) {
+      try {
+        const seq = isRevision ? draft.seq : await this.repo.nextSeq(year);
+        const numberYear = isRevision ? draft.year : year;
+        if (seq === null || numberYear === null) {
+          throw new Error('certificate_revision_missing_number');
+        }
+        const number = isRevision
+          ? draft.number
+          : buildCertificateNumber({
+              seq,
+              testName: context.testName,
+              institutionCode: settings.institutionCode,
+              month,
+              year,
+            });
+        if (!number) throw new Error('certificate_revision_missing_number');
+
+        const verifyCode = generateVerifyCode();
+        const snapshot = buildCertificateSnapshot({
+          context,
+          draft,
+          profile,
+          city: settings.city,
+          number,
+          issuedAt,
+        });
+
+        await this.repo.issue(draft.id, {
+          number,
+          seq,
+          year: numberYear,
+          revision,
+          verifyCode,
+          snapshot,
+          issuedAt,
+          issuedById: actor.id,
+        });
+
+        return {
+          id: draft.id,
+          number,
+          revision,
+          status: 'ACTIVE',
+          issuedAt,
+          verifyCode,
+        };
+      } catch (error) {
+        if ((error as { code?: string })?.code !== 'P2002') throw error;
+        // Two issues raced: the loser must report the winner, not retry.
+        const current = await this.repo.findById(id);
+        if (!current) throw new NotFoundException('certificate_not_found');
+        if (current.status !== 'DRAFT') {
+          throw new ConflictException('already_issued');
+        }
+        // Otherwise the sequence collided — take the next one and retry.
+      }
+    }
+
+    throw new ConflictException('certificate_issue_conflict');
+  }
+
+  /**
+   * Opens a draft that corrects an issued certificate. The source stays ACTIVE
+   * until this one is issued, so the QR already in circulation keeps working
+   * while the correction is being prepared.
+   */
+  async createRevision(
+    actor: CertificateActor,
+    id: string,
+  ): Promise<CertificateRecord> {
+    const source = await this.loadOwned(actor, id);
+    if (source.status !== 'ACTIVE') {
+      throw new ConflictException('certificate_not_active');
+    }
+
+    const open = await this.repo.findDraftForResult(source.resultId);
+    if (open) return open;
+
+    return this.repo.createRevisionDraft(source, actor.id, new Date());
+  }
+
+  async revoke(
+    actor: CertificateActor,
+    id: string,
+    reason: string,
+  ): Promise<CertificateRecord> {
+    if (!reason || reason.trim().length < 10) {
+      throw new UnprocessableEntityException('reason_too_short');
+    }
+
+    const row = await this.repo.findById(id);
+    if (!row) throw new NotFoundException('certificate_not_found');
+    if (row.status !== 'ACTIVE') {
+      throw new ConflictException('certificate_not_active');
+    }
+
+    const revoked = await this.repo.revoke(id, {
+      reason: reason.trim(),
+      revokedAt: new Date(),
+      revokedById: actor.id,
+    });
+
+    const event = await this.eventLog.record({
+      source: 'MANUAL',
+      direction: 'INBOUND',
+      type: CERTIFICATE_REVOKED_EVENT,
+      aggregateType: 'Certificate',
+      aggregateId: id,
+      payload: { actorId: actor.id, reason: reason.trim(), number: row.number },
+    });
+    await this.eventLog.markProcessed(event.id, {
+      response: { certificateId: id, status: 'REVOKED' },
+    });
+
+    return revoked;
+  }
+
+  /** Fields the printed document cannot be produced without. */
+  private collectMissing(draft: CertificateRecord): string[] {
+    const missing: string[] = [];
+    if (!draft.verdict) missing.push('verdict');
+    if (!draft.purpose) missing.push('purpose');
+    if (!draft.validUntil) missing.push('validUntil');
+    for (const [key, value] of Object.entries(draft.identity)) {
+      if (value === '' || value === null) missing.push(`identity.${key}`);
+    }
+    return missing;
+  }
+
+  private async loadSettings(): Promise<{
+    institutionCode: string;
+    city: string;
+  }> {
+    const rows = await this.repo.findSettings([
+      REPORT_SETTING_KEYS.institutionCode,
+      CERTIFICATE_SETTING_KEYS.city,
+    ]);
+    const pick = (key: string, fallback: string): string => {
+      const value = rows[key];
+      return typeof value === 'string' && value.trim().length > 0
+        ? value.trim()
+        : fallback;
+    };
+    return {
+      institutionCode: pick(
+        REPORT_SETTING_KEYS.institutionCode,
+        DEFAULT_INSTITUTION_CODE,
+      ),
+      city: pick(CERTIFICATE_SETTING_KEYS.city, DEFAULT_CERTIFICATE_CITY),
+    };
   }
 
   private async photoDir(): Promise<string> {

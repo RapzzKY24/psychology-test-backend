@@ -13,7 +13,10 @@ import type {
   PendingResult,
 } from './certificates.repository';
 import { EMPTY_IDENTITY } from './certificates.repository';
-import type { Prisma } from '../../../generated/prisma/client';
+import type {
+  Prisma,
+  PsychologistProfile,
+} from '../../../generated/prisma/client';
 
 /** The sequence the certificate series starts from (spec D6). */
 const FIRST_SEQ = 60;
@@ -29,7 +32,10 @@ const RECORD_SELECT = {
   photoPath: true,
   filledById: true,
   number: true,
+  seq: true,
+  year: true,
   revision: true,
+  supersedesId: true,
   verifyCode: true,
   issuedAt: true,
   revokedAt: true,
@@ -47,7 +53,10 @@ interface RecordRow {
   photoPath: string | null;
   filledById: string | null;
   number: string | null;
+  seq: number | null;
+  year: number | null;
   revision: number | null;
+  supersedesId: string | null;
   verifyCode: string | null;
   issuedAt: Date | null;
   revokedAt: Date | null;
@@ -107,6 +116,33 @@ export class PrismaCertificatesRepository implements CertificatesRepository {
   ): Promise<CertificateRecord> {
     const row = await this.prisma.certificate.create({
       data: { resultId, filledById: ownerId, filledAt: at },
+      select: RECORD_SELECT,
+    });
+    return toRecord(row);
+  }
+
+  async createRevisionDraft(
+    source: CertificateRecord,
+    ownerId: string,
+    at: Date,
+  ): Promise<CertificateRecord> {
+    const row = await this.prisma.certificate.create({
+      data: {
+        resultId: source.resultId,
+        filledById: ownerId,
+        filledAt: at,
+        identity: source.identity as unknown as Prisma.InputJsonValue,
+        verdict: source.verdict,
+        purpose: source.purpose,
+        validUntil: source.validUntil,
+        photoPath: source.photoPath,
+        // The number belongs to the series, not to the revision: a correction
+        // keeps it so the reprint is recognisably the same document.
+        number: source.number,
+        seq: source.seq,
+        year: source.year,
+        supersedesId: source.id,
+      },
       select: RECORD_SELECT,
     });
     return toRecord(row);
@@ -180,10 +216,19 @@ export class PrismaCertificatesRepository implements CertificatesRepository {
       // otherwise both see DRAFT and both assign a number.
       const current = await tx.certificate.findUnique({
         where: { id },
-        select: { status: true },
+        select: { status: true, supersedesId: true },
       });
       if (!current) throw new Error('certificate_not_found');
       if (current.status !== 'DRAFT') throw new Error('certificate_not_draft');
+
+      if (current.supersedesId) {
+        // Same transaction: a revision must never leave two live revisions,
+        // and the old QR has to stop resolving the moment the new one exists.
+        await tx.certificate.update({
+          where: { id: current.supersedesId },
+          data: { status: 'SUPERSEDED', verifyCode: null },
+        });
+      }
 
       const row = await tx.certificate.update({
         where: { id },
@@ -313,6 +358,27 @@ export class PrismaCertificatesRepository implements CertificatesRepository {
       revokedAt: row.revokedAt,
       revokeReason: row.revokeReason,
     };
+  }
+
+  async nextRevision(resultId: string): Promise<number> {
+    const aggregate = await this.prisma.certificate.aggregate({
+      where: { resultId },
+      _max: { revision: true },
+    });
+    return (aggregate._max.revision ?? 0) + 1;
+  }
+
+  findPsychologist(userId: string): Promise<PsychologistProfile | null> {
+    return this.prisma.psychologistProfile.findUnique({ where: { userId } });
+  }
+
+  async findSettings(
+    keys: readonly string[],
+  ): Promise<Record<string, unknown>> {
+    const rows = await this.prisma.setting.findMany({
+      where: { key: { in: [...keys] } },
+    });
+    return Object.fromEntries(rows.map((row) => [row.key, row.value]));
   }
 
   async nextSeq(year: number): Promise<number> {

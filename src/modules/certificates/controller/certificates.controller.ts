@@ -17,8 +17,13 @@ import { CreateCertificateSchema } from '../dto/create-certificate.dto';
 import type { CreateCertificateDto } from '../dto/create-certificate.dto';
 import { UpdateCertificateSchema } from '../dto/update-certificate.dto';
 import type { UpdateCertificateDto } from '../dto/update-certificate.dto';
+import { RevokeCertificateSchema } from '../dto/revoke-certificate.dto';
+import type { RevokeCertificateDto } from '../dto/revoke-certificate.dto';
 import { CertificatesService } from '../service/certificates.service';
-import type { CertificateActor } from '../service/certificates.service';
+import type {
+  CertificateActor,
+  IssuedCertificate,
+} from '../service/certificates.service';
 import type { CertificateRecord } from '../repository/certificates.repository';
 
 const UuidPipe = new ZodValidationPipe(z.string().uuid());
@@ -61,6 +66,44 @@ export class CertificatesController {
     dto: UpdateCertificateDto,
   ): Promise<ApiResponse<CertificateRecord>> {
     const data = await this.certificates.update(actorOf(session), id, dto);
+    return { data };
+  }
+
+  /** Assigns the number and freezes the snapshot. */
+  @Post(':id/issue')
+  @Roles(['PSYCHOLOGIST'])
+  async issue(
+    @Session() session: UserSession,
+    @Param('id', UuidPipe) id: string,
+  ): Promise<ApiResponse<IssuedCertificate>> {
+    const data = await this.certificates.issue(actorOf(session), id);
+    return { data };
+  }
+
+  /** Opens a draft that corrects an issued certificate. */
+  @Post(':id/revision')
+  @Roles(['PSYCHOLOGIST'])
+  async createRevision(
+    @Session() session: UserSession,
+    @Param('id', UuidPipe) id: string,
+  ): Promise<ApiResponse<CertificateRecord>> {
+    const data = await this.certificates.createRevision(actorOf(session), id);
+    return { data };
+  }
+
+  @Post(':id/revoke')
+  @Roles(['ADMIN'])
+  async revoke(
+    @Session() session: UserSession,
+    @Param('id', UuidPipe) id: string,
+    @Body(new ZodValidationPipe(RevokeCertificateSchema))
+    dto: RevokeCertificateDto,
+  ): Promise<ApiResponse<CertificateRecord>> {
+    const data = await this.certificates.revoke(
+      actorOf(session),
+      id,
+      dto.reason,
+    );
     return { data };
   }
 

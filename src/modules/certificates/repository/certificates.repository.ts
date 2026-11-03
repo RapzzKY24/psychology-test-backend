@@ -1,6 +1,7 @@
 import type {
   CertificateStatus,
   CertificateVerdict,
+  PsychologistProfile,
   ResultStatus,
 } from '../../../generated/prisma/client';
 
@@ -48,7 +49,11 @@ export interface CertificateRecord {
   /** The psychologist the draft belongs to; set once, at creation. */
   filledById: string | null;
   number: string | null;
+  seq: number | null;
+  year: number | null;
   revision: number | null;
+  /** Set when this row is a correction of an earlier revision. */
+  supersedesId: string | null;
   verifyCode: string | null;
   issuedAt: Date | null;
   revokedAt: Date | null;
@@ -147,6 +152,17 @@ export interface CertificatesRepository {
     at: Date,
   ): Promise<CertificateRecord>;
 
+  /**
+   * Opens a draft that corrects an existing certificate. The content and the
+   * number are copied so the psychologist only edits what is wrong; the source
+   * stays ACTIVE until this draft is issued.
+   */
+  createRevisionDraft(
+    source: CertificateRecord,
+    ownerId: string,
+    at: Date,
+  ): Promise<CertificateRecord>;
+
   updateDraft(
     id: string,
     patch: CertificateDraftPatch,
@@ -182,4 +198,11 @@ export interface CertificatesRepository {
 
   /** Next free sequence for the year. 60 when the year is empty. */
   nextSeq(year: number): Promise<number>;
+
+  /** Revision counter for a result, so a re-issue never reuses revision 1. */
+  nextRevision(resultId: string): Promise<number>;
+
+  findPsychologist(userId: string): Promise<PsychologistProfile | null>;
+
+  findSettings(keys: readonly string[]): Promise<Record<string, unknown>>;
 }
