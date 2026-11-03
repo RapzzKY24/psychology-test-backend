@@ -16,7 +16,6 @@ import type {
 import {
   PAYMENT_PROVIDER_ENV_TO_DB,
   resolveProviderEnv,
-  toEventSource,
   toVerifiedBySource,
   type PaymentProviderEnv,
 } from '../../../common/constants/payment-provider';
@@ -66,11 +65,6 @@ export class PaymentsService {
   /** DB enum of the provider selected by `PAYMENT_PROVIDER`. */
   private get activeProvider(): PaymentProvider {
     return PAYMENT_PROVIDER_ENV_TO_DB[this.providerEnv];
-  }
-
-  /** Audit rows must name the provider that actually served the request. */
-  private get eventSource(): EventSource {
-    return toEventSource(this.providerEnv);
   }
 
   /** Settlement attribution; `manual` is cleared by an admin, so it maps to ADMIN. */

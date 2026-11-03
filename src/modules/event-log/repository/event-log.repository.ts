@@ -1,9 +1,12 @@
 import type { Prisma } from '../../../generated/prisma/client';
 import type { MarkFailedInput, MarkProcessedInput } from '../dto/event-log.dto';
+import type { EventSourceSchema } from '../dto/event-log.dto';
+import type { z } from 'zod';
 
 export const EVENT_LOG_REPOSITORY = 'EventLogRepository';
 
-export type EventSource = 'JOKUL' | 'MANUAL' | 'MIDTRANS' | 'DOKU';
+/** Derived from the Zod enum so the two can never drift. */
+export type EventSource = z.infer<typeof EventSourceSchema>;
 export type EventDirection = 'INBOUND' | 'OUTBOUND';
 export type EventStatus =
   'RECEIVED' | 'PROCESSING' | 'PROCESSED' | 'FAILED' | 'DUPLICATE';

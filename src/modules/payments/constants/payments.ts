@@ -5,8 +5,4 @@
 export const PAYMENT_NOTIFICATION_EVENT_TYPE = 'PAYMENT_NOTIFICATION_RECEIVED';
 
 /** Snap answers `{ ok: true }`; a provider with a different ack owns its own. */
-export interface MidtransAck {
-  ok: true;
-}
-
-export const MIDTRANS_ACK: MidtransAck = { ok: true } as const;
+export const MIDTRANS_ACK = { ok: true } as const;

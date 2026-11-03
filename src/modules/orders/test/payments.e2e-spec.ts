@@ -502,7 +502,10 @@ describe('Payments E2E (integ, real DB)', () => {
         where: { id: invoice.id },
       });
       expect(paid.status).toBe('PAID');
-      expect(paid.verifiedBySource).toBe('MIDTRANS');
+      // The suite runs with PAYMENT_PROVIDER=manual (to keep order creation off
+      // the gateway), and a manual settlement is attributed to the admin who
+      // cleared it — not to a provider that never touched it.
+      expect(paid.verifiedBySource).toBe('ADMIN');
 
       const activated = await prisma.testSession.findUniqueOrThrow({
         where: { id: session.id },
