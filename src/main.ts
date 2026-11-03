@@ -12,7 +12,16 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bodyParser: false,
   });
-  app.use(express.json());
+  // Doku signs a digest of the raw bytes, so the buffer has to survive the
+  // parser. Nest's own `rawBody: true` does nothing here because the parser is
+  // registered by hand above.
+  app.use(
+    express.json({
+      verify: (req, _res, buf) => {
+        (req as unknown as { rawBody?: Buffer }).rawBody = buf;
+      },
+    }),
+  );
 
   // Catalog media is public: item figures and test covers. Payment proofs
   // (qris) and psychologist signatures stay behind their authenticated routes,

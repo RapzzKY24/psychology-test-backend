@@ -4,6 +4,10 @@ import { MidtransModule } from '../../midtrans/midtrans.module';
 import { MidtransClient } from '../../midtrans/client/midtrans.client';
 import { MidtransSnapProvider } from '../../midtrans/gateway/midtrans-snap.provider';
 import { StubSnapProvider } from '../../midtrans/gateway/stub-snap.provider';
+import { DokuModule } from '../../doku/doku.module';
+import { DokuClient } from '../../doku/client/doku.client';
+import { DokuCheckoutProvider } from '../../doku/gateway/doku-checkout.provider';
+import { StubDokuProvider } from '../../doku/gateway/stub-doku.provider';
 import { resolveProviderEnv } from '../../../common/constants/payment-provider';
 import { PAYMENT_GATEWAY } from './payment-gateway.interface';
 import type { PaymentGateway } from './payment-gateway.interface';
@@ -11,25 +15,23 @@ import type { PaymentGateway } from './payment-gateway.interface';
 /**
  * Binds the transport for the provider named by `PAYMENT_PROVIDER`.
  *
- * `doku` is rejected on purpose: the enum values, the provider resolver and the
- * neutral notification type exist, but no Doku transport is bound yet. Letting
- * it through would hand the buyer a Snap URL while the order is recorded as
- * `DOKU_CHECKOUT` and its callback as `verifiedBySource: DOKU` — money still
- * arrives, the audit trail lies. Refusing to boot is the cheaper failure.
+ * Each provider owns its own stub flag so a developer can fake one without
+ * faking the other. `manual` still binds a transport: the payment services
+ * disable themselves, and an unbound injection token would crash at boot.
  */
 export function createPaymentGateway(
   config: ConfigService,
   midtrans: MidtransClient,
+  doku: DokuClient,
 ): PaymentGateway {
   const provider = resolveProviderEnv(
     config.get<string>('app.paymentProvider'),
   );
 
   if (provider === 'doku') {
-    throw new Error(
-      'PAYMENT_PROVIDER=doku is not available in this build: no Doku transport is bound. ' +
-        'Set PAYMENT_PROVIDER=midtrans, or deploy the build that adds src/modules/doku.',
-    );
+    return config.get<boolean>('app.doku.stub')
+      ? new StubDokuProvider()
+      : new DokuCheckoutProvider(doku, config);
   }
 
   return config.get<boolean>('app.midtrans.stub')
@@ -45,12 +47,12 @@ export function createPaymentGateway(
  * the payment services disable themselves and no payment is created.
  */
 @Module({
-  imports: [MidtransModule],
+  imports: [MidtransModule, DokuModule],
   providers: [
     {
       provide: PAYMENT_GATEWAY,
       useFactory: createPaymentGateway,
-      inject: [ConfigService, MidtransClient],
+      inject: [ConfigService, MidtransClient, DokuClient],
     },
   ],
   exports: [PAYMENT_GATEWAY],

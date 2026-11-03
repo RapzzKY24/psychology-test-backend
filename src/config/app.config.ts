@@ -12,7 +12,7 @@ export default registerAs('app', () => ({
   publicUrl: process.env.APP_PUBLIC_URL ?? '',
   invoiceLogoPath:
     process.env.INVOICE_LOGO_PATH ?? './assets/invoice/logo.jpeg',
-  // Midtrans is the only gateway left; 'manual' still disables it entirely.
+  // Which transport is bound; 'manual' disables payments entirely.
   paymentProvider: process.env.PAYMENT_PROVIDER ?? 'midtrans',
   recovery: {
     intervalMin: parseInt(process.env.PAYMENT_RECOVERY_INTERVAL_MIN ?? '5', 10),
@@ -29,5 +29,18 @@ export default registerAs('app', () => ({
     serverKey: process.env.MIDTRANS_SERVER_KEY ?? '',
     clientKey: process.env.MIDTRANS_CLIENT_KEY ?? '',
     finishUrl: process.env.MIDTRANS_FINISH_URL ?? '',
+  },
+  doku: {
+    stub: process.env.DOKU_STUB === 'true',
+    isProduction: process.env.DOKU_IS_PRODUCTION === 'true',
+    clientId: process.env.DOKU_CLIENT_ID ?? '',
+    secretKey: process.env.DOKU_SECRET_KEY ?? '',
+    // Must equal the Notification URL registered in the Doku dashboard: it is
+    // part of the signature component, so a rewrite by a proxy breaks it.
+    notificationPath:
+      process.env.DOKU_NOTIFICATION_PATH ??
+      '/api/v1/webhooks/doku/notification',
+    // Where Doku sends the buyer back; the reference id is appended.
+    resultUrlBase: process.env.DOKU_RESULT_URL_BASE ?? '',
   },
 }));
