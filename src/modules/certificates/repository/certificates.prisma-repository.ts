@@ -6,6 +6,7 @@ import type {
   CertificateIdentity,
   CertificateIssuePatch,
   CertificateRecord,
+  CertificateResultContext,
   CertificateRevokePatch,
   CertificateVerification,
   CertificatesRepository,
@@ -26,6 +27,7 @@ const RECORD_SELECT = {
   purpose: true,
   validUntil: true,
   photoPath: true,
+  filledById: true,
   number: true,
   revision: true,
   verifyCode: true,
@@ -43,6 +45,7 @@ interface RecordRow {
   purpose: string | null;
   validUntil: Date | null;
   photoPath: string | null;
+  filledById: string | null;
   number: string | null;
   revision: number | null;
   verifyCode: string | null;
@@ -97,12 +100,44 @@ export class PrismaCertificatesRepository implements CertificatesRepository {
     return row ? toRecord(row) : null;
   }
 
-  async createDraft(resultId: string): Promise<CertificateRecord> {
+  async createDraft(
+    resultId: string,
+    ownerId: string,
+    at: Date,
+  ): Promise<CertificateRecord> {
     const row = await this.prisma.certificate.create({
-      data: { resultId },
+      data: { resultId, filledById: ownerId, filledAt: at },
       select: RECORD_SELECT,
     });
     return toRecord(row);
+  }
+
+  async findResultContext(
+    resultId: string,
+  ): Promise<CertificateResultContext | null> {
+    const row = await this.prisma.testResult.findUnique({
+      where: { id: resultId },
+      select: {
+        id: true,
+        status: true,
+        attempt: {
+          select: {
+            test: { select: { name: true, slug: true } },
+            participant: { select: { name: true } },
+            session: { select: { title: true } },
+          },
+        },
+      },
+    });
+    if (!row) return null;
+    return {
+      resultId: row.id,
+      status: row.status,
+      testName: row.attempt.test.name,
+      testSlug: row.attempt.test.slug,
+      participantName: row.attempt.participant?.name ?? null,
+      sessionTitle: row.attempt.session?.title ?? null,
+    };
   }
 
   async updateDraft(
@@ -117,9 +152,20 @@ export class PrismaCertificatesRepository implements CertificatesRepository {
         purpose: patch.purpose,
         validUntil: patch.validUntil,
         photoPath: patch.photoPath,
-        filledById: patch.filledById,
         filledAt: patch.filledAt,
       },
+      select: RECORD_SELECT,
+    });
+    return toRecord(row);
+  }
+
+  async setPhoto(
+    id: string,
+    photoPath: string | null,
+  ): Promise<CertificateRecord> {
+    const row = await this.prisma.certificate.update({
+      where: { id },
+      data: { photoPath },
       select: RECORD_SELECT,
     });
     return toRecord(row);

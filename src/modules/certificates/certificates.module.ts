@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { PrismaCertificatesRepository } from './repository/certificates.prisma-repository';
 import { CERTIFICATES_REPOSITORY } from './repository/certificates.repository';
+import { CertificatesService } from './service/certificates.service';
+import { CertificatesController } from './controller/certificates.controller';
 
-/**
- * Exposes the repository token only. Controllers and the service arrive in
- * later phases; nothing outside this module should depend on them yet.
- */
 @Module({
+  controllers: [CertificatesController],
   providers: [
+    CertificatesService,
     {
       provide: CERTIFICATES_REPOSITORY,
       useClass: PrismaCertificatesRepository,

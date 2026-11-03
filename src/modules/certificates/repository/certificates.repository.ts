@@ -1,6 +1,7 @@
 import type {
   CertificateStatus,
   CertificateVerdict,
+  ResultStatus,
 } from '../../../generated/prisma/client';
 
 export const CERTIFICATES_REPOSITORY = 'CertificatesRepository';
@@ -44,6 +45,8 @@ export interface CertificateRecord {
   purpose: string | null;
   validUntil: Date | null;
   photoPath: string | null;
+  /** The psychologist the draft belongs to; set once, at creation. */
+  filledById: string | null;
   number: string | null;
   revision: number | null;
   verifyCode: string | null;
@@ -52,14 +55,19 @@ export interface CertificateRecord {
   updatedAt: Date;
 }
 
-/** Everything the draft editor may change. Only legal while status is DRAFT. */
+/**
+ * Everything the draft editor may change. Only legal while status is DRAFT.
+ *
+ * `filledById` is not here on purpose: it is the psychologist the draft belongs
+ * to, set once at creation. Letting an edit overwrite it would hand ownership
+ * to whoever saved last, including an admin.
+ */
 export interface CertificateDraftPatch {
   identity: CertificateIdentity;
   verdict: CertificateVerdict | null;
   purpose: string | null;
   validUntil: Date | null;
   photoPath: string | null;
-  filledById: string | null;
   filledAt: Date;
 }
 
@@ -87,6 +95,16 @@ export interface CertificateDocument {
   revision: number;
   status: CertificateStatus;
   snapshot: unknown;
+}
+
+/** What the service needs to decide whether a result may get a certificate. */
+export interface CertificateResultContext {
+  resultId: string;
+  status: ResultStatus;
+  testName: string;
+  testSlug: string;
+  participantName: string | null;
+  sessionTitle: string | null;
 }
 
 /** An approved result that has no live certificate yet. */
@@ -120,12 +138,22 @@ export interface CertificatesRepository {
   /** The editable draft for a result, if the psychologist already started one. */
   findDraftForResult(resultId: string): Promise<CertificateRecord | null>;
 
-  createDraft(resultId: string): Promise<CertificateRecord>;
+  findResultContext(resultId: string): Promise<CertificateResultContext | null>;
+
+  /** `ownerId` becomes `filledById` — the psychologist the draft belongs to. */
+  createDraft(
+    resultId: string,
+    ownerId: string,
+    at: Date,
+  ): Promise<CertificateRecord>;
 
   updateDraft(
     id: string,
     patch: CertificateDraftPatch,
   ): Promise<CertificateRecord>;
+
+  /** Only touches the photo, so it cannot clobber a concurrent text edit. */
+  setPhoto(id: string, photoPath: string | null): Promise<CertificateRecord>;
 
   /**
    * Assigns the number and freezes the snapshot. Re-checks the status inside

@@ -10,10 +10,10 @@ import type { PsychologistProfileRepository } from '../repository/psychologist-p
 import type { PsychologistProfile } from '../../../generated/prisma/client';
 import { Prisma } from '../../../generated/prisma/client';
 import type { UpdateProfileDto } from '../dto/update-profile.dto';
-import { validateImageFile } from '../utils/validate-image-file';
+import { validateImageFile } from '../../../lib/upload/validate-image-file';
 import { isProfileComplete } from '../utils/is-profile-complete';
 import { generateSignatureFilename } from '../utils/generate-signature-filename';
-import { ensureUploadDir } from '../utils/ensure-upload-dir';
+import { ensureUploadDir } from '../../../lib/fs/ensure-upload-dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import type { Express } from 'express';
