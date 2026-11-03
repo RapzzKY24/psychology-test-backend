@@ -68,3 +68,27 @@ export function toVerifiedBySource(
 ): PaymentVerifiedBySource {
   return VERIFIED_BY_SOURCE_BY_ENV[env];
 }
+
+/**
+ * Who settled a payment that arrived as a notification.
+ *
+ * Reads the *sender*, not the active provider: during a switch both transports
+ * stay live, so a Snap callback must not be recorded as Doku just because Doku
+ * is the default now — the audit trail has to name the provider that actually
+ * settled the money.
+ */
+const VERIFIED_BY_SOURCE_BY_EVENT: Record<
+  EventSource,
+  PaymentVerifiedBySource
+> = {
+  MANUAL: 'ADMIN',
+  JOKUL: 'JOKUL',
+  MIDTRANS: 'MIDTRANS',
+  DOKU: 'DOKU',
+};
+
+export function toVerifiedBySourceFromEvent(
+  source: EventSource,
+): PaymentVerifiedBySource {
+  return VERIFIED_BY_SOURCE_BY_EVENT[source];
+}

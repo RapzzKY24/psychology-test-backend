@@ -17,6 +17,7 @@ import {
   PAYMENT_PROVIDER_ENV_TO_DB,
   resolveProviderEnv,
   toVerifiedBySource,
+  toVerifiedBySourceFromEvent,
   type PaymentProviderEnv,
 } from '../../../common/constants/payment-provider';
 import { PaymentGatewayError } from '../gateway/payment-gateway.error';
@@ -427,7 +428,7 @@ export class PaymentsService {
 
         const result = await this.orders.confirmExternalPayment(
           order.id,
-          this.verifiedBySource,
+          toVerifiedBySourceFromEvent(notification.source),
         );
         if (result.outcome === 'conflict') {
           await this.eventLog.markProcessed(eventId, {
@@ -535,7 +536,7 @@ export class PaymentsService {
       invoice.id,
       {
         paidAmount: notification.paidAmount,
-        verifiedBySource: this.verifiedBySource,
+        verifiedBySource: toVerifiedBySourceFromEvent(notification.source),
       },
     );
     if (result.outcome === 'already_paid') {

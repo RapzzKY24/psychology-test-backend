@@ -3,6 +3,7 @@ import {
   resolveProviderEnv,
   toEventSource,
   toVerifiedBySource,
+  toVerifiedBySourceFromEvent,
 } from './payment-provider';
 
 describe('resolveProviderEnv', () => {
@@ -42,5 +43,16 @@ describe('toVerifiedBySource', () => {
     expect(toVerifiedBySource('manual')).toBe('ADMIN');
     expect(toVerifiedBySource('midtrans')).toBe('MIDTRANS');
     expect(toVerifiedBySource('doku')).toBe('DOKU');
+  });
+});
+
+describe('toVerifiedBySourceFromEvent', () => {
+  it('names the sender, not the active provider', () => {
+    // During a switch both transports stay live: a Snap callback must still be
+    // recorded as MIDTRANS while Doku is the default.
+    expect(toVerifiedBySourceFromEvent('MIDTRANS')).toBe('MIDTRANS');
+    expect(toVerifiedBySourceFromEvent('DOKU')).toBe('DOKU');
+    expect(toVerifiedBySourceFromEvent('JOKUL')).toBe('JOKUL');
+    expect(toVerifiedBySourceFromEvent('MANUAL')).toBe('ADMIN');
   });
 });
