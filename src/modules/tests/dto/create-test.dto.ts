@@ -11,7 +11,7 @@ export const CreateTestSchema = z.object({
     'INTEREST',
     'PROJECTIVE',
   ]),
-  scorerType: z.enum(['FORCED_CHOICE_DISC']),
+  scorerType: z.enum(['FORCED_CHOICE_DISC', 'RIGHT_WRONG_NORM']),
   price: z.number().int().min(0),
   estimatedDurationMin: z.number().int().min(1),
 });

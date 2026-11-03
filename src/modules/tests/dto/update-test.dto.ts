@@ -10,6 +10,11 @@ export const UpdateTestSchema = z.object({
     .regex(/^[a-z0-9-]+$/)
     .optional(),
   /**
+   * Switchable only while the test is DRAFT and has no items — the item schema
+   * changes with the scorer, so existing rows would become invalid.
+   */
+  scorerType: z.enum(['FORCED_CHOICE_DISC', 'RIGHT_WRONG_NORM']).optional(),
+  /**
    * Only paths produced by the cover upload endpoint — never an external URL,
    * and `null` clears the cover.
    */

@@ -213,7 +213,27 @@ export class TestsService {
       const existing = await this.repo.findBySlug(dto.slug);
       if (existing) throw new ConflictException('slug already exists');
     }
+    if (dto.scorerType && dto.scorerType !== test.scorerType) {
+      await this.assertScorerSwitchable(id, test);
+    }
     return this.repo.update(id, dto);
+  }
+
+  /**
+   * The item editor is chosen by scorerType, so switching it after items exist
+   * would leave rows the new schema cannot read. Only an empty draft may change.
+   */
+  private async assertScorerSwitchable(
+    id: string,
+    test: { status: string },
+  ): Promise<void> {
+    if (test.status !== 'DRAFT') {
+      throw new ConflictException('scorer_type_locked');
+    }
+    const items = await this.repo.findItemsByTestId(id);
+    if (items.length > 0) {
+      throw new ConflictException('scorer_type_locked');
+    }
   }
 
   /** Resolve (and create) a public image dir under the configured upload root. */

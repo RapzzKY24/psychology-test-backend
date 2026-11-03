@@ -114,6 +114,66 @@ describe('TestsService', () => {
       );
     });
 
+    it('should allow switching the scorer type on an empty draft', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: '1',
+        slug: 'old',
+        status: 'DRAFT',
+        scorerType: 'FORCED_CHOICE_DISC',
+      } as any);
+      mockRepo.findItemsByTestId.mockResolvedValue([]);
+      mockRepo.update.mockResolvedValue({ id: '1' } as any);
+
+      await service.update('1', { scorerType: 'RIGHT_WRONG_NORM' } as any);
+
+      expect(mockRepo.update).toHaveBeenCalledWith('1', {
+        scorerType: 'RIGHT_WRONG_NORM',
+      });
+    });
+
+    it('should refuse switching the scorer type once items exist', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: '1',
+        slug: 'old',
+        status: 'DRAFT',
+        scorerType: 'FORCED_CHOICE_DISC',
+      } as any);
+      mockRepo.findItemsByTestId.mockResolvedValue([{ id: 'item-1' }] as any);
+
+      await expect(
+        service.update('1', { scorerType: 'RIGHT_WRONG_NORM' } as any),
+      ).rejects.toThrow('scorer_type_locked');
+      expect(mockRepo.update).not.toHaveBeenCalled();
+    });
+
+    it('should refuse switching the scorer type on a published test', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: '1',
+        slug: 'old',
+        status: 'PUBLISHED',
+        scorerType: 'FORCED_CHOICE_DISC',
+      } as any);
+
+      await expect(
+        service.update('1', { scorerType: 'RIGHT_WRONG_NORM' } as any),
+      ).rejects.toThrow('scorer_type_locked');
+    });
+
+    it('should not touch the items when the scorer type is unchanged', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: '1',
+        slug: 'old',
+        status: 'PUBLISHED',
+        scorerType: 'RIGHT_WRONG_NORM',
+      } as any);
+      mockRepo.update.mockResolvedValue({ id: '1' } as any);
+
+      await service.update('1', { scorerType: 'RIGHT_WRONG_NORM' } as any);
+
+      expect(mockRepo.findItemsByTestId).not.toHaveBeenCalled();
+      expect(mockRepo.update).toHaveBeenCalled();
+    });
+
     it('should throw 409 on slug collision', async () => {
       mockRepo.findById.mockResolvedValue({
         id: '1',
