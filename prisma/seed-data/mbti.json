@@ -1,0 +1,1076 @@
+{
+  "test": {
+    "slug": "mbti",
+    "name": "MBTI (Myers-Briggs Type Indicator)",
+    "description": "Tes kepribadian 70 pasangan pernyataan. Hasilnya 4 huruf tipe: Extraversion/Introversion, Sensing/Intuition, Thinking/Feeling, Judging/Perceiving.",
+    "category": "PERSONALITY",
+    "scorerType": "FORCED_CHOICE_PAIR",
+    "price": 150000,
+    "estimatedDurationMin": 25,
+    "timeLimitMin": null
+  },
+  "items": [
+    {
+      "order": 1,
+      "content": {
+        "question": "Pada sebuah pesta, apakah Anda:",
+        "statements": [
+          "bergaul dengan banyak orang termasuk orang-orang yang baru Anda kenal, atau",
+          "bergaul dengan beberapa orang yang telah Anda kenal saja."
+        ],
+        "mapping": [
+          "E",
+          "I"
+        ]
+      }
+    },
+    {
+      "order": 2,
+      "content": {
+        "question": "Apakah Anda lebih:",
+        "statements": [
+          "realistik, ATAU",
+          "spekulatif"
+        ],
+        "mapping": [
+          "S",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 3,
+      "content": {
+        "question": "Adalah hal yang buruk:",
+        "statements": [
+          "tenggelam dalam mengandai-andai, ATAU",
+          "terlanjur basah kerepotan di tengah jalan"
+        ],
+        "mapping": [
+          "S",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 4,
+      "content": {
+        "question": "Biasanya Anda lebih terkesan dengan",
+        "statements": [
+          "prinsip, ATAU",
+          "perasaan"
+        ],
+        "mapping": [
+          "T",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "content": {
+        "question": "Apakah Anda cenderung lebih terjelaskan melalui:",
+        "statements": [
+          "argumen logis, ATAU",
+          "argumen emotif (feeling)"
+        ],
+        "mapping": [
+          "T",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "content": {
+        "question": "Apakah Anda lebih menyukai bekerja:",
+        "statements": [
+          "menggunakan batas waktu, ATAU",
+          "kapan-kapan saja"
+        ],
+        "mapping": [
+          "J",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 7,
+      "content": {
+        "question": "Apakah Anda cenderung untuk memilih:",
+        "statements": [
+          "secara berhati-hati, ATAU",
+          "secara spontan"
+        ],
+        "mapping": [
+          "J",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 8,
+      "content": {
+        "question": "Di pesta-pesta, Anda:",
+        "statements": [
+          "tinggal sampai pesta berakhir dengan semakin segar, ATAU",
+          "meninggalkan pesta lebih cepat dengan kondisi capai/lelah"
+        ],
+        "mapping": [
+          "E",
+          "I"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "content": {
+        "question": "Apakah Anda merupakan seseorang yang lebih:",
+        "statements": [
+          "banyak menggunakan akal sehat",
+          "imajinatif"
+        ],
+        "mapping": [
+          "S",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 10,
+      "content": {
+        "question": "Apakah Anda lebih tertarik pada:",
+        "statements": [
+          "apa yang aktual, ATAU",
+          "apa yang mungkin"
+        ],
+        "mapping": [
+          "S",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 11,
+      "content": {
+        "question": "Dalam memutuskan/memberi penilaian pada orang lain Anda lebih dipengaruhi oleh:",
+        "statements": [
+          "hukum daripada situasi/keadaannya, ATAU",
+          "situasi/keadaannya daripada hukum"
+        ],
+        "mapping": [
+          "T",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 12,
+      "content": {
+        "question": "Ketika pertama kali mendekati orang lain, apakah Anda lebih:",
+        "statements": [
+          "tidak melibatkan perasaan dan menjaga jarak, ATAU",
+          "melibatkan diri secara pribadi dan mencoba membuat orang tersebut tertarik"
+        ],
+        "mapping": [
+          "T",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 13,
+      "content": {
+        "question": "Apakah Anda biasanya lebih:",
+        "statements": [
+          "tepat waktu, ATAU",
+          "santai"
+        ],
+        "mapping": [
+          "J",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 14,
+      "content": {
+        "question": "Apakah mengganggu Anda, mempunyai banyak hal yang:",
+        "statements": [
+          "tidak lengkap/tidak terselesaikan, ATAU",
+          "sudah lengkap/terselesaikan"
+        ],
+        "mapping": [
+          "J",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 15,
+      "content": {
+        "question": "Dalam kelompok sosial Anda, Anda:",
+        "statements": [
+          "mengetahui kejadian-kejadian yang dialami oleh orang lain, ATAU",
+          "biasanya ketinggalan berita"
+        ],
+        "mapping": [
+          "E",
+          "I"
+        ]
+      }
+    },
+    {
+      "order": 16,
+      "content": {
+        "question": "Dalam mengerjakan sesuatu yang biasa, Anda lebih suka:",
+        "statements": [
+          "mengerjakannya dengan cara lazimnya orang, ATAU",
+          "mengerjakannya dengan cara Anda sendiri"
+        ],
+        "mapping": [
+          "S",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 17,
+      "content": {
+        "question": "Apakah Anda memilih penulis yang:",
+        "statements": [
+          "menuliskan kata-kata dengan arti yang sebenarnya, ATAU",
+          "menggunakan kiasan-kiasan"
+        ],
+        "mapping": [
+          "S",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 18,
+      "content": {
+        "question": "Bagi Anda, apa yang lebih penting:",
+        "statements": [
+          "konsisten dan teguh dengan pemikiran/ide Anda, ATAU",
+          "menjaga keharmonisan hubungan sosial"
+        ],
+        "mapping": [
+          "T",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 19,
+      "content": {
+        "question": "Anda merasa nyaman, membuat:",
+        "statements": [
+          "keputusan logis, ATAU",
+          "keputusan berdasar nilai-nilai"
+        ],
+        "mapping": [
+          "T",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 20,
+      "content": {
+        "question": "Apakah biasanya Anda:",
+        "statements": [
+          "menyukai segala hal terselesaikan, ATAU",
+          "membiarkan berbagai pilihan dengan berbagai kemungkinan"
+        ],
+        "mapping": [
+          "J",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 21,
+      "content": {
+        "question": "Menurut Anda, Anda orang yang:",
+        "statements": [
+          "tegas, saklek, keras pendirian/kemauan, ATAU",
+          "nyantai, bisa menyesuaikan pendirian/kemauan (easy-going)"
+        ],
+        "mapping": [
+          "J",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 22,
+      "content": {
+        "question": "Dalam menelpon, apaka Anda:",
+        "statements": [
+          "langsung berbicara, ATAU",
+          "menyusun dulu kata-kata yang diucapkan"
+        ],
+        "mapping": [
+          "E",
+          "I"
+        ]
+      }
+    },
+    {
+      "order": 23,
+      "content": {
+        "question": "Untuk Anda, fakta adalah:",
+        "statements": [
+          "menggambarkan apa yang terjadi, ATAU",
+          "biasanya perlu diinterpretasi"
+        ],
+        "mapping": [
+          "S",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 24,
+      "content": {
+        "question": "Apakah Anda memilih bekerja dengan:",
+        "statements": [
+          "informasi praktis, ATAU",
+          "ide-ide abstrak"
+        ],
+        "mapping": [
+          "S",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 25,
+      "content": {
+        "question": "Apakah Anda cenderung lebih:",
+        "statements": [
+          "berpikiran jernih, ATAU",
+          "berperasaan hangat"
+        ],
+        "mapping": [
+          "T",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 26,
+      "content": {
+        "question": "Apakah Anda lebih suka menjadi seorang yang:",
+        "statements": [
+          "adil daripada pemaaf, ATAU",
+          "pemaaf daripada adil"
+        ],
+        "mapping": [
+          "T",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 27,
+      "content": {
+        "question": "Bagi Anda, mengalami sesuatu:",
+        "statements": [
+          "harus direncanakan dan berdasarkan pilihan, ATAU",
+          "biarlah berjalan dengan sendirinya"
+        ],
+        "mapping": [
+          "J",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 28,
+      "content": {
+        "question": "Apakah Anda lebih nyaman dengan:",
+        "statements": [
+          "langsung beli/dipesankan, ATAU",
+          "mempunyai pilihan-pilihan"
+        ],
+        "mapping": [
+          "J",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 29,
+      "content": {
+        "question": "Dalam suatu pertemuan apakah Anda:",
+        "statements": [
+          "memulai pembicaraan-pembicaraan, ATAU",
+          "menunggu untuk ditanya"
+        ],
+        "mapping": [
+          "E",
+          "I"
+        ]
+      }
+    },
+    {
+      "order": 30,
+      "content": {
+        "question": "Akal sehat gaya tradisional:",
+        "statements": [
+          "biasanya bisa dipercaya, ATAU",
+          "sering menimbulkan salah tafsir"
+        ],
+        "mapping": [
+          "S",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 31,
+      "content": {
+        "question": "Anak-anak tidak:",
+        "statements": [
+          "cukup sering melakukan kegiatan bermanfaat, ATAU",
+          "cukup berfantasi"
+        ],
+        "mapping": [
+          "S",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 32,
+      "content": {
+        "question": "Apakah biasanya Anda lebih:",
+        "statements": [
+          "mempertahankan prinsip, ATAU",
+          "bersikap simpatik"
+        ],
+        "mapping": [
+          "T",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 33,
+      "content": {
+        "question": "Apakah Anda biasanya lebih bersikap:",
+        "statements": [
+          "tegas daripada lemah lembut, ATAU",
+          "lemah-lembut daripada tegas"
+        ],
+        "mapping": [
+          "T",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 34,
+      "content": {
+        "question": "Apakah Anda cenderung lebih menjaga hal-hal agar:",
+        "statements": [
+          "terorganisasi dengan baik, ATAU",
+          "terbuka untuk kemungkinan-kemungkinan"
+        ],
+        "mapping": [
+          "J",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 35,
+      "content": {
+        "question": "Apakah Anda lebih menghargai:",
+        "statements": [
+          "sesuatu yang pasti, ATAU",
+          "sesuatu yang berubah-ubah"
+        ],
+        "mapping": [
+          "J",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 36,
+      "content": {
+        "question": "Apakah interaksi baru dengan orang lain:",
+        "statements": [
+          "menggugah semangat Anda, ATAU",
+          "menguras tenaga Anda"
+        ],
+        "mapping": [
+          "E",
+          "I"
+        ]
+      }
+    },
+    {
+      "order": 37,
+      "content": {
+        "question": "Anda menggambarkan diri Anda lebih sering sebagai:",
+        "statements": [
+          "orang yang praktis, ATAU",
+          "orang yang teoritis"
+        ],
+        "mapping": [
+          "S",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 38,
+      "content": {
+        "question": "Anda lebih melihat orang lain:",
+        "statements": [
+          "dari bagaimana kemanfaatannya, ATAU",
+          "dari bagaimana kelihatannya"
+        ],
+        "mapping": [
+          "S",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 39,
+      "content": {
+        "question": "Mana yang lebih memuaskan Anda:",
+        "statements": [
+          "mendiskusikan suatu topik sampai tuntas, ATAU",
+          "mencapai kesepakatan tentang suatu permasalahan"
+        ],
+        "mapping": [
+          "T",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 40,
+      "content": {
+        "question": "Yang mana lebih banyak Anda gunakan:",
+        "statements": [
+          "pemikiran, ATAU",
+          "perasaan"
+        ],
+        "mapping": [
+          "T",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 41,
+      "content": {
+        "question": "Anda lebih nyaman dengan pekerjaan yang:",
+        "statements": [
+          "berdasarkan kontrak, ATAU",
+          "tidak terikat"
+        ],
+        "mapping": [
+          "J",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 42,
+      "content": {
+        "question": "Anda lebih menyukai bila segala hal:",
+        "statements": [
+          "rapi dan teratur, ATAU",
+          "tergantung situasi"
+        ],
+        "mapping": [
+          "J",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 43,
+      "content": {
+        "question": "Apakah Anda lebih memilih:",
+        "statements": [
+          "banyak teman dengan hubungan yang singkat, ATAU",
+          "beberapa teman dengan hubungan yang lama/langgeng"
+        ],
+        "mapping": [
+          "E",
+          "I"
+        ]
+      }
+    },
+    {
+      "order": 44,
+      "content": {
+        "question": "Apakah Anda lebih beranjak pada:",
+        "statements": [
+          "fakta-fakta, ATAU",
+          "kaidah-kaidah"
+        ],
+        "mapping": [
+          "S",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 45,
+      "content": {
+        "question": "Apakah Anda lebih tertarik pada:",
+        "statements": [
+          "produksi dan distribusi/hasil akhir, ATAU",
+          "perencana, penelitian"
+        ],
+        "mapping": [
+          "S",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 46,
+      "content": {
+        "question": "Mana yang lebih patut dipuji:",
+        "statements": [
+          "orang yang sangat logis, ATAU",
+          "orang yang sangat sentimentil (mengedepankan perasaan)"
+        ],
+        "mapping": [
+          "T",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 47,
+      "content": {
+        "question": "Apakah Anda menghargai diri Anda karena:",
+        "statements": [
+          "berpendirian teguh, ATAU",
+          "penuh pengabdian"
+        ],
+        "mapping": [
+          "T",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 48,
+      "content": {
+        "question": "Apakah Anda lebih suka dengan:",
+        "statements": [
+          "pernyataan-pernyataan final dan tidak bisa diganggu-gugat, ATAU",
+          "pernyataan-pernyataan tidak bersifat pasti (tentative)/masih awal"
+        ],
+        "mapping": [
+          "J",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 49,
+      "content": {
+        "question": "Apakah Anda lebih nyaman dengan:",
+        "statements": [
+          "sesudah pengambilan keputusan, ATAU",
+          "sebelum pengambilan keputusan"
+        ],
+        "mapping": [
+          "J",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 50,
+      "content": {
+        "question": "Apakah Anda:",
+        "statements": [
+          "berbicara dengan mudah dan panjang lebar dengan orang yang baru dikenal, ATAU",
+          "sulit bicara dengan orang yang baru dikenal"
+        ],
+        "mapping": [
+          "E",
+          "I"
+        ]
+      }
+    },
+    {
+      "order": 51,
+      "content": {
+        "question": "Apakah Anda sepertinya lebih mempercayai:",
+        "statements": [
+          "pengalaman-pengalaman, ATAU",
+          "firasat/dugaan/prasangka"
+        ],
+        "mapping": [
+          "S",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 52,
+      "content": {
+        "question": "Apakah Anda merasa:",
+        "statements": [
+          "lebih praktis daripada kreatif, ATAU",
+          "lebih kreatif daripada praktis"
+        ],
+        "mapping": [
+          "S",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 53,
+      "content": {
+        "question": "Apakah Anda memiliki ciri khas sebagai seorang dengan:",
+        "statements": [
+          "rasio jelas, ATAU",
+          "perasaan yang kuat"
+        ],
+        "mapping": [
+          "T",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 54,
+      "content": {
+        "question": "Apakah Anda cenderung lebih:",
+        "statements": [
+          "adil apa adanya/tanpa prasangka, ATAU",
+          "manruh perhatian (simpatis)"
+        ],
+        "mapping": [
+          "T",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 55,
+      "content": {
+        "question": "Anda sangat menyukai tindakan yang:",
+        "statements": [
+          "memastikan segala sesuatu ditata dahulu, ATAU",
+          "membiarkan hal-hal yang terjadi begitu saja"
+        ],
+        "mapping": [
+          "J",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 56,
+      "content": {
+        "question": "Apakah cara-cara Anda lebih pada:",
+        "statements": [
+          "mengatur segala sesuatu, ATAU",
+          "menunda-nunda penyelesaian"
+        ],
+        "mapping": [
+          "J",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 57,
+      "content": {
+        "question": "Bila telepon berbunyi, Anda akan:",
+        "statements": [
+          "segera menerima telepon tersebut, ATAU",
+          "berharap orang lain yang menerimanya"
+        ],
+        "mapping": [
+          "E",
+          "I"
+        ]
+      }
+    },
+    {
+      "order": 58,
+      "content": {
+        "question": "Apakah Anda lebih menghargai diri Anda dalam hal:",
+        "statements": [
+          "kemampuan memahami realita, ATAU",
+          "kemampuan imajinasi yang baik"
+        ],
+        "mapping": [
+          "S",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 59,
+      "content": {
+        "question": "Apakah Anda lebih tertarik pada:",
+        "statements": [
+          "azas, ATAU",
+          "penyesuaian"
+        ],
+        "mapping": [
+          "S",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 60,
+      "content": {
+        "question": "Dalam menilai, biasanya Anda lebih bersikap:",
+        "statements": [
+          "netral, ATAU",
+          "pemurah"
+        ],
+        "mapping": [
+          "T",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 61,
+      "content": {
+        "question": "Apakah Anda lebih menganggap diri Anda sebagai orang yang:",
+        "statements": [
+          "keras hati/teguh, ATAU",
+          "lunak hati/halus"
+        ],
+        "mapping": [
+          "T",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 62,
+      "content": {
+        "question": "Apakah Anda lebih cenderung mengalami:",
+        "statements": [
+          "kejadian-kejadian yang telah terjadwal, ATAU",
+          "kejadian-kejadian yang datang begitu saja"
+        ],
+        "mapping": [
+          "J",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 63,
+      "content": {
+        "question": "Apakah Anda lebih termasuk tipe orang yang menyukai:",
+        "statements": [
+          "hal-hal yang bersifat rutin, ATAU",
+          "hal-hal yang tidak biasa"
+        ],
+        "mapping": [
+          "J",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 64,
+      "content": {
+        "question": "Apakah Anda cenderung",
+        "statements": [
+          "mudah didekati, ATAU",
+          "agak menjaga jarak"
+        ],
+        "mapping": [
+          "E",
+          "I"
+        ]
+      }
+    },
+    {
+      "order": 65,
+      "content": {
+        "question": "Bila Anda menulis, Anda lebih menyukai:",
+        "statements": [
+          "memakai kata-kata dengan arti yang sebenarnya, ATAU",
+          "menggunakan kata-kata kiasan"
+        ],
+        "mapping": [
+          "S",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 66,
+      "content": {
+        "question": "Apakah Anda merasa lebih senang dengan:",
+        "statements": [
+          "mengalami sendiri dan nyata, ATAU",
+          "membayangkan"
+        ],
+        "mapping": [
+          "S",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 67,
+      "content": {
+        "question": "Apakah biasanya Anda lebih:",
+        "statements": [
+          "berpikiran jernih, ATAU",
+          "menunjukkan perasaan yang kuat"
+        ],
+        "mapping": [
+          "T",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 68,
+      "content": {
+        "question": "Apakah Anda lebih:",
+        "statements": [
+          "adil daripada toleran, ATAU",
+          "toleran daripada adil"
+        ],
+        "mapping": [
+          "T",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 69,
+      "content": {
+        "question": "Apakah Anda lebih memilih:",
+        "statements": [
+          "kegiatan yang terencana, ATAU",
+          "kegiatan yang tidak terencana"
+        ],
+        "mapping": [
+          "J",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 70,
+      "content": {
+        "question": "Apakah Anda cenderung lebih:",
+        "statements": [
+          "hati-hati daripada spontan, ATAU",
+          "spontan daripada hati-hati"
+        ],
+        "mapping": [
+          "J",
+          "P"
+        ]
+      }
+    }
+  ],
+  "interpretations": [
+    {
+      "patternCode": "ISTJ",
+      "title": "Tipe ISTJ",
+      "body": "Serius, tenang, stabil & damai.\nSenang pada fakta, logis, obyektif, praktis & realistis.\nBerorientasi pada tugas, tekun, teratur, menepati janji, dapat diandalkan & bertanggung jawab.\nPendengar yang baik, setia, hanya mau berbagi dengan orang dekat.\nMemegang aturan, standar & prosedur dengan teguh.\n\nSaran pengembangan:\n- Belajarlah memahami perasaan & kebutuhan orang lain.\n- Kurangi keinginan untuk mengontrol orang lain atau memerintah mereka untuk menegakkan aturan.\n- Lihatlah lebih banyak sisi positif pada orang lain atau hal lainnya.\n- Terbukalah terhadap perubahan.\n\nSaran profesi:\nBidang Manajemen, Polisi, Intelijen, Hakim, Pengacara, Dokter, Akuntan (Staf Keuangan), Programmer atau yang berhubungan dengan IT, System Analys, Pemimpin Militer"
+    },
+    {
+      "patternCode": "ISFJ",
+      "title": "Tipe ISFJ",
+      "body": "Penuh pertimbangan, hati-hati, teliti dan akurat.\nSerius, tenang, stabil namun sensitif.\nRamah, perhatian pada perasaan & kebutuhan orang lain, setia, kooperatif, pendengar yang baik.\nPunya kemampuan mengorganisasi, detail, teliti, sangat bertanggungjawab & bisa diandalkan.\n\nSaran pengembangan:\n- Lihat lebih dalam, lebih antusias, & lebih semangat.\n- Belajarlah mengatakan ”tidak”. Jangan menyenangkan semua orang atau Anda dianggap plin plan.\n- Jangan terjebak zona nyaman dan rutinitas.\n- Cobalah hal baru. Ada banyak hal menyenangkan yang mungkin belum pernah Anda coba.\n\nSaran profesi:\nArchitect, Interior Designer, Perawat, Administratif, Designer, Child Care, Konselor, Back Office Manager, Penjaga Toko / Perpustakaan, Dunia Perhotelan."
+    },
+    {
+      "patternCode": "ISTP",
+      "title": "Tipe ISTP",
+      "body": "Tenang, pendiam, cenderung kaku, dingin, hati-hati, penuh pertimbangan.\nLogis, rasional, kritis, obyektif, mampu mengesampingkan perasaan.\nMampu menghadapi perubahan mendadak dengan cepat dan tenang.\nPercaya diri, tegas dan mampu menghadapi perbedaan maupun kritik.\nMampu menganalisa, mengorganisir, & mendelegasikan.\nProblem solver yang baik terutama untuk masalah teknis & keadaan mendadak.\n\nSaran pengembangan:\n- Observasilah kehidupan sosial, apa yang membuat orang marah, cinta, senang, termotivasi & terapkan pada hubungan Anda.\n- Belajarlah untuk mengenali perasaan Anda dan mengekspresikannya.\n- Jadilah orang yang lebih terbuka, keluar dari zona nyaman, eksplorasi ide baru, dan berdiskusi dengan orang lain.\n- Jangan mencari-cari kesalahan orang hanya untuk menyelesaikan masalahnya.\n- Jangan menyimpan informasi yang harusnya dibagi dan belajarlah mempercayakan tanggungjawab pada orang lain.\n\nSaran profesi:\nPolisi, Ahli Forensik, Programmer, Ahli Komputer, System Analyst, Teknisi, Insinyur, Mekanik, Pilot, Atlit, Entrepreneur"
+    },
+    {
+      "patternCode": "ISFP",
+      "title": "Tipe ISFP",
+      "body": "Berpikiran simpel & praktis, fleksibel, sensitif, ramah, tidak menonjolkan diri, rendah hati pada kemampuannya.\nMenghindari konflik, tidak memaksakan pendapat atau nilai-nilainya pada orang lain.\nBiasanya tidak mau memimpin tetapi menjadi pengikut dan pelaksana yang setia.\nSeringkali santai menyelesaikan sesuatu, karena sangat menikmati apa yang terjadi saat ini.\nMenunjukkan perhatian lebih banyak melalui tindakan dibandingkan kata-kata.\n\nSaran pengembangan:\n- Jangan takut pada penolakan dan konflik. Anda tidak perlu menyenangkan semua orang.\n- Cobalah untuk mulai memikirkan dampak jangka panjang dari keputusan-keputusan kecil di hari ini.\n- Asah dan kembangkan sisi kreatifitas dan seni dalam diri Anda sebagai modal bagus dalam diri Anda.\n- Cobalah untuk lebih terbuka dan mengekspresikan perasaan Anda.\n\nSaran profesi:\nSeniman, Designer, Pekerja Sosial, Konselor, Psikolog, Guru, Aktor, Bidang Hospitality"
+    },
+    {
+      "patternCode": "INFJ",
+      "title": "Tipe INFJ",
+      "body": "Perhatian, empati, sensitif & berkomitmen terhadap sebuah hubungan.\nSukses karena ketekunan, originalitas dan keinginan kuat untuk melakukan apa saja yang diperlukan termasuk memberikan yg terbaik dalam pekerjaan.\nIdealis, perfeksionis, memegang teguh prinsip.\nVisioner, penuh ide, kreatif, suka merenung dan inspiring.\nBiasanya diikuti dan dihormati karena kejelasan visi serta dedikasi pada hal-hal baik.\n\nSaran pengembangan:\n- Seimbangkan cara pandang Anda. Jangan hanya melihat sisi negatif & resiko. Namun, lihatlah sisi positif dan peluangnya.\n- Bersabarlah, jangan mudah marah dan menyalahkan orang lain atau situasi.\n- Rileks dan jangan terus menerus berfikir atau menyelesaikan tanggungjawab.\n\nSaran profesi:\nPengajar, Psikolog, Dokter, Konselor, Pekerja Sosial, Fotografer, Seniman, Designer, Child Care."
+    },
+    {
+      "patternCode": "INTJ",
+      "title": "Tipe INTJ",
+      "body": "Visioner, punya perencanaan praktis, & biasanya memiliki ide-ide original serta dorongan kuat untuk mencapainya.\nMandiri dan percaya diri.\nPunya kemampuan analisa yang bagus serta menyederhanakan sesuatu yang rumit dan abstrak menjadi sesuatu yang praktis, mudah difahami & dipraktekkan.\nSkeptis, kritis, logis, menentukan (determinatif) dan kadang keras kepala.\nPunya keinginan untuk berkembang serta selalu ingin lebih maju dari orang lain.\nKritik & konflik tidak menjadi masalah berarti.\n\nSaran pengembangan:\n- Belajarlah mengungkapkan emosi & perasaan Anda.\n- Cobalah untuk lebih terbuka pada dunia luar, banyak bergaul, banyak belajar, banyak membaca, mengunjungi banyak tempat, eksplorasi hal baru, & memperluas wawasan.\n- Hindari perdebatan tidak penting.\n- Belajarlah untuk berempati, memberi perhatian dan lebih peka terhadap orang lain.\n\nSaran profesi:\nPeneliti, Ilmuwan, Insinyur, Teknisi, Pengajar, Profesor, Dokter, Research & Development, Business Analyst, System Analyst, Pengacara, Hakim, Programmers, Posisi Strategis dalam organisasi."
+    },
+    {
+      "patternCode": "INFP",
+      "title": "Tipe INFP",
+      "body": "Sangat perhatian dan peka dengan perasaan orang lain.\nPenuh dengan antusiasme dan kesetiaan, tapi biasanya hanya untuk orang dekat.\nPeduli pada banyak hal. Cenderung mengambil terlalu banyak dan menyelesaikan sebagian.\nCenderung idealis dan perfeksionis.\nBerpikir win-win solution, mempercayai dan mengoptimalkan orang lain.\n\nSaran pengembangan:\n- Belajarlah menghadapi kritik. Jika baik maka kritik itu bisa membangun Anda, namun jika tidak abaikan saja. Jangan ragu pula untuk bertanya dan minta saran.\n- Belajarlah untuk bersikap tegas. Jangan selalu berperasaan dan menyenangkan orang dengan tindakan baik. Bertindak baik itu berbeda dengan bertindak benar.\n- Jangan terlalu menyalahkan diri dan bersikap terlalu keras pada diri sendiri. Kegagalan adalah hal biasa dan semua orang pernah mengalaminya.\n- Jangan terlalu baik pada orang lain tapi melupakan diri sendiri. Anda juga punya tanggungjawab untuk berbuat baik pada diri sendiri.\n\nSaran profesi:\nPenulis, Sastrawan, Konselor, Psikolog, Pengajar, Seniman, Rohaniawan, Bidang Hospitality"
+    },
+    {
+      "patternCode": "INTP",
+      "title": "Tipe INTP",
+      "body": "Sangat menghargai intelektualitas dan pengetahuan. Menikmati hal-hal teoritis dan ilmiah. Senang memecahkan masalah dengan logika dan analisa.\nDiam dan menahan diri. Lebih suka bekerja sendiri.\nCenderung kritis, skeptis, mudah curiga dan pesimis.\nTidak suka memimpin dan bisa menjadi pengikut yang tidak banyak menuntut.\nCenderung memiliki minat yang jelas. Membutuhkan karir dimana minatnya bisa berkembang dan bermanfaat.\nJika menemukan sesuatu yang menarik minatnya, ia akan sangat serius dan antusias menekuninya.\n\nSaran pengembangan:\n- Belajarlah membangun hubungan dengan orang lain.\n- Belajar berempati, mendengar aktif, memberi perhatian dan bertukar pendapat.\n- Relaks. Jangan terlalu banyak berfikir. Nikmati hidup Anda tanpa harus bertanya mengapa dan bagaimana.\n- Cobalah menemukan satu ide, merencanakan dan mewujudkannya.\n- Jangan terlalu sering berganti-ganti ide tetapi tidak satupun yang terwujud.\n\nSaran profesi:\nIlmuwan, Fotografer, Programmer, Ahli komputer, System Analyst, Penulis Buku Teknis, Ahli Forensik, Jaksa, Pengacara, Teknisi"
+    },
+    {
+      "patternCode": "ESTP",
+      "title": "Tipe ESTP",
+      "body": "Spontan, Aktif, Enerjik, Cekatan, Cepat, Sigap, Antusias, Fun dan penuh variasi.\nKomunikator, asertif, to the point, ceplas-ceplos, berkarisma, punya interpersonal skill yang baik.\nBaik dalam pemecahan masalah langsung di tempat. Mampu menghadapi masalah, konflik dan kritik. Tidak khawatir, menikmati apapun yang terjadi.\nCenderung untuk menyukai sesuatu yang mekanistis, kegiatan bersama dan olahraga.\nMudah beradaptasi, toleran, pada umumnya konservatif tentang nilai-nilai.\nTidak suka penjelasan terlalu panjang. Paling baik dalam hal-hal nyata yang dapat dilakukan.\n\nSaran pengembangan:\n- Belajarlah memahami perasaan dan pemikiran orang lain terutama saat bicara dengan mereka.\n- Belajarlah untuk sabar, menikmati proses, tidak semua hal bisa dicapai dengan cepat.\n- Sesekali luangkan waktu untuk merenung dan merencanakan masa depan Anda.\n- Cobalah untuk mencatat pengamatan-pengamatan Anda termasuk detailnya.\n\nSaran profesi:\nMarketing, Sales, Polisi, Entrepreneur, Pialang Saham, Technical Support"
+    },
+    {
+      "patternCode": "ESFP",
+      "title": "Tipe ESFP",
+      "body": "Outgoing, easygoing, mudah berteman, bersahabat, sangat sosial, ramah, hangat, & menyenangkan.\nOptimis, ceria, antusias, fun, menghibur, suka menjadi perhatian.\nPunya interpersonal skill yang baik, murah hati, mudah simpatik dan mengenali perasaan orang lain.\nMenghindari konflik dan menjaga keharmonisan suatu hubungan.\nMengetahui apa yang terjadi di sekelilingnya dan ikut serta dalam kegiatan tersebut.\nSangat baik dalam keadaan yang membutuhkan common sense, tindakan cepat dan ketrampilan praktis.\n\nSaran pengembangan:\n- Jangan terburu-buru dalam mengambil keputusan. Belajarlah untuk fokus dan tidak mudah berubah-ubah terutama untuk hal yang penting.\n- Jangan menyenangkan semua orang. Begitu pula sebaliknya, tidak semua orang bisa menyenangkan Anda.\n- Belajarlah menghadapi kritik dan konflik. Jangan lari.\n- Anda punya kecenderungan meterialistis. Hati-hati, tidak semua hal bisa diukur dengan materi ataupun uang.\n\nSaran profesi:\nEntertainer, Seniman, Marketing, Konselor, Designer, Tour Guide, Bidang Anak-anak, Bidang Hospitality"
+    },
+    {
+      "patternCode": "ENFP",
+      "title": "Tipe ENFP",
+      "body": "Ramah, hangat, enerjik, optimis, antusias, semangat tinggi, fun.\nImaginatif, penuh ide, kreatif, inovatif.\nMampu beradaptasi dengan beragam situasi dan perubahan.\nPandai berkomunikasi, senang bersosialisasi & membawa suasana positif.\nMudah membaca perasaan dan kebutuhan orang lain.\n\nSaran pengembangan:\n- Belajarlah untuk fokus, disiplin, tegas dan konsisten\n- Belajarlah untuk menghadapi konflik dan kritik.\n- Pikirkan kebutuhan diri sendiri. Jangan melupakannya karena terlalu peduli pada kebutuhan orang lain.\n- Jangan terlalu boros. Belajarlah untuk mengelola keuangan sedikit demi sedikit.\n\nSaran profesi:\nKonselor, Psikolog, Entertainer, Pengajar, Motivator, Presenter, Reporter, MC, Seniman, Hospitality"
+    },
+    {
+      "patternCode": "ENTP",
+      "title": "Tipe ENTP",
+      "body": "Gesit, kreatif, inovatif, cerdik, logis, baik dalam banyak hal.\nBanyak bicara dan punya kemampuan debat yang baik. Bisa berargumentasi untuk senang-senang saja tanpa merasa bersalah.\nFleksibel. Punya banyak cara untuk memecahkan masalah dan tantangan.\nKurang konsisten. Cenderung untuk melakukan hal baru yang menarik hati setelah melakukan sesuatu yang lain.\nPunya keinginan kuat untuk mengembangkan diri.\n\nSaran pengembangan:\n- Cobalah untuk win-win solution. Jangan ingin menang sendiri.\n- Belajarlah untuk disiplin dan konsisten.\n- Hindari perdebatan tidak penting.\n- Belajarlah untuk sedikit waspada. Seimbangkan cara pandang Anda agar tidak terlalu optimis dan mengambil resiko yang tidak realistis.\n- Belajarlah untuk memberi perhatian pada perasaan orang lain.\n\nSaran profesi:\nPengacara, Psikolog, Konsultan, Ilmuwan, Aktor,Marketing, Programmer, Fotografer"
+    },
+    {
+      "patternCode": "ESTJ",
+      "title": "Tipe ESTJ",
+      "body": "Praktis, realistis, berpegang pada fakta, dengan dorongan alamiah untuk bisnis dan mekanistis.\nSangat sistematis, procedural dan terencana.\nDisiplin dan pekerja keras.\nKonservatif dan cenderung kaku.\nTidak tertarik pada subject yang tidak berguna baginya, tapi dapat menyesuaikan diri jika diperlukan.\nSenang mengorganisir sesuatu. Bisa menjadi administrator yang baik jika mereka ingat untuk memperhatikan perasaan dan perspektif orang lain.\n\nSaran pengembangan:\n- Kurangi keinginan untuk mengontrol dan memaksa orang lain.\n- Belajarlah untuk mengontrol emosi dan amarah Anda.\n- Cobalah untuk introspeksi diri dan meluangkan waktu sejenak untuk merenung.\n- Belajarlah untuk lebih sabar dan rendah hati\n- Belajarlah untuk memahami orang lain.\n\nSaran profesi:\nMiliter, Manajer, Polisi, Hakim, Pengacara, Guru, Sales, Auditor, Akuntan, System Analyst"
+    },
+    {
+      "patternCode": "ESFJ",
+      "title": "Tipe ESFJ",
+      "body": "Hangat, banyak bicara, populer, dilahirkan untuk bekerjasama, suportif dan anggota kelompok yang aktif.\nMembutuhkan keseimbangan dan baik dalam menciptakan harmoni.\nSelalu melakukan sesuatu yang manis bagi orang lain. Kerja dengan baik dalam situasi yang mendukung dan memujinya.\nSantai, easy going, sederhana, tidak berfikir panjang.\nTeliti dan rajin merawat apa yang ia miliki.\n\nSaran pengembangan:\n- Jangan mengorbankan diri hanya untuk menyenangkan orang lain.\n- Jangan mengukur harga diri Anda dari perlakuan, penghargaan dan pujian orang lain.\n- Mintalah pertimbangan orang lain dalam mengambil keputusan. Belajarlah untuk lebih tegas.\n- Terima tanggungjawab hidup dan belajarlah untuk lebih dewasa. Jangan mengasihani diri sendiri.\n- Hadapi kritik dan konflik, jangan lari.\n\nSaran profesi:\nPerencana Keuangan, Perawat, Guru, Bidang anak-anak, Konselor, Administratif, Hospitality"
+    },
+    {
+      "patternCode": "ENFJ",
+      "title": "Tipe ENFJ",
+      "body": "Kreatif, imajinatif, peka, sensitive, loyal.\nPada umumnya peduli pada apa kata orang atau apa yang orang lain inginkan dan cenderung melakukan sesuatu dengan memperhatikan perasaan orang lain.\nPandai bergaul, meyakinkan, ramah, fun, populer, simpatik. Responsif pada kritik dan pujian.\nMenyukai variasi dan tantangan baru.\nButuh apresiasi dan penerimaan.\n\nSaran pengembangan:\n- Jangan mengorbankan diri hanya untuk menyenangkan orang lain.\n- Jangan mengukur harga diri Anda dari perlakuan orang lain. Jangan mudah kecewa jika mereka tidak seperti yang Anda inginkan.\n- Belajarlah untuk tegas dan mengambil keputusan. Menghadapi kritik dan konflik.\n- Jangan terlalu bersikap keras terhadap diri sendiri.\n\nSaran profesi:\nKonsultan, Psikolog, Konselor, Pengajar, Marketing, HRD, Event Coordinator, Entertainer, Penulis, Motivator"
+    },
+    {
+      "patternCode": "ENTJ",
+      "title": "Tipe ENTJ",
+      "body": "Tegas, asertif, to the point, jujur terus terang, obyektif, kritis, & punya standard tinggi.\nDominan, kuat kemauannya, perfeksionis dan kompetitif.\nTangguh, disiplin, dan sangat menghargai komitmen.\nCenderung menutupi perasaan dan menyembunyikan kelemahan.\nBerkarisma, komunikasi baik, mampu menggerakkan orang.\nBerbakat pemimpin.\n\nSaran pengembangan:\n- Belajarlah untuk relaks. Tidak perlu perfeksionis dan selalu kompetitif dengan semua orang.\n- Ungkapkan perasaan Anda. Menyatakan perasaan bukanlah kelemahan.\n- Belajarlah mengelola emosi Anda. Jangan mudah marah.\n- Belajarlah untuk menghargai dan mengapresiasi orang lain.\n- Jangan terlalu arogan dan menganggap remeh orang lain. Lihat sisi positifnya. Jangan hanya melihat benar dan salah saja.\n\nSaran profesi:\nManager, Pemimpin Perusahaan, Kepala Sekolah, Pemimpin Yayasan"
+    }
+  ]
+}

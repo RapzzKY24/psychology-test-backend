@@ -6,12 +6,19 @@ import {
   DISC_PATTERN_CATALOG,
 } from './schemas/forced-choice-disc';
 import {
+  PairItemContentSchema,
+  PairResponseSchema,
+  pairPatternCodes,
+} from './schemas/forced-choice-pair';
+import {
   RightWrongItemContentSchema,
   RightWrongResponseSchema,
   RIGHT_WRONG_PATTERN_CATALOG,
 } from './schemas/right-wrong-norm';
 import { scoreDisc } from './disc-scorer';
+import { scoreForcedChoicePair } from './forced-choice-pair';
 import { scoreRightWrongNorm } from './right-wrong-norm';
+import { sanitizePairItem } from './sanitize-pair-item';
 import { sanitizeRightWrongItem } from './sanitize-right-wrong-item';
 
 export interface ScorerOutput {
@@ -24,7 +31,14 @@ export interface Scorer {
   itemSchema: z.ZodSchema;
   responseSchema: z.ZodSchema;
   sanitize(content: unknown): Record<string, unknown>;
+  /** Fixed codes (DISC, raw scores). Empty when the codes depend on the items. */
   patternCatalog: string[];
+  /**
+   * Codes this particular item set can produce. Publish requires one
+   * interpretation per code; a family whose pattern is assembled from the
+   * dimensions (FORCED_CHOICE_PAIR) derives them instead of listing 16+ by hand.
+   */
+  patternCodesFor?(items: { content: unknown }[]): string[];
   score(input: {
     items: { id: string; content: unknown }[];
     responses: { itemId: string; value: unknown }[];
@@ -51,6 +65,20 @@ export const SCORERS: Record<ScorerType, Scorer> = {
         ) as unknown as ScorerOutput,
       ),
   },
+  FORCED_CHOICE_PAIR: {
+    type: 'FORCED_CHOICE_PAIR',
+    itemSchema: PairItemContentSchema,
+    responseSchema: PairResponseSchema,
+    sanitize: sanitizePairItem,
+    patternCatalog: [],
+    patternCodesFor: pairPatternCodes,
+    score: (input) =>
+      Promise.resolve(
+        scoreForcedChoicePair(
+          input as unknown as Parameters<typeof scoreForcedChoicePair>[0],
+        ) as unknown as ScorerOutput,
+      ),
+  },
   RIGHT_WRONG_NORM: {
     type: 'RIGHT_WRONG_NORM',
     itemSchema: RightWrongItemContentSchema,
@@ -58,11 +86,7 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     sanitize: sanitizeRightWrongItem,
     patternCatalog: [...RIGHT_WRONG_PATTERN_CATALOG],
     score: (input) =>
-      Promise.resolve(
-        scoreRightWrongNorm(
-          input as unknown as Parameters<typeof scoreRightWrongNorm>[0],
-        ) as unknown as ScorerOutput,
-      ),
+      Promise.resolve(scoreRightWrongNorm(input) as unknown as ScorerOutput),
   },
 };
 

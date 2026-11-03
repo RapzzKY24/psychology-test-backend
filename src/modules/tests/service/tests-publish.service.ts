@@ -51,12 +51,15 @@ export class TestsPublishService {
     const interpretations = await this.repo.findInterpretationsByTestId(testId);
     // RIGHT_WRONG_NORM raw-only: interpretations optional, no catalog coverage required
     if (scorer && scorer.type !== 'RIGHT_WRONG_NORM') {
+      // A dimension-based family derives its codes from the items; a fixed
+      // family lists them (DISC 1..40). Either way every code needs a row.
+      const required = scorer.patternCodesFor
+        ? scorer.patternCodesFor(items)
+        : scorer.patternCatalog;
       const existingCodes = new Set(
         interpretations.map((interp) => interp.patternCode),
       );
-      const missing = scorer.patternCatalog.filter(
-        (code) => !existingCodes.has(code),
-      );
+      const missing = required.filter((code) => !existingCodes.has(code));
       if (missing.length > 0) {
         throw new UnprocessableEntityException({
           message: 'validation_failed',
