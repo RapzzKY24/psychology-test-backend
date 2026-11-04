@@ -247,24 +247,43 @@ export class CertificatesService {
   }
 
   /**
-   * Resolves the stored photo for the streaming endpoint.
+   * Reads the stored photo for the streaming endpoint.
    *
    * The photo is a participant's personal data, so it is never mounted as
    * public static: it is served by an authenticated route that first proves
    * the caller owns the certificate, then jails the database value to the
    * upload directory (same guard as the signature download).
+   *
+   * The bytes come back instead of a path so the controller can answer with a
+   * `StreamableFile`: that keeps the envelope interceptor and the exception
+   * filter in the way, both of which `res.sendFile` bypasses.
    */
-  async getPhotoPath(actor: CertificateActor, id: string): Promise<string> {
+  async readPhoto(
+    actor: CertificateActor,
+    id: string,
+  ): Promise<{ buffer: Buffer; type: string }> {
     const row = await this.loadOwned(actor, id);
     if (!row.photoPath) throw new NotFoundException('photo_not_found');
 
     const uploadDir = this.config.get<string>('app.uploadDir', './uploads');
     const base = `${path.resolve(uploadDir)}${path.sep}`;
     const full = path.resolve(row.photoPath);
-    if (!full.startsWith(base) || !(await this.fileExists(full))) {
+    if (!full.startsWith(base)) {
       throw new NotFoundException('photo_not_found');
     }
-    return full;
+
+    try {
+      return {
+        buffer: await fs.readFile(full),
+        // uploadPhoto stores only .png or .jpg, so the extension is enough.
+        type:
+          path.extname(full).toLowerCase() === '.png'
+            ? 'image/png'
+            : 'image/jpeg',
+      };
+    } catch {
+      throw new NotFoundException('photo_not_found');
+    }
   }
 
   /**
@@ -541,15 +560,6 @@ export class CertificatesService {
     const dir = path.join(root, 'certificates');
     await ensureUploadDir(dir);
     return dir;
-  }
-
-  private async fileExists(filepath: string): Promise<boolean> {
-    try {
-      await fs.access(filepath);
-      return true;
-    } catch {
-      return false;
-    }
   }
 
   private async removePhoto(stored: string | null, dir: string): Promise<void> {

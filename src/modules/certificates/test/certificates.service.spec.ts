@@ -348,27 +348,30 @@ describe('CertificatesService', () => {
     });
   });
 
-  describe('getPhotoPath', () => {
+  describe('readPhoto', () => {
+    const BYTES = Buffer.from('photo-bytes');
+
     beforeEach(() => {
-      jest.spyOn(fsPromises, 'access').mockResolvedValue(undefined);
+      jest.spyOn(fsPromises, 'readFile').mockResolvedValue(BYTES);
     });
 
     afterEach(() => jest.restoreAllMocks());
 
-    it('returns the resolved path of the stored photo', async () => {
+    it('returns the bytes and their type', async () => {
       repo.findById.mockResolvedValue(
         record({ photoPath: 'uploads/certificates/me.png' }),
       );
 
-      const result = await service.getPhotoPath(OWNER, 'cert-1');
+      const result = await service.readPhoto(OWNER, 'cert-1');
 
-      expect(result.endsWith('uploads/certificates/me.png')).toBe(true);
+      expect(result.buffer.equals(BYTES)).toBe(true);
+      expect(result.type).toBe('image/png');
     });
 
     it('refuses a draft that has no photo yet', async () => {
       repo.findById.mockResolvedValue(record());
 
-      await expect(service.getPhotoPath(OWNER, 'cert-1')).rejects.toThrow(
+      await expect(service.readPhoto(OWNER, 'cert-1')).rejects.toThrow(
         new NotFoundException('photo_not_found'),
       );
     });
@@ -376,7 +379,7 @@ describe('CertificatesService', () => {
     it('refuses a path outside the upload directory', async () => {
       repo.findById.mockResolvedValue(record({ photoPath: '/etc/passwd' }));
 
-      await expect(service.getPhotoPath(OWNER, 'cert-1')).rejects.toThrow(
+      await expect(service.readPhoto(OWNER, 'cert-1')).rejects.toThrow(
         new NotFoundException('photo_not_found'),
       );
     });
@@ -385,9 +388,9 @@ describe('CertificatesService', () => {
       repo.findById.mockResolvedValue(
         record({ photoPath: 'uploads/certificates/gone.png' }),
       );
-      jest.spyOn(fsPromises, 'access').mockRejectedValue(new Error('ENOENT'));
+      jest.spyOn(fsPromises, 'readFile').mockRejectedValue(new Error('ENOENT'));
 
-      await expect(service.getPhotoPath(OWNER, 'cert-1')).rejects.toThrow(
+      await expect(service.readPhoto(OWNER, 'cert-1')).rejects.toThrow(
         new NotFoundException('photo_not_found'),
       );
     });
@@ -397,7 +400,7 @@ describe('CertificatesService', () => {
         record({ photoPath: 'uploads/certificates/me.png' }),
       );
 
-      await expect(service.getPhotoPath(OTHER, 'cert-1')).rejects.toThrow(
+      await expect(service.readPhoto(OTHER, 'cert-1')).rejects.toThrow(
         ForbiddenException,
       );
     });
