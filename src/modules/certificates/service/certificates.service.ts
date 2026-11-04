@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
@@ -11,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import { promises as fs } from 'fs';
 import * as path from 'path';
+import * as QRCode from 'qrcode';
 import { ensureUploadDir } from '../../../lib/fs/ensure-upload-dir';
 import { validateImageFile } from '../../../lib/upload/validate-image-file';
 import { ageFromIsoDate } from '../utils/age-from-iso-date';
@@ -20,6 +22,7 @@ import {
   buildPreviewSnapshot,
 } from '../utils/certificate-snapshot';
 import { DRAFT_CERTIFICATE_FILENAME } from '../utils/certificate-filename';
+import { verificationUrl } from '../../../lib/url/verification-url';
 import { CertificateDocumentService } from './certificate-document.service';
 import type { RenderedCertificate } from './certificate-document.service';
 import { jakartaDateParts } from '../../reports/utils/jakarta-date';
@@ -262,6 +265,28 @@ export class CertificatesService {
       throw new NotFoundException('photo_not_found');
     }
     return full;
+  }
+
+  /**
+   * The validation QR on its own, for the on-screen card. Same encoder and the
+   * same URL as the printed page, so scanning the screen and scanning the paper
+   * lead to the same answer.
+   */
+  async getVerifyQr(actor: CertificateActor, id: string): Promise<Buffer> {
+    const row = await this.loadOwned(actor, id);
+    if (!row.verifyCode) {
+      throw new NotFoundException('verify_code_not_assigned');
+    }
+
+    const target = verificationUrl(
+      this.config.get<string>('app.publicUrl'),
+      'verifikasi-sertifikat',
+      row.verifyCode,
+    );
+    if (!target) {
+      throw new InternalServerErrorException('certificate_public_url_missing');
+    }
+    return QRCode.toBuffer(target, { type: 'png', margin: 1, width: 320 });
   }
 
   /**

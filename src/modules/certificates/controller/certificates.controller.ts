@@ -207,6 +207,22 @@ export class CertificatesController {
   }
 
   /**
+   * The validation QR, so the issued card can show what the paper prints.
+   */
+  @Get(':id/qr')
+  @Roles(['PSYCHOLOGIST', 'ADMIN'])
+  async streamQr(
+    @Session() session: UserSession,
+    @Param('id', UuidPipe) id: string,
+  ): Promise<StreamableFile> {
+    const buffer = await this.certificates.getVerifyQr(actorOf(session), id);
+    return new StreamableFile(buffer, {
+      type: 'image/png',
+      length: buffer.length,
+    });
+  }
+
+  /**
    * The 3x4 photo, streamed to its owner. It is personal data, so it stays
    * behind auth instead of being mounted from `uploads/certificates`.
    */

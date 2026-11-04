@@ -158,8 +158,11 @@ describe('renderCertificateHtml', () => {
       expect(draft()).toContain('class="watermark">DRAF<');
     });
 
-    it('omits the QR, which has no code to point at yet', () => {
-      expect(draft()).not.toContain(assets.qr);
+    it('marks the empty QR slot instead of leaving the area blank', () => {
+      const html = draft();
+      expect(html).not.toContain(assets.qr);
+      expect(html).toContain('class="qr qr-placeholder"');
+      expect(html).toContain('QR setelah terbit');
     });
 
     it('still prints the values that are already filled in', () => {

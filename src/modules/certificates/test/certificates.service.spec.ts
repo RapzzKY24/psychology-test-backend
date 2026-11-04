@@ -2,11 +2,13 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  InternalServerErrorException,
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { promises as fsPromises } from 'fs';
 import type { ConfigService } from '@nestjs/config';
+import * as QRCode from 'qrcode';
 import { CertificatesService } from '../service/certificates.service';
 import type { CertificateActor } from '../service/certificates.service';
 import { EMPTY_IDENTITY } from '../repository/certificates.repository';
@@ -398,6 +400,78 @@ describe('CertificatesService', () => {
       await expect(service.getPhotoPath(OTHER, 'cert-1')).rejects.toThrow(
         ForbiddenException,
       );
+    });
+  });
+
+  describe('getVerifyQr', () => {
+    function withPublicUrl(publicUrl: string): CertificatesService {
+      const config = {
+        get: jest.fn((key: string) =>
+          key === 'app.publicUrl' ? publicUrl : './uploads',
+        ),
+      } as unknown as ConfigService;
+      return new CertificatesService(
+        repo,
+        config,
+        eventLog as unknown as EventLogService,
+        documents as unknown as CertificateDocumentService,
+      );
+    }
+
+    const ISSUED = record({ status: 'ACTIVE', verifyCode: 'XMRBDYN7MU' });
+
+    it('encodes the public page, so scanning the screen matches the paper', async () => {
+      repo.findById.mockResolvedValue(ISSUED);
+
+      const png = await withPublicUrl('https://psikologitest.id').getVerifyQr(
+        OWNER,
+        'cert-1',
+      );
+
+      const expected = await QRCode.toBuffer(
+        'https://psikologitest.id/verifikasi-sertifikat/XMRBDYN7MU',
+        { type: 'png', margin: 1, width: 320 },
+      );
+      expect(png.equals(expected)).toBe(true);
+    });
+
+    it('ignores a trailing slash on the configured URL', async () => {
+      repo.findById.mockResolvedValue(ISSUED);
+
+      const png = await withPublicUrl('https://psikologitest.id/').getVerifyQr(
+        OWNER,
+        'cert-1',
+      );
+
+      const expected = await QRCode.toBuffer(
+        'https://psikologitest.id/verifikasi-sertifikat/XMRBDYN7MU',
+        { type: 'png', margin: 1, width: 320 },
+      );
+      expect(png.equals(expected)).toBe(true);
+    });
+
+    it('refuses a draft that has no code yet', async () => {
+      repo.findById.mockResolvedValue(record());
+
+      await expect(
+        withPublicUrl('https://x.test').getVerifyQr(OWNER, 'cert-1'),
+      ).rejects.toThrow(new NotFoundException('verify_code_not_assigned'));
+    });
+
+    it('refuses to draw a code that no phone could read', async () => {
+      repo.findById.mockResolvedValue(ISSUED);
+
+      await expect(
+        withPublicUrl('').getVerifyQr(OWNER, 'cert-1'),
+      ).rejects.toThrow(InternalServerErrorException);
+    });
+
+    it('refuses a certificate owned by someone else', async () => {
+      repo.findById.mockResolvedValue(ISSUED);
+
+      await expect(
+        withPublicUrl('https://x.test').getVerifyQr(OTHER, 'cert-1'),
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 

@@ -181,6 +181,22 @@ body {
   position: absolute;
   object-fit: contain;
 }
+/* A draft has no verify code yet, so this slot would print as empty paper and
+   read as a missing element. A dashed frame names what will be there. */
+.qr-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border: 0.75pt dashed ${INK};
+  text-align: center;
+  font-size: 5.5pt;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.2pt;
+  color: ${INK};
+  opacity: 0.65;
+}
 .watermark {
   position: absolute;
   left: 0;
@@ -256,6 +272,11 @@ export function renderCertificateHtml(params: RenderCertificateParams): string {
   const signature = assets.signature
     ? `  <img class="signature" style="${imageStyle(IMAGE.signature)}" src="${assets.signature}" alt="Tanda tangan psikolog">`
     : '';
+  const qr = assets.qr
+    ? `  <img class="qr" style="${imageStyle(IMAGE.qr)}" src="${assets.qr}" alt="QR validasi">`
+    : draft
+      ? `  <div class="qr qr-placeholder" style="${imageStyle(IMAGE.qr)}">QR setelah terbit</div>`
+      : '';
 
   const validUntil = snapshot.validUntil
     ? `  <div class="slot" style="${slotStyle(TEXT.validUntil)}">${escapeHtml(formatIndonesianDate(snapshot.validUntil))}</div>`
@@ -308,7 +329,7 @@ ${validUntil}
 ${cityDate}
   <div class="slot" style="${slotStyle(TEXT.psychologistName)}">${escapeHtml(signerName)}</div>
 ${sipp}
-${assets.qr ? `  <img class="qr" style="${imageStyle(IMAGE.qr)}" src="${assets.qr}" alt="QR validasi">` : ''}
+${qr}
 ${photo}
 ${signature}
 </div>
