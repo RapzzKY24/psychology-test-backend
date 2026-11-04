@@ -117,6 +117,19 @@ describe('renderCertificateHtml', () => {
     expect(html).toContain(assets.qr);
   });
 
+  /**
+   * Regression: without `position: absolute` the three images were laid out
+   * in-flow, painted *below* the absolutely positioned background, and the
+   * page looked as if the photo, signature and QR had never been drawn.
+   */
+  it('positions the three images so the background cannot cover them', () => {
+    const html = render();
+    for (const cls of ['photo', 'signature', 'qr']) {
+      const rule = html.match(new RegExp(`\\.${cls} \\{[^}]*\\}`))?.[0] ?? '';
+      expect(rule).toContain('position: absolute');
+    }
+  });
+
   it('declares the font as one variable face covering every weight', () => {
     const html = render();
     expect(html).toContain("font-family: 'Raleway'");

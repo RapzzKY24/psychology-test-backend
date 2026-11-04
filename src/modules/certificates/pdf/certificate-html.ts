@@ -161,11 +161,26 @@ body {
   white-space: normal;
   line-height: 1.15;
 }
-.photo { object-fit: cover; object-position: center top; }
+/* These three carry left/top from the layout, so they must be positioned: an
+   in-flow image paints *below* the absolutely positioned background and is
+   covered by it — the page looks as if the photo, signature and QR were never
+   rendered at all. */
+.photo {
+  position: absolute;
+  object-fit: cover;
+  object-position: center top;
+}
 /* The signature band is 78.7 pt tall and the name starts immediately below
    it, so the scan is scaled to fit rather than drawn at its natural size. */
-.signature { object-fit: contain; object-position: center; }
-.qr { object-fit: contain; }
+.signature {
+  position: absolute;
+  object-fit: contain;
+  object-position: center;
+}
+.qr {
+  position: absolute;
+  object-fit: contain;
+}
 .watermark {
   position: absolute;
   left: 0;
