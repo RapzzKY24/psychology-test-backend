@@ -70,7 +70,7 @@ export const TEXT = {
     x: 286,
     top: 210.7,
     size: 15,
-    weight: 400,
+    weight: 700,
     maxWidth: 215,
     align: 'left',
   },
