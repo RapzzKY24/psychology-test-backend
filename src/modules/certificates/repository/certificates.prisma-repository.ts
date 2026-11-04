@@ -252,6 +252,12 @@ export class PrismaCertificatesRepository implements CertificatesRepository {
     });
   }
 
+  /**
+   * The verify code stays on the row on purpose (D10): a paper already in
+   * circulation must answer "this certificate was cancelled, here is why"
+   * rather than "no such document". Only a superseded revision goes quiet,
+   * and that code is cleared by `issue` when the replacement lands.
+   */
   async revoke(
     id: string,
     patch: CertificateRevokePatch,
@@ -260,7 +266,6 @@ export class PrismaCertificatesRepository implements CertificatesRepository {
       where: { id },
       data: {
         status: 'REVOKED',
-        verifyCode: null,
         revokedAt: patch.revokedAt,
         revokedById: patch.revokedById,
         revokeReason: patch.reason,
