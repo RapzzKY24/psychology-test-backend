@@ -17,6 +17,7 @@ import type {
   CertificateResultContext,
   CertificatesRepository,
 } from '../repository/certificates.repository';
+import type { CertificateSnapshot } from '../utils/certificate-snapshot';
 
 const OWNER: CertificateActor = { id: 'psy-1', isAdmin: false };
 const OTHER: CertificateActor = { id: 'psy-2', isAdmin: false };
@@ -473,6 +474,27 @@ describe('CertificatesService', () => {
         issuer: { fullName: 'Dr. Ani', signaturePath: 'uploads/sig.png' },
         photoPath: 'uploads/certificates/photo.png',
       });
+    });
+
+    /**
+     * Regression: the template prints SIPP NO, but profiles created before the
+     * sippNumber column only carry licenseNumber. A blank line under a printed
+     * label is the bug; the licence number is the same credential.
+     */
+    it('falls back to the licence number when the profile has no SIPP', async () => {
+      primeHappyPath();
+      repo.findPsychologist.mockResolvedValue({
+        ...profile,
+        sippNumber: null,
+      } as unknown as Awaited<
+        ReturnType<CertificatesRepository['findPsychologist']>
+      >);
+
+      await service.issue(OWNER, 'cert-1');
+
+      const patch = repo.issue.mock.calls[0][1];
+      const snapshot = patch.snapshot as CertificateSnapshot;
+      expect(snapshot.issuer.sippNumber).toBe('123');
     });
 
     it('refuses a second issue of the same certificate', async () => {
