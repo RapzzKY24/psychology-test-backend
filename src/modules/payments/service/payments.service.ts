@@ -1,4 +1,4 @@
-import { BadGatewayException, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventLogService } from '../../event-log/service/event-log.service';
 import { IdempotencyService } from '../../idempotency/service/idempotency.service';
@@ -20,7 +20,10 @@ import {
   toVerifiedBySourceFromEvent,
   type PaymentProviderEnv,
 } from '../../../common/constants/payment-provider';
-import { PaymentGatewayError } from '../gateway/payment-gateway.error';
+import {
+  PaymentGatewayError,
+  isPaymentGatewayException,
+} from '../gateway/payment-gateway.error';
 import type { PaymentStatusResult } from '../gateway/payment-gateway.interface';
 import type { PaymentNotification } from '../gateway/payment-notification';
 import { MS_PER_MINUTE } from '../../../common/constants/time';
@@ -206,7 +209,7 @@ export class PaymentsService {
       } catch (error) {
         if (
           error instanceof PaymentGatewayError ||
-          error instanceof BadGatewayException
+          isPaymentGatewayException(error)
         ) {
           this.logger.warn(`reprovision ${order.id} failed: ${error.message}`);
           continue;
@@ -300,7 +303,7 @@ export class PaymentsService {
       } catch (error) {
         if (
           error instanceof PaymentGatewayError ||
-          error instanceof BadGatewayException
+          isPaymentGatewayException(error)
         ) {
           this.logger.warn(
             `invoice reprovision ${invoice.id} failed: ${error.message}`,

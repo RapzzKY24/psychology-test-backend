@@ -1,4 +1,7 @@
-import { BadGatewayException } from '@nestjs/common';
+import {
+  BadGatewayException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { PaymentsService } from '../service/payments.service';
 import { toPaymentNotification } from '../../midtrans/utils/to-payment-notification';
 import { MidtransApiError } from '../../midtrans/errors/midtrans-api.error';
@@ -140,6 +143,24 @@ describe('PaymentsService', () => {
       ]);
       orders.reprovision.mockRejectedValue(
         new MidtransApiError('request_failed', 'boom', 500, '/p'),
+      );
+
+      const result = await service.recoverStaleProvisioning();
+
+      expect(result).toEqual({ checked: 1, provisioned: 0 });
+    });
+
+    /**
+     * Regression: the services now raise 503 when the provider is down, and
+     * the pass only recognised 502 — one unreachable call aborted the whole
+     * batch instead of skipping it.
+     */
+    it('continues when the provider is unavailable', async () => {
+      orders.findPendingOrdersWithoutProviderOrderId.mockResolvedValue([
+        { id: 'o1' } as never,
+      ]);
+      orders.reprovision.mockRejectedValue(
+        new ServiceUnavailableException('payment_gateway_unavailable'),
       );
 
       const result = await service.recoverStaleProvisioning();
@@ -401,6 +422,19 @@ describe('PaymentsService', () => {
       ]);
       invoicePayment.provision.mockRejectedValue(
         new BadGatewayException('boom'),
+      );
+
+      const result = await service.recoverStaleInvoiceProvisioning();
+
+      expect(result).toEqual({ checked: 1, provisioned: 0 });
+    });
+
+    it('continues when the provider is unavailable', async () => {
+      invoices.findUnpaidWithoutProviderOrderId.mockResolvedValue([
+        { id: 'inv1', number: 'INV-1' } as never,
+      ]);
+      invoicePayment.provision.mockRejectedValue(
+        new ServiceUnavailableException('payment_gateway_unavailable'),
       );
 
       const result = await service.recoverStaleInvoiceProvisioning();

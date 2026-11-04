@@ -40,3 +40,17 @@ export function paymentGatewayException(
     ? new ServiceUnavailableException('payment_gateway_unavailable')
     : new BadGatewayException('payment_gateway_failed');
 }
+
+/**
+ * True for both HTTP failures above. Callers that survive a transport error
+ * (the recovery pass) must recognise the 503 as well as the 502 — checking
+ * only `BadGatewayException` silently turned an outage into an aborted batch.
+ */
+export function isPaymentGatewayException(
+  error: unknown,
+): error is BadGatewayException | ServiceUnavailableException {
+  return (
+    error instanceof BadGatewayException ||
+    error instanceof ServiceUnavailableException
+  );
+}
