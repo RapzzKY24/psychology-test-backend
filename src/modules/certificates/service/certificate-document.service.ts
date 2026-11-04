@@ -57,6 +57,30 @@ export class CertificateDocumentService {
   }
 
   /**
+   * The same document, for an institution that may read but not issue: the row
+   * must belong to one of its sessions, otherwise it is simply not found.
+   */
+  async renderIssuedForInstitution(
+    id: string,
+    institutionId: string,
+  ): Promise<RenderedCertificate> {
+    const document = await this.repo.findForPdfInInstitution(id, institutionId);
+    if (!document) throw new NotFoundException('certificate_not_found');
+    if (document.status !== 'ACTIVE') {
+      throw new ConflictException(
+        `certificate_${document.status.toLowerCase()}`,
+      );
+    }
+
+    const snapshot = document.snapshot as CertificateSnapshot;
+    const buffer = await this.renderDocument(snapshot, {
+      verifyCode: document.verifyCode,
+      draft: false,
+    });
+    return { buffer, filename: certificateFileName(document.number) };
+  }
+
+  /**
    * Draws one page from a view. Shared by the issued document and the draft
    * preview so the two can never drift apart.
    */

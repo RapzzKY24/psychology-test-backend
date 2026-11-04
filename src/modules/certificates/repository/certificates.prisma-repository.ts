@@ -5,6 +5,7 @@ import type {
   CertificateDraftPatch,
   CertificateIdentity,
   CertificateIssuePatch,
+  CertificateListItem,
   CertificateRecord,
   CertificateResultContext,
   CertificateRevokePatch,
@@ -39,6 +40,7 @@ const RECORD_SELECT = {
   verifyCode: true,
   issuedAt: true,
   revokedAt: true,
+  revokeReason: true,
   updatedAt: true,
 } as const;
 
@@ -60,6 +62,7 @@ interface RecordRow {
   verifyCode: string | null;
   issuedAt: Date | null;
   revokedAt: Date | null;
+  revokeReason: string | null;
   updatedAt: Date;
 }
 
@@ -287,6 +290,82 @@ export class PrismaCertificatesRepository implements CertificatesRepository {
       status: row.status,
       snapshot: row.snapshot,
       verifyCode: row.verifyCode,
+    };
+  }
+
+  async findForPdfInInstitution(
+    id: string,
+    institutionId: string,
+  ): Promise<CertificateDocument | null> {
+    const row = await this.prisma.certificate.findFirst({
+      where: { id, result: { attempt: { session: { institutionId } } } },
+      select: {
+        id: true,
+        number: true,
+        revision: true,
+        status: true,
+        snapshot: true,
+        verifyCode: true,
+      },
+    });
+    if (!row || !row.number || row.revision === null) return null;
+    return {
+      id: row.id,
+      number: row.number,
+      revision: row.revision,
+      status: row.status,
+      snapshot: row.snapshot,
+      verifyCode: row.verifyCode,
+    };
+  }
+
+  async listCertificates(params: {
+    skip: number;
+    take: number;
+    ownerId?: string;
+    status?: CertificateRecord['status'];
+  }): Promise<{ data: CertificateListItem[]; total: number }> {
+    const where: Prisma.CertificateWhereInput = {
+      ...(params.ownerId ? { filledById: params.ownerId } : {}),
+      ...(params.status ? { status: params.status } : {}),
+    };
+
+    const [rows, total] = await Promise.all([
+      this.prisma.certificate.findMany({
+        where,
+        skip: params.skip,
+        take: params.take,
+        orderBy: { updatedAt: 'desc' },
+        select: {
+          id: true,
+          number: true,
+          revision: true,
+          status: true,
+          identity: true,
+          issuedAt: true,
+          updatedAt: true,
+          result: {
+            select: {
+              attempt: { select: { test: { select: { name: true } } } },
+            },
+          },
+        },
+      }),
+      this.prisma.certificate.count({ where }),
+    ]);
+
+    return {
+      total,
+      data: rows.map((row) => ({
+        id: row.id,
+        number: row.number,
+        revision: row.revision,
+        status: row.status,
+        testName: row.result.attempt.test.name,
+        holderName: toIdentity(row.identity).fullName,
+        issuedAt: row.issuedAt,
+        updatedAt: row.updatedAt,
+      })),
     };
   }
 

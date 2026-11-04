@@ -4,6 +4,7 @@ import { TestsModule } from '../tests/tests.module';
 import { InvoicesModule } from '../invoices/invoices.module';
 import { ResultsModule } from '../results/results.module';
 import { ReportsModule } from '../reports/reports.module';
+import { CertificatesModule } from '../certificates/certificates.module';
 import { InstansiParticipantsController } from './controller/instansi-participants.controller';
 import { InstansiSessionsController } from './controller/instansi-sessions.controller';
 import { InstansiInvoicesController } from './controller/instansi-invoices.controller';
@@ -12,6 +13,7 @@ import { InstansiOverviewController } from './controller/instansi-overview.contr
 import { InstansiTestsController } from './controller/instansi-tests.controller';
 import { InstansiStatsController } from './controller/instansi-stats.controller';
 import { InstansiReportsController } from './controller/instansi-reports.controller';
+import { InstansiCertificatesController } from './controller/instansi-certificates.controller';
 import { InstansiParticipantsService } from './service/instansi-participants.service';
 import { InstansiSessionsService } from './service/instansi-sessions.service';
 import { InstansiInvoicesService } from './service/instansi-invoices.service';
@@ -19,6 +21,7 @@ import { InstansiResultsService } from './service/instansi-results.service';
 import { InstansiOverviewService } from './service/instansi-overview.service';
 import { InstansiStatsService } from './service/instansi-stats.service';
 import { InstansiReportsService } from './service/instansi-reports.service';
+import { InstansiCertificatesService } from './service/instansi-certificates.service';
 import { INSTANSI_STATS_REPOSITORY } from './repository/instansi-stats.repository';
 import { PrismaInstansiStatsRepository } from './repository/instansi-stats.prisma-repository';
 import { InstansiParticipantsPrismaRepository } from './repository/instansi-participants.prisma-repository';
@@ -33,6 +36,7 @@ import { INSTITUTIONS_REPOSITORY } from '../institutions/repository/institutions
     InvoicesModule,
     ResultsModule,
     ReportsModule,
+    CertificatesModule,
   ],
   controllers: [
     InstansiParticipantsController,
@@ -43,6 +47,7 @@ import { INSTITUTIONS_REPOSITORY } from '../institutions/repository/institutions
     InstansiTestsController,
     InstansiStatsController,
     InstansiReportsController,
+    InstansiCertificatesController,
   ],
   providers: [
     InstansiParticipantsService,
@@ -52,6 +57,7 @@ import { INSTITUTIONS_REPOSITORY } from '../institutions/repository/institutions
     InstansiOverviewService,
     InstansiStatsService,
     InstansiReportsService,
+    InstansiCertificatesService,
     {
       provide: INSTANSI_STATS_REPOSITORY,
       useClass: PrismaInstansiStatsRepository,

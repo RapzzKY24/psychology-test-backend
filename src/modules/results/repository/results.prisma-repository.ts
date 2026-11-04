@@ -214,6 +214,13 @@ export class PrismaResultsRepository implements ResultsRepository {
               participant: { select: { name: true } },
             },
           },
+          // Only a live certificate is downloadable; a draft has no number and
+          // a superseded revision would contradict the one that replaced it.
+          certificates: {
+            where: { status: 'ACTIVE' },
+            select: { id: true, number: true },
+            take: 1,
+          },
         },
       }),
       this.prisma.testResult.count({ where }),
@@ -240,6 +247,9 @@ export class PrismaResultsRepository implements ResultsRepository {
         patternCode: row.patternCode,
         scores: row.scores,
         approvedAt: row.reviewedAt,
+        certificate: row.certificates[0]?.number
+          ? { id: row.certificates[0].id, number: row.certificates[0].number }
+          : null,
       })),
       total,
     };

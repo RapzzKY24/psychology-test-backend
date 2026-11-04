@@ -30,12 +30,14 @@ import type { CertificateSettings } from '../certificate-settings';
 import { EventLogService } from '../../event-log/service/event-log.service';
 import type { CreateCertificateDto } from '../dto/create-certificate.dto';
 import type { PaginationDto } from '../../../common/dto/pagination.dto';
+import type { QueryCertificatesDto } from '../dto/query-certificates.dto';
 import type { PaginatedResponse } from '../../../common/interfaces/api-response.interface';
 import type { PendingResult } from '../repository/certificates.repository';
 import type { UpdateCertificateDto } from '../dto/update-certificate.dto';
 import { CERTIFICATES_REPOSITORY } from '../repository/certificates.repository';
 import type {
   CertificateIdentity,
+  CertificateListItem,
   CertificateRecord,
   CertificatesRepository,
 } from '../repository/certificates.repository';
@@ -121,6 +123,28 @@ export class CertificatesService {
     if (existing) return existing;
 
     return this.repo.createDraft(dto.resultId, userId, new Date());
+  }
+
+  /** The psychologist's own certificates; an admin sees every row. */
+  async list(
+    actor: CertificateActor,
+    query: QueryCertificatesDto,
+  ): Promise<PaginatedResponse<CertificateListItem>> {
+    const { data, total } = await this.repo.listCertificates({
+      skip: (query.page - 1) * query.limit,
+      take: query.limit,
+      ownerId: actor.isAdmin ? undefined : actor.id,
+      status: query.status,
+    });
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        total,
+        totalPages: Math.ceil(total / query.limit),
+      },
+    };
   }
 
   /** Approved, non-WPT results that have no draft or live certificate yet. */
@@ -423,8 +447,8 @@ export class CertificatesService {
       throw new UnprocessableEntityException('reason_too_short');
     }
 
-    const row = await this.repo.findById(id);
-    if (!row) throw new NotFoundException('certificate_not_found');
+    // The psychologist who signed it may withdraw it; anyone else needs ADMIN.
+    const row = await this.loadOwned(actor, id);
     if (row.status !== 'ACTIVE') {
       throw new ConflictException('certificate_not_active');
     }

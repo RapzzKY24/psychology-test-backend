@@ -23,6 +23,6 @@ import { PublicCertificatesService } from './service/public-certificates.service
       useClass: PrismaCertificatesRepository,
     },
   ],
-  exports: [CERTIFICATES_REPOSITORY],
+  exports: [CERTIFICATES_REPOSITORY, CertificateDocumentService],
 })
 export class CertificatesModule {}

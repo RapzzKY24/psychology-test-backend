@@ -30,9 +30,12 @@ import type {
   IssuedCertificate,
 } from '../service/certificates.service';
 import type {
+  CertificateListItem,
   CertificateRecord,
   PendingResult,
 } from '../repository/certificates.repository';
+import { QueryCertificatesSchema } from '../dto/query-certificates.dto';
+import type { QueryCertificatesDto } from '../dto/query-certificates.dto';
 import { PaginationSchema } from '../../../common/dto/pagination.dto';
 import type { PaginationDto } from '../../../common/dto/pagination.dto';
 import type { PaginatedResponse } from '../../../common/interfaces/api-response.interface';
@@ -68,6 +71,17 @@ export class CertificatesController {
   ): Promise<ApiResponse<CertificateRecord>> {
     const data = await this.certificates.createDraft(session.user.id, dto);
     return { data };
+  }
+
+  /** Drafts and issued rows, newest first. */
+  @Get()
+  @Roles(['PSYCHOLOGIST', 'ADMIN'])
+  async list(
+    @Session() session: UserSession,
+    @Query(new ZodValidationPipe(QueryCertificatesSchema))
+    query: QueryCertificatesDto,
+  ): Promise<PaginatedResponse<CertificateListItem>> {
+    return this.certificates.list(actorOf(session), query);
   }
 
   /** Work queue — declared before `:id` so the literal wins. */
@@ -125,8 +139,9 @@ export class CertificatesController {
     return { data };
   }
 
+  /** The psychologist may withdraw their own; ADMIN may withdraw any. */
   @Post(':id/revoke')
-  @Roles(['ADMIN'])
+  @Roles(['PSYCHOLOGIST', 'ADMIN'])
   async revoke(
     @Session() session: UserSession,
     @Param('id', UuidPipe) id: string,

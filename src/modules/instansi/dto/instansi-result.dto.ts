@@ -8,6 +8,10 @@ export const InstansiResultItemSchema = z.object({
   patternCode: z.string(),
   scores: z.unknown(),
   approvedAt: z.coerce.date().nullable(),
+  certificate: z
+    .object({ id: z.string(), number: z.string() })
+    .nullable()
+    .default(null),
 });
 
 export type InstansiResultItemDto = z.infer<typeof InstansiResultItemSchema>;
@@ -22,5 +26,6 @@ export function toInstansiResultItem(
     patternCode: row.patternCode,
     scores: row.scores,
     approvedAt: row.approvedAt,
+    certificate: row.certificate,
   };
 }

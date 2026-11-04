@@ -57,6 +57,8 @@ export interface CertificateRecord {
   verifyCode: string | null;
   issuedAt: Date | null;
   revokedAt: Date | null;
+  /** Present once the row is REVOKED — the printed document is withdrawn. */
+  revokeReason: string | null;
   updatedAt: Date;
 }
 
@@ -125,6 +127,19 @@ export interface PendingResult {
   sessionTitle: string | null;
 }
 
+/** One row of the psychologist's certificate list. */
+export interface CertificateListItem {
+  id: string;
+  number: string | null;
+  revision: number | null;
+  status: CertificateStatus;
+  testName: string;
+  /** The name typed on the document, not the participant row. */
+  holderName: string;
+  issuedAt: Date | null;
+  updatedAt: Date;
+}
+
 /** Public QR lookup. */
 export interface CertificateVerification {
   number: string;
@@ -183,6 +198,12 @@ export interface CertificatesRepository {
 
   findForPdf(id: string): Promise<CertificateDocument | null>;
 
+  /** Same row, but only when the result belongs to this institution. */
+  findForPdfInInstitution(
+    id: string,
+    institutionId: string,
+  ): Promise<CertificateDocument | null>;
+
   /**
    * Approved, non-WPT results with no DRAFT or ACTIVE certificate. Oldest
    * first, so a partial run still makes progress.
@@ -191,6 +212,14 @@ export interface CertificatesRepository {
     skip: number;
     take: number;
   }): Promise<{ data: PendingResult[]; total: number }>;
+
+  /** Newest first. Drafts are included so an abandoned draft stays reachable. */
+  listCertificates(params: {
+    skip: number;
+    take: number;
+    ownerId?: string;
+    status?: CertificateStatus;
+  }): Promise<{ data: CertificateListItem[]; total: number }>;
 
   /**
    * Only rows that still carry a verify code are reachable: a superseded

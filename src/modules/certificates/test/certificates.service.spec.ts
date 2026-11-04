@@ -41,6 +41,7 @@ function record(over: Partial<CertificateRecord> = {}): CertificateRecord {
     verifyCode: null,
     issuedAt: null,
     revokedAt: null,
+    revokeReason: null,
     updatedAt: new Date('2026-11-03T00:00:00Z'),
     ...over,
   };
@@ -82,6 +83,8 @@ describe('CertificatesService', () => {
       issue: jest.fn(),
       revoke: jest.fn(),
       findForPdf: jest.fn(),
+      findForPdfInInstitution: jest.fn(),
+      listCertificates: jest.fn(),
       findPendingResults: jest.fn(),
       findByVerifyCode: jest.fn(),
       nextSeq: jest.fn(),
@@ -537,6 +540,25 @@ describe('CertificatesService', () => {
       ).rejects.toThrow(new ConflictException('certificate_not_active'));
     });
 
+    it('hides a certificate that belongs to another psychologist', async () => {
+      repo.findById.mockResolvedValue(record({ status: 'ACTIVE' }));
+
+      await expect(
+        service.revoke(OTHER, 'cert-1', 'salah input data peserta'),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('lets the signing psychologist withdraw their own certificate', async () => {
+      repo.findById.mockResolvedValue(record({ status: 'ACTIVE' }));
+      repo.revoke.mockResolvedValue(record({ status: 'REVOKED' }));
+      eventLog.record.mockResolvedValue({ id: 'evt-1' });
+      eventLog.markProcessed.mockResolvedValue(undefined);
+
+      await expect(
+        service.revoke(OWNER, 'cert-1', 'salah input data peserta'),
+      ).resolves.toMatchObject({ status: 'REVOKED' });
+    });
+
     it('withdraws the certificate and records who did it', async () => {
       repo.findById.mockResolvedValue(
         record({ status: 'ACTIVE', number: '060/TES/YM/XI/2026' }),
@@ -561,6 +583,34 @@ describe('CertificatesService', () => {
           aggregateId: 'cert-1',
         }),
       );
+    });
+  });
+
+  describe('list', () => {
+    it('scopes a psychologist to their own rows', async () => {
+      repo.listCertificates.mockResolvedValue({ total: 0, data: [] });
+
+      await service.list(OWNER, { page: 1, limit: 10 });
+
+      expect(repo.listCertificates).toHaveBeenCalledWith({
+        skip: 0,
+        take: 10,
+        ownerId: OWNER.id,
+        status: undefined,
+      });
+    });
+
+    it('lets an admin see every row', async () => {
+      repo.listCertificates.mockResolvedValue({ total: 0, data: [] });
+
+      await service.list(ADMIN, { page: 3, limit: 5, status: 'ACTIVE' });
+
+      expect(repo.listCertificates).toHaveBeenCalledWith({
+        skip: 10,
+        take: 5,
+        ownerId: undefined,
+        status: 'ACTIVE',
+      });
     });
   });
 

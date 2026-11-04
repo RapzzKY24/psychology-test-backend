@@ -35,6 +35,8 @@ export interface InstitutionResultRow {
   patternCode: string;
   scores: Prisma.JsonValue;
   approvedAt: Date | null;
+  /** The live certificate for this result, if one was issued. */
+  certificate: { id: string; number: string } | null;
 }
 
 export interface ResultsRepository {
