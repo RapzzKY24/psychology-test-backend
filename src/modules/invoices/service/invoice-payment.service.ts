@@ -1,4 +1,4 @@
-import { BadGatewayException, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { INVOICES_REPOSITORY } from '../repository/invoices.repository';
 import type { InvoicesRepository } from '../repository/invoices.repository';
@@ -10,7 +10,10 @@ import type {
 } from '../../../generated/prisma/client';
 import { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import { EventLogService } from '../../event-log/service/event-log.service';
-import { PaymentGatewayError } from '../../payments/gateway/payment-gateway.error';
+import {
+  PaymentGatewayError,
+  paymentGatewayException,
+} from '../../payments/gateway/payment-gateway.error';
 import {
   PAYMENT_GATEWAY,
   type CreatePaymentResult,
@@ -171,7 +174,7 @@ export class InvoicePaymentService {
       await this.eventLog.markFailed(event.id, { errorMessage });
       await this.idempotency.fail(claimId, { errorMessage });
       if (error instanceof PaymentGatewayError) {
-        throw new BadGatewayException('payment_gateway_failed');
+        throw paymentGatewayException(error);
       }
       throw error;
     }

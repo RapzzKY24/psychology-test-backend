@@ -1,3 +1,8 @@
+import {
+  BadGatewayException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
+
 /**
  * Base class for infrastructure failures raised by a payment provider
  * transport.
@@ -15,4 +20,23 @@ export abstract class PaymentGatewayError extends Error {
   ) {
     super(message);
   }
+}
+
+/**
+ * HTTP failure for a transport error, following the api-contract catalog.
+ *
+ * A provider that answers 5xx is down, and a request that never got an answer
+ * (timeout, refused connection, unreadable payload) is in the same position:
+ * waiting may fix it, so the buyer gets 503 `payment_gateway_unavailable` and
+ * a reason to retry. A request the provider actively refused (4xx) is our
+ * problem to fix and keeps 502 `payment_gateway_failed`. Without the split, a
+ * Doku sandbox outage read as "pembayaran gagal diproses".
+ */
+export function paymentGatewayException(
+  error: PaymentGatewayError,
+): BadGatewayException | ServiceUnavailableException {
+  const unavailable = error.status === undefined || error.status >= 500;
+  return unavailable
+    ? new ServiceUnavailableException('payment_gateway_unavailable')
+    : new BadGatewayException('payment_gateway_failed');
 }

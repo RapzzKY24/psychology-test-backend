@@ -1,4 +1,7 @@
-import { BadGatewayException } from '@nestjs/common';
+import {
+  BadGatewayException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { OrderPaymentService } from '../service/order-payment.service';
 import { MidtransApiError } from '../../midtrans/errors/midtrans-api.error';
 import type { PaymentGateway } from '../../payments/gateway/payment-gateway.interface';
@@ -227,23 +230,44 @@ describe('OrderPaymentService', () => {
     expect(repo.update).not.toHaveBeenCalled();
   });
 
-  it('maps a gateway failure to 502 and leaves the event for recovery', async () => {
+  it('maps a provider outage to 503 and leaves the event for recovery', async () => {
     repo.create.mockResolvedValue(baseOrder as never);
     idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
     eventLog.record.mockResolvedValue({ id: 'ev1' } as never);
     gateway.createPayment.mockRejectedValue(
-      new MidtransApiError('request_failed', 'boom', 500, '/p'),
+      new MidtransApiError('request_failed', 'boom', 503, '/p'),
     );
     idempotency.fail.mockResolvedValue(undefined);
 
-    await expect(
-      service.createPaymentOrder('t1', 'u1', 200000, 'DISC'),
-    ).rejects.toBeInstanceOf(BadGatewayException);
+    const failure = service.createPaymentOrder('t1', 'u1', 200000, 'DISC');
+
+    // A 5xx is the provider being down: the buyer can retry later.
+    await expect(failure).rejects.toBeInstanceOf(ServiceUnavailableException);
+    await expect(failure).rejects.toMatchObject({
+      message: 'payment_gateway_unavailable',
+    });
 
     expect(idempotency.fail).toHaveBeenCalledWith('idem1', {
       errorMessage: 'boom',
     });
     expect(eventLog.markProcessed).not.toHaveBeenCalled();
     expect(repo.update).not.toHaveBeenCalled();
+  });
+
+  it('maps a refused request to 502', async () => {
+    repo.create.mockResolvedValue(baseOrder as never);
+    idempotency.begin.mockResolvedValue({ acquired: true, id: 'idem1' });
+    eventLog.record.mockResolvedValue({ id: 'ev1' } as never);
+    gateway.createPayment.mockRejectedValue(
+      new MidtransApiError('unauthorized', 'bad key', 401, '/p'),
+    );
+    idempotency.fail.mockResolvedValue(undefined);
+
+    const failure = service.createPaymentOrder('t1', 'u1', 200000, 'DISC');
+
+    await expect(failure).rejects.toBeInstanceOf(BadGatewayException);
+    await expect(failure).rejects.toMatchObject({
+      message: 'payment_gateway_failed',
+    });
   });
 });

@@ -1,4 +1,4 @@
-import { BadGatewayException, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ORDERS_REPOSITORY } from '../repository/orders.repository';
 import type { OrdersRepository } from '../repository/orders.repository';
@@ -9,7 +9,10 @@ import type {
 } from '../../../generated/prisma/client';
 import { IdempotencyService } from '../../idempotency/service/idempotency.service';
 import { EventLogService } from '../../event-log/service/event-log.service';
-import { PaymentGatewayError } from '../../payments/gateway/payment-gateway.error';
+import {
+  PaymentGatewayError,
+  paymentGatewayException,
+} from '../../payments/gateway/payment-gateway.error';
 import {
   PAYMENT_GATEWAY,
   type CreatePaymentResult,
@@ -178,7 +181,7 @@ export class OrderPaymentService {
         errorMessage: error instanceof Error ? error.message : 'unknown_error',
       });
       if (error instanceof PaymentGatewayError) {
-        throw new BadGatewayException('payment_gateway_failed');
+        throw paymentGatewayException(error);
       }
       throw error;
     }

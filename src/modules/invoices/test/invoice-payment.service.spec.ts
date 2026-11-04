@@ -1,4 +1,4 @@
-import { BadGatewayException } from '@nestjs/common';
+import { ServiceUnavailableException } from '@nestjs/common';
 import type { ConfigService } from '@nestjs/config';
 import { InvoicePaymentService } from '../service/invoice-payment.service';
 import type { InvoicesRepository } from '../repository/invoices.repository';
@@ -147,14 +147,17 @@ describe('InvoicePaymentService', () => {
     );
   });
 
-  it('on a gateway failure marks the event and claim failed, updates nothing', async () => {
+  it('on a provider outage marks the event and claim failed, updates nothing', async () => {
     gateway.createPayment.mockRejectedValue(
-      new MidtransApiError('request_failed', 'boom', 500, '/va'),
+      new MidtransApiError('request_failed', 'boom', 503, '/va'),
     );
 
-    await expect(service.provision('inv1', 'Sesi')).rejects.toThrow(
-      BadGatewayException,
-    );
+    const failure = service.provision('inv1', 'Sesi');
+
+    await expect(failure).rejects.toBeInstanceOf(ServiceUnavailableException);
+    await expect(failure).rejects.toMatchObject({
+      message: 'payment_gateway_unavailable',
+    });
     expect(eventLog.markFailed).toHaveBeenCalledWith('e1', {
       errorMessage: 'boom',
     });
