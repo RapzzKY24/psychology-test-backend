@@ -29,6 +29,9 @@ import { readCertificateSettings } from '../certificate-settings';
 import type { CertificateSettings } from '../certificate-settings';
 import { EventLogService } from '../../event-log/service/event-log.service';
 import type { CreateCertificateDto } from '../dto/create-certificate.dto';
+import type { PaginationDto } from '../../../common/dto/pagination.dto';
+import type { PaginatedResponse } from '../../../common/interfaces/api-response.interface';
+import type { PendingResult } from '../repository/certificates.repository';
 import type { UpdateCertificateDto } from '../dto/update-certificate.dto';
 import { CERTIFICATES_REPOSITORY } from '../repository/certificates.repository';
 import type {
@@ -69,6 +72,23 @@ export interface IssuedCertificate {
   verifyCode: string;
 }
 
+/** What the draft editor loads: the row, the result it belongs to, and how far
+ * it still is from being printable. */
+export interface CertificateFormView {
+  certificate: CertificateRecord;
+  result: {
+    resultId: string;
+    testName: string;
+    testSlug: string;
+    participantName: string | null;
+    sessionTitle: string | null;
+  };
+  readiness: {
+    profileComplete: boolean;
+    missingFields: string[];
+  };
+}
+
 @Injectable()
 export class CertificatesService {
   constructor(
@@ -101,6 +121,58 @@ export class CertificatesService {
     if (existing) return existing;
 
     return this.repo.createDraft(dto.resultId, userId, new Date());
+  }
+
+  /** Approved, non-WPT results that have no draft or live certificate yet. */
+  async listPending(
+    query: PaginationDto,
+  ): Promise<PaginatedResponse<PendingResult>> {
+    const { data, total } = await this.repo.findPendingResults({
+      skip: (query.page - 1) * query.limit,
+      take: query.limit,
+    });
+    return {
+      data,
+      meta: {
+        page: query.page,
+        limit: query.limit,
+        total,
+        totalPages: Math.ceil(total / query.limit),
+      },
+    };
+  }
+
+  /** One certificate with what the editor needs around it. */
+  async findOne(
+    actor: CertificateActor,
+    id: string,
+  ): Promise<CertificateFormView> {
+    const certificate = await this.loadOwned(actor, id);
+    const [result, profile] = await Promise.all([
+      this.repo.findResultContext(certificate.resultId),
+      this.repo.findPsychologist(actor.id),
+    ]);
+    if (!result) throw new NotFoundException('result_not_found');
+
+    return {
+      certificate,
+      result: {
+        resultId: result.resultId,
+        testName: result.testName,
+        testSlug: result.testSlug,
+        participantName: result.participantName,
+        sessionTitle: result.sessionTitle,
+      },
+      readiness: {
+        profileComplete: Boolean(profile && isProfileComplete(profile)),
+        // The photo is checked separately at issue time, but the editor has to
+        // count it — otherwise the form says "ready" and publish refuses.
+        missingFields: [
+          ...this.collectMissing(certificate),
+          ...(certificate.photoPath ? [] : ['photo']),
+        ],
+      },
+    };
   }
 
   async update(

@@ -563,4 +563,118 @@ describe('CertificatesService', () => {
       );
     });
   });
+
+  describe('listPending', () => {
+    it('pages the work queue the same way the report queue does', async () => {
+      repo.findPendingResults.mockResolvedValue({
+        total: 12,
+        data: [
+          {
+            resultId: 'res-1',
+            testName: 'Tes Kraepelin',
+            testSlug: 'kraepelin',
+            participantName: 'Budi',
+            approvedAt: new Date('2026-11-01T00:00:00Z'),
+            sessionTitle: 'Batch 1',
+          },
+        ],
+      });
+
+      const result = await service.listPending({ page: 2, limit: 5 });
+
+      expect(repo.findPendingResults).toHaveBeenCalledWith({
+        skip: 5,
+        take: 5,
+      });
+      expect(result.meta).toEqual({
+        page: 2,
+        limit: 5,
+        total: 12,
+        totalPages: 3,
+      });
+      expect(result.data).toHaveLength(1);
+    });
+  });
+
+  describe('findOne', () => {
+    const profile = {
+      fullName: 'Dr. Ani',
+      degree: 'M.Psi.',
+      licenseNumber: '123',
+      sippNumber: '456',
+      nik: '3201',
+      institutionName: 'Klinik',
+      signatureImagePath: 'uploads/sig.png',
+    };
+
+    it('rejects an unknown certificate', async () => {
+      repo.findById.mockResolvedValue(null);
+
+      await expect(service.findOne(OWNER, 'cert-x')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('hides a draft that belongs to another psychologist', async () => {
+      repo.findById.mockResolvedValue(record());
+
+      await expect(service.findOne(OTHER, 'cert-1')).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+
+    it('lists what is still missing, including the photo', async () => {
+      repo.findById.mockResolvedValue(record());
+      repo.findResultContext.mockResolvedValue(context());
+      repo.findPsychologist.mockResolvedValue(
+        profile as unknown as Awaited<
+          ReturnType<CertificatesRepository['findPsychologist']>
+        >,
+      );
+
+      const view = await service.findOne(OWNER, 'cert-1');
+
+      expect(view.result).toEqual({
+        resultId: 'res-1',
+        testName: 'Tes Kraepelin',
+        testSlug: 'kraepelin',
+        participantName: 'Budi',
+        sessionTitle: 'Batch 1',
+      });
+      expect(view.readiness.profileComplete).toBe(true);
+      expect(view.readiness.missingFields).toEqual(
+        expect.arrayContaining(['verdict', 'purpose', 'validUntil', 'photo']),
+      );
+    });
+
+    it('reports a complete draft as ready', async () => {
+      repo.findById.mockResolvedValue(
+        record({
+          verdict: 'MEMENUHI_SYARAT',
+          purpose: 'CPMI',
+          validUntil: new Date('2027-12-31T00:00:00+07:00'),
+          photoPath: 'uploads/certificates/photo.png',
+          identity: {
+            fullName: 'Budi',
+            idNumber: '3201010101960001',
+            gender: 'LAKI_LAKI',
+            birthPlace: 'Bandung',
+            birthDate: '1996-01-01',
+            age: 30,
+            address: 'Jl. Merdeka 1',
+          },
+        }),
+      );
+      repo.findResultContext.mockResolvedValue(context());
+      repo.findPsychologist.mockResolvedValue(
+        profile as unknown as Awaited<
+          ReturnType<CertificatesRepository['findPsychologist']>
+        >,
+      );
+
+      const view = await service.findOne(OWNER, 'cert-1');
+
+      expect(view.readiness.missingFields).toEqual([]);
+    });
+  });
 });

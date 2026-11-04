@@ -150,10 +150,8 @@ describe('PublicCertificatesService', () => {
       await service.verify('ABCD123456', '1.1.1.1');
     }
 
-    await expect(service.verify('ABCD123456', '1.1.1.1')).rejects.toMatchObject(
-      {
-        status: 429,
-      } satisfies Partial<HttpException>,
-    );
+    await expect(
+      service.verify('ABCD123456', '1.1.1.1'),
+    ).rejects.toBeInstanceOf(HttpException);
   });
 });

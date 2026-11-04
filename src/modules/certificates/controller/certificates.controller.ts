@@ -5,6 +5,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   StreamableFile,
   UploadedFile,
   UseInterceptors,
@@ -25,9 +26,16 @@ import { CertificatesService } from '../service/certificates.service';
 import { CertificateDocumentService } from '../service/certificate-document.service';
 import type {
   CertificateActor,
+  CertificateFormView,
   IssuedCertificate,
 } from '../service/certificates.service';
-import type { CertificateRecord } from '../repository/certificates.repository';
+import type {
+  CertificateRecord,
+  PendingResult,
+} from '../repository/certificates.repository';
+import { PaginationSchema } from '../../../common/dto/pagination.dto';
+import type { PaginationDto } from '../../../common/dto/pagination.dto';
+import type { PaginatedResponse } from '../../../common/interfaces/api-response.interface';
 
 const UuidPipe = new ZodValidationPipe(z.string().uuid());
 
@@ -59,6 +67,26 @@ export class CertificatesController {
     dto: CreateCertificateDto,
   ): Promise<ApiResponse<CertificateRecord>> {
     const data = await this.certificates.createDraft(session.user.id, dto);
+    return { data };
+  }
+
+  /** Work queue — declared before `:id` so the literal wins. */
+  @Get('pending')
+  @Roles(['PSYCHOLOGIST'])
+  async pending(
+    @Query(new ZodValidationPipe(PaginationSchema)) query: PaginationDto,
+  ): Promise<PaginatedResponse<PendingResult>> {
+    return this.certificates.listPending(query);
+  }
+
+  /** The draft editor loads this; the PDF routes are separate. */
+  @Get(':id')
+  @Roles(['PSYCHOLOGIST', 'ADMIN'])
+  async findOne(
+    @Session() session: UserSession,
+    @Param('id', UuidPipe) id: string,
+  ): Promise<ApiResponse<CertificateFormView>> {
+    const data = await this.certificates.findOne(actorOf(session), id);
     return { data };
   }
 
