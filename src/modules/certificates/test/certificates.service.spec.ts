@@ -345,6 +345,61 @@ describe('CertificatesService', () => {
     });
   });
 
+  describe('getPhotoPath', () => {
+    beforeEach(() => {
+      jest.spyOn(fsPromises, 'access').mockResolvedValue(undefined);
+    });
+
+    afterEach(() => jest.restoreAllMocks());
+
+    it('returns the resolved path of the stored photo', async () => {
+      repo.findById.mockResolvedValue(
+        record({ photoPath: 'uploads/certificates/me.png' }),
+      );
+
+      const result = await service.getPhotoPath(OWNER, 'cert-1');
+
+      expect(result.endsWith('uploads/certificates/me.png')).toBe(true);
+    });
+
+    it('refuses a draft that has no photo yet', async () => {
+      repo.findById.mockResolvedValue(record());
+
+      await expect(service.getPhotoPath(OWNER, 'cert-1')).rejects.toThrow(
+        new NotFoundException('photo_not_found'),
+      );
+    });
+
+    it('refuses a path outside the upload directory', async () => {
+      repo.findById.mockResolvedValue(record({ photoPath: '/etc/passwd' }));
+
+      await expect(service.getPhotoPath(OWNER, 'cert-1')).rejects.toThrow(
+        new NotFoundException('photo_not_found'),
+      );
+    });
+
+    it('refuses a file that vanished from disk', async () => {
+      repo.findById.mockResolvedValue(
+        record({ photoPath: 'uploads/certificates/gone.png' }),
+      );
+      jest.spyOn(fsPromises, 'access').mockRejectedValue(new Error('ENOENT'));
+
+      await expect(service.getPhotoPath(OWNER, 'cert-1')).rejects.toThrow(
+        new NotFoundException('photo_not_found'),
+      );
+    });
+
+    it('refuses a certificate owned by someone else', async () => {
+      repo.findById.mockResolvedValue(
+        record({ photoPath: 'uploads/certificates/me.png' }),
+      );
+
+      await expect(service.getPhotoPath(OTHER, 'cert-1')).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+  });
+
   describe('issue', () => {
     const profile = {
       fullName: 'Dr. Ani',

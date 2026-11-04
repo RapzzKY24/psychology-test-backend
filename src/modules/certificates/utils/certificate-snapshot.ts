@@ -52,6 +52,18 @@ export interface CertificateSnapshot extends CertificateView {
   number: string;
 }
 
+/**
+ * The line the template calls `SIPP NO`.
+ *
+ * `sippNumber` wins when it is set. Profiles created before that column had an
+ * input carry only `licenseNumber` — the profile form asked for it under the
+ * label "Nomor lisensi (SIPP)" — so it is the fallback rather than a blank
+ * line under a printed `SIPP NO` label.
+ */
+function sippOf(profile: PsychologistProfile): string | null {
+  return profile.sippNumber?.trim() || profile.licenseNumber || null;
+}
+
 export interface BuildCertificateSnapshotParams {
   context: CertificateResultContext;
   draft: CertificateRecord;
@@ -86,7 +98,7 @@ export function buildCertificateSnapshot(
     issuer: {
       fullName: profile.fullName,
       degree: profile.degree,
-      sippNumber: profile.sippNumber ?? null,
+      sippNumber: sippOf(profile),
       signaturePath: profile.signatureImagePath,
     },
     photoPath: draft.photoPath,
@@ -124,7 +136,7 @@ export function buildPreviewSnapshot(
     issuer: {
       fullName: profile?.fullName ?? '',
       degree: profile?.degree ?? '',
-      sippNumber: profile?.sippNumber ?? null,
+      sippNumber: profile ? sippOf(profile) : null,
       signaturePath: profile?.signatureImagePath ?? '',
     },
     photoPath: record.photoPath,

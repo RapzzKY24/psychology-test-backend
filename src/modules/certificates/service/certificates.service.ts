@@ -244,6 +244,27 @@ export class CertificatesService {
   }
 
   /**
+   * Resolves the stored photo for the streaming endpoint.
+   *
+   * The photo is a participant's personal data, so it is never mounted as
+   * public static: it is served by an authenticated route that first proves
+   * the caller owns the certificate, then jails the database value to the
+   * upload directory (same guard as the signature download).
+   */
+  async getPhotoPath(actor: CertificateActor, id: string): Promise<string> {
+    const row = await this.loadOwned(actor, id);
+    if (!row.photoPath) throw new NotFoundException('photo_not_found');
+
+    const uploadDir = this.config.get<string>('app.uploadDir', './uploads');
+    const base = `${path.resolve(uploadDir)}${path.sep}`;
+    const full = path.resolve(row.photoPath);
+    if (!full.startsWith(base) || !(await this.fileExists(full))) {
+      throw new NotFoundException('photo_not_found');
+    }
+    return full;
+  }
+
+  /**
    * Renders the draft as it stands, watermarked and without a number. The
    * psychologist is about to sign this page, so it must be drawn from the same
    * rows the issue step will freeze — not from the browser's copy of the form.
@@ -495,6 +516,15 @@ export class CertificatesService {
     const dir = path.join(root, 'certificates');
     await ensureUploadDir(dir);
     return dir;
+  }
+
+  private async fileExists(filepath: string): Promise<boolean> {
+    try {
+      await fs.access(filepath);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   private async removePhoto(stored: string | null, dir: string): Promise<void> {

@@ -6,6 +6,7 @@ export interface UpsertPsychologistProfileInput {
   fullName: string;
   degree: string;
   licenseNumber: string;
+  sippNumber?: string;
   nik: string;
   institutionName: string;
 }

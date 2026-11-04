@@ -6,16 +6,21 @@ import {
   Patch,
   Post,
   Query,
+  Res,
   StreamableFile,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Roles, Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import { z } from 'zod';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
-import type { ApiResponse } from '../../../common/interfaces/api-response.interface';
+import type {
+  ApiResponse,
+  ErrorResponse,
+} from '../../../common/interfaces/api-response.interface';
 import { CreateCertificateSchema } from '../dto/create-certificate.dto';
 import type { CreateCertificateDto } from '../dto/create-certificate.dto';
 import { UpdateCertificateSchema } from '../dto/update-certificate.dto';
@@ -199,6 +204,33 @@ export class CertificatesController {
       file,
     );
     return { data };
+  }
+
+  /**
+   * The 3x4 photo, streamed to its owner. It is personal data, so it stays
+   * behind auth instead of being mounted from `uploads/certificates`.
+   */
+  @Get(':id/photo')
+  @Roles(['PSYCHOLOGIST', 'ADMIN'])
+  async streamPhoto(
+    @Session() session: UserSession,
+    @Param('id', UuidPipe) id: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const filePath = await this.certificates.getPhotoPath(actorOf(session), id);
+    // Callback: the file passed the jail check but can vanish before send
+    // (TOCTOU). Without this, @Res() bypasses the exception filter and the
+    // request hangs instead of returning the shaped 404.
+    res.sendFile(filePath, (err: unknown) => {
+      if (err && !res.headersSent) {
+        const body: ErrorResponse = {
+          statusCode: 404,
+          message: 'photo_not_found',
+          error: 'NotFoundException',
+        };
+        res.status(404).json(body);
+      }
+    });
   }
 
   /** Inline so the browser opens the PDF instead of saving it silently. */
