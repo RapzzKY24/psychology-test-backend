@@ -68,6 +68,23 @@ describe('ReportAssetsService', () => {
     expect(assets.signature).toContain(PNG_1PX.toString('base64'));
   });
 
+  /**
+   * A QR holding the bare code cannot be scanned from paper, so a deployment
+   * without APP_PUBLIC_URL must refuse the document rather than print it.
+   */
+  it('refuses to draw a QR when APP_PUBLIC_URL is missing', async () => {
+    const values: Record<string, string> = { 'app.uploadDir': uploadDir };
+    const bare = {
+      get: jest.fn((key: string, fallback?: string) => values[key] ?? fallback),
+    } as unknown as ConfigService;
+    const withoutUrl = new ReportAssetsService(bare);
+    const signaturePath = await writeSignature();
+
+    await expect(
+      withoutUrl.build({ verifyCode: 'ABCD123456', signaturePath }),
+    ).rejects.toMatchObject({ code: 'report_public_url_missing' });
+  });
+
   it('jails the signature path to the upload directory', async () => {
     const outside = path.join(os.tmpdir(), 'elsewhere.png');
     await fs.writeFile(outside, PNG_1PX);

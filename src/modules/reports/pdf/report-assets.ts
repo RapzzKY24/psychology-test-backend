@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import * as QRCode from 'qrcode';
+import { verificationUrl } from '../../../lib/url/verification-url';
 import type { ReportAssets } from './report-html';
 
 /** Directory holding the four static images extracted from the template PDF. */
@@ -98,14 +99,17 @@ export class ReportAssetsService {
     }
   }
 
-  private buildQr(verifyCode: string): Promise<string> {
-    const publicUrl = (this.config.get<string>('app.publicUrl') ?? '').replace(
-      /\/+$/,
-      '',
+  /**
+   * A QR that encodes the bare code cannot be scanned from paper, so a missing
+   * APP_PUBLIC_URL refuses the report instead of printing a dead code.
+   */
+  private async buildQr(verifyCode: string): Promise<string> {
+    const target = verificationUrl(
+      this.config.get<string>('app.publicUrl'),
+      'verifikasi-laporan',
+      verifyCode,
     );
-    const target = publicUrl
-      ? `${publicUrl}/verifikasi-laporan/${verifyCode}`
-      : verifyCode;
+    if (!target) throw new ReportAssetError('report_public_url_missing');
     return QRCode.toDataURL(target, { margin: 1, width: 400 });
   }
 }
