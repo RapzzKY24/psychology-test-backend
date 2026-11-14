@@ -152,6 +152,9 @@ export class AttemptsService {
       throw new ConflictException('attempt_not_in_progress');
     }
     this.assertWithinGrace(detail.session);
+    // Answers are only accepted after the read recorded a fitting birth date;
+    // this keeps the gate closed even for a client that guessed item ids.
+    await this.assertAgeWithinBand(detail);
 
     const deadline = this.deadlineOf(detail);
     if (deadline && Date.now() > deadline.getTime()) {

@@ -187,6 +187,49 @@ describe('AttemptsService', () => {
         least: 1,
       });
     });
+
+    it('refuses answers on a banded attempt with no recorded birth date', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({
+          test: {
+            ...makeDetail().test,
+            ageMinMonths: 168,
+            ageMaxMonths: 179,
+          },
+        }),
+      );
+      await expect(
+        service.respond(
+          'att-1',
+          { itemId: 'it-1', value: { most: 0, least: 1 } },
+          'p-1',
+        ),
+      ).rejects.toThrow('birth_date_required');
+      expect(mockRepo.upsertResponse).not.toHaveBeenCalled();
+    });
+
+    it('accepts answers once a fitting birth date is recorded', async () => {
+      const birthDate = new Date();
+      birthDate.setUTCDate(1);
+      birthDate.setUTCFullYear(birthDate.getUTCFullYear() - 14);
+
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({
+          test: {
+            ...makeDetail().test,
+            ageMinMonths: 168,
+            ageMaxMonths: 179,
+          },
+          attempt: { ...makeDetail().attempt, birthDate },
+        }),
+      );
+      await service.respond(
+        'att-1',
+        { itemId: 'it-1', value: { most: 0, least: 1 } },
+        'p-1',
+      );
+      expect(mockRepo.upsertResponse).toHaveBeenCalled();
+    });
   });
 
   describe('complete', () => {
