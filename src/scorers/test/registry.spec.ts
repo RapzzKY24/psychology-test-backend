@@ -1,4 +1,4 @@
-import { SCORERS, scoringConfigIssues } from '../registry';
+import { SCORERS, getResponseSchema, scoringConfigIssues } from '../registry';
 
 const disc = SCORERS.FORCED_CHOICE_DISC;
 
@@ -154,5 +154,32 @@ describe('scoringConfigIssues', () => {
       scoringConfigIssues(SCORERS.FORCED_CHOICE_DISC, { junk: 1 }),
     ).toEqual([]);
     expect(SCORERS.FORCED_CHOICE_DISC.configSchema).toBeUndefined();
+  });
+});
+
+describe('getResponseSchema', () => {
+  it('narrows the answer to the test range for a Likert inventory', () => {
+    const schema = getResponseSchema(SCORERS.LIKERT, {
+      ratingRange: { min: 0, max: 3 },
+    });
+
+    expect(schema.safeParse({ rating: 0 }).success).toBe(true);
+    expect(schema.safeParse({ rating: 4 }).success).toBe(false);
+    // The family-wide schema would have accepted 4.
+    expect(SCORERS.LIKERT.responseSchema.safeParse({ rating: 4 }).success).toBe(
+      true,
+    );
+  });
+
+  it('falls back to the family schema when the test carries no config', () => {
+    expect(
+      getResponseSchema(SCORERS.LIKERT, null).safeParse({ rating: 5 }).success,
+    ).toBe(true);
+  });
+
+  it('returns the family schema for a family that has no per-test bounds', () => {
+    expect(getResponseSchema(SCORERS.FORCED_CHOICE_DISC, {})).toBe(
+      SCORERS.FORCED_CHOICE_DISC.responseSchema,
+    );
   });
 });

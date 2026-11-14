@@ -23,6 +23,7 @@ import {
   LikertItemContentSchema,
   LikertResponseSchema,
   likertPatternCodes,
+  likertResponseSchema,
 } from './schemas/likert';
 import {
   RightWrongItemContentSchema,
@@ -55,7 +56,15 @@ export interface ScorerOutput {
 export interface Scorer {
   type: ScorerType;
   itemSchema: z.ZodSchema;
+  /** The family-wide answer shape. Narrowed per test by `responseSchemaFor`. */
   responseSchema: z.ZodSchema;
+  /**
+   * The answer shape for **one** test, when the bounds live in
+   * `scoringConfig` rather than in the item (LIKERT's `ratingRange`). Without
+   * it a rating outside the test's scale would be stored and then ignored by
+   * the scorer — the participant would see an answered item that scored 0.
+   */
+  responseSchemaFor?(scoringConfig?: unknown): z.ZodSchema;
   /**
    * Shape of `Test.scoringConfig` for this family. The config is seed-owned
    * and never edited from the admin UI, so a misspelled key is otherwise
@@ -130,6 +139,7 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     type: 'LIKERT',
     itemSchema: LikertItemContentSchema,
     responseSchema: LikertResponseSchema,
+    responseSchemaFor: likertResponseSchema,
     configSchema: LikertConfigSchema,
     sanitize: sanitizeLikertItem,
     patternCatalog: [],
@@ -171,6 +181,17 @@ export const SCORERS: Record<ScorerType, Scorer> = {
 
 export function getScorer(scorerType: string): Scorer | null {
   return SCORERS[scorerType as ScorerType] ?? null;
+}
+
+/**
+ * The answer schema for one test: the family's per-test narrowing when it has
+ * one, the family-wide shape otherwise.
+ */
+export function getResponseSchema(
+  scorer: Scorer,
+  scoringConfig?: unknown,
+): z.ZodSchema {
+  return scorer.responseSchemaFor?.(scoringConfig) ?? scorer.responseSchema;
 }
 
 /**

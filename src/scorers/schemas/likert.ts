@@ -74,6 +74,30 @@ export type LikertConfig = z.infer<typeof LikertConfigSchema>;
 
 export const DEFAULT_RATING_RANGE = { min: 1, max: 5 } as const;
 
+/**
+ * The response shape for **one** test: the rating is bounded by that test's
+ * own `ratingRange`, so 6 on a 1–5 inventory is a 422 when it is written
+ * instead of an answer the scorer silently drops.
+ *
+ * The family-wide `LikertResponseSchema` stays the fallback for a caller that
+ * has no config (and for tests that predate the column).
+ */
+export function likertResponseSchema(scoringConfig?: unknown): z.ZodSchema {
+  const range =
+    parseLikertConfig(scoringConfig).ratingRange ?? DEFAULT_RATING_RANGE;
+  return z.object({
+    rating: z
+      .number()
+      .int()
+      .min(range.min, {
+        message: `rating must be at least ${range.min}`,
+      })
+      .max(range.max, {
+        message: `rating must be at most ${range.max}`,
+      }),
+  });
+}
+
 export function parseLikertConfig(config: unknown): LikertConfig {
   const parsed = LikertConfigSchema.safeParse(config ?? {});
   return parsed.success ? parsed.data : {};

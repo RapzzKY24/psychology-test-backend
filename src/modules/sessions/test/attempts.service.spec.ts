@@ -176,6 +176,66 @@ describe('AttemptsService', () => {
       ).rejects.toThrow('validation_failed');
     });
 
+    it('throws 422 when a Likert rating is outside the test range', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({
+          test: {
+            ...makeDetail().test,
+            scorerType: 'LIKERT',
+            scoringConfig: { ratingRange: { min: 1, max: 5 } },
+          },
+          items: [
+            {
+              id: 'it-1',
+              order: 1,
+              content: { text: 'Saya suka bergaul', scale: 'E' },
+            },
+          ],
+        }),
+      );
+
+      await expect(
+        service.respond(
+          'att-1',
+          { itemId: 'it-1', value: { rating: 6 } },
+          'p-1',
+        ),
+      ).rejects.toMatchObject({
+        response: {
+          details: [expect.stringContaining('rating must be at most 5')],
+        },
+      });
+      expect(mockRepo.upsertResponse).not.toHaveBeenCalled();
+    });
+
+    it('accepts a Likert rating on the top of the test range', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({
+          test: {
+            ...makeDetail().test,
+            scorerType: 'LIKERT',
+            scoringConfig: { ratingRange: { min: 1, max: 5 } },
+          },
+          items: [
+            {
+              id: 'it-1',
+              order: 1,
+              content: { text: 'Saya suka bergaul', scale: 'E' },
+            },
+          ],
+        }),
+      );
+
+      await service.respond(
+        'att-1',
+        { itemId: 'it-1', value: { rating: 5 } },
+        'p-1',
+      );
+      expect(mockRepo.upsertResponse).toHaveBeenCalledWith('att-1', 'it-1', {
+        rating: 5,
+      });
+    });
+
     it('upserts a valid response', async () => {
       mockRepo.findAccessDetail.mockResolvedValue(makeDetail());
       await service.respond(

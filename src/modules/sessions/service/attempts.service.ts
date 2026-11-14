@@ -12,7 +12,7 @@ import type {
   AttemptAccessDetail,
 } from '../repository/attempts.repository';
 import { ageInMonthsFromIsoDate, isoDateOf } from '../utils/age-in-months';
-import { getScorer } from '../../../scorers/registry';
+import { getResponseSchema, getScorer } from '../../../scorers/registry';
 import type {
   AttemptReadDto,
   AttemptCompleteResponseDto,
@@ -179,7 +179,10 @@ export class AttemptsService {
       });
     }
 
-    const parsed = scorer.responseSchema.safeParse(dto.value);
+    const parsed = getResponseSchema(
+      scorer,
+      detail.test.scoringConfig,
+    ).safeParse(dto.value);
     if (!parsed.success) {
       throw new UnprocessableEntityException({
         message: 'validation_failed',

@@ -4,6 +4,7 @@ import {
   LikertResponseSchema,
   bandCode,
   likertPatternCodes,
+  likertResponseSchema,
   likertScales,
   parseLikertConfig,
 } from '../schemas/likert';
@@ -270,5 +271,44 @@ describe('scoreLikert', () => {
     const config = parseLikertConfig(null);
     expect(config.ratingRange).toBeUndefined();
     expect(DEFAULT_RATING_RANGE).toEqual({ min: 1, max: 5 });
+  });
+});
+
+describe('likertResponseSchema', () => {
+  it('bounds the rating by the test range instead of the family range', () => {
+    const schema = likertResponseSchema({
+      ratingRange: { min: 1, max: 5 },
+    });
+
+    expect(schema.safeParse({ rating: 1 }).success).toBe(true);
+    expect(schema.safeParse({ rating: 5 }).success).toBe(true);
+    expect(schema.safeParse({ rating: 0 }).success).toBe(false);
+    expect(schema.safeParse({ rating: 6 }).success).toBe(false);
+  });
+
+  it('says which bound it broke', () => {
+    const schema = likertResponseSchema({ ratingRange: { min: 0, max: 3 } });
+
+    expect(schema.safeParse({ rating: 4 }).error?.issues[0].message).toBe(
+      'rating must be at most 3',
+    );
+    expect(schema.safeParse({ rating: -1 }).error?.issues[0].message).toBe(
+      'rating must be at least 0',
+    );
+  });
+
+  it('falls back to 1–5 when the test carries no range', () => {
+    for (const config of [null, undefined, {}, { bands: [] }]) {
+      const schema = likertResponseSchema(config);
+      expect(schema.safeParse({ rating: 5 }).success).toBe(true);
+      expect(schema.safeParse({ rating: 6 }).success).toBe(false);
+    }
+  });
+
+  it('still rejects a non-integer or a missing rating', () => {
+    const schema = likertResponseSchema(undefined);
+
+    expect(schema.safeParse({ rating: 3.5 }).success).toBe(false);
+    expect(schema.safeParse({}).success).toBe(false);
   });
 });
