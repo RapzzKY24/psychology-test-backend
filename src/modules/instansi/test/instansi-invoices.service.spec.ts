@@ -1,7 +1,10 @@
 import { InstansiInvoicesService } from '../service/instansi-invoices.service';
 
 describe('InstansiInvoicesService.list', () => {
-  const invoicesService = { findByInstitution: jest.fn() };
+  const invoicesService = {
+    findByInstitution: jest.fn(),
+    findById: jest.fn(),
+  };
   const participantsService = { resolveInstitutionId: jest.fn() };
   const pdfService = { render: jest.fn() };
   const invoicePayment = { provision: jest.fn() };
@@ -95,7 +98,7 @@ describe('InstansiInvoicesService.list', () => {
     };
 
     it('re-issues the payment for an unpaid invoice of the caller', async () => {
-      invoicesService.findById = jest.fn().mockResolvedValue(invoice);
+      invoicesService.findById.mockResolvedValue(invoice);
       invoicePayment.provision.mockResolvedValue({
         ...invoice,
         paymentUrl: 'https://api-sandbox.doku.com/checkout/abc',
@@ -110,9 +113,10 @@ describe('InstansiInvoicesService.list', () => {
     });
 
     it('hides another institution invoice behind a 404', async () => {
-      invoicesService.findById = jest
-        .fn()
-        .mockResolvedValue({ ...invoice, institutionId: 'inst2' });
+      invoicesService.findById.mockResolvedValue({
+        ...invoice,
+        institutionId: 'inst2',
+      });
 
       await expect(service.retryPayment('user1', 'inv1')).rejects.toThrow(
         'invoice_not_found',
@@ -121,9 +125,10 @@ describe('InstansiInvoicesService.list', () => {
     });
 
     it('refuses to re-issue a paid invoice', async () => {
-      invoicesService.findById = jest
-        .fn()
-        .mockResolvedValue({ ...invoice, status: 'PAID' });
+      invoicesService.findById.mockResolvedValue({
+        ...invoice,
+        status: 'PAID',
+      });
 
       await expect(service.retryPayment('user1', 'inv1')).rejects.toThrow(
         'invoice_not_payable',
