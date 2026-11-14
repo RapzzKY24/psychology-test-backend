@@ -8,6 +8,8 @@
     "price": 50000,
     "estimatedDurationMin": 13,
     "timeLimitMin": null,
+    "ageMinMonths": 168,
+    "ageMaxMonths": 179,
     "normTable": [
       {
         "raw": 0,

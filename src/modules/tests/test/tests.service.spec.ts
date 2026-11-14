@@ -270,6 +270,7 @@ describe('TestsService', () => {
         category: 'PERSONALITY',
         price: 100,
         estimatedDurationMin: 10,
+        imageUrl: null,
         status: 'PUBLISHED',
         internalField: 'secret',
       } as any);
@@ -282,6 +283,8 @@ describe('TestsService', () => {
         category: 'PERSONALITY',
         price: 100,
         estimatedDurationMin: 10,
+        imageUrl: null,
+        ageBand: null,
       });
     });
 

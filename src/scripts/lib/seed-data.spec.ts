@@ -17,6 +17,8 @@ interface SeedFile {
     slug: string;
     scorerType: string;
     normTable?: unknown;
+    ageMinMonths?: number | null;
+    ageMaxMonths?: number | null;
   };
   items: { order: number; content: Record<string, unknown> }[];
   interpretations: { patternCode: string }[];
@@ -129,6 +131,27 @@ describe.each(FILES)('seed %s', (file) => {
   it('carries a norm table the scorer can read', () => {
     if (seed.test.normTable == null) return;
     expect(NormTableSchema.safeParse(seed.test.normTable).success).toBe(true);
+  });
+
+  // A reversed or half-filled band silently blocks every participant, because
+  // the detail page only unlocks the CTA inside [min, max].
+  it('declares an age band both ends or neither', () => {
+    const { ageMinMonths: min, ageMaxMonths: max } = seed.test;
+    const declared = [min, max].filter((v) => v != null);
+    if (declared.length === 0) return;
+    expect({
+      min,
+      max,
+      valid:
+        typeof min === 'number' &&
+        typeof max === 'number' &&
+        min <= max &&
+        min >= 0,
+    }).toEqual({
+      min,
+      max,
+      valid: true,
+    });
   });
 
   // The psikogram a ladder is copied from can stop short of its own item set:

@@ -33,6 +33,10 @@ function toPublicTestDto(test: Test): PublicTestDto {
     category: test.category,
     price: test.price,
     estimatedDurationMin: test.estimatedDurationMin,
+    ageBand:
+      test.ageMinMonths != null && test.ageMaxMonths != null
+        ? { minMonths: test.ageMinMonths, maxMonths: test.ageMaxMonths }
+        : null,
   };
 }
 

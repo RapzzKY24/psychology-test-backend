@@ -255,6 +255,13 @@ model Test {
   timeLimitMin         Int?
   /** Raw -> IQ conversion rows (`{ raw, iq }`); null when the test has no norm. */
   normTable            Json?
+  /**
+   * Age range the norm is valid for, in whole months (e.g. 168-179 = 14y0m to
+   * 14y11m). Null when the instrument's norm is not banded, which means the
+   * test page must not gate anyone on age.
+   */
+  ageMinMonths         Int?
+  ageMaxMonths         Int?
   status               TestStatus       @default(DRAFT)
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt

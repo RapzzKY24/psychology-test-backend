@@ -24,6 +24,9 @@ export interface SeedTestMeta {
   timeLimitMin?: number | null;
   /** Raw -> IQ conversion rows consumed by the scorer. */
   normTable?: { raw: number; iq: number }[] | null;
+  /** Age range the norm is valid for, in whole months; null = not banded. */
+  ageMinMonths?: number | null;
+  ageMaxMonths?: number | null;
 }
 
 export interface SeedData {
@@ -48,6 +51,8 @@ function contentFields(meta: SeedTestMeta) {
     estimatedDurationMin: meta.estimatedDurationMin,
     timeLimitMin: meta.timeLimitMin ?? null,
     normTable: (meta.normTable ?? null) as Prisma.InputJsonValue,
+    ageMinMonths: meta.ageMinMonths ?? null,
+    ageMaxMonths: meta.ageMaxMonths ?? null,
   };
 }
 

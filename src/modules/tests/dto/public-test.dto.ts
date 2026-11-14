@@ -17,6 +17,16 @@ export const PublicTestSchema = z.object({
   ]),
   price: z.number().int(),
   estimatedDurationMin: z.number().int(),
+  /**
+   * Age range the norm is valid for, in whole months. Null when the instrument
+   * is not banded — the test page only shows the age gate when this is set.
+   */
+  ageBand: z
+    .object({
+      minMonths: z.number().int().nonnegative(),
+      maxMonths: z.number().int().nonnegative(),
+    })
+    .nullable(),
 });
 
 export type PublicTestDto = z.infer<typeof PublicTestSchema>;
