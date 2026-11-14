@@ -1,4 +1,4 @@
-import { SCORERS } from '../registry';
+import { SCORERS, scoringConfigIssues } from '../registry';
 
 const disc = SCORERS.FORCED_CHOICE_DISC;
 
@@ -94,5 +94,65 @@ describe('SCALE_TALLY registry entry', () => {
       question: 'a',
       options: ['Ya', 'Tidak'],
     });
+  });
+});
+
+describe('scoringConfigIssues', () => {
+  const likert = SCORERS.LIKERT;
+
+  it('accepts a missing config — every family with settings has a default', () => {
+    expect(scoringConfigIssues(likert, null)).toEqual([]);
+    expect(scoringConfigIssues(likert, undefined)).toEqual([]);
+  });
+
+  it('accepts the shape the Big Five seed ships', () => {
+    expect(
+      scoringConfigIssues(likert, {
+        ratingRange: { min: 1, max: 5 },
+        bands: [
+          { max: 33, label: 'Rendah' },
+          { max: 66, label: 'Sedang' },
+          { max: 100, label: 'Tinggi' },
+        ],
+      }),
+    ).toEqual([]);
+  });
+
+  it('names the offending path so a seed typo is obvious', () => {
+    const issues = scoringConfigIssues(likert, {
+      ratingrange: { min: 1, max: 5 },
+    });
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toContain('ratingrange');
+    expect(issues[0]).toContain('scoringConfig');
+  });
+
+  it('rejects a band table the scorer could not cut', () => {
+    const issues = scoringConfigIssues(likert, {
+      bands: [{ max: 120, label: 'Terlalu tinggi' }],
+    });
+
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toContain('scoringConfig.bands.0.max');
+  });
+
+  it('rejects a rating range that is empty or reversed', () => {
+    expect(
+      scoringConfigIssues(likert, { ratingRange: { min: 5, max: 5 } }),
+    ).toHaveLength(1);
+    expect(
+      scoringConfigIssues(SCORERS.PAIR_TALLY, { tieBreak: 'N', bands: [] }),
+    ).toEqual([]);
+    expect(
+      scoringConfigIssues(SCORERS.CHOICE_TALLY, { tiebreak: 'CA' }),
+    ).toHaveLength(1);
+  });
+
+  it('stays quiet for a family that has no config at all', () => {
+    expect(
+      scoringConfigIssues(SCORERS.FORCED_CHOICE_DISC, { junk: 1 }),
+    ).toEqual([]);
+    expect(SCORERS.FORCED_CHOICE_DISC.configSchema).toBeUndefined();
   });
 });

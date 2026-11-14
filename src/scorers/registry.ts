@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { ScorerType } from './schemas';
 import {
+  ChoiceTallyConfigSchema,
   ChoiceTallyItemContentSchema,
   ChoiceTallyResponseSchema,
   choiceTallyPatternCodes,
@@ -16,7 +17,9 @@ import {
   pairPatternCodes,
 } from './schemas/forced-choice-pair';
 import { pairTallyPatternCodes } from './schemas/pair-tally';
+import { PairTallyConfigSchema } from './schemas/pair-tally';
 import {
+  LikertConfigSchema,
   LikertItemContentSchema,
   LikertResponseSchema,
   likertPatternCodes,
@@ -53,6 +56,13 @@ export interface Scorer {
   type: ScorerType;
   itemSchema: z.ZodSchema;
   responseSchema: z.ZodSchema;
+  /**
+   * Shape of `Test.scoringConfig` for this family. The config is seed-owned
+   * and never edited from the admin UI, so a misspelled key is otherwise
+   * dropped on parse and the family quietly falls back to its defaults —
+   * publish and the seed guard parse it here instead.
+   */
+  configSchema?: z.ZodSchema;
   sanitize(content: unknown, scoringConfig?: unknown): Record<string, unknown>;
   /** Fixed codes (DISC, raw scores). Empty when the codes depend on the items. */
   patternCatalog: string[];
@@ -82,6 +92,7 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     type: 'CHOICE_TALLY',
     itemSchema: ChoiceTallyItemContentSchema,
     responseSchema: ChoiceTallyResponseSchema,
+    configSchema: ChoiceTallyConfigSchema,
     sanitize: sanitizeChoiceTallyItem,
     patternCatalog: [],
     patternCodesFor: choiceTallyPatternCodes,
@@ -119,6 +130,7 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     type: 'LIKERT',
     itemSchema: LikertItemContentSchema,
     responseSchema: LikertResponseSchema,
+    configSchema: LikertConfigSchema,
     sanitize: sanitizeLikertItem,
     patternCatalog: [],
     patternCodesFor: likertPatternCodes,
@@ -129,6 +141,7 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     type: 'PAIR_TALLY',
     itemSchema: PairItemContentSchema,
     responseSchema: PairResponseSchema,
+    configSchema: PairTallyConfigSchema,
     sanitize: sanitizePairItem,
     patternCatalog: [],
     patternCodesFor: pairTallyPatternCodes,
@@ -158,4 +171,26 @@ export const SCORERS: Record<ScorerType, Scorer> = {
 
 export function getScorer(scorerType: string): Scorer | null {
   return SCORERS[scorerType as ScorerType] ?? null;
+}
+
+/**
+ * Problems with a test's `scoringConfig`, each as `scoringConfig.<path>: message`.
+ *
+ * A missing config is valid — every family with settings also has a default.
+ * A family without a `configSchema` ignores whatever it is given, so it reports
+ * nothing: rejecting stray data there would fail tests that predate the column.
+ */
+export function scoringConfigIssues(
+  scorer: Scorer,
+  scoringConfig: unknown,
+): string[] {
+  if (scoringConfig == null || !scorer.configSchema) return [];
+  const parsed = scorer.configSchema.safeParse(scoringConfig);
+  if (parsed.success) return [];
+  return parsed.error.issues.map((issue) => {
+    const path = issue.path.length
+      ? `scoringConfig.${issue.path.join('.')}`
+      : 'scoringConfig';
+    return `${path}: ${issue.message}`;
+  });
 }

@@ -7,7 +7,7 @@ import {
 import { Inject } from '@nestjs/common';
 import { TESTS_REPOSITORY } from '../repository/tests.repository';
 import type { TestsRepository } from '../repository/tests.repository';
-import { getScorer } from '../../../scorers/registry';
+import { getScorer, scoringConfigIssues } from '../../../scorers/registry';
 import type { Test } from '../../../generated/prisma/client';
 
 @Injectable()
@@ -35,6 +35,16 @@ export class TestsPublishService {
 
     const scorer = getScorer(test.scorerType);
     if (scorer) {
+      // The config decides how every item is scored (bands, tie-break, rating
+      // bounds), so a typo here is a silent wrong result for every participant.
+      const configIssues = scoringConfigIssues(scorer, test.scoringConfig);
+      if (configIssues.length > 0) {
+        throw new UnprocessableEntityException({
+          message: 'validation_failed',
+          details: configIssues,
+        });
+      }
+
       for (let i = 0; i < items.length; i++) {
         const result = scorer.itemSchema.safeParse(items[i].content);
         if (!result.success) {

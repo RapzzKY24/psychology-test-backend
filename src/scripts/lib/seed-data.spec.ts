@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { getItemSchema } from '../../scorers/schemas';
-import { getScorer } from '../../scorers/registry';
+import { getScorer, scoringConfigIssues } from '../../scorers/registry';
 import { NormTableSchema } from '../../scorers/schemas/right-wrong-norm';
 
 /**
@@ -148,6 +148,15 @@ describe.each(FILES)('seed %s', (file) => {
   it('carries a norm table the scorer can read', () => {
     if (seed.test.normTable == null) return;
     expect(NormTableSchema.safeParse(seed.test.normTable).success).toBe(true);
+  });
+
+  // The config is seed-owned and never edited in the admin UI, so nothing else
+  // would catch a misspelled band key before it silently scores every
+  // participant with the family defaults.
+  it('carries a scoringConfig its family can read', () => {
+    const scorer = getScorer(seed.test.scorerType);
+    if (!scorer) return;
+    expect(scoringConfigIssues(scorer, seed.test.scoringConfig)).toEqual([]);
   });
 
   // A reversed or half-filled band silently blocks every participant, because

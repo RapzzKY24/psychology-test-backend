@@ -88,6 +88,27 @@ describe('TestsPublishService', () => {
       await expect(service.publish('1')).rejects.toThrow('validation_failed');
     });
 
+    it('should throw 422 for a scoringConfig the family cannot read', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: '1',
+        status: 'DRAFT',
+        scorerType: 'LIKERT',
+        // `ratingrange` — a typo the scorer would silently ignore.
+        scoringConfig: { ratingrange: { min: 1, max: 5 } },
+      } as any);
+      mockRepo.findItemsByTestId.mockResolvedValue([
+        { content: { text: 'Saya suka bergaul', scale: 'E' } },
+      ]);
+      mockRepo.findInterpretationsByTestId.mockResolvedValue([]);
+
+      await expect(service.publish('1')).rejects.toMatchObject({
+        response: {
+          message: 'validation_failed',
+          details: [expect.stringMatching(/scoringConfig.*ratingrange/)],
+        },
+      });
+    });
+
     it('should publish when all valid', async () => {
       mockRepo.findById.mockResolvedValue({
         id: '1',

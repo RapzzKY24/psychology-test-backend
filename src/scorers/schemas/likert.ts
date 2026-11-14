@@ -43,8 +43,11 @@ export const LikertResponseSchema = z.object({
 
 export type LikertResponse = z.infer<typeof LikertResponseSchema>;
 
-/** Optional settings a Likert test can carry in `Test.scoringConfig`. */
-export const LikertConfigSchema = z.object({
+/**
+ * Optional settings a Likert test can carry in `Test.scoringConfig`. Strict:
+ * the config is seed-owned, so an unknown key means a typo, not an extension.
+ */
+export const LikertConfigSchema = z.strictObject({
   /** Defaults to 1–5. */
   ratingRange: z
     .object({

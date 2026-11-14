@@ -56,6 +56,18 @@ export const ChoiceTallyResponseSchema = z.object({
 export type ChoiceTallyResponse = z.infer<typeof ChoiceTallyResponseSchema>;
 
 /**
+ * Optional settings a choice tally can carry in `Test.scoringConfig`. Strict,
+ * because the config is seed-owned: a misspelled key would otherwise be
+ * dropped and the tie-break would silently fall back to item order.
+ */
+export const ChoiceTallyConfigSchema = z.strictObject({
+  /** Scale that wins when no scale is strictly ahead of the others. */
+  tieBreak: z.string().trim().toUpperCase().min(1).max(4).optional(),
+});
+
+export type ChoiceTallyConfig = z.infer<typeof ChoiceTallyConfigSchema>;
+
+/**
  * Scales in the order they first appear in the item list. That order is the
  * last-resort tie-break, so it must stay stable across scoring runs.
  */

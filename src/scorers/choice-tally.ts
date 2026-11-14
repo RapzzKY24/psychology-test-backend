@@ -1,15 +1,9 @@
-import { z } from 'zod';
 import {
+  ChoiceTallyConfigSchema,
   ChoiceTallyItemContentSchema,
   ChoiceTallyResponseSchema,
   choiceTallyScales,
 } from './schemas/choice-tally';
-
-/** Optional settings a tally test can carry in `Test.scoringConfig`. */
-const ChoiceTallyConfigSchema = z.object({
-  /** Scale that wins when no scale is strictly ahead of the others. */
-  tieBreak: z.string().trim().toUpperCase().min(1).max(4).optional(),
-});
 
 export interface ChoiceTallyScaleScore {
   score: number;

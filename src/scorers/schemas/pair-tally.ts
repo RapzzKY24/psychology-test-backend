@@ -34,8 +34,11 @@ export function pairTallyPatternCodes(
   return pairTallyScales(items);
 }
 
-/** Optional settings a tally test can carry in `Test.scoringConfig`. */
-export const PairTallyConfigSchema = z.object({
+/**
+ * Optional settings a tally test can carry in `Test.scoringConfig`. Strict:
+ * the config is seed-owned, so an unknown key means a typo, not an extension.
+ */
+export const PairTallyConfigSchema = z.strictObject({
   /** Scale that wins when no scale is strictly ahead of the others. */
   tieBreak: z.string().trim().toUpperCase().min(1).max(3).optional(),
   /** Score bands, checked in order: the first row whose `max` covers the score. */
