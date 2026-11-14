@@ -22,6 +22,7 @@ function makeDetail(
       completedAt: null,
       participantId: 'p-1',
       birthDate: null,
+      gender: null,
     },
     test: {
       id: 't-1',
@@ -33,6 +34,7 @@ function makeDetail(
       scoringConfig: null,
       ageMinMonths: null,
       ageMaxMonths: null,
+      requiresGender: false,
     },
     session: {
       id: 'sess-1',
@@ -72,6 +74,7 @@ describe('AttemptsService', () => {
     mockRepo = {
       findAccessDetail: jest.fn(),
       setBirthDate: jest.fn(),
+      setGender: jest.fn(),
       upsertResponse: jest.fn(),
       findResultByAttemptId: jest.fn(),
       completeAndCreateResult: jest.fn(),
@@ -370,6 +373,7 @@ describe('AttemptsService', () => {
       scoringConfig: null,
       ageMinMonths: null,
       ageMaxMonths: null,
+      requiresGender: false,
     };
     const rawItems = [
       {
@@ -508,6 +512,7 @@ describe('AttemptsService', () => {
       scoringConfig: null,
       ageMinMonths: 168,
       ageMaxMonths: 179,
+      requiresGender: false,
     };
 
     function birthDateYearsAgo(years: number, extraMonths = 0): string {
@@ -646,6 +651,118 @@ describe('AttemptsService', () => {
         'age_out_of_band',
       );
       expect(mockRepo.completeAndCreateResult).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('gender gate', () => {
+    // RMIB ships two occupation lists per group.
+    const genderedTest = {
+      id: 't-1',
+      name: 'RMIB',
+      scorerType: 'RANK_GROUP',
+      status: 'PUBLISHED',
+      timeLimitMin: null,
+      normTable: null,
+      scoringConfig: null,
+      ageMinMonths: null,
+      ageMaxMonths: null,
+      requiresGender: true,
+    };
+    const genderedItems = [
+      {
+        id: 'it-1',
+        order: 1,
+        content: {
+          question: 'Kelompok A',
+          options: ['Petani', 'Insinyur sipil'],
+          femaleOptions: ['Pekerjaan pertanian', 'Sopir kendaraan militer'],
+          mapping: ['OUT', 'ME'],
+        },
+      },
+    ];
+
+    it('asks for a gender when the attempt has none', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({ test: genderedTest, items: genderedItems }),
+      );
+      await expect(service.read('att-1', 'p-1')).rejects.toThrow(
+        'gender_required',
+      );
+      expect(mockRepo.setGender).not.toHaveBeenCalled();
+    });
+
+    it('rejects a value that is neither MALE nor FEMALE', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({ test: genderedTest, items: genderedItems }),
+      );
+      await expect(
+        service.read('att-1', 'p-1', undefined, 'lainnya'),
+      ).rejects.toThrow('gender_invalid');
+      expect(mockRepo.setGender).not.toHaveBeenCalled();
+    });
+
+    it('records the declaration and renders the matching list', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({ test: genderedTest, items: genderedItems }),
+      );
+      const out = await service.read('att-1', 'p-1', undefined, 'female');
+
+      expect(mockRepo.setGender).toHaveBeenCalledWith('att-1', 'FEMALE');
+      expect(out.requiresGender).toBe(true);
+      expect(out.gender).toBe('FEMALE');
+      expect(out.items[0].content).toEqual({
+        question: 'Kelompok A',
+        options: ['Pekerjaan pertanian', 'Sopir kendaraan militer'],
+      });
+    });
+
+    it('keeps the stored value even when the other one is offered later', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({
+          test: genderedTest,
+          items: genderedItems,
+          attempt: { ...makeDetail().attempt, gender: 'MALE' },
+        }),
+      );
+      const out = await service.read('att-1', 'p-1', undefined, 'FEMALE');
+
+      expect(mockRepo.setGender).not.toHaveBeenCalled();
+      expect(out.gender).toBe('MALE');
+      expect(out.items[0].content).toMatchObject({
+        options: ['Petani', 'Insinyur sipil'],
+      });
+    });
+
+    it('refuses answers before a gender is recorded', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({ test: genderedTest, items: genderedItems }),
+      );
+      await expect(
+        service.respond(
+          'att-1',
+          { itemId: 'it-1', value: { ranks: [1, 2] } },
+          'p-1',
+        ),
+      ).rejects.toThrow('gender_required');
+      expect(mockRepo.upsertResponse).not.toHaveBeenCalled();
+    });
+
+    it('refuses to complete before a gender is recorded', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({ test: genderedTest, items: genderedItems }),
+      );
+      await expect(service.complete('att-1', 'p-1')).rejects.toThrow(
+        'gender_required',
+      );
+      expect(mockRepo.completeAndCreateResult).not.toHaveBeenCalled();
+    });
+
+    it('does not ask on a test whose items do not vary by sex', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(makeDetail());
+      const out = await service.read('att-1', 'p-1');
+      expect(out.requiresGender).toBe(false);
+      expect(out.gender).toBeNull();
+      expect(mockRepo.setGender).not.toHaveBeenCalled();
     });
   });
 });

@@ -71,6 +71,7 @@ export class PrismaTestsRepository implements TestsRepository {
   async replaceItems(
     testId: string,
     items: { content: unknown }[],
+    options?: { requiresGender?: boolean },
   ): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
       await tx.testItem.deleteMany({ where: { testId } });
@@ -81,6 +82,12 @@ export class PrismaTestsRepository implements TestsRepository {
             order: idx + 1,
             content: item.content as Prisma.InputJsonValue,
           })),
+        });
+      }
+      if (options?.requiresGender !== undefined) {
+        await tx.test.update({
+          where: { id: testId },
+          data: { requiresGender: options.requiresGender },
         });
       }
     });

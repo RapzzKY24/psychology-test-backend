@@ -32,6 +32,10 @@ export const AttemptReadSchema = z.object({
    * The client ticks locally from this and refetches to re-sync.
    */
   remainingSeconds: z.number().int().nullable(),
+  /** The item list differs by sex, so the client must ask for one first. */
+  requiresGender: z.boolean(),
+  /** `MALE` / `FEMALE` once declared; null when the test does not ask. */
+  gender: z.string().nullable(),
   items: z.array(AttemptReadItemSchema),
   responses: z.array(AttemptReadResponseSchema),
 });

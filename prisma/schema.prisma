@@ -41,8 +41,18 @@ enum ScorerType {
   FORCED_CHOICE_PAIR
   LIKERT
   PAIR_TALLY
+  RANK_GROUP
   RIGHT_WRONG_NORM
   SCALE_TALLY
+}
+
+/**
+ * Declared once per attempt when the instrument ships sex-specific material
+ * (RMIB has a separate occupation list per column).
+ */
+enum Gender {
+  MALE
+  FEMALE
 }
 
 enum TestStatus {
@@ -272,6 +282,11 @@ model Test {
    */
   ageMinMonths         Int?
   ageMaxMonths         Int?
+  /**
+   * True when the items carry a variant per gender (RMIB's two occupation
+   * lists). The attempt must record `gender` before it can be read.
+   */
+  requiresGender       Boolean          @default(false)
   status               TestStatus       @default(DRAFT)
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt
@@ -454,6 +469,12 @@ model Attempt {
    * fits; null on unbanded tests and on attempts that never needed it.
    */
   birthDate     DateTime?
+  /**
+   * Declared when the participant first opened a test that ships sex-specific
+   * material. Recorded once, like `birthDate`, so a later call cannot switch
+   * the list after seeing the questions.
+   */
+  gender        Gender?
   session       TestSession         @relation(fields: [sessionId], references: [id])
   test          Test                @relation(fields: [testId], references: [id])
   participant   SessionParticipant? @relation(fields: [participantId], references: [id])

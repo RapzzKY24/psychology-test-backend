@@ -21,7 +21,16 @@ export interface TestsRepository {
   create(data: Prisma.TestCreateInput): Promise<Test>;
   update(id: string, data: Prisma.TestUpdateInput): Promise<Test>;
   hasInProgressAttempts(testId: string): Promise<boolean>;
-  replaceItems(testId: string, items: { content: unknown }[]): Promise<void>;
+  /**
+   * Replaces the item list. `requiresGender` is derived by the service from the
+   * items themselves, so it is written in the same transaction — a test whose
+   * items ship a second list must gate the attempt read on a declared sex.
+   */
+  replaceItems(
+    testId: string,
+    items: { content: unknown }[],
+    options?: { requiresGender?: boolean },
+  ): Promise<void>;
   replaceInterpretations(
     testId: string,
     interpretations: { patternCode: string; title: string; body: string }[],

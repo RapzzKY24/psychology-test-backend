@@ -108,15 +108,43 @@ export class AttemptsService {
     }
   }
 
+  /**
+   * RMIB prints two occupation lists per group and the participant must answer
+   * the one matching their sex, so a gendered test cannot be opened before the
+   * attempt records one. Like the birth date, the first declaration is stored
+   * and every later call reads the stored value, never a fresh one.
+   *
+   * Returns the gender the items should be rendered for.
+   */
+  private async resolveGender(
+    detail: AttemptAccessDetail,
+    declaredGender?: string,
+  ): Promise<string | null> {
+    const recorded = detail.attempt.gender;
+    if (!detail.test.requiresGender) return recorded;
+    if (recorded) return recorded;
+    if (!declaredGender) {
+      throw new UnprocessableEntityException('gender_required');
+    }
+    const gender = declaredGender.trim().toUpperCase();
+    if (gender !== 'MALE' && gender !== 'FEMALE') {
+      throw new UnprocessableEntityException('gender_invalid');
+    }
+    await this.repo.setGender(detail.attempt.id, gender);
+    return gender;
+  }
+
   async read(
     attemptId: string,
     participantId: string,
     declaredBirthDate?: string,
+    declaredGender?: string,
   ): Promise<AttemptReadDto> {
     const detail = await this.repo.findAccessDetail(attemptId);
     if (!detail) throw new NotFoundException('Attempt not found');
     this.assertOwnerOr404(detail.attempt.participantId, participantId);
     await this.assertAgeWithinBand(detail, declaredBirthDate);
+    const gender = await this.resolveGender(detail, declaredGender);
 
     const scorer = getScorer(detail.test.scorerType);
     return {
@@ -130,11 +158,13 @@ export class AttemptsService {
       completedAt: detail.attempt.completedAt,
       timeLimitMin: detail.test.timeLimitMin,
       remainingSeconds: this.remainingSecondsOf(detail),
+      requiresGender: detail.test.requiresGender,
+      gender,
       items: detail.items.map((item) => ({
         id: item.id,
         order: item.order,
         content: scorer
-          ? scorer.sanitize(item.content, detail.test.scoringConfig)
+          ? scorer.sanitize(item.content, detail.test.scoringConfig, { gender })
           : {},
       })),
       responses: detail.responses,
@@ -157,6 +187,7 @@ export class AttemptsService {
     // Answers are only accepted after the read recorded a fitting birth date;
     // this keeps the gate closed even for a client that guessed item ids.
     await this.assertAgeWithinBand(detail);
+    await this.resolveGender(detail);
 
     const deadline = this.deadlineOf(detail);
     if (deadline && Date.now() > deadline.getTime()) {
@@ -182,6 +213,7 @@ export class AttemptsService {
     const parsed = getResponseSchema(
       scorer,
       detail.test.scoringConfig,
+      item.content,
     ).safeParse(dto.value);
     if (!parsed.success) {
       throw new UnprocessableEntityException({
@@ -227,6 +259,9 @@ export class AttemptsService {
     // A banded test never reaches scoring without a recorded birth date: the
     // read endpoint asks for it, and this check closes the direct-submit path.
     await this.assertAgeWithinBand(detail);
+    // Same for a gendered test: the item list the participant answered came
+    // from the read, so the declaration must already be on the attempt.
+    await this.resolveGender(detail);
 
     const answered = new Set(detail.responses.map((r) => r.itemId));
     const missing = detail.items

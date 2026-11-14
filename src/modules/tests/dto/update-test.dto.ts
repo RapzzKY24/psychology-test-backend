@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ScorerTypeValues } from '../../../scorers/schemas';
 import { NormTableSchema } from '../../../scorers/schemas/right-wrong-norm';
 
 export const UpdateTestSchema = z.object({
@@ -21,7 +22,7 @@ export const UpdateTestSchema = z.object({
    * Switchable only while the test is DRAFT and has no items — the item schema
    * changes with the scorer, so existing rows would become invalid.
    */
-  scorerType: z.enum(['FORCED_CHOICE_DISC', 'RIGHT_WRONG_NORM']).optional(),
+  scorerType: z.enum(ScorerTypeValues).optional(),
   /**
    * Only paths produced by the cover upload endpoint — never an external URL,
    * and `null` clears the cover.

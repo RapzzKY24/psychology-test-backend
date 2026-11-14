@@ -29,6 +29,8 @@ export interface SeedTestMeta {
   /** Age range the norm is valid for, in whole months; null = not banded. */
   ageMinMonths?: number | null;
   ageMaxMonths?: number | null;
+  /** Items differ by sex, so the attempt must declare one before starting. */
+  requiresGender?: boolean;
 }
 
 export interface SeedData {
@@ -56,6 +58,7 @@ function contentFields(meta: SeedTestMeta) {
     scoringConfig: (meta.scoringConfig ?? null) as Prisma.InputJsonValue,
     ageMinMonths: meta.ageMinMonths ?? null,
     ageMaxMonths: meta.ageMaxMonths ?? null,
+    requiresGender: meta.requiresGender ?? false,
   };
 }
 

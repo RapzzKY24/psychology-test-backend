@@ -26,6 +26,12 @@ import {
   likertResponseSchema,
 } from './schemas/likert';
 import {
+  RankGroupItemContentSchema,
+  RankGroupResponseSchema,
+  rankGroupPatternCodes,
+  rankGroupResponseSchema,
+} from './schemas/rank-group';
+import {
   RightWrongItemContentSchema,
   RightWrongResponseSchema,
   RIGHT_WRONG_PATTERN_CATALOG,
@@ -40,17 +46,25 @@ import { scoreDisc } from './disc-scorer';
 import { scoreForcedChoicePair } from './forced-choice-pair';
 import { scorePairTally } from './pair-tally';
 import { scoreLikert } from './likert';
+import { scoreRankGroup } from './rank-group';
 import { scoreRightWrongNorm } from './right-wrong-norm';
 import { scoreScaleTally } from './scale-tally';
 import { sanitizeChoiceTallyItem } from './sanitize-choice-tally-item';
 import { sanitizePairItem } from './sanitize-pair-item';
 import { sanitizeLikertItem } from './sanitize-likert-item';
+import { sanitizeRankGroupItem } from './sanitize-rank-group-item';
 import { sanitizeRightWrongItem } from './sanitize-right-wrong-item';
 import { sanitizeScaleTallyItem } from './sanitize-scale-tally-item';
 
 export interface ScorerOutput {
   scores: Record<string, unknown>;
   patternCode: string;
+}
+
+/** Participant facts a `sanitize` implementation may need. */
+export interface SanitizeContext {
+  /** `MALE` / `FEMALE` once the attempt recorded it; null before. */
+  gender?: string | null;
 }
 
 export interface Scorer {
@@ -60,11 +74,15 @@ export interface Scorer {
   responseSchema: z.ZodSchema;
   /**
    * The answer shape for **one** test, when the bounds live in
-   * `scoringConfig` rather than in the item (LIKERT's `ratingRange`). Without
-   * it a rating outside the test's scale would be stored and then ignored by
-   * the scorer — the participant would see an answered item that scored 0.
+   * `scoringConfig` rather than in the item (LIKERT's `ratingRange`) or in the
+   * item itself (RANK_GROUP's option count). Without it a rating outside the
+   * test's scale would be stored and then ignored by the scorer — the
+   * participant would see an answered item that scored 0.
    */
-  responseSchemaFor?(scoringConfig?: unknown): z.ZodSchema;
+  responseSchemaFor?(
+    scoringConfig?: unknown,
+    itemContent?: unknown,
+  ): z.ZodSchema;
   /**
    * Shape of `Test.scoringConfig` for this family. The config is seed-owned
    * and never edited from the admin UI, so a misspelled key is otherwise
@@ -72,7 +90,15 @@ export interface Scorer {
    * publish and the seed guard parse it here instead.
    */
   configSchema?: z.ZodSchema;
-  sanitize(content: unknown, scoringConfig?: unknown): Record<string, unknown>;
+  /**
+   * What the participant sees. `context` carries the participant facts the
+   * rendering depends on — RMIB shows the occupation list matching their sex.
+   */
+  sanitize(
+    content: unknown,
+    scoringConfig?: unknown,
+    context?: SanitizeContext,
+  ): Record<string, unknown>;
   /** Fixed codes (DISC, raw scores). Empty when the codes depend on the items. */
   patternCatalog: string[];
   /**
@@ -158,6 +184,18 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     score: (input) =>
       Promise.resolve(scorePairTally(input) as unknown as ScorerOutput),
   },
+  RANK_GROUP: {
+    type: 'RANK_GROUP',
+    itemSchema: RankGroupItemContentSchema,
+    responseSchema: RankGroupResponseSchema,
+    responseSchemaFor: (_scoringConfig, itemContent) =>
+      rankGroupResponseSchema(itemContent),
+    sanitize: sanitizeRankGroupItem,
+    patternCatalog: [],
+    patternCodesFor: rankGroupPatternCodes,
+    score: (input) =>
+      Promise.resolve(scoreRankGroup(input) as unknown as ScorerOutput),
+  },
   RIGHT_WRONG_NORM: {
     type: 'RIGHT_WRONG_NORM',
     itemSchema: RightWrongItemContentSchema,
@@ -185,13 +223,18 @@ export function getScorer(scorerType: string): Scorer | null {
 
 /**
  * The answer schema for one test: the family's per-test narrowing when it has
- * one, the family-wide shape otherwise.
+ * one, the family-wide shape otherwise. `itemContent` is passed because some
+ * families size the answer from the item rather than from the test config.
  */
 export function getResponseSchema(
   scorer: Scorer,
   scoringConfig?: unknown,
+  itemContent?: unknown,
 ): z.ZodSchema {
-  return scorer.responseSchemaFor?.(scoringConfig) ?? scorer.responseSchema;
+  return (
+    scorer.responseSchemaFor?.(scoringConfig, itemContent) ??
+    scorer.responseSchema
+  );
 }
 
 /**

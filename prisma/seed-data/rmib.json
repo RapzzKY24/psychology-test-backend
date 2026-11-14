@@ -1,0 +1,509 @@
+{
+  "test": {
+    "slug": "rmib",
+    "name": "RMIB (Rothwell-Miller Interest Blank)",
+    "description": "Tes minat jabatan yang meminta Anda mengurutkan 12 pekerjaan pada masing-masing dari 9 kelompok, dari yang paling Anda sukai (1) sampai yang paling tidak Anda sukai (12). Hasilnya memetakan minat Anda ke 12 bidang pekerjaan: outdoor, mechanical, computational, scientific, personal contact, aesthetic, literary, musical, social service, clerical, practical, dan medical.",
+    "category": "INTEREST",
+    "scorerType": "RANK_GROUP",
+    "price": 75000,
+    "estimatedDurationMin": 25,
+    "timeLimitMin": null,
+    "requiresGender": true
+  },
+  "items": [
+    {
+      "order": 1,
+      "content": {
+        "question": "Kelompok A",
+        "options": [
+          "Petani",
+          "Insinyur sipil",
+          "Akuntan",
+          "Ilmiawan",
+          "Manager penjualan",
+          "Seniman",
+          "Wartawan",
+          "Pianis konser",
+          "Guru sekolah dasar",
+          "Manager bank",
+          "Tukang kayu",
+          "Dokter"
+        ],
+        "femaleOptions": [
+          "Pekerjaan pertanian",
+          "Sopir kendaraan militer",
+          "Akuntan",
+          "Ilmiawati",
+          "Penjual hasil-hasil mode",
+          "Seniwati",
+          "Wartawati",
+          "Pianis konser",
+          "Guru sekolah dasar",
+          "Sekretaris pribadi",
+          "Modiste",
+          "Dokter"
+        ],
+        "mapping": [
+          "OUT",
+          "ME",
+          "COMP",
+          "SCI",
+          "PRS",
+          "AESTH",
+          "LIT",
+          "MUS",
+          "S.S",
+          "CLER",
+          "PRAC",
+          "MED"
+        ]
+      }
+    },
+    {
+      "order": 2,
+      "content": {
+        "question": "Kelompok B",
+        "options": [
+          "Ahli pembuat alat-alat",
+          "Ahli statistik",
+          "Insinyur kimia industri",
+          "Penyiar radio",
+          "Artis profesional",
+          "Pengarang",
+          "Dirigen orkestra",
+          "Psikolog pendidikan",
+          "Sekretaris perusahaan",
+          "Ahli bangunan",
+          "Ahli bedah",
+          "Ahli kehutanan"
+        ],
+        "femaleOptions": [
+          "Petugas perakitan alat",
+          "Pegawai urusan gaji",
+          "Insinyur kimia industri",
+          "Penyiar radio",
+          "Artis profesional",
+          "Pengarang",
+          "Pemain musik orkestra",
+          "Psikolog pendidikan",
+          "Juru ketik",
+          "Pembuat pot keramik",
+          "Ahli bedah",
+          "Guru pendidikan olahraga"
+        ],
+        "mapping": [
+          "ME",
+          "COMP",
+          "SCI",
+          "PRS",
+          "AESTH",
+          "LIT",
+          "MUS",
+          "S.S",
+          "CLER",
+          "PRAC",
+          "MED",
+          "OUT"
+        ]
+      }
+    },
+    {
+      "order": 3,
+      "content": {
+        "question": "Kelompok C",
+        "options": [
+          "Auditor",
+          "Ahli Meteorologi",
+          "Salesman",
+          "Arsitek",
+          "Penulis drama",
+          "Komponis",
+          "Kepala sekolah",
+          "Pegawai pemerintah daerah",
+          "Ahli meubel",
+          "Dokter hewan",
+          "Juru ukur tanah",
+          "Tukang bubut"
+        ],
+        "femaleOptions": [
+          "Auditor",
+          "Ahli meteorologi",
+          "Salesgirl",
+          "Guru kesenian",
+          "Penulis drama",
+          "Komponis",
+          "Kepala yayasan sosial",
+          "Resepsionis",
+          "Penata rambut",
+          "Dokter hewan",
+          "Pramugari",
+          "Operator mesin rajut"
+        ],
+        "mapping": [
+          "COMP",
+          "SCI",
+          "PRS",
+          "AESTH",
+          "LIT",
+          "MUS",
+          "S.S",
+          "CLER",
+          "PRAC",
+          "MED",
+          "OUT",
+          "ME"
+        ]
+      }
+    },
+    {
+      "order": 4,
+      "content": {
+        "question": "Kelompok D",
+        "options": [
+          "Ahli biologi",
+          "Agen biro periklanan",
+          "Dekorator interior",
+          "Ahli sejarah",
+          "Kritikus musik",
+          "Pekerja sosial",
+          "Pegawai asuransi",
+          "Tukang cat",
+          "Apoteker",
+          "Penjelajah",
+          "Tukang listrik",
+          "Penilai pajak pendapatan"
+        ],
+        "femaleOptions": [
+          "Ahli biologi",
+          "Agen biro periklanan",
+          "Dekorator interior",
+          "Ahli sejarah",
+          "Kritikus musik",
+          "Pekerja sosial",
+          "Penulis steno",
+          "Penjilid buku",
+          "Apoteker",
+          "Ahli pertanaman",
+          "Petugas pompa bensin",
+          "Petugas mesin hitung"
+        ],
+        "mapping": [
+          "SCI",
+          "PRS",
+          "AESTH",
+          "LIT",
+          "MUS",
+          "S.S",
+          "CLER",
+          "PRAC",
+          "MED",
+          "OUT",
+          "ME",
+          "COMP"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "content": {
+        "question": "Kelompok E",
+        "options": [
+          "Petugas wawancara",
+          "Perancang perhiasan",
+          "Ahli perpustakaan",
+          "Guru musik",
+          "Pembina rohani",
+          "Petugas arsip",
+          "Tukang batu",
+          "Dokter gigi",
+          "Prospektor",
+          "Montir",
+          "Guru ilmu pasti",
+          "Ahli pertanian"
+        ],
+        "femaleOptions": [
+          "Petugas wawancara",
+          "Perancang pakaian",
+          "Ahli perpustakaan",
+          "Guru musik",
+          "Penyebar agama",
+          "Petugas arsip",
+          "Tukang bungkus cokelat",
+          "Pelatih rehabilitasi pasien",
+          "Pembina keolahragaan",
+          "Ahli reparasi jam",
+          "Guru ilmu pasti",
+          "Ahli pertanian"
+        ],
+        "mapping": [
+          "PRS",
+          "AESTH",
+          "LIT",
+          "MUS",
+          "S.S",
+          "CLER",
+          "PRAC",
+          "MED",
+          "OUT",
+          "ME",
+          "COMP",
+          "SCI"
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "content": {
+        "question": "Kelompok F",
+        "options": [
+          "Pemotret",
+          "Penulis majalah",
+          "Pemain orgel (organ)",
+          "Organisasi pramuka",
+          "Petugas pengiriman barang",
+          "Petugas mesin perkayuan",
+          "Ahli kacamata",
+          "Ahli sortir kulit",
+          "Instalator",
+          "Pembantu kasir bank",
+          "Ahli botani",
+          "Pedagang keliling"
+        ],
+        "femaleOptions": [
+          "Pemotret",
+          "Penulis majalah",
+          "Pemain orgel (organ)",
+          "Petugas palang merah",
+          "Pegawai bank",
+          "Pengurus kerumahtanggaan",
+          "Perawat",
+          "Peternak",
+          "Ahli gosok lensa",
+          "Kasir",
+          "Ahli botani",
+          "Pedagang keliling"
+        ],
+        "mapping": [
+          "AESTH",
+          "LIT",
+          "MUS",
+          "S.S",
+          "CLER",
+          "PRAC",
+          "MED",
+          "OUT",
+          "ME",
+          "COMP",
+          "SCI",
+          "PRS"
+        ]
+      }
+    },
+    {
+      "order": 7,
+      "content": {
+        "question": "Kelompok G",
+        "options": [
+          "Kritikus buku",
+          "Ahli pustaka musik",
+          "Pejabat klub remaja",
+          "Pegawai kantor",
+          "Tukang plester tembok",
+          "Ahli rontgent",
+          "Nelayan",
+          "Pembuat arloji",
+          "Kasir",
+          "Ahli astronomi",
+          "Juru lelang",
+          "Penata panggung"
+        ],
+        "femaleOptions": [
+          "Kritikus buku",
+          "Ahli pustaka musik",
+          "Pejabat klub remaja",
+          "Pegawai kantor",
+          "Tukang binatu",
+          "Ahli rontgent",
+          "Petani bunga",
+          "Operator mesin sulam",
+          "Ahli tata buku",
+          "Ahli astronomi",
+          "Peraga alat kosmetika",
+          "Penata panggung"
+        ],
+        "mapping": [
+          "LIT",
+          "MUS",
+          "S.S",
+          "CLER",
+          "PRAC",
+          "MED",
+          "OUT",
+          "ME",
+          "COMP",
+          "SCI",
+          "PRS",
+          "AESTH"
+        ]
+      }
+    },
+    {
+      "order": 8,
+      "content": {
+        "question": "Kelompok H",
+        "options": [
+          "Pemimpin band",
+          "Ahli penyuluh jabatan",
+          "Pegawai pos",
+          "Tukang ledeng",
+          "Ahli fisioterapi",
+          "Sopir angkutan",
+          "Montir radio",
+          "Juru bayar",
+          "Ahli geologi",
+          "Petugas hub. Masyarakat",
+          "Penata etalase",
+          "Penulis sandiwara radio"
+        ],
+        "femaleOptions": [
+          "Pemain musik band",
+          "Ahli penyuluh jabatan",
+          "Pegawai kantorpos",
+          "Penjahit",
+          "Ahli fisioterapi",
+          "Peternak ayam",
+          "Ahli reparasi permata",
+          "Juru bayar",
+          "Ahli geologi",
+          "Petugas hub. Masyarakat",
+          "Penata etalase",
+          "Penulis sandiwara radio"
+        ],
+        "mapping": [
+          "MUS",
+          "S.S",
+          "CLER",
+          "PRAC",
+          "MED",
+          "OUT",
+          "ME",
+          "COMP",
+          "SCI",
+          "PRS",
+          "AESTH",
+          "LIT"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "content": {
+        "question": "Kelompok I",
+        "options": [
+          "Petugas kesejahteraan sosial",
+          "Petugas ekspedisi surat",
+          "Tukang sepatu",
+          "Paramedik / mantri kesehatan",
+          "Petani tanaman hias",
+          "Tukang las",
+          "Petugas pajak",
+          "Asisten laboratorium",
+          "Salesman asuransi",
+          "Perancang motif tekstil",
+          "Penyair",
+          "Pramuniaga toko musik"
+        ],
+        "femaleOptions": [
+          "Petugas kesejahteraan sosial",
+          "Petugas arsip",
+          "Juru masak",
+          "Perawat orang2 tua",
+          "Tukang kebun",
+          "Operator mesin kaos kaki",
+          "Petugas pajak",
+          "Asisten laboratorium",
+          "Peraga barang2/bahan",
+          "Perancang motif tekstil",
+          "Penyair",
+          "Pramuniaga toko musik"
+        ],
+        "mapping": [
+          "S.S",
+          "CLER",
+          "PRAC",
+          "MED",
+          "OUT",
+          "ME",
+          "COMP",
+          "SCI",
+          "PRS",
+          "AESTH",
+          "LIT",
+          "MUS"
+        ]
+      }
+    }
+  ],
+  "interpretations": [
+    {
+      "patternCode": "OUT",
+      "title": "Minat Outdoor (OUT)",
+      "body": "Yaitu pekerjaan dimana aktifitasnya dilakukan di luar atau di udara terbuka, atau pekerjaan yang tidak berhubungan dengan hal-hal yang rutin sifatnya.\n\nContoh profesi: Petani, penjaga hutan, juru ukur, penjelajah, prospector, ahli sortir kulit, nelayan, sopir pengangkutan, petani tanaman hias"
+    },
+    {
+      "patternCode": "ME",
+      "title": "Minat Mechanical (ME)",
+      "body": "Yaitu pekerjaan yang berhubungan atau menggunakan mesin, alat-alat dan daya mekanik.\n\nContoh profesi: Insinyur sipil, ahli pembuat alat-alat, tukang bubut, tukang lisrik, montir, instalator, pembuat arloji, montir radio, tukanng las"
+    },
+    {
+      "patternCode": "COMP",
+      "title": "Minat Computational (COMP)",
+      "body": "Yaitu pekerjaan yang berhubungan dengan angka-angka.\n\nContoh profesi: Akuntan, ahli statistik, auditor, penilai pajak pendapatan, guru matematik, pembantu kasir bank, kasir, juru bayar, petugas pajak"
+    },
+    {
+      "patternCode": "SCI",
+      "title": "Minat Scientific (SCI)",
+      "body": "Yaitu pekerjaan yang dapat disebutkan sebagai keaktifan dalam hal analisa, penyelidikan dan eksperimen, kimia dan ilmu pengetahuan pada umumnya.\n\nContoh profesi: Ilmuwan, insinyur kimia industri, ahli meteorologi, ahli biologi, ahli pertanian, ahli botani, ahli astronomi, ahli geologi, asisten laboratorium"
+    },
+    {
+      "patternCode": "PRS",
+      "title": "Minat Personal Contact (PRS)",
+      "body": "Pekerjaan yang berhubungan dengan manusia, diskusi, membujuk, bergaul dengan orang lain, pada dasarnya adalah suatu pekerjaan yang membutuhkan kontak dengan orang lain.\n\nContoh profesi: Manager bidang penjualan, penyiar radio, salesman, agen biro iklan, petugas wawancara, pedagang keliling, juru lelang, petugas hubungan kemasyarakatan, salesman asuransi"
+    },
+    {
+      "patternCode": "AESTH",
+      "title": "Minat Aesthetic (AESTH)",
+      "body": "Pekerjaan yang berhubungan dengan hal-hal yang bersifat seni dan menciptakan sesuatu.\n\nContoh profesi: Seniman, artis profesional, arsitek, decorator interior, perancang perhiasan, pemotret, penata panggung, penata etalase, perancang motif tekstil"
+    },
+    {
+      "patternCode": "LIT",
+      "title": "Minat Literary (LIT)",
+      "body": "Yaitu pekerjaan yang berhubungan dengan buku-buku, kegiatan membaca, mengarang.\n\nContoh profesi: Wartawan, pengarang, penulis drama, ahli sejarah, ahli perpustakaan, penulis majalah, kritikus buku, penulis sandiwara radio, penyair"
+    },
+    {
+      "patternCode": "MUS",
+      "title": "Minat Musical (MUS)",
+      "body": "Minat memainkan alat-alat musik, atau mendengarkan orang lain bermain, bernyanyi atau membaca sesuatu yang berhubungan denngan musik, penghargaan terhadap musik.\n\nContoh profesi: Pianis konser, dirigent orkes, komponis, kritikus musik, pemain orgen, ahli pustaka musik, pemain musik band, pramuniaga toko musik"
+    },
+    {
+      "patternCode": "S.S",
+      "title": "Minat Social Service (S.S)",
+      "body": "Minat terhadap kesejahteran penduduk, dengan keinginan untuk menolong dan membimbing/menasehati tentang problem dan kesulitan mereka. Keinginan untuk mengerti orang lain dan mempunyai idea yang benar dan kuat tentang pelayanan.\n\nContoh profesi: Guru SD, psikolog pendidikan, kepala sekolah, pekerja sosial, pembina rohani, organisator kepramukaan, pejabat klub remaja, ahli penyuluh pejabat, petugas kesejahteraan sosial"
+    },
+    {
+      "patternCode": "CLER",
+      "title": "Minat Clerical (CLER)",
+      "body": "Minat terhadap tugas-tugas rutin yang menutut ketepatan dan ketelitian.\n\nContoh profesi: Manager bank, sekretaris perusahaan, pegawai pemerintah daerah, pegawai asuransi, petugas arsip, petugas pengiriman barang/ekspedisi, pegawai kantor, pegawai pos"
+    },
+    {
+      "patternCode": "PRAC",
+      "title": "Minat Practical (PRAC)",
+      "body": "Minat terhadap pekerjaan-pekerjaan yang praktis, karya petukangan dan yang memerlukan ketrampilan.\n\nContoh profesi: Tukang kayu, ahi bangunan, ahli meubel, tukang cat, tukang batu, petugas mesin perkayuan, tukang plaster tembok, tukang ledeng, tukang sepatu"
+    },
+    {
+      "patternCode": "MED",
+      "title": "Minat Medical (MED)",
+      "body": "Minat terhadap pengobatan, mengurangi akibat dari pada penyakit, penyembuhan dan didalam bidang medis serta hal-hal biologis pada umumnya.\n\nContoh profesi: Dokter, ahli bedah, dokter hewan, ahli farmasi/apoteker, dokter gigi, ahli kacamata, ahli rontgent, ahli physioteraphy, mantri kesehatan"
+    }
+  ]
+}

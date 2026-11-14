@@ -277,7 +277,15 @@ export class TestsService {
       }
     }
 
-    await this.repo.replaceItems(testId, items);
+    // The flag exists so the attempt read can ask for a sex before showing any
+    // item. It has to follow the items: an admin who adds a second list gets
+    // the gate, and one who removes it stops asking.
+    const requiresGender = items.some((item) => {
+      const female = (item.content as { femaleOptions?: unknown } | null)
+        ?.femaleOptions;
+      return Array.isArray(female) && female.length > 0;
+    });
+    await this.repo.replaceItems(testId, items, { requiresGender });
 
     return { count: items.length };
   }

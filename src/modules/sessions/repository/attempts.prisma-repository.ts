@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '../../../generated/prisma/client';
-import type { TestResult } from '../../../generated/prisma/client';
+import type { Gender, TestResult } from '../../../generated/prisma/client';
 import { PrismaService } from '../../../prisma/prisma.service';
 import type {
   AttemptsRepository,
@@ -28,6 +28,7 @@ export class PrismaAttemptsRepository implements AttemptsRepository {
             scoringConfig: true,
             ageMinMonths: true,
             ageMaxMonths: true,
+            requiresGender: true,
           },
         },
         session: { select: { id: true, status: true, expiresAt: true } },
@@ -52,6 +53,7 @@ export class PrismaAttemptsRepository implements AttemptsRepository {
         completedAt: attempt.completedAt,
         participantId: attempt.participantId,
         birthDate: attempt.birthDate,
+        gender: attempt.gender,
       },
       test: attempt.test,
       session: attempt.session,
@@ -66,6 +68,15 @@ export class PrismaAttemptsRepository implements AttemptsRepository {
     await this.prisma.attempt.updateMany({
       where: { id: attemptId, birthDate: null },
       data: { birthDate },
+    });
+  }
+
+  async setGender(attemptId: string, gender: string): Promise<void> {
+    // Same null guard as the birth date: the first declaration wins, so a
+    // participant cannot switch to the other list after seeing the items.
+    await this.prisma.attempt.updateMany({
+      where: { id: attemptId, gender: null },
+      data: { gender: gender as Gender },
     });
   }
 

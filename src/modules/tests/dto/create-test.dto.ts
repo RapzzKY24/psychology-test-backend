@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ScorerTypeValues } from '../../../scorers/schemas';
 
 export const CreateTestSchema = z.object({
   name: z.string().min(3).max(100),
@@ -11,7 +12,7 @@ export const CreateTestSchema = z.object({
     'INTEREST',
     'PROJECTIVE',
   ]),
-  scorerType: z.enum(['FORCED_CHOICE_DISC', 'RIGHT_WRONG_NORM']),
+  scorerType: z.enum(ScorerTypeValues),
   price: z.number().int().min(0),
   estimatedDurationMin: z.number().int().min(1),
 });

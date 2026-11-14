@@ -13,6 +13,8 @@ export interface AttemptAccessDetail {
     participantId: string | null;
     /** Declared birth date, recorded the first time a banded test is opened. */
     birthDate: Date | null;
+    /** Declared sex, recorded the first time a gendered test is opened. */
+    gender: string | null;
   };
   test: {
     id: string;
@@ -28,6 +30,8 @@ export interface AttemptAccessDetail {
     /** Norm age band in whole months; both null when the norm is not banded. */
     ageMinMonths: number | null;
     ageMaxMonths: number | null;
+    /** The item list differs by sex, so the attempt must record one first. */
+    requiresGender: boolean;
   };
   session: { id: string; status: string; expiresAt: Date };
   items: { id: string; order: number; content: unknown }[];
@@ -63,6 +67,8 @@ export interface AttemptsRepository {
   findAccessDetail(id: string): Promise<AttemptAccessDetail | null>;
   /** Records the declared birth date once; later calls are a no-op. */
   setBirthDate(attemptId: string, birthDate: Date): Promise<void>;
+  /** Records the declared sex once; later calls are a no-op. */
+  setGender(attemptId: string, gender: string): Promise<void>;
   upsertResponse(
     attemptId: string,
     itemId: string,

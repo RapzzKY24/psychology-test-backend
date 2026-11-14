@@ -43,6 +43,7 @@ export class AttemptsPublicController {
       id,
       participant.id,
       query.birthDate,
+      query.gender,
     );
     return { data };
   }
