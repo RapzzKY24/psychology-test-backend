@@ -1,0 +1,45 @@
+{
+  "note": "Baris soal dipotong dari \"Lembar Tes TIU 6.pdf\" halaman 2; tiap baris memuat bangun 3D di kiri dan lima guntingan bernomor 1-5. imageUrl memakai uuid5 tetap supaya seed idempoten.",
+  "items": [
+    {
+      "item": 1,
+      "file": "tiu6-01.png",
+      "imageUrl": "/uploads/test-items/6646e1ed-be88-57e4-968f-5db33cb58cf0.png"
+    },
+    {
+      "item": 2,
+      "file": "tiu6-02.png",
+      "imageUrl": "/uploads/test-items/0db69fad-5b89-5090-8a31-0aa50aff8c4e.png"
+    },
+    {
+      "item": 3,
+      "file": "tiu6-03.png",
+      "imageUrl": "/uploads/test-items/5e970ca8-eca9-5901-b229-bf1e1b05ed9f.png"
+    },
+    {
+      "item": 4,
+      "file": "tiu6-04.png",
+      "imageUrl": "/uploads/test-items/3a4f5b20-6355-5e33-95be-dc5bfe931380.png"
+    },
+    {
+      "item": 5,
+      "file": "tiu6-05.png",
+      "imageUrl": "/uploads/test-items/a65aaee8-6361-50e0-935c-4b9d65b01f31.png"
+    },
+    {
+      "item": 6,
+      "file": "tiu6-06.png",
+      "imageUrl": "/uploads/test-items/da71abf4-2556-58fa-bf08-c64041170f94.png"
+    },
+    {
+      "item": 7,
+      "file": "tiu6-07.png",
+      "imageUrl": "/uploads/test-items/80f851ba-73d3-5602-aeb5-56dd5fa87049.png"
+    },
+    {
+      "item": 8,
+      "file": "tiu6-08.png",
+      "imageUrl": "/uploads/test-items/999d7d3f-b16d-5ad4-b3d3-eeba4b2afb67.png"
+    }
+  ]
+}

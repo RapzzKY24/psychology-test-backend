@@ -28,6 +28,7 @@
     "seed:wpt": "tsx src/scripts/seed-wpt.ts",
     "seed:aptitude": "tsx src/scripts/seed-aptitude.ts",
     "seed:tiu5": "tsx src/scripts/seed-tiu5.ts",
+    "seed:tiu6": "tsx src/scripts/seed-tiu6.ts",
     "seed:cfit3a": "tsx src/scripts/seed-cfit3a.ts",
     "seed:cfit3b": "tsx src/scripts/seed-cfit3b.ts",
     "seed:instansi": "tsx src/scripts/seed-instansi.ts",

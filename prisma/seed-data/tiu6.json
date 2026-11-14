@@ -1,0 +1,622 @@
+{
+  "test": {
+    "slug": "tiu-6",
+    "name": "TIU 6 (Tes Intelegensi Umum)",
+    "description": "Tes intelegensi umum figural: 8 baris jaring bangun, 40 penilaian benar/salah. Skor mentah dikonversi ke Weighted Score (WS 1-5) dan kategori Kurang Sekali sampai Baik Sekali.",
+    "category": "COGNITIVE",
+    "scorerType": "RIGHT_WRONG_NORM",
+    "price": 40000,
+    "estimatedDurationMin": 10,
+    "timeLimitMin": null,
+    "normTable": null
+  },
+  "items": [
+    {
+      "order": 1,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 1, guntingan nomor 1: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/6646e1ed-be88-57e4-968f-5db33cb58cf0.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 2,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 1, guntingan nomor 2: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/6646e1ed-be88-57e4-968f-5db33cb58cf0.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 3,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 1, guntingan nomor 3: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/6646e1ed-be88-57e4-968f-5db33cb58cf0.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 4,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 1, guntingan nomor 4: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/6646e1ed-be88-57e4-968f-5db33cb58cf0.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 5,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 1, guntingan nomor 5: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/6646e1ed-be88-57e4-968f-5db33cb58cf0.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 6,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 2, guntingan nomor 1: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/0db69fad-5b89-5090-8a31-0aa50aff8c4e.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 7,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 2, guntingan nomor 2: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/0db69fad-5b89-5090-8a31-0aa50aff8c4e.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 8,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 2, guntingan nomor 3: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/0db69fad-5b89-5090-8a31-0aa50aff8c4e.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 9,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 2, guntingan nomor 4: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/0db69fad-5b89-5090-8a31-0aa50aff8c4e.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 10,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 2, guntingan nomor 5: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/0db69fad-5b89-5090-8a31-0aa50aff8c4e.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 11,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 3, guntingan nomor 1: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/5e970ca8-eca9-5901-b229-bf1e1b05ed9f.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 12,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 3, guntingan nomor 2: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/5e970ca8-eca9-5901-b229-bf1e1b05ed9f.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 13,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 3, guntingan nomor 3: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/5e970ca8-eca9-5901-b229-bf1e1b05ed9f.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 14,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 3, guntingan nomor 4: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/5e970ca8-eca9-5901-b229-bf1e1b05ed9f.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 15,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 3, guntingan nomor 5: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/5e970ca8-eca9-5901-b229-bf1e1b05ed9f.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 16,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 4, guntingan nomor 1: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/3a4f5b20-6355-5e33-95be-dc5bfe931380.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 17,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 4, guntingan nomor 2: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/3a4f5b20-6355-5e33-95be-dc5bfe931380.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 18,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 4, guntingan nomor 3: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/3a4f5b20-6355-5e33-95be-dc5bfe931380.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 19,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 4, guntingan nomor 4: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/3a4f5b20-6355-5e33-95be-dc5bfe931380.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 20,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 4, guntingan nomor 5: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/3a4f5b20-6355-5e33-95be-dc5bfe931380.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 21,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 5, guntingan nomor 1: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/a65aaee8-6361-50e0-935c-4b9d65b01f31.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 22,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 5, guntingan nomor 2: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/a65aaee8-6361-50e0-935c-4b9d65b01f31.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 23,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 5, guntingan nomor 3: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/a65aaee8-6361-50e0-935c-4b9d65b01f31.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 24,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 5, guntingan nomor 4: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/a65aaee8-6361-50e0-935c-4b9d65b01f31.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 25,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 5, guntingan nomor 5: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/a65aaee8-6361-50e0-935c-4b9d65b01f31.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 26,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 6, guntingan nomor 1: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/da71abf4-2556-58fa-bf08-c64041170f94.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 27,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 6, guntingan nomor 2: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/da71abf4-2556-58fa-bf08-c64041170f94.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 28,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 6, guntingan nomor 3: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/da71abf4-2556-58fa-bf08-c64041170f94.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 29,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 6, guntingan nomor 4: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/da71abf4-2556-58fa-bf08-c64041170f94.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 30,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 6, guntingan nomor 5: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/da71abf4-2556-58fa-bf08-c64041170f94.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 31,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 7, guntingan nomor 1: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/80f851ba-73d3-5602-aeb5-56dd5fa87049.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 32,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 7, guntingan nomor 2: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/80f851ba-73d3-5602-aeb5-56dd5fa87049.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 33,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 7, guntingan nomor 3: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/80f851ba-73d3-5602-aeb5-56dd5fa87049.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 34,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 7, guntingan nomor 4: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/80f851ba-73d3-5602-aeb5-56dd5fa87049.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 35,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 7, guntingan nomor 5: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/80f851ba-73d3-5602-aeb5-56dd5fa87049.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 36,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 8, guntingan nomor 1: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/999d7d3f-b16d-5ad4-b3d3-eeba4b2afb67.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 37,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 8, guntingan nomor 2: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/999d7d3f-b16d-5ad4-b3d3-eeba4b2afb67.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 38,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 8, guntingan nomor 3: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/999d7d3f-b16d-5ad4-b3d3-eeba4b2afb67.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 39,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 8, guntingan nomor 4: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/999d7d3f-b16d-5ad4-b3d3-eeba4b2afb67.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 40,
+      "content": {
+        "answerMode": "choice",
+        "question": "Baris 8, guntingan nomor 5: benar atau salah? Pilih Benar bila jaring itu dapat dilipat menjadi bangun di sebelah kiri, Salah bila tidak.",
+        "imageUrl": "/uploads/test-items/999d7d3f-b16d-5ad4-b3d3-eeba4b2afb67.png",
+        "options": ["Benar", "Salah"],
+        "correctIndexes": [1]
+      }
+    }
+  ],
+  "interpretations": [
+    {
+      "patternCode": "RAW_0",
+      "title": "Skor 0 dari 40 — di bawah tabel norma",
+      "body": "Tidak ada jawaban benar. Skor ini berada di bawah baris pertama tangga norma TIU 6 (raw 1), sehingga belum memperoleh Weighted Score. Kemampuan membayangkan lipatan jaring menjadi bangun tiga dimensi masih sangat terbatas. Latihan dasar mengenali sisi, alas, dan arah lipatan perlu dilakukan sebelum mengulang tes ini."
+    },
+    {
+      "patternCode": "RAW_1",
+      "title": "Skor 1 dari 40 — WS 1 (Kurang Sekali)",
+      "body": "Kemampuan membayangkan lipatan jaring menjadi bangun tiga dimensi masih sangat terbatas. Latihan dasar mengenali sisi, alas, dan arah lipatan perlu dilakukan sebelum mengulang tes ini."
+    },
+    {
+      "patternCode": "RAW_2",
+      "title": "Skor 2 dari 40 — WS 1 (Kurang Sekali)",
+      "body": "Kemampuan membayangkan lipatan jaring menjadi bangun tiga dimensi masih sangat terbatas. Latihan dasar mengenali sisi, alas, dan arah lipatan perlu dilakukan sebelum mengulang tes ini."
+    },
+    {
+      "patternCode": "RAW_3",
+      "title": "Skor 3 dari 40 — WS 1 (Kurang Sekali)",
+      "body": "Kemampuan membayangkan lipatan jaring menjadi bangun tiga dimensi masih sangat terbatas. Latihan dasar mengenali sisi, alas, dan arah lipatan perlu dilakukan sebelum mengulang tes ini."
+    },
+    {
+      "patternCode": "RAW_4",
+      "title": "Skor 4 dari 40 — WS 1 (Kurang Sekali)",
+      "body": "Kemampuan membayangkan lipatan jaring menjadi bangun tiga dimensi masih sangat terbatas. Latihan dasar mengenali sisi, alas, dan arah lipatan perlu dilakukan sebelum mengulang tes ini."
+    },
+    {
+      "patternCode": "RAW_5",
+      "title": "Skor 5 dari 40 — WS 1 (Kurang Sekali)",
+      "body": "Kemampuan membayangkan lipatan jaring menjadi bangun tiga dimensi masih sangat terbatas. Latihan dasar mengenali sisi, alas, dan arah lipatan perlu dilakukan sebelum mengulang tes ini."
+    },
+    {
+      "patternCode": "RAW_6",
+      "title": "Skor 6 dari 40 — WS 1 (Kurang Sekali)",
+      "body": "Kemampuan membayangkan lipatan jaring menjadi bangun tiga dimensi masih sangat terbatas. Latihan dasar mengenali sisi, alas, dan arah lipatan perlu dilakukan sebelum mengulang tes ini."
+    },
+    {
+      "patternCode": "RAW_7",
+      "title": "Skor 7 dari 40 — WS 1 (Kurang Sekali)",
+      "body": "Kemampuan membayangkan lipatan jaring menjadi bangun tiga dimensi masih sangat terbatas. Latihan dasar mengenali sisi, alas, dan arah lipatan perlu dilakukan sebelum mengulang tes ini."
+    },
+    {
+      "patternCode": "RAW_8",
+      "title": "Skor 8 dari 40 — WS 1 (Kurang Sekali)",
+      "body": "Kemampuan membayangkan lipatan jaring menjadi bangun tiga dimensi masih sangat terbatas. Latihan dasar mengenali sisi, alas, dan arah lipatan perlu dilakukan sebelum mengulang tes ini."
+    },
+    {
+      "patternCode": "RAW_9",
+      "title": "Skor 9 dari 40 — WS 2 (Kurang)",
+      "body": "Kemampuan membayangkan lipatan jaring berada di bawah rata-rata. Masih sering terpaku pada satu sisi bangun dan belum menelusuri seluruh sisi sampai tertutup."
+    },
+    {
+      "patternCode": "RAW_10",
+      "title": "Skor 10 dari 40 — WS 2 (Kurang)",
+      "body": "Kemampuan membayangkan lipatan jaring berada di bawah rata-rata. Masih sering terpaku pada satu sisi bangun dan belum menelusuri seluruh sisi sampai tertutup."
+    },
+    {
+      "patternCode": "RAW_11",
+      "title": "Skor 11 dari 40 — WS 2 (Kurang)",
+      "body": "Kemampuan membayangkan lipatan jaring berada di bawah rata-rata. Masih sering terpaku pada satu sisi bangun dan belum menelusuri seluruh sisi sampai tertutup."
+    },
+    {
+      "patternCode": "RAW_12",
+      "title": "Skor 12 dari 40 — WS 2 (Kurang)",
+      "body": "Kemampuan membayangkan lipatan jaring berada di bawah rata-rata. Masih sering terpaku pada satu sisi bangun dan belum menelusuri seluruh sisi sampai tertutup."
+    },
+    {
+      "patternCode": "RAW_13",
+      "title": "Skor 13 dari 40 — WS 2 (Kurang)",
+      "body": "Kemampuan membayangkan lipatan jaring berada di bawah rata-rata. Masih sering terpaku pada satu sisi bangun dan belum menelusuri seluruh sisi sampai tertutup."
+    },
+    {
+      "patternCode": "RAW_14",
+      "title": "Skor 14 dari 40 — WS 2 (Kurang)",
+      "body": "Kemampuan membayangkan lipatan jaring berada di bawah rata-rata. Masih sering terpaku pada satu sisi bangun dan belum menelusuri seluruh sisi sampai tertutup."
+    },
+    {
+      "patternCode": "RAW_15",
+      "title": "Skor 15 dari 40 — WS 2 (Kurang)",
+      "body": "Kemampuan membayangkan lipatan jaring berada di bawah rata-rata. Masih sering terpaku pada satu sisi bangun dan belum menelusuri seluruh sisi sampai tertutup."
+    },
+    {
+      "patternCode": "RAW_16",
+      "title": "Skor 16 dari 40 — WS 2 (Kurang)",
+      "body": "Kemampuan membayangkan lipatan jaring berada di bawah rata-rata. Masih sering terpaku pada satu sisi bangun dan belum menelusuri seluruh sisi sampai tertutup."
+    },
+    {
+      "patternCode": "RAW_17",
+      "title": "Skor 17 dari 40 — WS 3 (Rata-rata)",
+      "body": "Kemampuan membayangkan lipatan jaring berada pada taraf rata-rata. Bangun sederhana terbaca baik, tetapi jaring dengan banyak sisi masih menyita waktu."
+    },
+    {
+      "patternCode": "RAW_18",
+      "title": "Skor 18 dari 40 — WS 3 (Rata-rata)",
+      "body": "Kemampuan membayangkan lipatan jaring berada pada taraf rata-rata. Bangun sederhana terbaca baik, tetapi jaring dengan banyak sisi masih menyita waktu."
+    },
+    {
+      "patternCode": "RAW_19",
+      "title": "Skor 19 dari 40 — WS 3 (Rata-rata)",
+      "body": "Kemampuan membayangkan lipatan jaring berada pada taraf rata-rata. Bangun sederhana terbaca baik, tetapi jaring dengan banyak sisi masih menyita waktu."
+    },
+    {
+      "patternCode": "RAW_20",
+      "title": "Skor 20 dari 40 — WS 3 (Rata-rata)",
+      "body": "Kemampuan membayangkan lipatan jaring berada pada taraf rata-rata. Bangun sederhana terbaca baik, tetapi jaring dengan banyak sisi masih menyita waktu."
+    },
+    {
+      "patternCode": "RAW_21",
+      "title": "Skor 21 dari 40 — WS 3 (Rata-rata)",
+      "body": "Kemampuan membayangkan lipatan jaring berada pada taraf rata-rata. Bangun sederhana terbaca baik, tetapi jaring dengan banyak sisi masih menyita waktu."
+    },
+    {
+      "patternCode": "RAW_22",
+      "title": "Skor 22 dari 40 — WS 3 (Rata-rata)",
+      "body": "Kemampuan membayangkan lipatan jaring berada pada taraf rata-rata. Bangun sederhana terbaca baik, tetapi jaring dengan banyak sisi masih menyita waktu."
+    },
+    {
+      "patternCode": "RAW_23",
+      "title": "Skor 23 dari 40 — WS 3 (Rata-rata)",
+      "body": "Kemampuan membayangkan lipatan jaring berada pada taraf rata-rata. Bangun sederhana terbaca baik, tetapi jaring dengan banyak sisi masih menyita waktu."
+    },
+    {
+      "patternCode": "RAW_24",
+      "title": "Skor 24 dari 40 — WS 3 (Rata-rata)",
+      "body": "Kemampuan membayangkan lipatan jaring berada pada taraf rata-rata. Bangun sederhana terbaca baik, tetapi jaring dengan banyak sisi masih menyita waktu."
+    },
+    {
+      "patternCode": "RAW_25",
+      "title": "Skor 25 dari 40 — WS 4 (Baik)",
+      "body": "Kemampuan membayangkan lipatan jaring tergolong baik. Sisi, alas, dan arah lipatan ditelusuri dengan tepat pada sebagian besar soal."
+    },
+    {
+      "patternCode": "RAW_26",
+      "title": "Skor 26 dari 40 — WS 4 (Baik)",
+      "body": "Kemampuan membayangkan lipatan jaring tergolong baik. Sisi, alas, dan arah lipatan ditelusuri dengan tepat pada sebagian besar soal."
+    },
+    {
+      "patternCode": "RAW_27",
+      "title": "Skor 27 dari 40 — WS 4 (Baik)",
+      "body": "Kemampuan membayangkan lipatan jaring tergolong baik. Sisi, alas, dan arah lipatan ditelusuri dengan tepat pada sebagian besar soal."
+    },
+    {
+      "patternCode": "RAW_28",
+      "title": "Skor 28 dari 40 — WS 4 (Baik)",
+      "body": "Kemampuan membayangkan lipatan jaring tergolong baik. Sisi, alas, dan arah lipatan ditelusuri dengan tepat pada sebagian besar soal."
+    },
+    {
+      "patternCode": "RAW_29",
+      "title": "Skor 29 dari 40 — WS 4 (Baik)",
+      "body": "Kemampuan membayangkan lipatan jaring tergolong baik. Sisi, alas, dan arah lipatan ditelusuri dengan tepat pada sebagian besar soal."
+    },
+    {
+      "patternCode": "RAW_30",
+      "title": "Skor 30 dari 40 — WS 4 (Baik)",
+      "body": "Kemampuan membayangkan lipatan jaring tergolong baik. Sisi, alas, dan arah lipatan ditelusuri dengan tepat pada sebagian besar soal."
+    },
+    {
+      "patternCode": "RAW_31",
+      "title": "Skor 31 dari 40 — WS 4 (Baik)",
+      "body": "Kemampuan membayangkan lipatan jaring tergolong baik. Sisi, alas, dan arah lipatan ditelusuri dengan tepat pada sebagian besar soal."
+    },
+    {
+      "patternCode": "RAW_32",
+      "title": "Skor 32 dari 40 — WS 4 (Baik)",
+      "body": "Kemampuan membayangkan lipatan jaring tergolong baik. Sisi, alas, dan arah lipatan ditelusuri dengan tepat pada sebagian besar soal."
+    },
+    {
+      "patternCode": "RAW_33",
+      "title": "Skor 33 dari 40 — WS 5 (Baik Sekali)",
+      "body": "Kemampuan membayangkan lipatan jaring sangat baik. Seluruh sisi bangun ditelusuri cepat dan tepat, termasuk jaring yang menyerupai bentuk benar tetapi salah pada satu sisi."
+    },
+    {
+      "patternCode": "RAW_34",
+      "title": "Skor 34 dari 40 — WS 5 (Baik Sekali)",
+      "body": "Kemampuan membayangkan lipatan jaring sangat baik. Seluruh sisi bangun ditelusuri cepat dan tepat, termasuk jaring yang menyerupai bentuk benar tetapi salah pada satu sisi."
+    },
+    {
+      "patternCode": "RAW_35",
+      "title": "Skor 35 dari 40 — WS 5 (Baik Sekali)",
+      "body": "Kemampuan membayangkan lipatan jaring sangat baik. Seluruh sisi bangun ditelusuri cepat dan tepat, termasuk jaring yang menyerupai bentuk benar tetapi salah pada satu sisi."
+    },
+    {
+      "patternCode": "RAW_36",
+      "title": "Skor 36 dari 40 — WS 5 (Baik Sekali)",
+      "body": "Kemampuan membayangkan lipatan jaring sangat baik. Seluruh sisi bangun ditelusuri cepat dan tepat, termasuk jaring yang menyerupai bentuk benar tetapi salah pada satu sisi."
+    },
+    {
+      "patternCode": "RAW_37",
+      "title": "Skor 37 dari 40 — WS 5 (Baik Sekali)",
+      "body": "Kemampuan membayangkan lipatan jaring sangat baik. Seluruh sisi bangun ditelusuri cepat dan tepat, termasuk jaring yang menyerupai bentuk benar tetapi salah pada satu sisi."
+    },
+    {
+      "patternCode": "RAW_38",
+      "title": "Skor 38 dari 40 — WS 5 (Baik Sekali)",
+      "body": "Kemampuan membayangkan lipatan jaring sangat baik. Seluruh sisi bangun ditelusuri cepat dan tepat, termasuk jaring yang menyerupai bentuk benar tetapi salah pada satu sisi."
+    },
+    {
+      "patternCode": "RAW_39",
+      "title": "Skor 39 dari 40 — WS 5 (Baik Sekali)",
+      "body": "Kemampuan membayangkan lipatan jaring sangat baik. Seluruh sisi bangun ditelusuri cepat dan tepat, termasuk jaring yang menyerupai bentuk benar tetapi salah pada satu sisi."
+    },
+    {
+      "patternCode": "RAW_40",
+      "title": "Skor 40 dari 40 — WS 5 (Baik Sekali)",
+      "body": "Kemampuan membayangkan lipatan jaring sangat baik. Seluruh sisi bangun ditelusuri cepat dan tepat, termasuk jaring yang menyerupai bentuk benar tetapi salah pada satu sisi."
+    }
+  ]
+}
