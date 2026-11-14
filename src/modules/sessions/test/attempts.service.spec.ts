@@ -531,6 +531,58 @@ describe('AttemptsService', () => {
       await expect(service.complete('att-1', 'p-1')).rejects.toThrow(
         'birth_date_required',
       );
+      expect(mockRepo.completeAndCreateResult).not.toHaveBeenCalled();
+    });
+
+    it('scores a banded attempt once a fitting birth date is recorded', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({
+          test: {
+            ...bandedTest,
+            normTable: [{ raw: 0, iq: 59 }],
+          },
+          items: [
+            {
+              id: 'it-1',
+              order: 1,
+              content: {
+                question: 'Q1',
+                options: ['a', 'b'],
+                correctIndexes: [0],
+              },
+            },
+          ],
+          attempt: {
+            ...makeDetail().attempt,
+            birthDate: new Date(`${birthDateYearsAgo(14, 3)}T00:00:00.000Z`),
+          },
+        }),
+      );
+      mockRepo.completeAndCreateResult.mockResolvedValue({
+        id: 'res-1',
+        patternCode: 'RAW_0',
+      } as any);
+
+      const out = await service.complete('att-1', 'p-1');
+
+      expect(out.status).toBe('COMPLETED');
+      expect(mockRepo.completeAndCreateResult).toHaveBeenCalled();
+    });
+
+    it('refuses to score when the recorded date falls outside the band', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({
+          test: bandedTest,
+          attempt: {
+            ...makeDetail().attempt,
+            birthDate: new Date(`${birthDateYearsAgo(13)}T00:00:00.000Z`),
+          },
+        }),
+      );
+      await expect(service.complete('att-1', 'p-1')).rejects.toThrow(
+        'age_out_of_band',
+      );
+      expect(mockRepo.completeAndCreateResult).not.toHaveBeenCalled();
     });
   });
 });
