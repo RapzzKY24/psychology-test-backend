@@ -1,0 +1,1023 @@
+{
+  "test": {
+    "slug": "cfit-3-form-a",
+    "name": "CFIT Skala 3 Form A (Culture Fair Intelligence Test)",
+    "description": "Tes intelegensi bebas budaya: 50 soal figural dalam 4 subtes (Seri, Klasifikasi, Matriks, Persyaratan). Skor mentah dikonversi ke IQ.",
+    "category": "COGNITIVE",
+    "scorerType": "RIGHT_WRONG_NORM",
+    "price": 50000,
+    "estimatedDurationMin": 13,
+    "timeLimitMin": 13,
+    "normTable": [
+      {
+        "raw": 0,
+        "iq": 38
+      },
+      {
+        "raw": 1,
+        "iq": 40
+      },
+      {
+        "raw": 2,
+        "iq": 43
+      },
+      {
+        "raw": 3,
+        "iq": 45
+      },
+      {
+        "raw": 4,
+        "iq": 47
+      },
+      {
+        "raw": 5,
+        "iq": 48
+      },
+      {
+        "raw": 6,
+        "iq": 52
+      },
+      {
+        "raw": 7,
+        "iq": 55
+      },
+      {
+        "raw": 8,
+        "iq": 57
+      },
+      {
+        "raw": 9,
+        "iq": 60
+      },
+      {
+        "raw": 10,
+        "iq": 65
+      },
+      {
+        "raw": 11,
+        "iq": 67
+      },
+      {
+        "raw": 12,
+        "iq": 70
+      },
+      {
+        "raw": 13,
+        "iq": 72
+      },
+      {
+        "raw": 14,
+        "iq": 75
+      },
+      {
+        "raw": 15,
+        "iq": 78
+      },
+      {
+        "raw": 16,
+        "iq": 81
+      },
+      {
+        "raw": 17,
+        "iq": 85
+      },
+      {
+        "raw": 18,
+        "iq": 88
+      },
+      {
+        "raw": 19,
+        "iq": 91
+      },
+      {
+        "raw": 20,
+        "iq": 94
+      },
+      {
+        "raw": 21,
+        "iq": 96
+      },
+      {
+        "raw": 22,
+        "iq": 100
+      },
+      {
+        "raw": 23,
+        "iq": 103
+      },
+      {
+        "raw": 24,
+        "iq": 106
+      },
+      {
+        "raw": 25,
+        "iq": 109
+      },
+      {
+        "raw": 26,
+        "iq": 113
+      },
+      {
+        "raw": 27,
+        "iq": 116
+      },
+      {
+        "raw": 28,
+        "iq": 119
+      },
+      {
+        "raw": 29,
+        "iq": 121
+      },
+      {
+        "raw": 30,
+        "iq": 124
+      },
+      {
+        "raw": 31,
+        "iq": 128
+      },
+      {
+        "raw": 32,
+        "iq": 131
+      },
+      {
+        "raw": 33,
+        "iq": 133
+      },
+      {
+        "raw": 34,
+        "iq": 137
+      },
+      {
+        "raw": 35,
+        "iq": 140
+      },
+      {
+        "raw": 36,
+        "iq": 142
+      },
+      {
+        "raw": 37,
+        "iq": 145
+      },
+      {
+        "raw": 38,
+        "iq": 149
+      },
+      {
+        "raw": 39,
+        "iq": 152
+      },
+      {
+        "raw": 40,
+        "iq": 155
+      },
+      {
+        "raw": 41,
+        "iq": 157
+      },
+      {
+        "raw": 42,
+        "iq": 161
+      },
+      {
+        "raw": 43,
+        "iq": 165
+      },
+      {
+        "raw": 44,
+        "iq": 167
+      },
+      {
+        "raw": 45,
+        "iq": 169
+      },
+      {
+        "raw": 46,
+        "iq": 173
+      },
+      {
+        "raw": 47,
+        "iq": 176
+      },
+      {
+        "raw": 48,
+        "iq": 179
+      },
+      {
+        "raw": 49,
+        "iq": 183
+      }
+    ]
+  },
+  "items": [
+    {
+      "order": 1,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Seri",
+        "question": "Seri: Perhatikan deret tiga gambar di sebelah kiri. Pilih gambar yang melanjutkan deret (kotak keempat).",
+        "imageUrl": "/uploads/test-items/a0c9bec6-e13f-567b-8dcc-30c9593967b5.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 2,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Seri",
+        "question": "Seri: Perhatikan deret tiga gambar di sebelah kiri. Pilih gambar yang melanjutkan deret (kotak keempat).",
+        "imageUrl": "/uploads/test-items/f0f499e1-adad-5e6c-a70b-3a2a5aa02d0c.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 3,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Seri",
+        "question": "Seri: Perhatikan deret tiga gambar di sebelah kiri. Pilih gambar yang melanjutkan deret (kotak keempat).",
+        "imageUrl": "/uploads/test-items/ff507bec-3ea0-5529-be26-1bf2c6dbe238.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 4,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Seri",
+        "question": "Seri: Perhatikan deret tiga gambar di sebelah kiri. Pilih gambar yang melanjutkan deret (kotak keempat).",
+        "imageUrl": "/uploads/test-items/cca3946f-b5b6-50df-bfe7-fc86cba4655b.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 5,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Seri",
+        "question": "Seri: Perhatikan deret tiga gambar di sebelah kiri. Pilih gambar yang melanjutkan deret (kotak keempat).",
+        "imageUrl": "/uploads/test-items/4738f5b7-8c59-584c-bc6f-7922f8c93ae5.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 6,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Seri",
+        "question": "Seri: Perhatikan deret tiga gambar di sebelah kiri. Pilih gambar yang melanjutkan deret (kotak keempat).",
+        "imageUrl": "/uploads/test-items/8dd551fd-f8ef-5247-bba4-713b2b7aadbc.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 7,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Seri",
+        "question": "Seri: Perhatikan deret tiga gambar di sebelah kiri. Pilih gambar yang melanjutkan deret (kotak keempat).",
+        "imageUrl": "/uploads/test-items/36af41cc-d8d1-516f-aa96-911d45dfd0a0.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 8,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Seri",
+        "question": "Seri: Perhatikan deret tiga gambar di sebelah kiri. Pilih gambar yang melanjutkan deret (kotak keempat).",
+        "imageUrl": "/uploads/test-items/03935bd1-61b4-56e8-93e3-999b031d87b0.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 9,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Seri",
+        "question": "Seri: Perhatikan deret tiga gambar di sebelah kiri. Pilih gambar yang melanjutkan deret (kotak keempat).",
+        "imageUrl": "/uploads/test-items/92ce835a-ea41-51f0-be5c-3349b65c1a77.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [5]
+      }
+    },
+    {
+      "order": 10,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Seri",
+        "question": "Seri: Perhatikan deret tiga gambar di sebelah kiri. Pilih gambar yang melanjutkan deret (kotak keempat).",
+        "imageUrl": "/uploads/test-items/97ed1ec8-7d88-547c-8be4-f34f3339abb6.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 11,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Seri",
+        "question": "Seri: Perhatikan deret tiga gambar di sebelah kiri. Pilih gambar yang melanjutkan deret (kotak keempat).",
+        "imageUrl": "/uploads/test-items/2db41e27-bb71-5787-97dc-56d4268ee41a.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 12,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Seri",
+        "question": "Seri: Perhatikan deret tiga gambar di sebelah kiri. Pilih gambar yang melanjutkan deret (kotak keempat).",
+        "imageUrl": "/uploads/test-items/e6f8c28e-d20c-5029-9ac1-18ebd1dbaba8.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 13,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Seri",
+        "question": "Seri: Perhatikan deret tiga gambar di sebelah kiri. Pilih gambar yang melanjutkan deret (kotak keempat).",
+        "imageUrl": "/uploads/test-items/8c249f53-0e8a-5900-82b0-58ec25abac33.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 14,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Klasifikasi",
+        "question": "Klasifikasi: Pilih DUA gambar yang berbeda dari gambar lainnya pada baris ini.",
+        "imageUrl": "/uploads/test-items/8694f0d5-f953-5eed-8875-11946b39205f.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [1, 4]
+      }
+    },
+    {
+      "order": 15,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Klasifikasi",
+        "question": "Klasifikasi: Pilih DUA gambar yang berbeda dari gambar lainnya pada baris ini.",
+        "imageUrl": "/uploads/test-items/5724cd0f-421f-5b74-a47e-1dbd600bc9be.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [0, 4]
+      }
+    },
+    {
+      "order": 16,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Klasifikasi",
+        "question": "Klasifikasi: Pilih DUA gambar yang berbeda dari gambar lainnya pada baris ini.",
+        "imageUrl": "/uploads/test-items/49d46cbc-93a0-5d05-af8a-edc6cab71f78.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [0, 3]
+      }
+    },
+    {
+      "order": 17,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Klasifikasi",
+        "question": "Klasifikasi: Pilih DUA gambar yang berbeda dari gambar lainnya pada baris ini.",
+        "imageUrl": "/uploads/test-items/656dc509-c51b-5db8-96c2-ede99c2a15f4.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [2, 4]
+      }
+    },
+    {
+      "order": 18,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Klasifikasi",
+        "question": "Klasifikasi: Pilih DUA gambar yang berbeda dari gambar lainnya pada baris ini.",
+        "imageUrl": "/uploads/test-items/4b9f9958-e6ea-54f7-a908-dcec289d2de8.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [1, 4]
+      }
+    },
+    {
+      "order": 19,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Klasifikasi",
+        "question": "Klasifikasi: Pilih DUA gambar yang berbeda dari gambar lainnya pada baris ini.",
+        "imageUrl": "/uploads/test-items/e4d0bc7c-d7bd-566f-a254-bc603dcbd504.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [0, 3]
+      }
+    },
+    {
+      "order": 20,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Klasifikasi",
+        "question": "Klasifikasi: Pilih DUA gambar yang berbeda dari gambar lainnya pada baris ini.",
+        "imageUrl": "/uploads/test-items/84d9bc09-7fe9-594d-b3c5-f246819694d5.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [1, 4]
+      }
+    },
+    {
+      "order": 21,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Klasifikasi",
+        "question": "Klasifikasi: Pilih DUA gambar yang berbeda dari gambar lainnya pada baris ini.",
+        "imageUrl": "/uploads/test-items/b294df7c-010a-5619-9c7b-ee22c310ba73.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [1, 4]
+      }
+    },
+    {
+      "order": 22,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Klasifikasi",
+        "question": "Klasifikasi: Pilih DUA gambar yang berbeda dari gambar lainnya pada baris ini.",
+        "imageUrl": "/uploads/test-items/15e79812-79fb-548c-9501-d2e3ae8fc9e7.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [0, 3]
+      }
+    },
+    {
+      "order": 23,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Klasifikasi",
+        "question": "Klasifikasi: Pilih DUA gambar yang berbeda dari gambar lainnya pada baris ini.",
+        "imageUrl": "/uploads/test-items/6f94fde3-040e-5f43-b98f-54709f83a16f.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [1, 3]
+      }
+    },
+    {
+      "order": 24,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Klasifikasi",
+        "question": "Klasifikasi: Pilih DUA gambar yang berbeda dari gambar lainnya pada baris ini.",
+        "imageUrl": "/uploads/test-items/95c17f17-174a-5146-a427-66b27d5b8140.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [0, 4]
+      }
+    },
+    {
+      "order": 25,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Klasifikasi",
+        "question": "Klasifikasi: Pilih DUA gambar yang berbeda dari gambar lainnya pada baris ini.",
+        "imageUrl": "/uploads/test-items/8180d409-aff5-5b51-b83e-6eb52adf2cfc.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [2, 3]
+      }
+    },
+    {
+      "order": 26,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Klasifikasi",
+        "question": "Klasifikasi: Pilih DUA gambar yang berbeda dari gambar lainnya pada baris ini.",
+        "imageUrl": "/uploads/test-items/44a8f5c9-a48f-5a1d-a7e1-812b9d934786.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [1, 2]
+      }
+    },
+    {
+      "order": 27,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Klasifikasi",
+        "question": "Klasifikasi: Pilih DUA gambar yang berbeda dari gambar lainnya pada baris ini.",
+        "imageUrl": "/uploads/test-items/2bf5d589-951e-5288-9d98-0417cd885c69.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [0, 1]
+      }
+    },
+    {
+      "order": 28,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Matriks",
+        "question": "Matriks: Pilih gambar yang mengisi kotak kosong pada matriks.",
+        "imageUrl": "/uploads/test-items/0812806f-0104-5edf-940b-cddfa5f8a2c3.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 29,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Matriks",
+        "question": "Matriks: Pilih gambar yang mengisi kotak kosong pada matriks.",
+        "imageUrl": "/uploads/test-items/43c6e71d-b97c-5424-886f-aa6f94838cbe.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 30,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Matriks",
+        "question": "Matriks: Pilih gambar yang mengisi kotak kosong pada matriks.",
+        "imageUrl": "/uploads/test-items/e2663a3c-9a26-515c-8dda-38a182ccdb43.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 31,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Matriks",
+        "question": "Matriks: Pilih gambar yang mengisi kotak kosong pada matriks.",
+        "imageUrl": "/uploads/test-items/ed44733e-f75b-5b9c-ba46-099b9fd716bd.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 32,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Matriks",
+        "question": "Matriks: Pilih gambar yang mengisi kotak kosong pada matriks.",
+        "imageUrl": "/uploads/test-items/835b6ebb-6e28-5ae5-958c-c8ba7c5cdef5.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 33,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Matriks",
+        "question": "Matriks: Pilih gambar yang mengisi kotak kosong pada matriks.",
+        "imageUrl": "/uploads/test-items/b29ecf74-4e40-5613-8274-d5bc7a97f5aa.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 34,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Matriks",
+        "question": "Matriks: Pilih gambar yang mengisi kotak kosong pada matriks.",
+        "imageUrl": "/uploads/test-items/2f04fec5-427b-5daa-a9ea-d8135ee46351.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 35,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Matriks",
+        "question": "Matriks: Pilih gambar yang mengisi kotak kosong pada matriks.",
+        "imageUrl": "/uploads/test-items/53b730a4-1c6e-56a6-9312-561c134ad4de.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 36,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Matriks",
+        "question": "Matriks: Pilih gambar yang mengisi kotak kosong pada matriks.",
+        "imageUrl": "/uploads/test-items/88959322-0b35-563d-9e94-33e00d19241d.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 37,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Matriks",
+        "question": "Matriks: Pilih gambar yang mengisi kotak kosong pada matriks.",
+        "imageUrl": "/uploads/test-items/5c64b09c-0062-5c08-abb7-961b40e1ebd3.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 38,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Matriks",
+        "question": "Matriks: Pilih gambar yang mengisi kotak kosong pada matriks.",
+        "imageUrl": "/uploads/test-items/eb5af197-e557-574b-bdc1-89049f184fb8.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [5]
+      }
+    },
+    {
+      "order": 39,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Matriks",
+        "question": "Matriks: Pilih gambar yang mengisi kotak kosong pada matriks.",
+        "imageUrl": "/uploads/test-items/5c49414e-038c-5921-9b70-33696df774d4.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 40,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Matriks",
+        "question": "Matriks: Pilih gambar yang mengisi kotak kosong pada matriks.",
+        "imageUrl": "/uploads/test-items/e64f1da7-ea16-5a2c-b607-d81ad091de94.png",
+        "options": ["a", "b", "c", "d", "e", "f"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 41,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Persyaratan",
+        "question": "Persyaratan: Titik pada gambar kiri berada di dalam bujur sangkar dan di dalam lingkaran. Pilih gambar yang titiknya juga berada di dalam bujur sangkar dan di dalam lingkaran.",
+        "imageUrl": "/uploads/test-items/c3103592-6567-54e8-b924-870a1a969dcc.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 42,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Persyaratan",
+        "question": "Persyaratan: Titik pada gambar kiri berada di dalam bujur sangkar dan di dalam lingkaran. Pilih gambar yang titiknya juga berada di dalam bujur sangkar dan di dalam lingkaran.",
+        "imageUrl": "/uploads/test-items/06a6fce0-4dfc-5326-af5d-f3e040052a51.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 43,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Persyaratan",
+        "question": "Persyaratan: Titik pada gambar kiri berada di dalam bujur sangkar dan di dalam lingkaran. Pilih gambar yang titiknya juga berada di dalam bujur sangkar dan di dalam lingkaran.",
+        "imageUrl": "/uploads/test-items/69b6fa28-611b-5a12-b085-39f227e883cd.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 44,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Persyaratan",
+        "question": "Persyaratan: Titik pada gambar kiri berada di dalam bujur sangkar dan di dalam lingkaran. Pilih gambar yang titiknya juga berada di dalam bujur sangkar dan di dalam lingkaran.",
+        "imageUrl": "/uploads/test-items/8a20ce40-3393-552f-8034-773625eea1cd.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 45,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Persyaratan",
+        "question": "Persyaratan: Titik pada gambar kiri berada di dalam bujur sangkar dan di dalam lingkaran. Pilih gambar yang titiknya juga berada di dalam bujur sangkar dan di dalam lingkaran.",
+        "imageUrl": "/uploads/test-items/12676cfd-25f2-5cdc-8a68-bcfd130cc46d.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 46,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Persyaratan",
+        "question": "Persyaratan: Titik pada gambar kiri berada di dalam bujur sangkar dan di dalam lingkaran. Pilih gambar yang titiknya juga berada di dalam bujur sangkar dan di dalam lingkaran.",
+        "imageUrl": "/uploads/test-items/dbb23b88-7fad-56ad-b1e7-b2e414d9d6de.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 47,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Persyaratan",
+        "question": "Persyaratan: Titik pada gambar kiri berada di dalam bujur sangkar dan di dalam lingkaran. Pilih gambar yang titiknya juga berada di dalam bujur sangkar dan di dalam lingkaran.",
+        "imageUrl": "/uploads/test-items/e7a5bc57-2b84-5190-b60e-7dadf4f42cd3.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 48,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Persyaratan",
+        "question": "Persyaratan: Titik pada gambar kiri berada di dalam bujur sangkar dan di dalam lingkaran. Pilih gambar yang titiknya juga berada di dalam bujur sangkar dan di dalam lingkaran.",
+        "imageUrl": "/uploads/test-items/4de85ed6-cb06-52b1-8d6d-d9d38013292a.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 49,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Persyaratan",
+        "question": "Persyaratan: Titik pada gambar kiri berada di dalam bujur sangkar dan di dalam lingkaran. Pilih gambar yang titiknya juga berada di dalam bujur sangkar dan di dalam lingkaran.",
+        "imageUrl": "/uploads/test-items/2e5df082-7d29-5b24-950e-8695977790e2.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 50,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Persyaratan",
+        "question": "Persyaratan: Titik pada gambar kiri berada di dalam bujur sangkar dan di dalam lingkaran. Pilih gambar yang titiknya juga berada di dalam bujur sangkar dan di dalam lingkaran.",
+        "imageUrl": "/uploads/test-items/7e6bb8dd-f647-5704-bf8a-ef1d04f5c039.png",
+        "options": ["a", "b", "c", "d", "e"],
+        "correctIndexes": [3]
+      }
+    }
+  ],
+  "interpretations": [
+    {
+      "patternCode": "RAW_0",
+      "title": "Skor 0 dari 50 — IQ 38 (Keterbatasan Sedang)",
+      "body": "Kemampuan penalaran umum sangat terbatas. Diperlukan pendampingan intensif dan asesmen lanjutan oleh psikolog sebelum menarik kesimpulan."
+    },
+    {
+      "patternCode": "RAW_1",
+      "title": "Skor 1 dari 50 — IQ 40 (Keterbatasan Sedang)",
+      "body": "Kemampuan penalaran umum sangat terbatas. Diperlukan pendampingan intensif dan asesmen lanjutan oleh psikolog sebelum menarik kesimpulan."
+    },
+    {
+      "patternCode": "RAW_2",
+      "title": "Skor 2 dari 50 — IQ 43 (Keterbatasan Sedang)",
+      "body": "Kemampuan penalaran umum sangat terbatas. Diperlukan pendampingan intensif dan asesmen lanjutan oleh psikolog sebelum menarik kesimpulan."
+    },
+    {
+      "patternCode": "RAW_3",
+      "title": "Skor 3 dari 50 — IQ 45 (Keterbatasan Sedang)",
+      "body": "Kemampuan penalaran umum sangat terbatas. Diperlukan pendampingan intensif dan asesmen lanjutan oleh psikolog sebelum menarik kesimpulan."
+    },
+    {
+      "patternCode": "RAW_4",
+      "title": "Skor 4 dari 50 — IQ 47 (Keterbatasan Sedang)",
+      "body": "Kemampuan penalaran umum sangat terbatas. Diperlukan pendampingan intensif dan asesmen lanjutan oleh psikolog sebelum menarik kesimpulan."
+    },
+    {
+      "patternCode": "RAW_5",
+      "title": "Skor 5 dari 50 — IQ 48 (Keterbatasan Sedang)",
+      "body": "Kemampuan penalaran umum sangat terbatas. Diperlukan pendampingan intensif dan asesmen lanjutan oleh psikolog sebelum menarik kesimpulan."
+    },
+    {
+      "patternCode": "RAW_6",
+      "title": "Skor 6 dari 50 — IQ 52 (Keterbatasan Ringan)",
+      "body": "Kemampuan penalaran umum terbatas. Disarankan pendampingan pada tugas yang menuntut analisis bertahap dan pemecahan masalah konkret."
+    },
+    {
+      "patternCode": "RAW_7",
+      "title": "Skor 7 dari 50 — IQ 55 (Keterbatasan Ringan)",
+      "body": "Kemampuan penalaran umum terbatas. Disarankan pendampingan pada tugas yang menuntut analisis bertahap dan pemecahan masalah konkret."
+    },
+    {
+      "patternCode": "RAW_8",
+      "title": "Skor 8 dari 50 — IQ 57 (Keterbatasan Ringan)",
+      "body": "Kemampuan penalaran umum terbatas. Disarankan pendampingan pada tugas yang menuntut analisis bertahap dan pemecahan masalah konkret."
+    },
+    {
+      "patternCode": "RAW_9",
+      "title": "Skor 9 dari 50 — IQ 60 (Keterbatasan Ringan)",
+      "body": "Kemampuan penalaran umum terbatas. Disarankan pendampingan pada tugas yang menuntut analisis bertahap dan pemecahan masalah konkret."
+    },
+    {
+      "patternCode": "RAW_10",
+      "title": "Skor 10 dari 50 — IQ 65 (Keterbatasan Ringan)",
+      "body": "Kemampuan penalaran umum terbatas. Disarankan pendampingan pada tugas yang menuntut analisis bertahap dan pemecahan masalah konkret."
+    },
+    {
+      "patternCode": "RAW_11",
+      "title": "Skor 11 dari 50 — IQ 67 (Keterbatasan Ringan)",
+      "body": "Kemampuan penalaran umum terbatas. Disarankan pendampingan pada tugas yang menuntut analisis bertahap dan pemecahan masalah konkret."
+    },
+    {
+      "patternCode": "RAW_12",
+      "title": "Skor 12 dari 50 — IQ 70 (Batas Bawah (Borderline))",
+      "body": "Kemampuan penalaran umum berada pada batas bawah. Diperlukan latihan terarah pada pengamatan bentuk, arah, dan pencerminan sebelum mengulang tes ini."
+    },
+    {
+      "patternCode": "RAW_13",
+      "title": "Skor 13 dari 50 — IQ 72 (Batas Bawah (Borderline))",
+      "body": "Kemampuan penalaran umum berada pada batas bawah. Diperlukan latihan terarah pada pengamatan bentuk, arah, dan pencerminan sebelum mengulang tes ini."
+    },
+    {
+      "patternCode": "RAW_14",
+      "title": "Skor 14 dari 50 — IQ 75 (Batas Bawah (Borderline))",
+      "body": "Kemampuan penalaran umum berada pada batas bawah. Diperlukan latihan terarah pada pengamatan bentuk, arah, dan pencerminan sebelum mengulang tes ini."
+    },
+    {
+      "patternCode": "RAW_15",
+      "title": "Skor 15 dari 50 — IQ 78 (Batas Bawah (Borderline))",
+      "body": "Kemampuan penalaran umum berada pada batas bawah. Diperlukan latihan terarah pada pengamatan bentuk, arah, dan pencerminan sebelum mengulang tes ini."
+    },
+    {
+      "patternCode": "RAW_16",
+      "title": "Skor 16 dari 50 — IQ 81 (Rata-rata Bawah)",
+      "body": "Kemampuan penalaran umum sedikit di bawah rata-rata. Masih sering terpaku pada bentuk keseluruhan dan belum memperhatikan arah, jumlah, atau posisi unsur."
+    },
+    {
+      "patternCode": "RAW_17",
+      "title": "Skor 17 dari 50 — IQ 85 (Rata-rata Bawah)",
+      "body": "Kemampuan penalaran umum sedikit di bawah rata-rata. Masih sering terpaku pada bentuk keseluruhan dan belum memperhatikan arah, jumlah, atau posisi unsur."
+    },
+    {
+      "patternCode": "RAW_18",
+      "title": "Skor 18 dari 50 — IQ 88 (Rata-rata Bawah)",
+      "body": "Kemampuan penalaran umum sedikit di bawah rata-rata. Masih sering terpaku pada bentuk keseluruhan dan belum memperhatikan arah, jumlah, atau posisi unsur."
+    },
+    {
+      "patternCode": "RAW_19",
+      "title": "Skor 19 dari 50 — IQ 91 (Rata-rata)",
+      "body": "Kemampuan penalaran umum berada pada taraf rata-rata. Soal rutin diselesaikan dengan baik; soal yang menuntut kombinasi beberapa aturan perlu waktu lebih."
+    },
+    {
+      "patternCode": "RAW_20",
+      "title": "Skor 20 dari 50 — IQ 94 (Rata-rata)",
+      "body": "Kemampuan penalaran umum berada pada taraf rata-rata. Soal rutin diselesaikan dengan baik; soal yang menuntut kombinasi beberapa aturan perlu waktu lebih."
+    },
+    {
+      "patternCode": "RAW_21",
+      "title": "Skor 21 dari 50 — IQ 96 (Rata-rata)",
+      "body": "Kemampuan penalaran umum berada pada taraf rata-rata. Soal rutin diselesaikan dengan baik; soal yang menuntut kombinasi beberapa aturan perlu waktu lebih."
+    },
+    {
+      "patternCode": "RAW_22",
+      "title": "Skor 22 dari 50 — IQ 100 (Rata-rata)",
+      "body": "Kemampuan penalaran umum berada pada taraf rata-rata. Soal rutin diselesaikan dengan baik; soal yang menuntut kombinasi beberapa aturan perlu waktu lebih."
+    },
+    {
+      "patternCode": "RAW_23",
+      "title": "Skor 23 dari 50 — IQ 103 (Rata-rata)",
+      "body": "Kemampuan penalaran umum berada pada taraf rata-rata. Soal rutin diselesaikan dengan baik; soal yang menuntut kombinasi beberapa aturan perlu waktu lebih."
+    },
+    {
+      "patternCode": "RAW_24",
+      "title": "Skor 24 dari 50 — IQ 106 (Rata-rata)",
+      "body": "Kemampuan penalaran umum berada pada taraf rata-rata. Soal rutin diselesaikan dengan baik; soal yang menuntut kombinasi beberapa aturan perlu waktu lebih."
+    },
+    {
+      "patternCode": "RAW_25",
+      "title": "Skor 25 dari 50 — IQ 109 (Rata-rata)",
+      "body": "Kemampuan penalaran umum berada pada taraf rata-rata. Soal rutin diselesaikan dengan baik; soal yang menuntut kombinasi beberapa aturan perlu waktu lebih."
+    },
+    {
+      "patternCode": "RAW_26",
+      "title": "Skor 26 dari 50 — IQ 113 (Rata-rata Atas)",
+      "body": "Kemampuan penalaran umum sedikit di atas rata-rata. Pola yang jelas dikenali baik, namun soal dengan dua perubahan sekaligus masih menyita waktu."
+    },
+    {
+      "patternCode": "RAW_27",
+      "title": "Skor 27 dari 50 — IQ 116 (Rata-rata Atas)",
+      "body": "Kemampuan penalaran umum sedikit di atas rata-rata. Pola yang jelas dikenali baik, namun soal dengan dua perubahan sekaligus masih menyita waktu."
+    },
+    {
+      "patternCode": "RAW_28",
+      "title": "Skor 28 dari 50 — IQ 119 (Rata-rata Atas)",
+      "body": "Kemampuan penalaran umum sedikit di atas rata-rata. Pola yang jelas dikenali baik, namun soal dengan dua perubahan sekaligus masih menyita waktu."
+    },
+    {
+      "patternCode": "RAW_29",
+      "title": "Skor 29 dari 50 — IQ 121 (Superior)",
+      "body": "Kemampuan penalaran umum di atas rata-rata. Sebagian besar pola dikenali dengan tepat; kesalahan muncul terutama pada soal terakhir yang paling kompleks."
+    },
+    {
+      "patternCode": "RAW_30",
+      "title": "Skor 30 dari 50 — IQ 124 (Superior)",
+      "body": "Kemampuan penalaran umum di atas rata-rata. Sebagian besar pola dikenali dengan tepat; kesalahan muncul terutama pada soal terakhir yang paling kompleks."
+    },
+    {
+      "patternCode": "RAW_31",
+      "title": "Skor 31 dari 50 — IQ 128 (Superior)",
+      "body": "Kemampuan penalaran umum di atas rata-rata. Sebagian besar pola dikenali dengan tepat; kesalahan muncul terutama pada soal terakhir yang paling kompleks."
+    },
+    {
+      "patternCode": "RAW_32",
+      "title": "Skor 32 dari 50 — IQ 131 (Superior)",
+      "body": "Kemampuan penalaran umum di atas rata-rata. Sebagian besar pola dikenali dengan tepat; kesalahan muncul terutama pada soal terakhir yang paling kompleks."
+    },
+    {
+      "patternCode": "RAW_33",
+      "title": "Skor 33 dari 50 — IQ 133 (Superior)",
+      "body": "Kemampuan penalaran umum di atas rata-rata. Sebagian besar pola dikenali dengan tepat; kesalahan muncul terutama pada soal terakhir yang paling kompleks."
+    },
+    {
+      "patternCode": "RAW_34",
+      "title": "Skor 34 dari 50 — IQ 137 (Superior)",
+      "body": "Kemampuan penalaran umum di atas rata-rata. Sebagian besar pola dikenali dengan tepat; kesalahan muncul terutama pada soal terakhir yang paling kompleks."
+    },
+    {
+      "patternCode": "RAW_35",
+      "title": "Skor 35 dari 50 — IQ 140 (Sangat Superior)",
+      "body": "Kemampuan penalaran umum jauh di atas rata-rata. Mampu menangkap pola berlapis dan menyelesaikan soal yang menuntut pembayaran beberapa langkah sekaligus."
+    },
+    {
+      "patternCode": "RAW_36",
+      "title": "Skor 36 dari 50 — IQ 142 (Sangat Superior)",
+      "body": "Kemampuan penalaran umum jauh di atas rata-rata. Mampu menangkap pola berlapis dan menyelesaikan soal yang menuntut pembayaran beberapa langkah sekaligus."
+    },
+    {
+      "patternCode": "RAW_37",
+      "title": "Skor 37 dari 50 — IQ 145 (Sangat Superior)",
+      "body": "Kemampuan penalaran umum jauh di atas rata-rata. Mampu menangkap pola berlapis dan menyelesaikan soal yang menuntut pembayaran beberapa langkah sekaligus."
+    },
+    {
+      "patternCode": "RAW_38",
+      "title": "Skor 38 dari 50 — IQ 149 (Sangat Superior)",
+      "body": "Kemampuan penalaran umum jauh di atas rata-rata. Mampu menangkap pola berlapis dan menyelesaikan soal yang menuntut pembayaran beberapa langkah sekaligus."
+    },
+    {
+      "patternCode": "RAW_39",
+      "title": "Skor 39 dari 50 — IQ 152 (Sangat Superior)",
+      "body": "Kemampuan penalaran umum jauh di atas rata-rata. Mampu menangkap pola berlapis dan menyelesaikan soal yang menuntut pembayaran beberapa langkah sekaligus."
+    },
+    {
+      "patternCode": "RAW_40",
+      "title": "Skor 40 dari 50 — IQ 155 (Sangat Superior)",
+      "body": "Kemampuan penalaran umum jauh di atas rata-rata. Mampu menangkap pola berlapis dan menyelesaikan soal yang menuntut pembayaran beberapa langkah sekaligus."
+    },
+    {
+      "patternCode": "RAW_41",
+      "title": "Skor 41 dari 50 — IQ 157 (Sangat Superior)",
+      "body": "Kemampuan penalaran umum jauh di atas rata-rata. Mampu menangkap pola berlapis dan menyelesaikan soal yang menuntut pembayaran beberapa langkah sekaligus."
+    },
+    {
+      "patternCode": "RAW_42",
+      "title": "Skor 42 dari 50 — IQ 161 (Sangat Superior)",
+      "body": "Kemampuan penalaran umum jauh di atas rata-rata. Mampu menangkap pola berlapis dan menyelesaikan soal yang menuntut pembayaran beberapa langkah sekaligus."
+    },
+    {
+      "patternCode": "RAW_43",
+      "title": "Skor 43 dari 50 — IQ 165 (Sangat Superior)",
+      "body": "Kemampuan penalaran umum jauh di atas rata-rata. Mampu menangkap pola berlapis dan menyelesaikan soal yang menuntut pembayaran beberapa langkah sekaligus."
+    },
+    {
+      "patternCode": "RAW_44",
+      "title": "Skor 44 dari 50 — IQ 167 (Sangat Superior)",
+      "body": "Kemampuan penalaran umum jauh di atas rata-rata. Mampu menangkap pola berlapis dan menyelesaikan soal yang menuntut pembayaran beberapa langkah sekaligus."
+    },
+    {
+      "patternCode": "RAW_45",
+      "title": "Skor 45 dari 50 — IQ 169 (Sangat Superior)",
+      "body": "Kemampuan penalaran umum jauh di atas rata-rata. Mampu menangkap pola berlapis dan menyelesaikan soal yang menuntut pembayaran beberapa langkah sekaligus."
+    },
+    {
+      "patternCode": "RAW_46",
+      "title": "Skor 46 dari 50 — IQ 173 (Genius)",
+      "body": "Kemampuan penalaran umum berada jauh di atas rata-rata. Pola, hubungan antarbentuk, dan aturan logis dikenali hampir tanpa kesalahan meski di bawah tekanan waktu."
+    },
+    {
+      "patternCode": "RAW_47",
+      "title": "Skor 47 dari 50 — IQ 176 (Genius)",
+      "body": "Kemampuan penalaran umum berada jauh di atas rata-rata. Pola, hubungan antarbentuk, dan aturan logis dikenali hampir tanpa kesalahan meski di bawah tekanan waktu."
+    },
+    {
+      "patternCode": "RAW_48",
+      "title": "Skor 48 dari 50 — IQ 179 (Genius)",
+      "body": "Kemampuan penalaran umum berada jauh di atas rata-rata. Pola, hubungan antarbentuk, dan aturan logis dikenali hampir tanpa kesalahan meski di bawah tekanan waktu."
+    },
+    {
+      "patternCode": "RAW_49",
+      "title": "Skor 49 dari 50 — IQ 183 (Genius)",
+      "body": "Kemampuan penalaran umum berada jauh di atas rata-rata. Pola, hubungan antarbentuk, dan aturan logis dikenali hampir tanpa kesalahan meski di bawah tekanan waktu."
+    },
+    {
+      "patternCode": "RAW_50",
+      "title": "Skor 50 dari 50 — IQ 183 (Genius)",
+      "body": "Kemampuan penalaran umum berada jauh di atas rata-rata. Pola, hubungan antarbentuk, dan aturan logis dikenali hampir tanpa kesalahan meski di bawah tekanan waktu."
+    }
+  ]
+}
