@@ -30,6 +30,7 @@ function document(overrides: Partial<ReportDocument> = {}): ReportDocument {
     id: 'r1',
     participantId: 'p1',
     number: '050/PSIKOTES/YM/XI/2026',
+    revision: 1,
     verifyCode: 'ABCD123456',
     status: 'ACTIVE',
     snapshot: {

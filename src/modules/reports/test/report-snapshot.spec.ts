@@ -37,6 +37,8 @@ const report: ReportRecord = {
   ratings: { 'intellectual.logic': 'B' },
   narratives: { overall: 'Baik.' },
   recommendation: 'LAYAK',
+  number: null,
+  issuedAt: null,
   updatedAt: new Date(),
 };
 
