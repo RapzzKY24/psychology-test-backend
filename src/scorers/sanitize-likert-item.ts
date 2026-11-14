@@ -6,8 +6,9 @@ import {
 
 /**
  * What the participant may see: the statement and the rating scale it is
- * answered on. `scale` and `reverse` are the key — they say which scale the
- * rating feeds and whether it is flipped — and must never leave the server.
+ * answered on. `scale`, `section` and `reverse` are the key — they say which
+ * scale the rating feeds, which part of the inventory the item belongs to and
+ * whether it is flipped — and must never leave the server.
  */
 export function sanitizeLikertItem(
   content: unknown,
@@ -23,7 +24,11 @@ export function sanitizeLikertItem(
     max: range.max,
   };
   // The label of each point is the instrument's, not the family's: without it
-  // a 0–3 scale reads as four anonymous numbers.
-  if (config.ratingLabels) sanitized.labels = config.ratingLabels;
+  // a 0–3 scale reads as four anonymous numbers. A multi-section inventory
+  // words the same points differently per section (MSAI).
+  const labels =
+    (item.section && config.sectionLabels?.[item.section]) ??
+    config.ratingLabels;
+  if (labels) sanitized.labels = labels;
   return sanitized;
 }

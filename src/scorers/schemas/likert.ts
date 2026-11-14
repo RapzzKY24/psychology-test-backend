@@ -15,6 +15,19 @@ const ScaleSchema = z
   .regex(/^[A-Z][A-Z0-9]*$/, 'scale must start with a letter');
 
 /**
+ * A part of a multi-section inventory. MSAI asks the same twelve roles three
+ * ways (behaviour, effectiveness, importance) and only one of them decides the
+ * profile, so the items have to say which part they belong to.
+ */
+const SectionSchema = z
+  .string()
+  .trim()
+  .toUpperCase()
+  .min(1)
+  .max(20)
+  .regex(/^[A-Z][A-Z0-9]*$/, 'section must start with a letter');
+
+/**
  * A statement the participant rates on a numeric scale. `scale` is the hidden
  * key: it says which scale the rating feeds. `reverse` flips the rating before
  * it is added (`min + max - rating`), which is how the BFI-44 balances its
@@ -24,6 +37,8 @@ export const LikertItemContentSchema = z.object({
   text: z.string().trim().min(1).max(2000),
   scale: ScaleSchema,
   reverse: z.boolean().optional(),
+  /** Optional part of a multi-section inventory; see `SectionSchema`. */
+  section: SectionSchema.optional(),
 });
 
 export type LikertItemContent = z.infer<typeof LikertItemContentSchema>;
@@ -69,6 +84,23 @@ export const LikertConfigSchema = z
       .max(11)
       .optional(),
     /**
+     * Per-section wording of the rating points, when the sections use different
+     * anchors (MSAI: "Strongly Agree" vs "Outstanding" vs "Critically
+     * Important"). `ratingLabels` stays the fallback for items without a
+     * section.
+     */
+    sectionLabels: z
+      .record(
+        z.string().trim().toUpperCase(),
+        z.array(z.string().trim().min(1).max(60)).min(2).max(11),
+      )
+      .optional(),
+    /**
+     * Section whose scales become the result (`scores.scales`, `type`,
+     * `patternCode`). Defaults to the first section in item order.
+     */
+    patternSection: SectionSchema.optional(),
+    /**
      * Score bands, checked against the **percent** of the scale maximum: the
      * first row whose `max` covers it wins, the last row is the catch-all.
      */
@@ -82,15 +114,25 @@ export const LikertConfigSchema = z
       .optional(),
   })
   .superRefine((config, ctx) => {
-    if (!config.ratingLabels) return;
     const range = config.ratingRange ?? DEFAULT_RATING_RANGE;
     const expected = range.max - range.min + 1;
-    if (config.ratingLabels.length !== expected) {
+    if (config.ratingLabels && config.ratingLabels.length !== expected) {
       ctx.addIssue({
         code: 'custom',
         path: ['ratingLabels'],
         message: `must have ${expected} labels for a ${range.min}-${range.max} scale`,
       });
+    }
+    for (const [section, labels] of Object.entries(
+      config.sectionLabels ?? {},
+    )) {
+      if (labels.length !== expected) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['sectionLabels', section],
+          message: `must have ${expected} labels for a ${range.min}-${range.max} scale`,
+        });
+      }
     }
   });
 
@@ -141,25 +183,61 @@ export function bandCode(label: string): string {
 }
 
 /** Scales in the order they first appear in the item list (the tie-breaker). */
-export function likertScales(items: { content: unknown }[]): string[] {
+export function likertScales(
+  items: { content: unknown }[],
+  section?: string,
+): string[] {
   const seen = new Set<string>();
   for (const item of items) {
     const parsed = parseLikertItem(item.content);
-    if (parsed) seen.add(parsed.scale);
+    if (!parsed) continue;
+    if (section !== undefined && parsed.section !== section) continue;
+    seen.add(parsed.scale);
   }
   return [...seen];
+}
+
+/** Sections in the order they first appear; empty when the test has none. */
+export function likertSections(items: { content: unknown }[]): string[] {
+  const seen = new Set<string>();
+  for (const item of items) {
+    const parsed = parseLikertItem(item.content);
+    if (parsed?.section) seen.add(parsed.section);
+  }
+  return [...seen];
+}
+
+/**
+ * The section whose scales are the result: `scoringConfig.patternSection` when
+ * it names a section the items actually use, otherwise the first one.
+ */
+export function likertPatternSection(
+  items: { content: unknown }[],
+  scoringConfig?: unknown,
+): string | undefined {
+  const sections = likertSections(items);
+  if (sections.length === 0) return undefined;
+  const wanted = parseLikertConfig(scoringConfig).patternSection;
+  return wanted && sections.includes(wanted) ? wanted : sections[0];
 }
 
 /**
  * Every pattern code this item set can produce. With bands, each scale can land
  * in any band (`E_RENDAH` … `E_TINGGI`); without them the scale itself is the
  * code. Publish uses it to demand one interpretation per code.
+ *
+ * Only the pattern section counts: MSAI's effectiveness and importance scales
+ * share the role names, so including them would ask for the same 12 codes three
+ * times over.
  */
 export function likertPatternCodes(
   items: { content: unknown }[],
   scoringConfig?: unknown,
 ): string[] {
-  const scales = likertScales(items);
+  const scales = likertScales(
+    items,
+    likertPatternSection(items, scoringConfig),
+  );
   const bands = parseLikertConfig(scoringConfig).bands;
   if (!bands?.length) return scales;
 

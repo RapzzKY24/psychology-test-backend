@@ -1,0 +1,786 @@
+{
+  "test": {
+    "slug": "msai",
+    "name": "MSAI — Managerial Skills and Abilities Inventory",
+    "description": "Inventaris 85 butir tentang perilaku manajerial (Quinn). Dua belas peran dinilai tiga cara: perilaku (60 butir), efektivitas (13 butir) dan kepentingan bagi jabatan (12 butir). Profil diambil dari bagian perilaku; dua bagian lain menjadi pembanding.",
+    "category": "WORK_STYLE",
+    "scorerType": "LIKERT",
+    "price": 75000,
+    "estimatedDurationMin": 25,
+    "timeLimitMin": null,
+    "scoringConfig": {
+      "ratingRange": {
+        "min": 1,
+        "max": 5
+      },
+      "patternSection": "BEHAVIOUR",
+      "sectionLabels": {
+        "BEHAVIOUR": [
+          "Strongly Disagree",
+          "Moderately Disagree",
+          "Slightly Agree and/or Slightly Disagree",
+          "Moderately Agree",
+          "Strongly Agree"
+        ],
+        "EFFECTIVENESS": [
+          "Poor",
+          "Marginal",
+          "Average",
+          "Very Good",
+          "Outstanding"
+        ],
+        "IMPORTANCE": [
+          "Little Importance",
+          "Of Some Importance",
+          "Moderately Important",
+          "Very Important",
+          "Critically Important"
+        ]
+      }
+    }
+  },
+  "items": [
+    {
+      "order": 1,
+      "content": {
+        "text": "I communicate in a supportive way when people in my unit share their problems with me.",
+        "scale": "RELATIONSHIP",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 2,
+      "content": {
+        "text": "I encourage others in my unit to generate new ideas and methods.",
+        "scale": "INNOVATION",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 3,
+      "content": {
+        "text": "I motivate and energise others to do a better job.",
+        "scale": "ENERGISING",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 4,
+      "content": {
+        "text": "I keep close track of how my unit is performing.",
+        "scale": "CONTROL",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 5,
+      "content": {
+        "text": "I regularly coach followers to improve their management skills so they can achieve higher levels of performance.",
+        "scale": "DEVELOPMENT",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 6,
+      "content": {
+        "text": "I insist on intense hard work and high productivity from my followers.",
+        "scale": "ENERGISING",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 7,
+      "content": {
+        "text": "I establish ambitious goals that challenge followers to achieve performance levels above the standard.",
+        "scale": "ENERGISING",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 8,
+      "content": {
+        "text": "I generate, or help others obtain, the resources necessary to implement their innovative ideas.",
+        "scale": "INNOVATION",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 9,
+      "content": {
+        "text": "When someone comes up with a new idea, I help sponsor them to develop it.",
+        "scale": "FUTURE",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 10,
+      "content": {
+        "text": "I make certain that all employees are clear about our policies, values and objectives",
+        "scale": "CULTURE",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 11,
+      "content": {
+        "text": "I make certain that others have a clear picture of how their job fits with others in the organisation.",
+        "scale": "COORDINATION",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 12,
+      "content": {
+        "text": "I build cohesive, committed teams of people.",
+        "scale": "TEAMS",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 13,
+      "content": {
+        "text": "I give to followers regular feedback about how I think they're doing.",
+        "scale": "RELATIONSHIP",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 14,
+      "content": {
+        "text": "I articulate a clear vision of what can be accomplished in the future.",
+        "scale": "FUTURE",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 15,
+      "content": {
+        "text": "I foster a sense of competitiveness that helps members of my work group perform at higher levels than members of other units.",
+        "scale": "COMPETITION",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 16,
+      "content": {
+        "text": "I assure that regular reports and assessments occur in my unit.",
+        "scale": "CONTROL",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 17,
+      "content": {
+        "text": "I interpret and simplify complex information so that it makes sense to others and can be shared throughout the organisation.",
+        "scale": "COORDINATION",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 18,
+      "content": {
+        "text": "I facilitate effective information sharing and problem solving in my group.",
+        "scale": "TEAMS",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 19,
+      "content": {
+        "text": "I foster rational, systematic decision analysis in my unit (e.g. logically analysing component parts of problems) to reduce the complexity of important issues.",
+        "scale": "CONTROL",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 20,
+      "content": {
+        "text": "I make sure that others in my unit are provided with opportunities for personal growth and development.",
+        "scale": "DEVELOPMENT",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 21,
+      "content": {
+        "text": "I create an environment where involvement and participation in decisions are encouraged and rewarded.",
+        "scale": "TEAMS",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 22,
+      "content": {
+        "text": "In groups I lead, I make sure that sufficient attention is given to both task accomplishment and to inter-personal relationships.",
+        "scale": "TEAMS",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 23,
+      "content": {
+        "text": "When giving negative feedback to others, I foster their self-improvement rather than defensiveness or anger.",
+        "scale": "RELATIONSHIP",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 24,
+      "content": {
+        "text": "I give others assignments and responsibilities that provide opportunities for their personal growth and development.",
+        "scale": "DEVELOPMENT",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 25,
+      "content": {
+        "text": "I actively help prepare others to move up in the organisation.",
+        "scale": "DEVELOPMENT",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 26,
+      "content": {
+        "text": "I regularly come up with new, creative ideas regarding processes, products or procedures for my organisation.",
+        "scale": "IMPROVEMENT",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 27,
+      "content": {
+        "text": "I constantly restate and reinforce my vision of the future to members of my unit.",
+        "scale": "INNOVATION",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 28,
+      "content": {
+        "text": "I help others visualise a new kind of future that includes possibilities as well as probabilities.",
+        "scale": "FUTURE",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 29,
+      "content": {
+        "text": "I am always working to improve the processes we use to achieve our desired output.",
+        "scale": "IMPROVEMENT",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 30,
+      "content": {
+        "text": "I push my unit to achieve world-class competitive performance in service and/or products.",
+        "scale": "COMPETITION",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 31,
+      "content": {
+        "text": "By enabling others in my unit, I foster a motivational climate that energises everyone involved.",
+        "scale": "ENERGISING",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 32,
+      "content": {
+        "text": "I have consistent and frequent personal contact with my internal and my external customers.",
+        "scale": "CUSTOMER",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 33,
+      "content": {
+        "text": "I make sure that we assess how well we are meeting our customers' expectations.",
+        "scale": "CUSTOMER",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 34,
+      "content": {
+        "text": "I provide experiences for employees that help them become socialised and integrated into the culture of our organisation.",
+        "scale": "CULTURE",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 35,
+      "content": {
+        "text": "I increase the competitiveness of my unit by encouraging others to provide services and/or products that surprise and delight customers by exceeding their expectations.",
+        "scale": "COMPETITION",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 36,
+      "content": {
+        "text": "I have established a control system that assures consistency in quality, service, cost and productivity in my unit",
+        "scale": "CONTROL",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 37,
+      "content": {
+        "text": "I coordinate regularly with managers in other units in my organisation.",
+        "scale": "COORDINATION",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 38,
+      "content": {
+        "text": "I routinely share information across functional boundaries in my organisation to facilitate coordination.",
+        "scale": "COORDINATION",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 39,
+      "content": {
+        "text": "I use a measurement system that consistently monitors both work processes and outcomes.",
+        "scale": "CONTROL",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 40,
+      "content": {
+        "text": "I clarify for members of my unit exactly what is expected of them.",
+        "scale": "CULTURE",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 41,
+      "content": {
+        "text": "I assure that everything we do is focused on better serving our customers.",
+        "scale": "CUSTOMER",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 42,
+      "content": {
+        "text": "I facilitate a climate of aggressiveness and intensity in my unit.",
+        "scale": "COMPETITION",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 43,
+      "content": {
+        "text": "I constantly monitor the strengths and weaknesses of our best competition and provide my unit with information on how we measure up.",
+        "scale": "COMPETITION",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 44,
+      "content": {
+        "text": "I facilitate a climate of continuous improvement in my unit.",
+        "scale": "IMPROVEMENT",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 45,
+      "content": {
+        "text": "I have developed a clear strategy for helping my unit successfully accomplish my vision of the future.",
+        "scale": "INNOVATION",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 46,
+      "content": {
+        "text": "I capture the imagination and emotional commitment of others when I talk about my vision of the future.",
+        "scale": "FUTURE",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 47,
+      "content": {
+        "text": "I facilitate a work environment where peers as well as followers learn from and help develop one another.",
+        "scale": "DEVELOPMENT",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 48,
+      "content": {
+        "text": "I listen openly and attentively to others who give me their ideas, even when I disagree.",
+        "scale": "RELATIONSHIP",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 49,
+      "content": {
+        "text": "When leading a group, I ensure collaboration and positive conflict resolution among group members.",
+        "scale": "TEAMS",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 50,
+      "content": {
+        "text": "I foster trust and openness by showing understanding for the point of view of individuals who come to me with problems or concerns.",
+        "scale": "RELATIONSHIP",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 51,
+      "content": {
+        "text": "I create an environment where experimentation and creativity are rewarded and recognised.",
+        "scale": "INNOVATION",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 52,
+      "content": {
+        "text": "I encourage everyone in my unit to constantly improve and update everything they do.",
+        "scale": "IMPROVEMENT",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 53,
+      "content": {
+        "text": "I encourage all employees to make small improve-ments continuously in the way they do their jobs.",
+        "scale": "IMPROVEMENT",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 54,
+      "content": {
+        "text": "I make sure that my unit continually gathers information on our customers' needs and preferences.",
+        "scale": "CUSTOMER",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 55,
+      "content": {
+        "text": "I involve customers in my unit's planning and evaluations.",
+        "scale": "CUSTOMER",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 56,
+      "content": {
+        "text": "I establish ceremonies and rewards in my unit that reinforce the values and culture of our organisation.",
+        "scale": "CULTURE",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 57,
+      "content": {
+        "text": "I maintain a formal system for gathering and respond-ing to information that originates in other units outside my own.",
+        "scale": "COORDINATION",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 58,
+      "content": {
+        "text": "I initiate cross-functional teams or task forces that focus on important organisational issues.",
+        "scale": "CULTURE",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 59,
+      "content": {
+        "text": "I help my employees strive for improvement in all aspects of their lives, not just in job-related activities.",
+        "scale": "FUTURE",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 60,
+      "content": {
+        "text": "I create a climate where individuals in my unit want to achieve higher levels of performance than the competition.",
+        "scale": "ENERGISING",
+        "section": "BEHAVIOUR"
+      }
+    },
+    {
+      "order": 61,
+      "content": {
+        "text": "Managing teams (building effective, cohesive, smooth-functioning teams)",
+        "scale": "TEAMS",
+        "section": "EFFECTIVENESS"
+      }
+    },
+    {
+      "order": 62,
+      "content": {
+        "text": "Managing interpersonal relationships (listening to and providing supportive feedback to others)",
+        "scale": "RELATIONSHIP",
+        "section": "EFFECTIVENESS"
+      }
+    },
+    {
+      "order": 63,
+      "content": {
+        "text": "Managing the development of others (helping others improve their performance and obtain personal development opportunities)",
+        "scale": "DEVELOPMENT",
+        "section": "EFFECTIVENESS"
+      }
+    },
+    {
+      "order": 64,
+      "content": {
+        "text": "Fostering innovation (encouraging others to innovate and generate new ideas)",
+        "scale": "INNOVATION",
+        "section": "EFFECTIVENESS"
+      }
+    },
+    {
+      "order": 65,
+      "content": {
+        "text": "Managing the future (communicating a clear vision of the future and facilitating its accomplishment)",
+        "scale": "FUTURE",
+        "section": "EFFECTIVENESS"
+      }
+    },
+    {
+      "order": 66,
+      "content": {
+        "text": "Managing continuous improvement (fostering an orientation toward continuous improvement among employees in everything they do)",
+        "scale": "IMPROVEMENT",
+        "section": "EFFECTIVENESS"
+      }
+    },
+    {
+      "order": 67,
+      "content": {
+        "text": "Managing competitiveness (fostering an aggressive orientation toward exceeding performance targets)",
+        "scale": "COMPETITION",
+        "section": "EFFECTIVENESS"
+      }
+    },
+    {
+      "order": 68,
+      "content": {
+        "text": "Energising employees (motivating others to put forth extra effort and to work effectively)",
+        "scale": "ENERGISING",
+        "section": "EFFECTIVENESS"
+      }
+    },
+    {
+      "order": 69,
+      "content": {
+        "text": "Managing customer service (fostering a focus on service and involvement with customers)",
+        "scale": "CUSTOMER",
+        "section": "EFFECTIVENESS"
+      }
+    },
+    {
+      "order": 70,
+      "content": {
+        "text": "Managing acculturation (helping others become clear about what is expected of them and about organisational culture and standards)",
+        "scale": "CULTURE",
+        "section": "EFFECTIVENESS"
+      }
+    },
+    {
+      "order": 71,
+      "content": {
+        "text": "Managing the control system (having measurement and monitoring systems in place to keep close track of processes and performance)",
+        "scale": "CONTROL",
+        "section": "EFFECTIVENESS"
+      }
+    },
+    {
+      "order": 72,
+      "content": {
+        "text": "Managing coordination (sharing information across functional boundaries and fostering coordination with other units)",
+        "scale": "COORDINATION",
+        "section": "EFFECTIVENESS"
+      }
+    },
+    {
+      "order": 73,
+      "content": {
+        "text": "Overall management competency (general level of managerial ability)",
+        "scale": "OVERALL",
+        "section": "EFFECTIVENESS"
+      }
+    },
+    {
+      "order": 74,
+      "content": {
+        "text": "Managing teams (building effective, cohesive, smooth-functioning teams)",
+        "scale": "TEAMS",
+        "section": "IMPORTANCE"
+      }
+    },
+    {
+      "order": 75,
+      "content": {
+        "text": "Managing interpersonal relationships (listening to and providing supportive feedback to others)",
+        "scale": "RELATIONSHIP",
+        "section": "IMPORTANCE"
+      }
+    },
+    {
+      "order": 76,
+      "content": {
+        "text": "Managing the development of others (helping others improve their performance and obtain personal development opportunities)",
+        "scale": "DEVELOPMENT",
+        "section": "IMPORTANCE"
+      }
+    },
+    {
+      "order": 77,
+      "content": {
+        "text": "Managing innovation (encouraging others to innovate and generate new ideas)",
+        "scale": "INNOVATION",
+        "section": "IMPORTANCE"
+      }
+    },
+    {
+      "order": 78,
+      "content": {
+        "text": "Managing the future (communicating a clear vision of the future and facilitating its accomplishment)",
+        "scale": "FUTURE",
+        "section": "IMPORTANCE"
+      }
+    },
+    {
+      "order": 79,
+      "content": {
+        "text": "Managing continuous improvement (fostering an orientation toward continuous improvement among employees in everything they do)",
+        "scale": "IMPROVEMENT",
+        "section": "IMPORTANCE"
+      }
+    },
+    {
+      "order": 80,
+      "content": {
+        "text": "Managing competitiveness (fostering an aggressive orientation toward exceeding competitors’ performance)",
+        "scale": "COMPETITION",
+        "section": "IMPORTANCE"
+      }
+    },
+    {
+      "order": 81,
+      "content": {
+        "text": "Energising employees (motivating others to put forth extra effort and to work effectively)",
+        "scale": "ENERGISING",
+        "section": "IMPORTANCE"
+      }
+    },
+    {
+      "order": 82,
+      "content": {
+        "text": "Managing customer service (fostering a focus on service and involvement with customers)",
+        "scale": "CUSTOMER",
+        "section": "IMPORTANCE"
+      }
+    },
+    {
+      "order": 83,
+      "content": {
+        "text": "Managing acculturation (helping others become clear about what is expected of them and about organisational culture and standards)",
+        "scale": "CULTURE",
+        "section": "IMPORTANCE"
+      }
+    },
+    {
+      "order": 84,
+      "content": {
+        "text": "Managing the control system (having measurement and monitoring systems in place to keep close track of processes and performance)",
+        "scale": "CONTROL",
+        "section": "IMPORTANCE"
+      }
+    },
+    {
+      "order": 85,
+      "content": {
+        "text": "Managing coordination (sharing information across functional boundaries and fostering coordination with other units)",
+        "scale": "COORDINATION",
+        "section": "IMPORTANCE"
+      }
+    }
+  ],
+  "interpretations": [
+    {
+      "patternCode": "TEAMS",
+      "title": "Managing Teams",
+      "body": "Building effective, cohesive, smooth-functioning teams.\n\nPeran ini diukur dari lima butir perilaku pada skala 1–5; skor pada profil adalah jumlah kelima butir, dan persentasenya menunjukkan seberapa sering perilaku ini ditampilkan."
+    },
+    {
+      "patternCode": "RELATIONSHIP",
+      "title": "Managing Interpersonal Relationships",
+      "body": "Listening to and providing supportive feedback to others.\n\nPeran ini diukur dari lima butir perilaku pada skala 1–5; skor pada profil adalah jumlah kelima butir, dan persentasenya menunjukkan seberapa sering perilaku ini ditampilkan."
+    },
+    {
+      "patternCode": "DEVELOPMENT",
+      "title": "Managing the Development of Others",
+      "body": "Helping others improve their performance and obtain personal development opportunities.\n\nPeran ini diukur dari lima butir perilaku pada skala 1–5; skor pada profil adalah jumlah kelima butir, dan persentasenya menunjukkan seberapa sering perilaku ini ditampilkan."
+    },
+    {
+      "patternCode": "INNOVATION",
+      "title": "Fostering Innovation",
+      "body": "Encouraging others to innovate and generate new ideas.\n\nPeran ini diukur dari lima butir perilaku pada skala 1–5; skor pada profil adalah jumlah kelima butir, dan persentasenya menunjukkan seberapa sering perilaku ini ditampilkan."
+    },
+    {
+      "patternCode": "FUTURE",
+      "title": "Managing the Future",
+      "body": "Communicating a clear vision of the future and facilitating its accomplishment.\n\nPeran ini diukur dari lima butir perilaku pada skala 1–5; skor pada profil adalah jumlah kelima butir, dan persentasenya menunjukkan seberapa sering perilaku ini ditampilkan."
+    },
+    {
+      "patternCode": "IMPROVEMENT",
+      "title": "Managing Continuous Improvement",
+      "body": "Fostering an orientation toward continuous improvement among employees in everything they do.\n\nPeran ini diukur dari lima butir perilaku pada skala 1–5; skor pada profil adalah jumlah kelima butir, dan persentasenya menunjukkan seberapa sering perilaku ini ditampilkan."
+    },
+    {
+      "patternCode": "COMPETITION",
+      "title": "Managing Competitiveness",
+      "body": "Fostering an aggressive orientation toward exceeding performance targets.\n\nPeran ini diukur dari lima butir perilaku pada skala 1–5; skor pada profil adalah jumlah kelima butir, dan persentasenya menunjukkan seberapa sering perilaku ini ditampilkan."
+    },
+    {
+      "patternCode": "ENERGISING",
+      "title": "Energising Employees",
+      "body": "Motivating others to put forth extra effort and to work effectively.\n\nPeran ini diukur dari lima butir perilaku pada skala 1–5; skor pada profil adalah jumlah kelima butir, dan persentasenya menunjukkan seberapa sering perilaku ini ditampilkan."
+    },
+    {
+      "patternCode": "CUSTOMER",
+      "title": "Managing Customer Service",
+      "body": "Fostering a focus on service and involvement with customers.\n\nPeran ini diukur dari lima butir perilaku pada skala 1–5; skor pada profil adalah jumlah kelima butir, dan persentasenya menunjukkan seberapa sering perilaku ini ditampilkan."
+    },
+    {
+      "patternCode": "CULTURE",
+      "title": "Managing Acculturation",
+      "body": "Helping others become clear about what is expected of them and about organisational culture and standards.\n\nPeran ini diukur dari lima butir perilaku pada skala 1–5; skor pada profil adalah jumlah kelima butir, dan persentasenya menunjukkan seberapa sering perilaku ini ditampilkan."
+    },
+    {
+      "patternCode": "CONTROL",
+      "title": "Managing the Control System",
+      "body": "Having measurement and monitoring systems in place to keep close track of processes and performance.\n\nPeran ini diukur dari lima butir perilaku pada skala 1–5; skor pada profil adalah jumlah kelima butir, dan persentasenya menunjukkan seberapa sering perilaku ini ditampilkan."
+    },
+    {
+      "patternCode": "COORDINATION",
+      "title": "Managing Coordination",
+      "body": "Sharing information across functional boundaries and fostering coordination with other units.\n\nPeran ini diukur dari lima butir perilaku pada skala 1–5; skor pada profil adalah jumlah kelima butir, dan persentasenya menunjukkan seberapa sering perilaku ini ditampilkan."
+    }
+  ]
+}

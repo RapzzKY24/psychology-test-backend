@@ -389,3 +389,84 @@ describe('likertResponseSchema', () => {
     expect(schema.safeParse({}).success).toBe(false);
   });
 });
+
+describe('LIKERT sections', () => {
+  /** The same two roles rated twice: behaviour (2 items) and importance (1). */
+  const sectioned = [
+    { id: 'b1', content: { text: 'a', scale: 'TEAMS', section: 'BEHAVIOUR' } },
+    { id: 'b2', content: { text: 'b', scale: 'FUTURE', section: 'BEHAVIOUR' } },
+    {
+      id: 'i1',
+      content: { text: 'c', scale: 'TEAMS', section: 'IMPORTANCE' },
+    },
+  ];
+
+  it('sums each section on its own and reports the pattern section as the result', () => {
+    const { scores, patternCode } = scoreLikert({
+      items: sectioned,
+      responses: [
+        { itemId: 'b1', value: { rating: 5 } },
+        { itemId: 'b2', value: { rating: 1 } },
+        { itemId: 'i1', value: { rating: 5 } },
+      ],
+      scoringConfig: { patternSection: 'BEHAVIOUR' },
+    });
+
+    expect(scores.scales.TEAMS).toEqual({ score: 5, max: 5, percent: 100 });
+    expect(scores.scales.FUTURE).toEqual({ score: 1, max: 5, percent: 20 });
+    // Importance is a one-item scale, so it is 100% too — but it must not win.
+    expect(scores.sections?.IMPORTANCE.TEAMS).toEqual({
+      score: 5,
+      max: 5,
+      percent: 100,
+    });
+    expect(patternCode).toBe('TEAMS');
+  });
+
+  it('defaults the pattern section to the first one in item order', () => {
+    const { scores } = scoreLikert({
+      items: sectioned,
+      responses: [{ itemId: 'i1', value: { rating: 5 } }],
+    });
+
+    expect(Object.keys(scores.scales).sort()).toEqual(['FUTURE', 'TEAMS']);
+    expect(scores.sections).toBeDefined();
+  });
+
+  it('ignores a pattern section the items do not use', () => {
+    const { scores } = scoreLikert({
+      items: sectioned,
+      responses: [],
+      scoringConfig: { patternSection: 'IMPORTANCE_TYPO' },
+    });
+
+    expect(scores.scales).toHaveProperty('TEAMS');
+    expect(scores.scales).toHaveProperty('FUTURE');
+  });
+
+  it('omits sections entirely when no item declares one', () => {
+    const { scores } = scoreLikert({ items: items(), responses: [] });
+    expect(scores.sections).toBeUndefined();
+  });
+
+  it('derives pattern codes from the pattern section only', () => {
+    expect(
+      likertPatternCodes(sectioned, { patternSection: 'BEHAVIOUR' }),
+    ).toEqual(['TEAMS', 'FUTURE']);
+    expect(
+      likertPatternCodes(sectioned, { patternSection: 'IMPORTANCE' }),
+    ).toEqual(['TEAMS']);
+  });
+
+  it('counts answered across every section', () => {
+    const { scores } = scoreLikert({
+      items: sectioned,
+      responses: [
+        { itemId: 'b1', value: { rating: 3 } },
+        { itemId: 'i1', value: { rating: 4 } },
+      ],
+    });
+    expect(scores.answered).toBe(2);
+    expect(scores.total).toBe(3);
+  });
+});

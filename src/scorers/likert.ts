@@ -3,7 +3,7 @@ import {
   LikertItemContentSchema,
   LikertResponseSchema,
   bandCode,
-  likertScales,
+  likertPatternSection,
   parseLikertConfig,
 } from './schemas/likert';
 import type { LikertConfig } from './schemas/likert';
@@ -25,7 +25,14 @@ export interface LikertScores {
   band?: string;
   total: number;
   answered: number;
+  /** Scales of the pattern section — this is the result the report reads. */
   scales: Record<string, LikertScaleScore>;
+  /**
+   * Present only when the items are split into sections (MSAI rates the same
+   * twelve roles three ways). The pattern section is repeated here, so a caller
+   * that wants the whole picture reads one place.
+   */
+  sections?: Record<string, Record<string, LikertScaleScore>>;
 }
 
 export interface LikertScorerOutput {
@@ -50,6 +57,12 @@ function bandFor(value: number, config: LikertConfig): string | undefined {
   return (row ?? rows[rows.length - 1]).label;
 }
 
+/** Running totals of one scale inside one section. */
+interface Bucket {
+  sum: number;
+  max: number;
+}
+
 /**
  * Sums the ratings per scale, flips the reverse-keyed items, and takes the
  * scale that reaches the highest percent of its own ceiling.
@@ -57,6 +70,12 @@ function bandFor(value: number, config: LikertConfig): string | undefined {
  * There is no right answer: the profile is the result. The pattern code is
  * `SCALE_BAND` when the test declares bands (`E_TINGGI`) and the bare scale
  * otherwise, so publish can demand exactly the interpretations this test emits.
+ *
+ * An item may name a `section`. Scales are then summed per section and the
+ * result (`scales`, `type`, `patternCode`) comes from
+ * `scoringConfig.patternSection` — MSAI rates twelve roles for behaviour,
+ * effectiveness and importance, and only the behaviour ratings decide the
+ * profile. Without sections the output is exactly what it always was.
  */
 export function scoreLikert(input: {
   items: { id: string; content: unknown }[];
@@ -65,21 +84,38 @@ export function scoreLikert(input: {
 }): LikertScorerOutput {
   const config = parseLikertConfig(input.scoringConfig);
   const range = config.ratingRange ?? DEFAULT_RATING_RANGE;
-  const scales = likertScales(input.items);
 
-  const sum = new Map<string, number>(scales.map((scale) => [scale, 0]));
-  const max = new Map<string, number>(scales.map((scale) => [scale, 0]));
+  /** section -> scale -> totals. The empty section is "no section declared". */
+  const buckets = new Map<string, Map<string, Bucket>>();
+  const sectionOrder: string[] = [];
+  const bucketOf = (section: string): Map<string, Bucket> => {
+    let bucket = buckets.get(section);
+    if (!bucket) {
+      bucket = new Map<string, Bucket>();
+      buckets.set(section, bucket);
+      sectionOrder.push(section);
+    }
+    return bucket;
+  };
 
-  /** itemId -> the scale and the flip rule of that item. */
-  const itemKey = new Map<string, { scale: string; reverse: boolean }>();
+  /** itemId -> where the rating goes and whether it is flipped. */
+  const itemKey = new Map<
+    string,
+    { section: string; scale: string; reverse: boolean }
+  >();
   for (const item of input.items) {
     const parsed = LikertItemContentSchema.safeParse(item.content);
     if (!parsed.success) continue;
+    const section = parsed.data.section ?? '';
     itemKey.set(item.id, {
+      section,
       scale: parsed.data.scale,
       reverse: parsed.data.reverse === true,
     });
-    max.set(parsed.data.scale, (max.get(parsed.data.scale) ?? 0) + range.max);
+    const scales = bucketOf(section);
+    const bucket = scales.get(parsed.data.scale) ?? { sum: 0, max: 0 };
+    bucket.max += range.max;
+    scales.set(parsed.data.scale, bucket);
   }
 
   let answered = 0;
@@ -91,33 +127,53 @@ export function scoreLikert(input: {
     const rating = parsed.data.rating;
     if (rating < range.min || rating > range.max) continue;
     const value = key.reverse ? range.min + range.max - rating : rating;
-    sum.set(key.scale, (sum.get(key.scale) ?? 0) + value);
+    const bucket = buckets.get(key.section)?.get(key.scale);
+    if (!bucket) continue;
+    bucket.sum += value;
     answered += 1;
   }
+
+  const scored = (bucket: Map<string, Bucket>) => {
+    const out: Record<string, LikertScaleScore> = {};
+    for (const [scale, { sum, max }] of bucket) {
+      // The band is cut on the exact ratio, not the rounded percent: 15/45 is
+      // 33.33 and belongs to "Sedang" even though the card prints 33.
+      const exact = max === 0 ? 0 : (sum / max) * 100;
+      const entry: LikertScaleScore = {
+        score: sum,
+        max,
+        percent: percent(sum, max),
+      };
+      const band = bandFor(exact, config);
+      if (band) entry.band = band;
+      out[scale] = entry;
+    }
+    return out;
+  };
+
+  const hasSections = sectionOrder.some((section) => section !== '');
+  const patternSection = likertPatternSection(input.items, input.scoringConfig);
+  const resultBucket =
+    buckets.get(patternSection ?? '') ??
+    buckets.get(sectionOrder[0] ?? '') ??
+    new Map<string, Bucket>();
 
   const scores: LikertScores = {
     type: '',
     total: input.items.length,
     answered,
-    scales: {},
+    scales: scored(resultBucket),
   };
 
-  for (const scale of scales) {
-    const value = sum.get(scale) ?? 0;
-    const ceiling = max.get(scale) ?? 0;
-    // The band is cut on the exact ratio, not the rounded percent: 15/45 is
-    // 33.33 and belongs to "Sedang" even though the card prints 33.
-    const exact = ceiling === 0 ? 0 : (value / ceiling) * 100;
-    const entry: LikertScaleScore = {
-      score: value,
-      max: ceiling,
-      percent: percent(value, ceiling),
-    };
-    const band = bandFor(exact, config);
-    if (band) entry.band = band;
-    scores.scales[scale] = entry;
+  if (hasSections) {
+    scores.sections = {};
+    for (const section of sectionOrder) {
+      if (!section) continue;
+      scores.sections[section] = scored(buckets.get(section)!);
+    }
   }
 
+  const scales = Object.keys(scores.scales);
   const winner = scales.reduce<string | null>((best, scale) => {
     if (best === null) return scale;
     return scores.scales[scale].percent > scores.scales[best].percent
