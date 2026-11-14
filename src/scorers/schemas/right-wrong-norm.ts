@@ -2,6 +2,12 @@ import { z } from 'zod';
 
 const IMAGE_URL_RE = /^\/uploads\/test-items\/[a-f0-9-]+\.(png|jpg)$/;
 
+/**
+ * 8 is the widest answer grid the source instruments use: Aptitude Test items
+ * 15 and 54 print eight lettered positions (a-h) under one number sequence.
+ */
+export const MAX_OPTIONS = 8;
+
 const itemBase = {
   question: z.string().trim().min(1).max(2000).optional(),
   imageUrl: z.string().trim().min(1).max(2048).optional().nullable(),
@@ -11,8 +17,8 @@ const itemBase = {
 const ChoiceItemSchema = z.object({
   answerMode: z.literal('choice'),
   ...itemBase,
-  options: z.array(z.string().trim().min(1).max(500)).min(2).max(6),
-  correctIndexes: z.array(z.number().int().min(0)).min(1).max(6),
+  options: z.array(z.string().trim().min(1).max(500)).min(2).max(MAX_OPTIONS),
+  correctIndexes: z.array(z.number().int().min(0)).min(1).max(MAX_OPTIONS),
 });
 
 const ShortItemSchema = z.object({
@@ -100,8 +106,15 @@ export function parseRightWrongItem(
   return parsed.success ? parsed.data : null;
 }
 
+/** A single answer index — 0..MAX_OPTIONS-1. */
+const ChoiceIndexSchema = z
+  .number()
+  .int()
+  .min(0)
+  .max(MAX_OPTIONS - 1);
+
 const ChoiceResponseSchema = z.object({
-  chosen: z.array(z.number().int().min(0).max(5)).min(1).max(6),
+  chosen: z.array(ChoiceIndexSchema).min(1).max(MAX_OPTIONS),
 });
 
 const ShortResponseSchema = z.object({

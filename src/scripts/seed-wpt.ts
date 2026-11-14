@@ -1,6 +1,6 @@
 import 'dotenv/config';
-import { copyFileSync, existsSync, mkdirSync, readFileSync } from 'fs';
-import { basename, join } from 'path';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { PrismaClient } from '../generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import {
@@ -11,39 +11,13 @@ import {
   upsertSeedTest,
   type SeedData,
 } from './lib/seed-test';
+import { installItemAssets } from './lib/seed-assets';
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
 const SEED_DIR = join(__dirname, '../../prisma/seed-data');
 const ASSET_DIR = join(SEED_DIR, 'assets/wpt');
-
-type AssetManifest = {
-  items: { item: number; file: string; imageUrl: string }[];
-};
-
-/**
- * Item figures are committed under prisma/seed-data/assets because `uploads/`
- * is gitignored. Copying them keeps a fresh VPS seed self-contained, and the
- * fixed uuids in the manifest keep `imageUrl` stable across re-seeds.
- */
-function installAssets(): number {
-  const manifestPath = join(ASSET_DIR, 'manifest.json');
-  if (!existsSync(manifestPath)) return 0;
-  const manifest = JSON.parse(
-    readFileSync(manifestPath, 'utf-8'),
-  ) as AssetManifest;
-  const uploadRoot = process.env.UPLOAD_DIR ?? './uploads';
-  const targetDir = join(uploadRoot, 'test-items');
-  mkdirSync(targetDir, { recursive: true });
-  for (const entry of manifest.items) {
-    copyFileSync(
-      join(ASSET_DIR, entry.file),
-      join(targetDir, basename(entry.imageUrl)),
-    );
-  }
-  return manifest.items.length;
-}
 
 async function main(): Promise<void> {
   // Without --force a routine seed never touches price or status: both are
@@ -53,7 +27,7 @@ async function main(): Promise<void> {
     readFileSync(join(SEED_DIR, 'wpt.json'), 'utf-8'),
   ) as SeedData;
 
-  const assets = installAssets();
+  const assets = installItemAssets(ASSET_DIR);
   const test = await upsertSeedTest(prisma, data.test, force);
   const items = await syncItems(prisma, test.id, data.items);
   const interps = await syncInterpretations(

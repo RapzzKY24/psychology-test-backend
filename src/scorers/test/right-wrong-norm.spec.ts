@@ -216,6 +216,16 @@ describe('RightWrongNormScorer', () => {
       expect(ok(bad)).toBe(false);
     });
 
+    it('accepts an eight-option grid but not a ninth', () => {
+      const eight = ['1', '2', '3', '4', '5', '6', '7', '8'];
+      expect(ok({ question: 'Q', options: eight, correctIndexes: [7] })).toBe(
+        true,
+      );
+      expect(
+        ok({ question: 'Q', options: [...eight, '9'], correctIndexes: [7] }),
+      ).toBe(false);
+    });
+
     it('rejects a key outside the options', () => {
       expect(
         ok({ question: 'Q', options: ['a', 'b'], correctIndexes: [2] }),
@@ -237,7 +247,7 @@ describe('RightWrongNormScorer', () => {
       expect(scorer.responseSchema.safeParse({ chosen: [1, 3] }).success).toBe(
         true,
       );
-      expect(scorer.responseSchema.safeParse({ chosen: 6 }).success).toBe(
+      expect(scorer.responseSchema.safeParse({ chosen: 8 }).success).toBe(
         false,
       );
       expect(scorer.responseSchema.safeParse({ text: 'ya' }).success).toBe(

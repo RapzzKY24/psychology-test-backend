@@ -1,0 +1,100 @@
+{
+  "note": "Gambar soal dipotong dari \"IQ-Lembar-Soal-Jawaban-Aptitude-Test.pdf\". imageUrl memakai uuid5 tetap supaya seed idempoten.",
+  "items": [
+    {
+      "item": 3,
+      "file": "apt-03.png",
+      "imageUrl": "/uploads/test-items/052c793e-a23d-5343-8990-0d85f58d3b60.png"
+    },
+    {
+      "item": 5,
+      "file": "apt-05.png",
+      "imageUrl": "/uploads/test-items/3e1e87f2-8eae-58d2-ae8d-754a9833d6f4.png"
+    },
+    {
+      "item": 10,
+      "file": "apt-10.png",
+      "imageUrl": "/uploads/test-items/350bf953-e582-58c2-889b-e1b748477170.png"
+    },
+    {
+      "item": 13,
+      "file": "apt-13.png",
+      "imageUrl": "/uploads/test-items/378c3c15-8143-5836-aef5-3b008e0ed5a2.png"
+    },
+    {
+      "item": 17,
+      "file": "apt-17.png",
+      "imageUrl": "/uploads/test-items/2c1d2442-9077-502f-85a2-adc072109ba7.png"
+    },
+    {
+      "item": 22,
+      "file": "apt-22.png",
+      "imageUrl": "/uploads/test-items/356bc269-7ae6-5392-accf-3cbeaaa792e5.png"
+    },
+    {
+      "item": 25,
+      "file": "apt-25.png",
+      "imageUrl": "/uploads/test-items/9ec95376-3e0b-502d-ab16-14a539226c09.png"
+    },
+    {
+      "item": 27,
+      "file": "apt-27.png",
+      "imageUrl": "/uploads/test-items/3f43a690-d04a-5cb6-b1f2-332b17996c7c.png"
+    },
+    {
+      "item": 30,
+      "file": "apt-30.png",
+      "imageUrl": "/uploads/test-items/0b0b93e3-2cc9-55f5-87d7-494b73c2de3f.png"
+    },
+    {
+      "item": 35,
+      "file": "apt-35.png",
+      "imageUrl": "/uploads/test-items/7abac08c-4472-5f1f-a991-065ce9915193.png"
+    },
+    {
+      "item": 37,
+      "file": "apt-37.png",
+      "imageUrl": "/uploads/test-items/432708a9-8993-5bf6-a98d-8778a56297e9.png"
+    },
+    {
+      "item": 39,
+      "file": "apt-39.png",
+      "imageUrl": "/uploads/test-items/0c2aae5a-dbd4-5237-9098-69e822912465.png"
+    },
+    {
+      "item": 41,
+      "file": "apt-41.png",
+      "imageUrl": "/uploads/test-items/8dc0f930-134e-5ef7-b564-fa91ca46620d.png"
+    },
+    {
+      "item": 43,
+      "file": "apt-43.png",
+      "imageUrl": "/uploads/test-items/ea293a56-f3da-58e6-8224-a89c0e1a5867.png"
+    },
+    {
+      "item": 46,
+      "file": "apt-46.png",
+      "imageUrl": "/uploads/test-items/140a0563-1b43-5ef0-a9ec-ccf5010be8ac.png"
+    },
+    {
+      "item": 49,
+      "file": "apt-49.png",
+      "imageUrl": "/uploads/test-items/c3a92174-e923-52f9-ba78-c6a8d1022e3c.png"
+    },
+    {
+      "item": 51,
+      "file": "apt-51.png",
+      "imageUrl": "/uploads/test-items/55098316-9faa-5488-8f31-1ba008b05942.png"
+    },
+    {
+      "item": 57,
+      "file": "apt-57.png",
+      "imageUrl": "/uploads/test-items/41277f45-bafb-54a3-ad8b-adee613b6c85.png"
+    },
+    {
+      "item": 59,
+      "file": "apt-59.png",
+      "imageUrl": "/uploads/test-items/f441b1eb-cd27-5f0d-acd5-2f9e57f05194.png"
+    }
+  ]
+}

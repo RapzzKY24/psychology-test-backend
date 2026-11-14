@@ -1,0 +1,1598 @@
+{
+  "test": {
+    "slug": "aptitude-test",
+    "name": "Aptitude Test",
+    "description": "Tes intelegensi umum: 60 soal penalaran verbal, numerik, figural, dan logika dalam 60 menit. Skor mentah dikonversi ke IQ.",
+    "category": "COGNITIVE",
+    "scorerType": "RIGHT_WRONG_NORM",
+    "price": 50000,
+    "estimatedDurationMin": 60,
+    "timeLimitMin": 60,
+    "normTable": [
+      {
+        "raw": 1,
+        "iq": 1
+      },
+      {
+        "raw": 2,
+        "iq": 1
+      },
+      {
+        "raw": 3,
+        "iq": 4
+      },
+      {
+        "raw": 4,
+        "iq": 7
+      },
+      {
+        "raw": 5,
+        "iq": 10
+      },
+      {
+        "raw": 6,
+        "iq": 13
+      },
+      {
+        "raw": 7,
+        "iq": 16
+      },
+      {
+        "raw": 8,
+        "iq": 19
+      },
+      {
+        "raw": 9,
+        "iq": 22
+      },
+      {
+        "raw": 10,
+        "iq": 25
+      },
+      {
+        "raw": 11,
+        "iq": 28
+      },
+      {
+        "raw": 12,
+        "iq": 31
+      },
+      {
+        "raw": 13,
+        "iq": 34
+      },
+      {
+        "raw": 14,
+        "iq": 37
+      },
+      {
+        "raw": 15,
+        "iq": 40
+      },
+      {
+        "raw": 16,
+        "iq": 43
+      },
+      {
+        "raw": 17,
+        "iq": 46
+      },
+      {
+        "raw": 18,
+        "iq": 49
+      },
+      {
+        "raw": 19,
+        "iq": 52
+      },
+      {
+        "raw": 20,
+        "iq": 55
+      },
+      {
+        "raw": 21,
+        "iq": 58
+      },
+      {
+        "raw": 22,
+        "iq": 61
+      },
+      {
+        "raw": 23,
+        "iq": 64
+      },
+      {
+        "raw": 24,
+        "iq": 67
+      },
+      {
+        "raw": 25,
+        "iq": 70
+      },
+      {
+        "raw": 26,
+        "iq": 73
+      },
+      {
+        "raw": 27,
+        "iq": 76
+      },
+      {
+        "raw": 28,
+        "iq": 79
+      },
+      {
+        "raw": 29,
+        "iq": 82
+      },
+      {
+        "raw": 30,
+        "iq": 85
+      },
+      {
+        "raw": 31,
+        "iq": 88
+      },
+      {
+        "raw": 32,
+        "iq": 91
+      },
+      {
+        "raw": 33,
+        "iq": 94
+      },
+      {
+        "raw": 34,
+        "iq": 97
+      },
+      {
+        "raw": 35,
+        "iq": 100
+      },
+      {
+        "raw": 36,
+        "iq": 103
+      },
+      {
+        "raw": 37,
+        "iq": 106
+      },
+      {
+        "raw": 38,
+        "iq": 109
+      },
+      {
+        "raw": 39,
+        "iq": 112
+      },
+      {
+        "raw": 40,
+        "iq": 115
+      },
+      {
+        "raw": 41,
+        "iq": 118
+      },
+      {
+        "raw": 42,
+        "iq": 121
+      },
+      {
+        "raw": 43,
+        "iq": 124
+      },
+      {
+        "raw": 44,
+        "iq": 127
+      },
+      {
+        "raw": 45,
+        "iq": 130
+      },
+      {
+        "raw": 46,
+        "iq": 133
+      },
+      {
+        "raw": 47,
+        "iq": 136
+      },
+      {
+        "raw": 48,
+        "iq": 139
+      },
+      {
+        "raw": 49,
+        "iq": 142
+      },
+      {
+        "raw": 50,
+        "iq": 145
+      },
+      {
+        "raw": 51,
+        "iq": 148
+      },
+      {
+        "raw": 52,
+        "iq": 151
+      },
+      {
+        "raw": 53,
+        "iq": 154
+      },
+      {
+        "raw": 54,
+        "iq": 157
+      },
+      {
+        "raw": 55,
+        "iq": 160
+      },
+      {
+        "raw": 56,
+        "iq": 163
+      },
+      {
+        "raw": 57,
+        "iq": 166
+      },
+      {
+        "raw": 58,
+        "iq": 169
+      },
+      {
+        "raw": 59,
+        "iq": 172
+      },
+      {
+        "raw": 60,
+        "iq": 175
+      }
+    ]
+  },
+  "items": [
+    {
+      "order": 1,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 ini yang paling TIDAK mirip dengan 4 yang lain?",
+        "options": [
+          "Gajah",
+          "Ulat",
+          "Kerbau",
+          "Kucing",
+          "Singa"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 2,
+      "content": {
+        "answerMode": "choice",
+        "question": "Jika Anda mengatur ulang kata-kata \"LINKECI\", maka Anda akan mendapat nama sebuah:",
+        "options": [
+          "Lautan",
+          "Negara",
+          "Provinsi",
+          "Kota",
+          "Hewan"
+        ],
+        "correctIndexes": [
+          4
+        ]
+      }
+    },
+    {
+      "order": 3,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 gambar ini yang paling melengkapi kalimat gambar tersebut?",
+        "imageUrl": "/uploads/test-items/052c793e-a23d-5343-8990-0d85f58d3b60.png",
+        "options": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 4,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 ini yang paling TIDAK mirip dengan 4 yang lain?",
+        "options": [
+          "Kentang",
+          "Jagung",
+          "Apel",
+          "Wortel",
+          "Kacang"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 gambar ini yang paling melengkapi kalimat gambar tersebut?",
+        "imageUrl": "/uploads/test-items/3e1e87f2-8eae-58d2-ae8d-754a9833d6f4.png",
+        "options": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "content": {
+        "answerMode": "choice",
+        "question": "Saat ini John berumur 12 tahun, yaitu 3 kali lebih tua dari adiknya. Berapa umur John saat umurnya 2 kali lebih tua dari umur adiknya?",
+        "options": [
+          "15",
+          "16",
+          "18",
+          "20",
+          "21"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 7,
+      "content": {
+        "answerMode": "choice",
+        "question": "Jika \"Kakak Laki-Laki\" itu \"Kakak Perempuan\", maka \"Keponakan Perempuan\" adalah:",
+        "options": [
+          "Ibu",
+          "Anak Perempuan",
+          "Bibi",
+          "Paman",
+          "Keponakan Laki-laki"
+        ],
+        "correctIndexes": [
+          4
+        ]
+      }
+    },
+    {
+      "order": 8,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 ini yang paling TIDAK mirip dengan 4 yang lain?",
+        "options": [
+          "A",
+          "Z",
+          "F",
+          "N",
+          "E"
+        ],
+        "correctIndexes": [
+          4
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "content": {
+        "answerMode": "choice",
+        "question": "Jika \"Susu\" itu \"Gelas\", maka \"Surat\" itu:",
+        "options": [
+          "Stempel",
+          "Ballpoin",
+          "Amplop",
+          "Buku",
+          "Kiriman"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 10,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 ini yang paling TIDAK mirip dengan 4 yang lain?",
+        "imageUrl": "/uploads/test-items/350bf953-e582-58c2-889b-e1b748477170.png",
+        "options": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 11,
+      "content": {
+        "answerMode": "choice",
+        "question": "Jika \"HIDUP\" itu \"PUDIH\" maka 5232 adalah:",
+        "options": [
+          "2523",
+          "3252",
+          "2325",
+          "3225",
+          "5223"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 12,
+      "content": {
+        "answerMode": "choice",
+        "question": "\"Jika beberapa Smaugs adalah Thors dan beberapa Thors adalah Thrains, maka beberapa Smaugs pasti adalah Thrains.\" Pernyataan ini adalah:",
+        "options": [
+          "Benar",
+          "Salah",
+          "Tidak keduanya"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 13,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 ini yang paling TIDAK mirip dengan 4 yang lain?",
+        "imageUrl": "/uploads/test-items/378c3c15-8143-5836-aef5-3b008e0ed5a2.png",
+        "options": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 14,
+      "content": {
+        "answerMode": "choice",
+        "question": "Jika \"Pohon\" itu \"Tanah\" maka \"Cerobong Asap\" itu:",
+        "options": [
+          "Asap",
+          "Batu bata",
+          "Langit",
+          "Garasi",
+          "Rumah"
+        ],
+        "correctIndexes": [
+          4
+        ]
+      }
+    },
+    {
+      "order": 15,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari angka-angka ini yang TIDAK masuk ke dalam urutan di bawah ini?\n9 – 7 – 8 – 6 – 7 – 5 – 6 – 3",
+        "options": [
+          "9",
+          "7",
+          "8",
+          "6",
+          "7",
+          "5",
+          "6",
+          "3"
+        ],
+        "correctIndexes": [
+          7
+        ]
+      }
+    },
+    {
+      "order": 16,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 ini yang paling TIDAK mirip dengan 4 yang lain?",
+        "options": [
+          "Sentuh",
+          "Rasa",
+          "Dengar",
+          "Senyum",
+          "Lihat"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 17,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 gambar ini yang paling melengkapi kalimat gambar tersebut?",
+        "imageUrl": "/uploads/test-items/2c1d2442-9077-502f-85a2-adc072109ba7.png",
+        "options": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 18,
+      "content": {
+        "answerMode": "choice",
+        "question": "Jack lebih tinggi dari Peter, dan Bill lebih pendek dari Jack. Mana kalimat yang paling akurat?",
+        "options": [
+          "Bill lebih tinggi dari Peter",
+          "Bill lebih pendek dari Peter",
+          "Bill sama tingginya dengan Peter",
+          "Mustahil untuk mengetahui apakah Bill atau Peter yang lebih tinggi"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 19,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 ini yang paling TIDAK mirip dengan 4 yang lain?",
+        "options": [
+          "Kaus kaki",
+          "Baju",
+          "Sepatu",
+          "Dompet",
+          "Topi"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 20,
+      "content": {
+        "answerMode": "choice",
+        "question": "Jika \"CAACCAC\" adalah \"3113313\" maka \"CACAACAC\" adalah:",
+        "options": [
+          "13133131",
+          "13133313",
+          "31311131",
+          "31311313",
+          "31313113"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 21,
+      "content": {
+        "answerMode": "choice",
+        "question": "Jika Anda mengatur ulang kata \"RAPIS\", maka Anda akan mendapat nama sebuah:",
+        "options": [
+          "Lautan",
+          "Negara",
+          "Provinsi",
+          "Kota",
+          "Hewan"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 22,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 ini yang paling TIDAK mirip dengan 4 yang lain?",
+        "imageUrl": "/uploads/test-items/356bc269-7ae6-5392-accf-3cbeaaa792e5.png",
+        "options": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 23,
+      "content": {
+        "answerMode": "choice",
+        "question": "Jika \"Peluru\" adalah \"Senjata\" maka \"Bola Api\" adalah:",
+        "options": [
+          "Pentungan",
+          "Ketapel",
+          "Meriam",
+          "Pelempar",
+          "Jepretan"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 24,
+      "content": {
+        "answerMode": "choice",
+        "question": "\"Jika beberapa Bifurs adalah Bofurs dan semua Gloins adalah Bofurs, maka beberapa Bifurs pasti adalah Gloins.\" Pernyataan ini adalah:",
+        "options": [
+          "Benar",
+          "Salah",
+          "Tidak keduanya"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 25,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 ini yang paling TIDAK mirip dengan 4 yang lain?",
+        "imageUrl": "/uploads/test-items/9ec95376-3e0b-502d-ab16-14a539226c09.png",
+        "options": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 26,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari angka-angka ini yang TIDAK masuk ke dalam urutan di bawah ini?\nA – D – G – I – J – M – P – S",
+        "options": [
+          "D",
+          "I",
+          "J",
+          "M",
+          "S"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 27,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 gambar ini yang paling melengkapi kalimat gambar tersebut?",
+        "imageUrl": "/uploads/test-items/3f43a690-d04a-5cb6-b1f2-332b17996c7c.png",
+        "options": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "correctIndexes": [
+          4
+        ]
+      }
+    },
+    {
+      "order": 28,
+      "content": {
+        "answerMode": "choice",
+        "question": "Harga sebuah baju didiskon 20% untuk sebuah acara tahunan. Berapa persen baju tersebut harus dinaikkan dari harga diskon tersebut, sehingga harga baju tersebut menjadi sama dengan harga awalnya?",
+        "options": [
+          "15%",
+          "20%",
+          "25%",
+          "30%",
+          "40%"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 29,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 ini yang paling TIDAK mirip dengan 4 yang lain?",
+        "options": [
+          "Tembaga",
+          "Besi",
+          "Kuningan",
+          "Emas",
+          "Timah"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 30,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 gambar ini yang paling melengkapi kalimat gambar tersebut?",
+        "imageUrl": "/uploads/test-items/0b0b93e3-2cc9-55f5-87d7-494b73c2de3f.png",
+        "options": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "correctIndexes": [
+          4
+        ]
+      }
+    },
+    {
+      "order": 31,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 ini yang paling TIDAK mirip dengan 4 yang lain?",
+        "options": [
+          "Botol",
+          "Cangkir",
+          "Bak",
+          "Terowongan",
+          "Mangkuk"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 32,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mary memiliki beberapa kue. Setelah makan 1 kue, Mary memberikan ½ dari sisanya untuk adiknya. Setelah makan 1 kue lagi, Mary memberikan ½ dari sisanya untuk adiknya. Mary sekarang hanya memiliki 5 kue. Berapakah jumlah awal kue yang dimiliki Mary?",
+        "options": [
+          "11",
+          "22",
+          "23",
+          "45",
+          "46"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 33,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 ini yang paling TIDAK mirip dengan 4 yang lain?",
+        "options": [
+          "Terigu",
+          "Jerami",
+          "Gandum",
+          "Bubur",
+          "Beras"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 34,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari angka-angka ini yang TIDAK masuk ke dalam urutan di bawah ini?\n2 – 3 – 6 – 7 – 8 – 14 – 15 – 30",
+        "options": [
+          "Tiga",
+          "Tujuh",
+          "Delapan",
+          "Lima belas",
+          "Tiga puluh"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 35,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 gambar ini yang paling melengkapi kalimat gambar tersebut?",
+        "imageUrl": "/uploads/test-items/7abac08c-4472-5f1f-a991-065ce9915193.png",
+        "options": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 36,
+      "content": {
+        "answerMode": "choice",
+        "question": "Sebuah pesawat ruang angkasa menerima 3 pesan dalam bahasa yang aneh dari sebuah planet di kejauhan. Para astronot mempelajari pesan-pesan tersebut dan menemukan bahwa: \"Elros Aldarion Elendil\" berarti \"Bahaya Ledakan Roket\", \"Edain Mnyatur Elros\" berarti \"Bahaya Kebakaran Pesawat Ruang Angkasa\", dan \"Aldarion Gimilizor Gondor\" berarti \"Ledakan Gas Yang Buruk\". Apakah arti dari \"Elendil\"?",
+        "options": [
+          "Bahaya",
+          "Ledakan",
+          "Bukan apa-apa",
+          "Roket",
+          "Gas"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 37,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 gambar ini yang paling TIDAK mirip dengan 4 yang lain?",
+        "imageUrl": "/uploads/test-items/432708a9-8993-5bf6-a98d-8778a56297e9.png",
+        "options": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 38,
+      "content": {
+        "answerMode": "choice",
+        "question": "Jika \"GESPER\" adalah \"Kepala Gesper\", maka \"SEPATU\" adalah:",
+        "options": [
+          "Kaos Kaki",
+          "Tumit",
+          "Kaki",
+          "Tali Sepatu",
+          "Sol Sepatu"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 39,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 gambar ini yang paling TIDAK mirip dengan 4 yang lain?",
+        "imageUrl": "/uploads/test-items/0c2aae5a-dbd4-5237-9098-69e822912465.png",
+        "options": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 40,
+      "content": {
+        "answerMode": "choice",
+        "question": "John menerima USD 0.41 sebagai kembalian dari pembeliannya di apotek. Jika John menerima 6 koin, maka ketiga dari koin-koin tersebut harusnya:",
+        "options": [
+          "Satu sen",
+          "Lima sen",
+          "Sepuluh sen",
+          "Seperempat dollar",
+          "Setengah dollar"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 41,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 gambar ini yang paling TIDAK mirip dengan 4 yang lain?",
+        "imageUrl": "/uploads/test-items/8dc0f930-134e-5ef7-b564-fa91ca46620d.png",
+        "options": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 42,
+      "content": {
+        "answerMode": "choice",
+        "question": "Jika Anda mengatur ulang kata-kata \"RMANJE\", maka Anda akan mendapat nama sebuah:",
+        "options": [
+          "Lautan",
+          "Negara",
+          "Provinsi",
+          "Kota",
+          "Hewan"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 43,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 gambar ini yang membuat perbandingan paling tepat?",
+        "imageUrl": "/uploads/test-items/ea293a56-f3da-58e6-8224-a89c0e1a5867.png",
+        "options": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "correctIndexes": [
+          4
+        ]
+      }
+    },
+    {
+      "order": 44,
+      "content": {
+        "answerMode": "choice",
+        "question": "\"Jika semua Wargs adalah Twerps dan tidak ada Twerps yang merupakan Gollums maka tidak ada Gollums yang pasti adalah Wargs.\" Pernyataan ini adalah:",
+        "options": [
+          "Benar",
+          "Salah",
+          "Tidak keduanya"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 45,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 ini yang paling TIDAK mirip dengan 4 yang lain?",
+        "options": [
+          "Kuda",
+          "Kanguru",
+          "Zebra",
+          "Rusa",
+          "Keledai"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 46,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari gambar ini yang TIDAK sesuai dengan urutan gambar-gambar ini?",
+        "imageUrl": "/uploads/test-items/140a0563-1b43-5ef0-a9ec-ccf5010be8ac.png",
+        "options": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 47,
+      "content": {
+        "answerMode": "choice",
+        "question": "Jika \"Jari\" adalah \"Tangan\" maka \"Daun\" adalah:",
+        "options": [
+          "Pohon",
+          "Cabang",
+          "Bunga",
+          "Ranting",
+          "Kulit Kayu"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 48,
+      "content": {
+        "answerMode": "choice",
+        "question": "Ibunya John mengirimkannya ke toko untuk membeli 9 kotak besar jeruk. John hanya dapat membawa 2 kotak dalam sekali jalan. Berapa kali ia harus bolak-balik ke toko?",
+        "options": [
+          "4",
+          "4½",
+          "5",
+          "½",
+          "6"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 49,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari gambar ini yang TIDAK sesuai dengan urutan gambar-gambar ini?",
+        "imageUrl": "/uploads/test-items/c3a92174-e923-52f9-ba78-c6a8d1022e3c.png",
+        "options": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "correctIndexes": [
+          4
+        ]
+      }
+    },
+    {
+      "order": 50,
+      "content": {
+        "answerMode": "choice",
+        "question": "Jika \"Kaki\" adalah \"Lutut\", maka \"Tangan\" adalah:",
+        "options": [
+          "Jari",
+          "Sikut",
+          "Tumit",
+          "Kaki",
+          "Lengan"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 51,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana gambar yang paling mengikuti logika dari diagram di bawah ini?",
+        "imageUrl": "/uploads/test-items/55098316-9faa-5488-8f31-1ba008b05942.png",
+        "options": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 52,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mary ada di peringkat ke-13 dari yang terbaik dan juga peringkat ke-13 dari yang terburuk dalam lomba mengeja kata. Ada berapa peserta dalam lomba mengeja kata tersebut?",
+        "options": [
+          "13",
+          "25",
+          "26",
+          "27",
+          "28"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 53,
+      "content": {
+        "answerMode": "choice",
+        "question": "Jika \"Air\" adalah \"Es Batu\", maka \"Susu\" adalah:",
+        "options": [
+          "Madu",
+          "Keju",
+          "Sereal",
+          "Kopi",
+          "Kue"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 54,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari angka ini yang TIDAK sesuai dengan urutan angka-angka ini?\n1 – 2 – 5 – 10 – 13 – 26 – 29 – 48",
+        "options": [
+          "1",
+          "2",
+          "5",
+          "10",
+          "13",
+          "26",
+          "29",
+          "48"
+        ],
+        "correctIndexes": [
+          7
+        ]
+      }
+    },
+    {
+      "order": 55,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 ini yang paling TIDAK mirip dengan 4 yang lain?",
+        "options": [
+          "Sayap",
+          "Iga",
+          "Salmon",
+          "Ayam",
+          "Sapi"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 56,
+      "content": {
+        "answerMode": "choice",
+        "question": "\"Jika semua Fleeps adalah Sloops dan semua Sloops adalah Loopies, maka semua Fleeps adalah pasti Loopies.\" Pernyataan ini adalah:",
+        "options": [
+          "Benar",
+          "Salah",
+          "Tidak keduanya"
+        ],
+        "correctIndexes": [
+          0
+        ]
+      }
+    },
+    {
+      "order": 57,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 gambar ini yang paling melengkapi kalimat gambar tersebut?",
+        "imageUrl": "/uploads/test-items/41277f45-bafb-54a3-ad8b-adee613b6c85.png",
+        "options": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "correctIndexes": [
+          4
+        ]
+      }
+    },
+    {
+      "order": 58,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 ini yang paling TIDAK mirip dengan 4 yang lain?",
+        "options": [
+          "Sentimeter",
+          "Kilometer",
+          "Hektar",
+          "Meter",
+          "Kaki"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 59,
+      "content": {
+        "answerMode": "choice",
+        "question": "Mana dari ke-5 gambar ini yang paling melengkapi kalimat gambar tersebut?",
+        "imageUrl": "/uploads/test-items/f441b1eb-cd27-5f0d-acd5-2f9e57f05194.png",
+        "options": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 60,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seekor ikan mempunyai kepala sepanjang 9 mm. Buntutnya sama panjangnya dengan ukuran kepalanya ditambah setengah kali ukuran badannya. Ukuran badannya adalah sama dengan ukuran kepala ditambah ukuran buntutnya. Berapa panjang ikan tersebut?",
+        "options": [
+          "27mm",
+          "54mm",
+          "63mm",
+          "72mm",
+          "81mm"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    }
+  ],
+  "interpretations": [
+    {
+      "patternCode": "RAW_0",
+      "title": "Skor 0 dari 60 — di bawah rata-rata",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_1",
+      "title": "Skor 1 dari 60 — IQ 1 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_2",
+      "title": "Skor 2 dari 60 — IQ 1 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_3",
+      "title": "Skor 3 dari 60 — IQ 4 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_4",
+      "title": "Skor 4 dari 60 — IQ 7 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_5",
+      "title": "Skor 5 dari 60 — IQ 10 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_6",
+      "title": "Skor 6 dari 60 — IQ 13 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_7",
+      "title": "Skor 7 dari 60 — IQ 16 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_8",
+      "title": "Skor 8 dari 60 — IQ 19 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_9",
+      "title": "Skor 9 dari 60 — IQ 22 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_10",
+      "title": "Skor 10 dari 60 — IQ 25 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_11",
+      "title": "Skor 11 dari 60 — IQ 28 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_12",
+      "title": "Skor 12 dari 60 — IQ 31 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_13",
+      "title": "Skor 13 dari 60 — IQ 34 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_14",
+      "title": "Skor 14 dari 60 — IQ 37 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_15",
+      "title": "Skor 15 dari 60 — IQ 40 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_16",
+      "title": "Skor 16 dari 60 — IQ 43 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_17",
+      "title": "Skor 17 dari 60 — IQ 46 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_18",
+      "title": "Skor 18 dari 60 — IQ 49 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_19",
+      "title": "Skor 19 dari 60 — IQ 52 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_20",
+      "title": "Skor 20 dari 60 — IQ 55 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_21",
+      "title": "Skor 21 dari 60 — IQ 58 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_22",
+      "title": "Skor 22 dari 60 — IQ 61 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_23",
+      "title": "Skor 23 dari 60 — IQ 64 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_24",
+      "title": "Skor 24 dari 60 — IQ 67 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_25",
+      "title": "Skor 25 dari 60 — IQ 70 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_26",
+      "title": "Skor 26 dari 60 — IQ 73 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_27",
+      "title": "Skor 27 dari 60 — IQ 76 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_28",
+      "title": "Skor 28 dari 60 — IQ 79 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_29",
+      "title": "Skor 29 dari 60 — IQ 82 (Kecerdasan di bawah rata-rata)",
+      "body": "Penalaran verbal, numerik, dan figural masih perlu latihan terarah. Disarankan pendampingan pada tugas yang menuntut analisis cepat dan pemecahan masalah bertahap."
+    },
+    {
+      "patternCode": "RAW_30",
+      "title": "Skor 30 dari 60 — IQ 85 (Kecerdasan rata-rata)",
+      "body": "Kemampuan penalaran berada pada taraf rata-rata. Mampu menyelesaikan soal rutin dengan baik, namun masih butuh waktu lebih pada soal yang menuntut kombinasi beberapa langkah."
+    },
+    {
+      "patternCode": "RAW_31",
+      "title": "Skor 31 dari 60 — IQ 88 (Kecerdasan rata-rata)",
+      "body": "Kemampuan penalaran berada pada taraf rata-rata. Mampu menyelesaikan soal rutin dengan baik, namun masih butuh waktu lebih pada soal yang menuntut kombinasi beberapa langkah."
+    },
+    {
+      "patternCode": "RAW_32",
+      "title": "Skor 32 dari 60 — IQ 91 (Kecerdasan rata-rata)",
+      "body": "Kemampuan penalaran berada pada taraf rata-rata. Mampu menyelesaikan soal rutin dengan baik, namun masih butuh waktu lebih pada soal yang menuntut kombinasi beberapa langkah."
+    },
+    {
+      "patternCode": "RAW_33",
+      "title": "Skor 33 dari 60 — IQ 94 (Kecerdasan rata-rata)",
+      "body": "Kemampuan penalaran berada pada taraf rata-rata. Mampu menyelesaikan soal rutin dengan baik, namun masih butuh waktu lebih pada soal yang menuntut kombinasi beberapa langkah."
+    },
+    {
+      "patternCode": "RAW_34",
+      "title": "Skor 34 dari 60 — IQ 97 (Kecerdasan rata-rata)",
+      "body": "Kemampuan penalaran berada pada taraf rata-rata. Mampu menyelesaikan soal rutin dengan baik, namun masih butuh waktu lebih pada soal yang menuntut kombinasi beberapa langkah."
+    },
+    {
+      "patternCode": "RAW_35",
+      "title": "Skor 35 dari 60 — IQ 100 (Kecerdasan di atas rata-rata)",
+      "body": "Kemampuan penalaran di atas rata-rata. Cepat menangkap pola dan mampu menyelesaikan soal yang menuntut analisis beberapa langkah."
+    },
+    {
+      "patternCode": "RAW_36",
+      "title": "Skor 36 dari 60 — IQ 103 (Kecerdasan di atas rata-rata)",
+      "body": "Kemampuan penalaran di atas rata-rata. Cepat menangkap pola dan mampu menyelesaikan soal yang menuntut analisis beberapa langkah."
+    },
+    {
+      "patternCode": "RAW_37",
+      "title": "Skor 37 dari 60 — IQ 106 (Kecerdasan di atas rata-rata)",
+      "body": "Kemampuan penalaran di atas rata-rata. Cepat menangkap pola dan mampu menyelesaikan soal yang menuntut analisis beberapa langkah."
+    },
+    {
+      "patternCode": "RAW_38",
+      "title": "Skor 38 dari 60 — IQ 109 (Kecerdasan di atas rata-rata)",
+      "body": "Kemampuan penalaran di atas rata-rata. Cepat menangkap pola dan mampu menyelesaikan soal yang menuntut analisis beberapa langkah."
+    },
+    {
+      "patternCode": "RAW_39",
+      "title": "Skor 39 dari 60 — IQ 112 (Kecerdasan di atas rata-rata)",
+      "body": "Kemampuan penalaran di atas rata-rata. Cepat menangkap pola dan mampu menyelesaikan soal yang menuntut analisis beberapa langkah."
+    },
+    {
+      "patternCode": "RAW_40",
+      "title": "Skor 40 dari 60 — IQ 115 (Kecerdasan tinggi)",
+      "body": "Kemampuan penalaran tinggi. Menangani soal verbal, numerik, dan figural kompleks dengan cepat dan akurat, serta kuat dalam menemukan pola."
+    },
+    {
+      "patternCode": "RAW_41",
+      "title": "Skor 41 dari 60 — IQ 118 (Kecerdasan tinggi)",
+      "body": "Kemampuan penalaran tinggi. Menangani soal verbal, numerik, dan figural kompleks dengan cepat dan akurat, serta kuat dalam menemukan pola."
+    },
+    {
+      "patternCode": "RAW_42",
+      "title": "Skor 42 dari 60 — IQ 121 (Kecerdasan tinggi)",
+      "body": "Kemampuan penalaran tinggi. Menangani soal verbal, numerik, dan figural kompleks dengan cepat dan akurat, serta kuat dalam menemukan pola."
+    },
+    {
+      "patternCode": "RAW_43",
+      "title": "Skor 43 dari 60 — IQ 124 (Kecerdasan tinggi)",
+      "body": "Kemampuan penalaran tinggi. Menangani soal verbal, numerik, dan figural kompleks dengan cepat dan akurat, serta kuat dalam menemukan pola."
+    },
+    {
+      "patternCode": "RAW_44",
+      "title": "Skor 44 dari 60 — IQ 127 (Kecerdasan tinggi)",
+      "body": "Kemampuan penalaran tinggi. Menangani soal verbal, numerik, dan figural kompleks dengan cepat dan akurat, serta kuat dalam menemukan pola."
+    },
+    {
+      "patternCode": "RAW_45",
+      "title": "Skor 45 dari 60 — IQ 130 (Kecerdasan superior)",
+      "body": "Kemampuan penalaran superior. Sangat cepat dan akurat pada tugas baru, termasuk soal figural dan logika berlapis."
+    },
+    {
+      "patternCode": "RAW_46",
+      "title": "Skor 46 dari 60 — IQ 133 (Kecerdasan superior)",
+      "body": "Kemampuan penalaran superior. Sangat cepat dan akurat pada tugas baru, termasuk soal figural dan logika berlapis."
+    },
+    {
+      "patternCode": "RAW_47",
+      "title": "Skor 47 dari 60 — IQ 136 (Kecerdasan superior)",
+      "body": "Kemampuan penalaran superior. Sangat cepat dan akurat pada tugas baru, termasuk soal figural dan logika berlapis."
+    },
+    {
+      "patternCode": "RAW_48",
+      "title": "Skor 48 dari 60 — IQ 139 (Kecerdasan superior)",
+      "body": "Kemampuan penalaran superior. Sangat cepat dan akurat pada tugas baru, termasuk soal figural dan logika berlapis."
+    },
+    {
+      "patternCode": "RAW_49",
+      "title": "Skor 49 dari 60 — IQ 142 (Kecerdasan superior)",
+      "body": "Kemampuan penalaran superior. Sangat cepat dan akurat pada tugas baru, termasuk soal figural dan logika berlapis."
+    },
+    {
+      "patternCode": "RAW_50",
+      "title": "Skor 50 dari 60 — IQ 145 (Sangat berbakat)",
+      "body": "Kemampuan penalaran sangat tinggi. Menyelesaikan hampir seluruh soal dengan akurat dalam batas waktu, termasuk soal yang paling kompleks."
+    },
+    {
+      "patternCode": "RAW_51",
+      "title": "Skor 51 dari 60 — IQ 148 (Sangat berbakat)",
+      "body": "Kemampuan penalaran sangat tinggi. Menyelesaikan hampir seluruh soal dengan akurat dalam batas waktu, termasuk soal yang paling kompleks."
+    },
+    {
+      "patternCode": "RAW_52",
+      "title": "Skor 52 dari 60 — IQ 151 (Sangat berbakat)",
+      "body": "Kemampuan penalaran sangat tinggi. Menyelesaikan hampir seluruh soal dengan akurat dalam batas waktu, termasuk soal yang paling kompleks."
+    },
+    {
+      "patternCode": "RAW_53",
+      "title": "Skor 53 dari 60 — IQ 154 (Sangat berbakat)",
+      "body": "Kemampuan penalaran sangat tinggi. Menyelesaikan hampir seluruh soal dengan akurat dalam batas waktu, termasuk soal yang paling kompleks."
+    },
+    {
+      "patternCode": "RAW_54",
+      "title": "Skor 54 dari 60 — IQ 157 (Sangat berbakat)",
+      "body": "Kemampuan penalaran sangat tinggi. Menyelesaikan hampir seluruh soal dengan akurat dalam batas waktu, termasuk soal yang paling kompleks."
+    },
+    {
+      "patternCode": "RAW_55",
+      "title": "Skor 55 dari 60 — IQ 160 (Sangat berbakat)",
+      "body": "Kemampuan penalaran sangat tinggi. Menyelesaikan hampir seluruh soal dengan akurat dalam batas waktu, termasuk soal yang paling kompleks."
+    },
+    {
+      "patternCode": "RAW_56",
+      "title": "Skor 56 dari 60 — IQ 163 (Sangat berbakat)",
+      "body": "Kemampuan penalaran sangat tinggi. Menyelesaikan hampir seluruh soal dengan akurat dalam batas waktu, termasuk soal yang paling kompleks."
+    },
+    {
+      "patternCode": "RAW_57",
+      "title": "Skor 57 dari 60 — IQ 166 (Sangat berbakat)",
+      "body": "Kemampuan penalaran sangat tinggi. Menyelesaikan hampir seluruh soal dengan akurat dalam batas waktu, termasuk soal yang paling kompleks."
+    },
+    {
+      "patternCode": "RAW_58",
+      "title": "Skor 58 dari 60 — IQ 169 (Sangat berbakat)",
+      "body": "Kemampuan penalaran sangat tinggi. Menyelesaikan hampir seluruh soal dengan akurat dalam batas waktu, termasuk soal yang paling kompleks."
+    },
+    {
+      "patternCode": "RAW_59",
+      "title": "Skor 59 dari 60 — IQ 172 (Sangat berbakat)",
+      "body": "Kemampuan penalaran sangat tinggi. Menyelesaikan hampir seluruh soal dengan akurat dalam batas waktu, termasuk soal yang paling kompleks."
+    },
+    {
+      "patternCode": "RAW_60",
+      "title": "Skor 60 dari 60 — IQ 175 (Sangat berbakat)",
+      "body": "Kemampuan penalaran sangat tinggi. Menyelesaikan hampir seluruh soal dengan akurat dalam batas waktu, termasuk soal yang paling kompleks."
+    }
+  ]
+}
