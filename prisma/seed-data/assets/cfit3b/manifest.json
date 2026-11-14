@@ -1,0 +1,250 @@
+{
+  "note": "Gambar soal dipotong dari \"CFIT 3 Form B.pdf\" (4 subtes, halaman 3-5, 7-8, 10-11, 13). imageUrl memakai uuid5 tetap supaya seed idempoten.",
+  "items": [
+    {
+      "item": 1,
+      "file": "cfit3b-01.png",
+      "imageUrl": "/uploads/test-items/1b65cbf4-7b77-5025-91c5-027cc68e4851.png"
+    },
+    {
+      "item": 2,
+      "file": "cfit3b-02.png",
+      "imageUrl": "/uploads/test-items/c12da8b2-ff6d-5156-a624-df86b76450c2.png"
+    },
+    {
+      "item": 3,
+      "file": "cfit3b-03.png",
+      "imageUrl": "/uploads/test-items/7ab00905-4dc3-5d23-a85f-7e6b49dcbc22.png"
+    },
+    {
+      "item": 4,
+      "file": "cfit3b-04.png",
+      "imageUrl": "/uploads/test-items/0c444bf5-0f18-5fb6-af4a-69f60243cd5b.png"
+    },
+    {
+      "item": 5,
+      "file": "cfit3b-05.png",
+      "imageUrl": "/uploads/test-items/0d4fbeac-709c-5053-8e14-f2b8ab165e8e.png"
+    },
+    {
+      "item": 6,
+      "file": "cfit3b-06.png",
+      "imageUrl": "/uploads/test-items/286863d4-5bb3-5092-a75d-234ae961bb8e.png"
+    },
+    {
+      "item": 7,
+      "file": "cfit3b-07.png",
+      "imageUrl": "/uploads/test-items/71cf89d6-611d-56bf-9c5a-e378457cc245.png"
+    },
+    {
+      "item": 8,
+      "file": "cfit3b-08.png",
+      "imageUrl": "/uploads/test-items/26dd633e-e3b0-5de0-a7ee-4964a6b66056.png"
+    },
+    {
+      "item": 9,
+      "file": "cfit3b-09.png",
+      "imageUrl": "/uploads/test-items/1e373839-2ca9-540f-bae8-5ce6e688c5c8.png"
+    },
+    {
+      "item": 10,
+      "file": "cfit3b-10.png",
+      "imageUrl": "/uploads/test-items/339a9f13-617f-53d1-874c-3dd92cd774dc.png"
+    },
+    {
+      "item": 11,
+      "file": "cfit3b-11.png",
+      "imageUrl": "/uploads/test-items/c72a2bdc-7826-5fc2-8058-73bf50db65fe.png"
+    },
+    {
+      "item": 12,
+      "file": "cfit3b-12.png",
+      "imageUrl": "/uploads/test-items/a616b603-7d6e-5e28-8501-27f158c8456e.png"
+    },
+    {
+      "item": 13,
+      "file": "cfit3b-13.png",
+      "imageUrl": "/uploads/test-items/234771f3-c365-51ef-b66b-a6ab9e812243.png"
+    },
+    {
+      "item": 14,
+      "file": "cfit3b-14.png",
+      "imageUrl": "/uploads/test-items/19a171d3-0d4b-5e5d-8f3a-6c5ff8a50d64.png"
+    },
+    {
+      "item": 15,
+      "file": "cfit3b-15.png",
+      "imageUrl": "/uploads/test-items/25034ccf-b223-5c7b-97e0-ee2d8a5756f9.png"
+    },
+    {
+      "item": 16,
+      "file": "cfit3b-16.png",
+      "imageUrl": "/uploads/test-items/b42e0050-c153-5350-b21d-12b84a9b9938.png"
+    },
+    {
+      "item": 17,
+      "file": "cfit3b-17.png",
+      "imageUrl": "/uploads/test-items/e279f006-f592-5ebd-a380-c9bc4fab6a79.png"
+    },
+    {
+      "item": 18,
+      "file": "cfit3b-18.png",
+      "imageUrl": "/uploads/test-items/d6a4dd87-b7c8-5241-80cc-190917e8110e.png"
+    },
+    {
+      "item": 19,
+      "file": "cfit3b-19.png",
+      "imageUrl": "/uploads/test-items/f638325c-691d-5dce-b3f4-b77fa2a1a8cd.png"
+    },
+    {
+      "item": 20,
+      "file": "cfit3b-20.png",
+      "imageUrl": "/uploads/test-items/84168f68-d50b-50b4-9cc4-ef3c6552af13.png"
+    },
+    {
+      "item": 21,
+      "file": "cfit3b-21.png",
+      "imageUrl": "/uploads/test-items/cc90f055-821d-58c3-a5ca-282a9bfa39ab.png"
+    },
+    {
+      "item": 22,
+      "file": "cfit3b-22.png",
+      "imageUrl": "/uploads/test-items/357ff669-f78d-5350-813b-c9722f33b9d0.png"
+    },
+    {
+      "item": 23,
+      "file": "cfit3b-23.png",
+      "imageUrl": "/uploads/test-items/062d83b6-9902-5d16-a301-b7e6d8daf94e.png"
+    },
+    {
+      "item": 24,
+      "file": "cfit3b-24.png",
+      "imageUrl": "/uploads/test-items/72047f35-a4d9-5a7b-a56b-c6145541fd15.png"
+    },
+    {
+      "item": 25,
+      "file": "cfit3b-25.png",
+      "imageUrl": "/uploads/test-items/6234e0be-d88f-5144-87e8-a81ed5c39270.png"
+    },
+    {
+      "item": 26,
+      "file": "cfit3b-26.png",
+      "imageUrl": "/uploads/test-items/5c358b6a-6cb6-5edc-b70b-a3972039e7b3.png"
+    },
+    {
+      "item": 27,
+      "file": "cfit3b-27.png",
+      "imageUrl": "/uploads/test-items/a6d2e9f1-dd38-521b-b470-4b28248acef2.png"
+    },
+    {
+      "item": 28,
+      "file": "cfit3b-28.png",
+      "imageUrl": "/uploads/test-items/b3bb44d7-831a-5c48-8fc9-86325b3fcc4b.png"
+    },
+    {
+      "item": 29,
+      "file": "cfit3b-29.png",
+      "imageUrl": "/uploads/test-items/d02401be-754d-5120-b4b7-e30589c6b222.png"
+    },
+    {
+      "item": 30,
+      "file": "cfit3b-30.png",
+      "imageUrl": "/uploads/test-items/6da4420d-5c38-5511-917e-c5ed43edcdf4.png"
+    },
+    {
+      "item": 31,
+      "file": "cfit3b-31.png",
+      "imageUrl": "/uploads/test-items/69844eb0-bb20-5e9e-a337-e2c4456f82e8.png"
+    },
+    {
+      "item": 32,
+      "file": "cfit3b-32.png",
+      "imageUrl": "/uploads/test-items/838a0167-a84e-5be7-9e08-5ae1aaf0791d.png"
+    },
+    {
+      "item": 33,
+      "file": "cfit3b-33.png",
+      "imageUrl": "/uploads/test-items/8905b26e-8b37-5b6f-b7de-70b6a6cd6972.png"
+    },
+    {
+      "item": 34,
+      "file": "cfit3b-34.png",
+      "imageUrl": "/uploads/test-items/eb5808cd-1c35-568b-8ef9-8596bc6ba47e.png"
+    },
+    {
+      "item": 35,
+      "file": "cfit3b-35.png",
+      "imageUrl": "/uploads/test-items/cf795a13-b792-50d7-890c-f606e41924ea.png"
+    },
+    {
+      "item": 36,
+      "file": "cfit3b-36.png",
+      "imageUrl": "/uploads/test-items/dfbd1dfb-151e-5ccf-9746-6a174429a351.png"
+    },
+    {
+      "item": 37,
+      "file": "cfit3b-37.png",
+      "imageUrl": "/uploads/test-items/313b96dc-08d3-5503-95bf-2f03721be91e.png"
+    },
+    {
+      "item": 38,
+      "file": "cfit3b-38.png",
+      "imageUrl": "/uploads/test-items/5d97d17b-66eb-5fb9-af41-38c23c7549ce.png"
+    },
+    {
+      "item": 39,
+      "file": "cfit3b-39.png",
+      "imageUrl": "/uploads/test-items/ebce2307-e8ba-5e1f-ba4b-01871239d9e7.png"
+    },
+    {
+      "item": 40,
+      "file": "cfit3b-40.png",
+      "imageUrl": "/uploads/test-items/6f731637-24da-55b8-a9b9-2d30f4c97f12.png"
+    },
+    {
+      "item": 41,
+      "file": "cfit3b-41.png",
+      "imageUrl": "/uploads/test-items/9d678068-b8ca-5309-8d10-e64b2b116539.png"
+    },
+    {
+      "item": 42,
+      "file": "cfit3b-42.png",
+      "imageUrl": "/uploads/test-items/175985a7-3fea-545c-b577-9b3c245583ae.png"
+    },
+    {
+      "item": 43,
+      "file": "cfit3b-43.png",
+      "imageUrl": "/uploads/test-items/3e5f14ba-dbb5-5b67-a4ab-bbb5f4ab52d8.png"
+    },
+    {
+      "item": 44,
+      "file": "cfit3b-44.png",
+      "imageUrl": "/uploads/test-items/1cf55a38-ae2a-5970-808c-39cc4f3679be.png"
+    },
+    {
+      "item": 45,
+      "file": "cfit3b-45.png",
+      "imageUrl": "/uploads/test-items/7f07be84-d430-5b41-b884-54954a22531d.png"
+    },
+    {
+      "item": 46,
+      "file": "cfit3b-46.png",
+      "imageUrl": "/uploads/test-items/8f213bd0-068e-5593-a546-bc2d73aedaa9.png"
+    },
+    {
+      "item": 47,
+      "file": "cfit3b-47.png",
+      "imageUrl": "/uploads/test-items/e8157f9f-6402-5996-9046-88f12ad388b2.png"
+    },
+    {
+      "item": 48,
+      "file": "cfit3b-48.png",
+      "imageUrl": "/uploads/test-items/a04683f1-e828-5fa4-8ce8-71ef6f6b31a1.png"
+    },
+    {
+      "item": 49,
+      "file": "cfit3b-49.png",
+      "imageUrl": "/uploads/test-items/b33f67e8-2747-513a-bac9-103358e3ae90.png"
+    }
+  ]
+}
