@@ -25,6 +25,8 @@ export class PrismaAttemptsRepository implements AttemptsRepository {
             status: true,
             timeLimitMin: true,
             normTable: true,
+            ageMinMonths: true,
+            ageMaxMonths: true,
           },
         },
         session: { select: { id: true, status: true, expiresAt: true } },
@@ -48,12 +50,22 @@ export class PrismaAttemptsRepository implements AttemptsRepository {
         startedAt: attempt.startedAt,
         completedAt: attempt.completedAt,
         participantId: attempt.participantId,
+        birthDate: attempt.birthDate,
       },
       test: attempt.test,
       session: attempt.session,
       items,
       responses: attempt.responses,
     };
+  }
+
+  async setBirthDate(attemptId: string, birthDate: Date): Promise<void> {
+    // `updateMany` with a null guard keeps a concurrent second call from
+    // overwriting the first date the participant declared.
+    await this.prisma.attempt.updateMany({
+      where: { id: attemptId, birthDate: null },
+      data: { birthDate },
+    });
   }
 
   async upsertResponse(

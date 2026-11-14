@@ -4,6 +4,7 @@ import {
   Post,
   Put,
   Param,
+  Query,
   Body,
   UseGuards,
 } from '@nestjs/common';
@@ -14,6 +15,10 @@ import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
 import { ParticipantTokenGuard } from '../guards/participant-token.guard';
 import { PutResponseSchema } from '../dto/put-response.dto';
 import type { PutResponseDto } from '../dto/put-response.dto';
+import {
+  ReadAttemptQuerySchema,
+  type ReadAttemptQueryDto,
+} from '../dto/read-attempt-query.dto';
 import { AttemptsService } from '../service/attempts.service';
 import type { ApiResponse } from '../../../common/interfaces/api-response.interface';
 import type {
@@ -31,8 +36,14 @@ export class AttemptsPublicController {
   async read(
     @Param('id') id: string,
     @Participant() participant: SessionParticipant,
+    @Query(new ZodValidationPipe(ReadAttemptQuerySchema))
+    query: ReadAttemptQueryDto,
   ): Promise<ApiResponse<AttemptReadDto>> {
-    const data = await this.attemptsService.read(id, participant.id);
+    const data = await this.attemptsService.read(
+      id,
+      participant.id,
+      query.birthDate,
+    );
     return { data };
   }
 

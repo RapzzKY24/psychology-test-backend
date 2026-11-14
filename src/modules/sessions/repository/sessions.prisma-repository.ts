@@ -399,12 +399,22 @@ export class PrismaSessionsRepository implements SessionsRepository {
       const have = new Set(existing.map((a) => a.testId));
       const missing = params.testIds.filter((t) => !have.has(t));
       if (missing.length > 0) {
+        // The roster may already carry the birth date the norm needs; copying
+        // it here saves the participant from being asked again in the runner.
+        const seat = await tx.sessionParticipant.findUnique({
+          where: { id: params.seatId },
+          select: {
+            institutionParticipant: { select: { birthDate: true } },
+          },
+        });
+        const birthDate = seat?.institutionParticipant?.birthDate ?? null;
         await tx.attempt.createMany({
           data: missing.map((testId) => ({
             sessionId: params.sessionId,
             testId,
             participantId: params.seatId,
             status: 'IN_PROGRESS',
+            birthDate,
           })),
         });
       }

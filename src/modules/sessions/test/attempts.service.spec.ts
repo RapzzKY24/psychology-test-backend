@@ -21,6 +21,7 @@ function makeDetail(
       startedAt: new Date(NOW),
       completedAt: null,
       participantId: 'p-1',
+      birthDate: null,
     },
     test: {
       id: 't-1',
@@ -29,6 +30,8 @@ function makeDetail(
       status: 'PUBLISHED',
       timeLimitMin: null,
       normTable: null,
+      ageMinMonths: null,
+      ageMaxMonths: null,
     },
     session: {
       id: 'sess-1',
@@ -67,6 +70,7 @@ describe('AttemptsService', () => {
   beforeEach(() => {
     mockRepo = {
       findAccessDetail: jest.fn(),
+      setBirthDate: jest.fn(),
       upsertResponse: jest.fn(),
       findResultByAttemptId: jest.fn(),
       completeAndCreateResult: jest.fn(),
@@ -259,6 +263,8 @@ describe('AttemptsService', () => {
       status: 'PUBLISHED',
       timeLimitMin: 12,
       normTable: [{ raw: 0, iq: 59 }],
+      ageMinMonths: null,
+      ageMaxMonths: null,
     };
     const rawItems = [
       {
@@ -381,6 +387,106 @@ describe('AttemptsService', () => {
       mockRepo.findAccessDetail.mockResolvedValue(makeDetail());
       await expect(service.complete('att-1', 'p-1')).rejects.toThrow(
         'validation_failed',
+      );
+    });
+  });
+
+  describe('age band gate', () => {
+    // CFIT 2's ladder covers 14y0m–14y11m only.
+    const bandedTest = {
+      id: 't-1',
+      name: 'CFIT 2',
+      scorerType: 'RIGHT_WRONG_NORM',
+      status: 'PUBLISHED',
+      timeLimitMin: null,
+      normTable: null,
+      ageMinMonths: 168,
+      ageMaxMonths: 179,
+    };
+
+    function birthDateYearsAgo(years: number, extraMonths = 0): string {
+      const now = new Date();
+      const date = new Date(
+        Date.UTC(
+          now.getUTCFullYear() - years,
+          now.getUTCMonth() - extraMonths,
+          1,
+        ),
+      );
+      return date.toISOString().slice(0, 10);
+    }
+
+    it('asks for a birth date when the attempt has none', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({ test: bandedTest }),
+      );
+      await expect(service.read('att-1', 'p-1')).rejects.toThrow(
+        'birth_date_required',
+      );
+      expect(mockRepo.setBirthDate).not.toHaveBeenCalled();
+    });
+
+    it('rejects an impossible birth date', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({ test: bandedTest }),
+      );
+      await expect(service.read('att-1', 'p-1', '2012-02-30')).rejects.toThrow(
+        'birth_date_invalid',
+      );
+    });
+
+    it('rejects a participant outside the band and stores nothing', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({ test: bandedTest }),
+      );
+      await expect(
+        service.read('att-1', 'p-1', birthDateYearsAgo(13)),
+      ).rejects.toThrow('age_out_of_band');
+      expect(mockRepo.setBirthDate).not.toHaveBeenCalled();
+    });
+
+    it('records the birth date once when the age fits', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({ test: bandedTest }),
+      );
+      const birthDate = birthDateYearsAgo(14, 3);
+      const out = await service.read('att-1', 'p-1', birthDate);
+      expect(out.id).toBe('att-1');
+      expect(mockRepo.setBirthDate).toHaveBeenCalledWith(
+        'att-1',
+        new Date(`${birthDate}T00:00:00.000Z`),
+      );
+    });
+
+    it('keeps the stored date even when a fitting one is offered later', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({
+          test: bandedTest,
+          attempt: {
+            ...makeDetail().attempt,
+            birthDate: new Date(`${birthDateYearsAgo(13)}T00:00:00.000Z`),
+          },
+        }),
+      );
+      await expect(
+        service.read('att-1', 'p-1', birthDateYearsAgo(14)),
+      ).rejects.toThrow('age_out_of_band');
+      expect(mockRepo.setBirthDate).not.toHaveBeenCalled();
+    });
+
+    it('does not ask on an unbanded test', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(makeDetail());
+      const out = await service.read('att-1', 'p-1');
+      expect(out.id).toBe('att-1');
+      expect(mockRepo.setBirthDate).not.toHaveBeenCalled();
+    });
+
+    it('refuses to complete a banded attempt with no recorded birth date', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({ test: bandedTest }),
+      );
+      await expect(service.complete('att-1', 'p-1')).rejects.toThrow(
+        'birth_date_required',
       );
     });
   });

@@ -438,6 +438,12 @@ model Attempt {
   status        AttemptStatus       @default(IN_PROGRESS)
   startedAt     DateTime            @default(now())
   completedAt   DateTime?
+  /**
+   * Birth date declared when the participant first opened a test whose norm is
+   * age-banded. Recorded once so later calls cannot swap it for a date that
+   * fits; null on unbanded tests and on attempts that never needed it.
+   */
+  birthDate     DateTime?
   session       TestSession         @relation(fields: [sessionId], references: [id])
   test          Test                @relation(fields: [testId], references: [id])
   participant   SessionParticipant? @relation(fields: [participantId], references: [id])

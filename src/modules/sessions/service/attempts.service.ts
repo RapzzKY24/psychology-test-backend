@@ -7,7 +7,11 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { ATTEMPTS_REPOSITORY } from '../repository/attempts.repository';
-import type { AttemptsRepository } from '../repository/attempts.repository';
+import type {
+  AttemptsRepository,
+  AttemptAccessDetail,
+} from '../repository/attempts.repository';
+import { ageInMonthsFromIsoDate, isoDateOf } from '../utils/age-in-months';
 import { getScorer } from '../../../scorers/registry';
 import type {
   AttemptReadDto,
@@ -68,13 +72,51 @@ export class AttemptsService {
     }
   }
 
+  /**
+   * The norm of some instruments (CFIT 2 today) is only valid inside one age
+   * band, so the attempt cannot be opened by someone outside it. The first
+   * declared birth date is stored on the attempt; later calls are checked
+   * against the stored value, never against a fresh one, so a participant
+   * cannot re-declare a date that fits after seeing the rejection.
+   */
+  private async assertAgeWithinBand(
+    detail: AttemptAccessDetail,
+    declaredBirthDate?: string,
+  ): Promise<void> {
+    const { ageMinMonths: min, ageMaxMonths: max } = detail.test;
+    if (min == null || max == null) return;
+
+    const recorded = detail.attempt.birthDate;
+    const birthDate = recorded ? isoDateOf(recorded) : declaredBirthDate;
+    if (!birthDate) {
+      throw new UnprocessableEntityException('birth_date_required');
+    }
+
+    const ageMonths = ageInMonthsFromIsoDate(birthDate, new Date());
+    if (ageMonths === null) {
+      throw new UnprocessableEntityException('birth_date_invalid');
+    }
+    if (ageMonths < min || ageMonths > max) {
+      throw new UnprocessableEntityException('age_out_of_band');
+    }
+
+    if (!recorded) {
+      await this.repo.setBirthDate(
+        detail.attempt.id,
+        new Date(`${birthDate}T00:00:00.000Z`),
+      );
+    }
+  }
+
   async read(
     attemptId: string,
     participantId: string,
+    declaredBirthDate?: string,
   ): Promise<AttemptReadDto> {
     const detail = await this.repo.findAccessDetail(attemptId);
     if (!detail) throw new NotFoundException('Attempt not found');
     this.assertOwnerOr404(detail.attempt.participantId, participantId);
+    await this.assertAgeWithinBand(detail, declaredBirthDate);
 
     const scorer = getScorer(detail.test.scorerType);
     return {
@@ -174,6 +216,9 @@ export class AttemptsService {
       throw new ConflictException('attempt_not_in_progress');
     }
     this.assertWithinGrace(detail.session);
+    // A banded test never reaches scoring without a recorded birth date: the
+    // read endpoint asks for it, and this check closes the direct-submit path.
+    await this.assertAgeWithinBand(detail);
 
     const answered = new Set(detail.responses.map((r) => r.itemId));
     const missing = detail.items

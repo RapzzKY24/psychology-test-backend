@@ -11,6 +11,8 @@ export interface AttemptAccessDetail {
     startedAt: Date;
     completedAt: Date | null;
     participantId: string | null;
+    /** Declared birth date, recorded the first time a banded test is opened. */
+    birthDate: Date | null;
   };
   test: {
     id: string;
@@ -21,6 +23,9 @@ export interface AttemptAccessDetail {
     timeLimitMin: number | null;
     /** Raw -> IQ rows, null when the test has no norm. */
     normTable: unknown;
+    /** Norm age band in whole months; both null when the norm is not banded. */
+    ageMinMonths: number | null;
+    ageMaxMonths: number | null;
   };
   session: { id: string; status: string; expiresAt: Date };
   items: { id: string; order: number; content: unknown }[];
@@ -54,6 +59,8 @@ export interface ListAttemptsByUserParams {
 
 export interface AttemptsRepository {
   findAccessDetail(id: string): Promise<AttemptAccessDetail | null>;
+  /** Records the declared birth date once; later calls are a no-op. */
+  setBirthDate(attemptId: string, birthDate: Date): Promise<void>;
   upsertResponse(
     attemptId: string,
     itemId: string,
