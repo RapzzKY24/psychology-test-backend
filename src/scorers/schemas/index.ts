@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { ChoiceTallyItemContentSchema } from './choice-tally';
 import { DiscItemContentSchema } from './forced-choice-disc';
 import { PairItemContentSchema } from './forced-choice-pair';
+import { LikertItemContentSchema } from './likert';
 import { RightWrongItemContentSchema } from './right-wrong-norm';
 import { ScaleTallyItemContentSchema } from './scale-tally';
 
@@ -9,6 +10,7 @@ export const ScorerSchemas = {
   CHOICE_TALLY: ChoiceTallyItemContentSchema,
   FORCED_CHOICE_DISC: DiscItemContentSchema,
   FORCED_CHOICE_PAIR: PairItemContentSchema,
+  LIKERT: LikertItemContentSchema,
   PAIR_TALLY: PairItemContentSchema,
   RIGHT_WRONG_NORM: RightWrongItemContentSchema,
   SCALE_TALLY: ScaleTallyItemContentSchema,

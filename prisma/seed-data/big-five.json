@@ -1,0 +1,435 @@
+{
+  "test": {
+    "slug": "big-five",
+    "name": "Big Five Inventory",
+    "description": "Inventaris kepribadian 44 butir dengan skala 1–5. Menghasilkan skor lima trait (Ekstraversion, Agreeableness, Conscientiousness, Neuroticism, Openness), masing-masing dengan kategori Rendah/Sedang/Tinggi.",
+    "category": "PERSONALITY",
+    "scorerType": "LIKERT",
+    "price": 50000,
+    "estimatedDurationMin": 15,
+    "timeLimitMin": null,
+    "scoringConfig": {
+      "ratingRange": {
+        "min": 1,
+        "max": 5
+      },
+      "bands": [
+        {
+          "max": 33,
+          "label": "Rendah"
+        },
+        {
+          "max": 66,
+          "label": "Sedang"
+        },
+        {
+          "max": 100,
+          "label": "Tinggi"
+        }
+      ]
+    }
+  },
+  "items": [
+    {
+      "order": 1,
+      "content": {
+        "text": "Aktif Berbicara",
+        "scale": "E"
+      }
+    },
+    {
+      "order": 2,
+      "content": {
+        "text": "Mencari Kelemahan Orang Lain",
+        "scale": "A",
+        "reverse": true
+      }
+    },
+    {
+      "order": 3,
+      "content": {
+        "text": "Mengerjakan Tugas dengan Serius",
+        "scale": "C"
+      }
+    },
+    {
+      "order": 4,
+      "content": {
+        "text": "Merasa Tertekan",
+        "scale": "N"
+      }
+    },
+    {
+      "order": 5,
+      "content": {
+        "text": "Orang Unik yang Penuh dengan Gagasan Baru",
+        "scale": "O"
+      }
+    },
+    {
+      "order": 6,
+      "content": {
+        "text": "Suka Menyendiri",
+        "scale": "E",
+        "reverse": true
+      }
+    },
+    {
+      "order": 7,
+      "content": {
+        "text": "Suka Menolong dan Tidak Iri pada Orang Lain",
+        "scale": "A"
+      }
+    },
+    {
+      "order": 8,
+      "content": {
+        "text": "Bertindak Asal-asalan",
+        "scale": "C",
+        "reverse": true
+      }
+    },
+    {
+      "order": 9,
+      "content": {
+        "text": "Orang yang Santai dan Mampu Mengatasi Stres",
+        "scale": "N",
+        "reverse": true
+      }
+    },
+    {
+      "order": 10,
+      "content": {
+        "text": "Memiliki Rasa Ingin Tahu Terhadap Sesuatu yang Berbeda",
+        "scale": "O"
+      }
+    },
+    {
+      "order": 11,
+      "content": {
+        "text": "Penuh Tenaga",
+        "scale": "E"
+      }
+    },
+    {
+      "order": 12,
+      "content": {
+        "text": "Berselisih dengan Orang Lain",
+        "scale": "A",
+        "reverse": true
+      }
+    },
+    {
+      "order": 13,
+      "content": {
+        "text": "Pekerja yang Dapat Diandalkan",
+        "scale": "C"
+      }
+    },
+    {
+      "order": 14,
+      "content": {
+        "text": "Mudah Merasa Tegang",
+        "scale": "N"
+      }
+    },
+    {
+      "order": 15,
+      "content": {
+        "text": "Orang Yang Berbakat dan Pemikir",
+        "scale": "O"
+      }
+    },
+    {
+      "order": 16,
+      "content": {
+        "text": "Dapat Membangkitkan Kegembiraan",
+        "scale": "E"
+      }
+    },
+    {
+      "order": 17,
+      "content": {
+        "text": "Mudah Memaafkan",
+        "scale": "A"
+      }
+    },
+    {
+      "order": 18,
+      "content": {
+        "text": "Cenderung Berkerja Tidak Teratur",
+        "scale": "C",
+        "reverse": true
+      }
+    },
+    {
+      "order": 19,
+      "content": {
+        "text": "Terlalu Sering Khawatir",
+        "scale": "N"
+      }
+    },
+    {
+      "order": 20,
+      "content": {
+        "text": "Memiliki Imajinasi yang Aktif",
+        "scale": "O"
+      }
+    },
+    {
+      "order": 21,
+      "content": {
+        "text": "Cenderung Pendiam",
+        "scale": "E",
+        "reverse": true
+      }
+    },
+    {
+      "order": 22,
+      "content": {
+        "text": "Secara Umum Dapat Dipercaya",
+        "scale": "A"
+      }
+    },
+    {
+      "order": 23,
+      "content": {
+        "text": "Cenderung Pemalas",
+        "scale": "C",
+        "reverse": true
+      }
+    },
+    {
+      "order": 24,
+      "content": {
+        "text": "Memiliki Perasaan yang Stabil dan Tidak Mudah Sedih",
+        "scale": "N",
+        "reverse": true
+      }
+    },
+    {
+      "order": 25,
+      "content": {
+        "text": "Kreatif",
+        "scale": "O"
+      }
+    },
+    {
+      "order": 26,
+      "content": {
+        "text": "Terbuka",
+        "scale": "E"
+      }
+    },
+    {
+      "order": 27,
+      "content": {
+        "text": "Dingin dan Kurang Bersahabat",
+        "scale": "A",
+        "reverse": true
+      }
+    },
+    {
+      "order": 28,
+      "content": {
+        "text": "Dapat Memusatkan Diri Pada Pekerjaan",
+        "scale": "C"
+      }
+    },
+    {
+      "order": 29,
+      "content": {
+        "text": "Dipengaruhi Oleh Suasana Hati",
+        "scale": "N"
+      }
+    },
+    {
+      "order": 30,
+      "content": {
+        "text": "Menyukai Artistik dan Estetika",
+        "scale": "O"
+      }
+    },
+    {
+      "order": 31,
+      "content": {
+        "text": "Orang Yang Pemalu",
+        "scale": "E",
+        "reverse": true
+      }
+    },
+    {
+      "order": 32,
+      "content": {
+        "text": "Ramah dan Penuh Perhatian",
+        "scale": "A"
+      }
+    },
+    {
+      "order": 33,
+      "content": {
+        "text": "Melakukan Sesuatu dengan Efisien",
+        "scale": "C"
+      }
+    },
+    {
+      "order": 34,
+      "content": {
+        "text": "Merasa Tenang Meski dalam Situasi Menegangkan",
+        "scale": "N",
+        "reverse": true
+      }
+    },
+    {
+      "order": 35,
+      "content": {
+        "text": "Menyukai Pekerjaan Yang Rutin",
+        "scale": "O",
+        "reverse": true
+      }
+    },
+    {
+      "order": 36,
+      "content": {
+        "text": "Suka Bergaul",
+        "scale": "E"
+      }
+    },
+    {
+      "order": 37,
+      "content": {
+        "text": "Kadang Beperilaku Kasar",
+        "scale": "A",
+        "reverse": true
+      }
+    },
+    {
+      "order": 38,
+      "content": {
+        "text": "Merencanakan Dan Memusatkan Pada Rencana Tersebut",
+        "scale": "C"
+      }
+    },
+    {
+      "order": 39,
+      "content": {
+        "text": "Mudah Merasa Cemas",
+        "scale": "N"
+      }
+    },
+    {
+      "order": 40,
+      "content": {
+        "text": "Merefleksi dan Mengolah Gagasan Baru",
+        "scale": "O"
+      }
+    },
+    {
+      "order": 41,
+      "content": {
+        "text": "Kurang Tertarik dengan Seni",
+        "scale": "O",
+        "reverse": true
+      }
+    },
+    {
+      "order": 42,
+      "content": {
+        "text": "Menyukai Bekerjasama dengan Orang Lain",
+        "scale": "A"
+      }
+    },
+    {
+      "order": 43,
+      "content": {
+        "text": "Memiliki Perhatian yang Mudah Terpecah",
+        "scale": "C",
+        "reverse": true
+      }
+    },
+    {
+      "order": 44,
+      "content": {
+        "text": "Memiliki Keahlian dalam Kesenian dan Literatur",
+        "scale": "O"
+      }
+    }
+  ],
+  "interpretations": [
+    {
+      "patternCode": "E_RENDAH",
+      "title": "Ekstraversion — Rendah",
+      "body": "Cenderung bersikap tenang dan menarik diri dari lingkungannya."
+    },
+    {
+      "patternCode": "E_SEDANG",
+      "title": "Ekstraversion — Sedang",
+      "body": "Tidak terlalu menonjol dalam menjalin hubungan dengan sesama meskipun tidak menarik diri dari lingkungannya."
+    },
+    {
+      "patternCode": "E_TINGGI",
+      "title": "Ekstraversion — Tinggi",
+      "body": "Memiliki tingkat motivasi yang tinggi dalam bergaul, menjalin hubungan dengan sesama dan dominan dalam lingkungannya."
+    },
+    {
+      "patternCode": "A_RENDAH",
+      "title": "Agreeableness — Rendah",
+      "body": "Cenderung untuk lebih agresif dan kurang kooperatif."
+    },
+    {
+      "patternCode": "A_SEDANG",
+      "title": "Agreeableness — Sedang",
+      "body": "Tidak terlalu agresif meskipun tidak selalu mengalah pada orang lain."
+    },
+    {
+      "patternCode": "A_TINGGI",
+      "title": "Agreeableness — Tinggi",
+      "body": "Ramah, memiliki kepribadian yang selalu mengalah, menghindari konflik dan memiliki kecenderungan untuk mengikuti orang lain."
+    },
+    {
+      "patternCode": "C_RENDAH",
+      "title": "Conscientiousness — Rendah",
+      "body": "Ceroboh, tidak terarah serta mudah teralih perhatiannya."
+    },
+    {
+      "patternCode": "C_SEDANG",
+      "title": "Conscientiousness — Sedang",
+      "body": "Terkadang ceroboh, namun dapat mengikuti peraturan dan norma."
+    },
+    {
+      "patternCode": "C_TINGGI",
+      "title": "Conscientiousness — Tinggi",
+      "body": "Memiliki kontrol terhadap lingkungan sosial, berpikir sebelum bertindak, menunda kepuasan, mengikuti peraturan dan norma, terencana, terorganisir, dan memprioritaskan tugas."
+    },
+    {
+      "patternCode": "N_RENDAH",
+      "title": "Neuroticism — Rendah",
+      "body": "Cenderung lebih gembira dan puas terhadap hidup."
+    },
+    {
+      "patternCode": "N_SEDANG",
+      "title": "Neuroticism — Sedang",
+      "body": "Dapat mengendalikan diri meskipun pada saat cemas."
+    },
+    {
+      "patternCode": "N_TINGGI",
+      "title": "Neuroticism — Tinggi",
+      "body": "Memiliki kesulitan dalam menjalin hubungan dan berkomitmen, juga memiliki tingkat self esteem yang rendah."
+    },
+    {
+      "patternCode": "O_RENDAH",
+      "title": "Openness — Rendah",
+      "body": "Mempunyai pemikiran yang sempit, konservatif dan tidak menyukai adanya perubahan."
+    },
+    {
+      "patternCode": "O_SEDANG",
+      "title": "Openness — Sedang",
+      "body": "Memiliki pemikiran yang cukup terbuka dan tidak bermasalah terhadap perubahan."
+    },
+    {
+      "patternCode": "O_TINGGI",
+      "title": "Openness — Tinggi",
+      "body": "Mudah bertoleransi, memiliki kapasitas untuk menyerap informasi, menjadi sangat fokus dan mampu untuk waspada pada berbagai perasaan, pemikiran dan impulsivitas."
+    }
+  ]
+}

@@ -38,6 +38,7 @@
     "seed:holland": "tsx src/scripts/seed-holland.ts",
     "seed:aq": "tsx src/scripts/seed-aq.ts",
     "seed:papi": "tsx src/scripts/seed-papi.ts",
+    "seed:big-five": "tsx src/scripts/seed-big-five.ts",
     "seed:instansi": "tsx src/scripts/seed-instansi.ts",
     "seed:articles": "tsx src/scripts/seed-articles.ts",
     "seed:report-settings": "tsx src/scripts/seed-report-settings.ts"

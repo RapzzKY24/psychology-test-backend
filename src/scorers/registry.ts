@@ -17,6 +17,11 @@ import {
 } from './schemas/forced-choice-pair';
 import { pairTallyPatternCodes } from './schemas/pair-tally';
 import {
+  LikertItemContentSchema,
+  LikertResponseSchema,
+  likertPatternCodes,
+} from './schemas/likert';
+import {
   RightWrongItemContentSchema,
   RightWrongResponseSchema,
   RIGHT_WRONG_PATTERN_CATALOG,
@@ -30,10 +35,12 @@ import { scoreChoiceTally } from './choice-tally';
 import { scoreDisc } from './disc-scorer';
 import { scoreForcedChoicePair } from './forced-choice-pair';
 import { scorePairTally } from './pair-tally';
+import { scoreLikert } from './likert';
 import { scoreRightWrongNorm } from './right-wrong-norm';
 import { scoreScaleTally } from './scale-tally';
 import { sanitizeChoiceTallyItem } from './sanitize-choice-tally-item';
 import { sanitizePairItem } from './sanitize-pair-item';
+import { sanitizeLikertItem } from './sanitize-likert-item';
 import { sanitizeRightWrongItem } from './sanitize-right-wrong-item';
 import { sanitizeScaleTallyItem } from './sanitize-scale-tally-item';
 
@@ -46,15 +53,20 @@ export interface Scorer {
   type: ScorerType;
   itemSchema: z.ZodSchema;
   responseSchema: z.ZodSchema;
-  sanitize(content: unknown): Record<string, unknown>;
+  sanitize(content: unknown, scoringConfig?: unknown): Record<string, unknown>;
   /** Fixed codes (DISC, raw scores). Empty when the codes depend on the items. */
   patternCatalog: string[];
   /**
    * Codes this particular item set can produce. Publish requires one
    * interpretation per code; a family whose pattern is assembled from the
    * dimensions (FORCED_CHOICE_PAIR) derives them instead of listing 16+ by hand.
+   * `scoringConfig` is passed because a banded family (LIKERT) needs the band
+   * labels to know the full code set.
    */
-  patternCodesFor?(items: { content: unknown }[]): string[];
+  patternCodesFor?(
+    items: { content: unknown }[],
+    scoringConfig?: unknown,
+  ): string[];
   score(input: {
     items: { id: string; content: unknown }[];
     responses: { itemId: string; value: unknown }[];
@@ -102,6 +114,16 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     patternCodesFor: pairPatternCodes,
     score: (input) =>
       Promise.resolve(scoreForcedChoicePair(input) as unknown as ScorerOutput),
+  },
+  LIKERT: {
+    type: 'LIKERT',
+    itemSchema: LikertItemContentSchema,
+    responseSchema: LikertResponseSchema,
+    sanitize: sanitizeLikertItem,
+    patternCatalog: [],
+    patternCodesFor: likertPatternCodes,
+    score: (input) =>
+      Promise.resolve(scoreLikert(input) as unknown as ScorerOutput),
   },
   PAIR_TALLY: {
     type: 'PAIR_TALLY',

@@ -54,7 +54,7 @@ export class TestsPublishService {
       // A dimension-based family derives its codes from the items; a fixed
       // family lists them (DISC 1..40). Either way every code needs a row.
       const required = scorer.patternCodesFor
-        ? scorer.patternCodesFor(items)
+        ? scorer.patternCodesFor(items, test.scoringConfig)
         : scorer.patternCatalog;
       const existingCodes = new Set(
         interpretations.map((interp) => interp.patternCode),

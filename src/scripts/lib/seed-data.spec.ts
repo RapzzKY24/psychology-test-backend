@@ -18,6 +18,8 @@ interface SeedFile {
     slug: string;
     scorerType: string;
     normTable?: unknown;
+    /** Banded families (LIKERT) derive their code set from this. */
+    scoringConfig?: unknown;
     ageMinMonths?: number | null;
     ageMaxMonths?: number | null;
   };
@@ -135,7 +137,9 @@ describe.each(FILES)('seed %s', (file) => {
   it('covers every pattern code its own items can produce', () => {
     const scorer = getScorer(seed.test.scorerType);
     if (!scorer?.patternCodesFor) return;
-    const expected = scorer.patternCodesFor(seed.items).sort();
+    const expected = scorer
+      .patternCodesFor(seed.items, seed.test.scoringConfig)
+      .sort();
     expect(seed.interpretations.map((row) => row.patternCode).sort()).toEqual(
       expected,
     );
