@@ -1,0 +1,1102 @@
+{
+  "test": {
+    "slug": "frt",
+    "name": "FRT (Figure Reasoning Test)",
+    "description": "Tes intelegensi nonverbal: 45 soal pola gambar dengan enam pilihan jawaban. Sumber FRT tidak menyertakan tabel konversi, sehingga hasil dilaporkan sebagai skor mentah 0-45.",
+    "category": "COGNITIVE",
+    "scorerType": "RIGHT_WRONG_NORM",
+    "price": 50000,
+    "estimatedDurationMin": 25,
+    "timeLimitMin": null,
+    "normTable": null
+  },
+  "items": [
+    {
+      "order": 1,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/95d96358-2e94-5a32-98d5-7bec87bd73b5.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          5
+        ]
+      }
+    },
+    {
+      "order": 2,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/a8d40dd3-4501-542d-92e9-a09ff0581b89.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 3,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/6b31de11-c188-508e-8495-15a986e87501.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 4,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/0fa8543c-4477-58b7-b7aa-8862c40639a4.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/75db4e34-afcf-5a35-ba4e-64d475c3e1fb.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/5c9b8ae7-1c14-5090-b555-899ad6acdd46.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 7,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/0945dde4-e03b-51c2-a78b-8ddf47809019.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 8,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/ec0db7a3-b454-59a2-9f7f-bb1e3d223ba5.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/863243aa-7365-585e-be82-4564fabf54b6.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 10,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/2b80e034-1003-5926-b429-e07a827392c5.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          4
+        ]
+      }
+    },
+    {
+      "order": 11,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/265beb3b-df9a-5b9f-8e03-33cfa1836e08.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          4
+        ]
+      }
+    },
+    {
+      "order": 12,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/8e1dae5d-07b7-5ec5-9871-f1a849df876c.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 13,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/8d78ff18-ca73-5409-b7f3-44218510b1b7.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 14,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/a1da7364-cf2d-5958-a9b3-052318cfdf9a.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 15,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/68ff06ef-3eda-5bab-852f-8b6de746eb5b.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          4
+        ]
+      }
+    },
+    {
+      "order": 16,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/27f564bc-78e1-52fd-996b-70e5c1b6db5e.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 17,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/88040e49-6dc7-5194-a904-549c35e05cec.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          4
+        ]
+      }
+    },
+    {
+      "order": 18,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/5531e471-782e-5a90-8c1c-460354e80735.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          0
+        ]
+      }
+    },
+    {
+      "order": 19,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/b3b2ba2c-59a8-5100-901d-e80d6e1c7261.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          4
+        ]
+      }
+    },
+    {
+      "order": 20,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/7fdd2509-7303-5e79-a9f5-4a7f712cbe1f.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 21,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/d68f597b-903c-59df-8513-a76aee61d27a.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          5
+        ]
+      }
+    },
+    {
+      "order": 22,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/716befd9-267c-55bf-a4d7-d090de411628.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          0
+        ]
+      }
+    },
+    {
+      "order": 23,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/0407a833-8f8f-52df-a3a3-afcd17e7aba3.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 24,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/9def1246-5510-5faa-86b0-9d9eada07e24.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          5
+        ]
+      }
+    },
+    {
+      "order": 25,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/3bff18f2-c9a0-5263-ae41-19298ba2ecc3.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 26,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/59e55f8b-8fc0-5bf5-bdb1-e1091c4c0f63.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 27,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/ccb2d912-c76a-5dae-bebe-c8ab5a31f6f6.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 28,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/4a56f3e8-bd1b-5ec9-928c-87c89764d0db.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          5
+        ]
+      }
+    },
+    {
+      "order": 29,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/3337d205-414b-5dd2-a1a9-c9ee392e9859.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 30,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/783d4af8-f228-5864-841d-653392f37638.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 31,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/2e7665c9-e3ae-5faa-8ebe-36acf17493ba.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 32,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/f4adbfed-f12c-5365-9bae-b6286db9a883.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          4
+        ]
+      }
+    },
+    {
+      "order": 33,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/822bf85a-be4d-506a-9596-a0daa8cab401.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          2
+        ]
+      }
+    },
+    {
+      "order": 34,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/431dc5d0-863c-5307-a8bd-9da0993894bd.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 35,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/bd976976-78a8-589e-ab34-74db4cc5cc1c.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          5
+        ]
+      }
+    },
+    {
+      "order": 36,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/809b674b-35d5-5948-8483-8a4dc930ab4f.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          0
+        ]
+      }
+    },
+    {
+      "order": 37,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/7d94a6f3-ab94-59d4-8056-e4e044f33fef.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 38,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/74e8a5cd-ee3e-5bee-a2b5-efe472bd65af.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 39,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/3c5ef30f-68c8-58b1-b869-9bcceceaefa0.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          5
+        ]
+      }
+    },
+    {
+      "order": 40,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/2bb3e80c-0a1b-5807-8168-ac2206c05a65.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          0
+        ]
+      }
+    },
+    {
+      "order": 41,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/be7f8666-295f-565f-8579-22ad7e1ace3a.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    },
+    {
+      "order": 42,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/58fe3231-9360-52df-b3d9-62e6e76e793a.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          3
+        ]
+      }
+    },
+    {
+      "order": 43,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/16d29841-5ca7-5690-90d2-c38e1405c644.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          0
+        ]
+      }
+    },
+    {
+      "order": 44,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/d9d947dd-7984-59b8-bb5b-6d8fb30aa2a4.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          4
+        ]
+      }
+    },
+    {
+      "order": 45,
+      "content": {
+        "answerMode": "choice",
+        "question": "Pilih gambar yang tepat untuk melengkapi pola pada kotak kosong.",
+        "imageUrl": "/uploads/test-items/d91eba00-1d48-58b1-aa5f-25e4e3051c44.png",
+        "options": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "correctIndexes": [
+          1
+        ]
+      }
+    }
+  ],
+  "interpretations": [
+    {
+      "patternCode": "RAW_0",
+      "title": "Skor 0 dari 45 — sangat terbatas",
+      "body": "Hampir tidak ada pola yang berhasil dikenali. Penalaran figural berada pada tingkat sangat terbatas; hasil ini perlu dibaca bersama asesmen lain oleh psikolog. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_1",
+      "title": "Skor 1 dari 45 — sangat terbatas",
+      "body": "Hampir tidak ada pola yang berhasil dikenali. Penalaran figural berada pada tingkat sangat terbatas; hasil ini perlu dibaca bersama asesmen lain oleh psikolog. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_2",
+      "title": "Skor 2 dari 45 — sangat terbatas",
+      "body": "Hampir tidak ada pola yang berhasil dikenali. Penalaran figural berada pada tingkat sangat terbatas; hasil ini perlu dibaca bersama asesmen lain oleh psikolog. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_3",
+      "title": "Skor 3 dari 45 — sangat terbatas",
+      "body": "Hampir tidak ada pola yang berhasil dikenali. Penalaran figural berada pada tingkat sangat terbatas; hasil ini perlu dibaca bersama asesmen lain oleh psikolog. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_4",
+      "title": "Skor 4 dari 45 — sangat terbatas",
+      "body": "Hampir tidak ada pola yang berhasil dikenali. Penalaran figural berada pada tingkat sangat terbatas; hasil ini perlu dibaca bersama asesmen lain oleh psikolog. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_5",
+      "title": "Skor 5 dari 45 — sangat terbatas",
+      "body": "Hampir tidak ada pola yang berhasil dikenali. Penalaran figural berada pada tingkat sangat terbatas; hasil ini perlu dibaca bersama asesmen lain oleh psikolog. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_6",
+      "title": "Skor 6 dari 45 — sangat terbatas",
+      "body": "Hampir tidak ada pola yang berhasil dikenali. Penalaran figural berada pada tingkat sangat terbatas; hasil ini perlu dibaca bersama asesmen lain oleh psikolog. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_7",
+      "title": "Skor 7 dari 45 — sangat terbatas",
+      "body": "Hampir tidak ada pola yang berhasil dikenali. Penalaran figural berada pada tingkat sangat terbatas; hasil ini perlu dibaca bersama asesmen lain oleh psikolog. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_8",
+      "title": "Skor 8 dari 45 — sangat terbatas",
+      "body": "Hampir tidak ada pola yang berhasil dikenali. Penalaran figural berada pada tingkat sangat terbatas; hasil ini perlu dibaca bersama asesmen lain oleh psikolog. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_9",
+      "title": "Skor 9 dari 45 — terbatas",
+      "body": "Sebagian pola sederhana berhasil dikenali, tetapi pola berlapis dan relasi antarbentuk masih sulit. Penalaran figural berada di bawah kebanyakan peserta. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_10",
+      "title": "Skor 10 dari 45 — terbatas",
+      "body": "Sebagian pola sederhana berhasil dikenali, tetapi pola berlapis dan relasi antarbentuk masih sulit. Penalaran figural berada di bawah kebanyakan peserta. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_11",
+      "title": "Skor 11 dari 45 — terbatas",
+      "body": "Sebagian pola sederhana berhasil dikenali, tetapi pola berlapis dan relasi antarbentuk masih sulit. Penalaran figural berada di bawah kebanyakan peserta. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_12",
+      "title": "Skor 12 dari 45 — terbatas",
+      "body": "Sebagian pola sederhana berhasil dikenali, tetapi pola berlapis dan relasi antarbentuk masih sulit. Penalaran figural berada di bawah kebanyakan peserta. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_13",
+      "title": "Skor 13 dari 45 — terbatas",
+      "body": "Sebagian pola sederhana berhasil dikenali, tetapi pola berlapis dan relasi antarbentuk masih sulit. Penalaran figural berada di bawah kebanyakan peserta. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_14",
+      "title": "Skor 14 dari 45 — terbatas",
+      "body": "Sebagian pola sederhana berhasil dikenali, tetapi pola berlapis dan relasi antarbentuk masih sulit. Penalaran figural berada di bawah kebanyakan peserta. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_15",
+      "title": "Skor 15 dari 45 — terbatas",
+      "body": "Sebagian pola sederhana berhasil dikenali, tetapi pola berlapis dan relasi antarbentuk masih sulit. Penalaran figural berada di bawah kebanyakan peserta. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_16",
+      "title": "Skor 16 dari 45 — terbatas",
+      "body": "Sebagian pola sederhana berhasil dikenali, tetapi pola berlapis dan relasi antarbentuk masih sulit. Penalaran figural berada di bawah kebanyakan peserta. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_17",
+      "title": "Skor 17 dari 45 — terbatas",
+      "body": "Sebagian pola sederhana berhasil dikenali, tetapi pola berlapis dan relasi antarbentuk masih sulit. Penalaran figural berada di bawah kebanyakan peserta. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_18",
+      "title": "Skor 18 dari 45 — cukup",
+      "body": "Pola yang umum berhasil dikenali dan sebagian soal yang lebih menuntut dapat diselesaikan. Penalaran figural berada pada tingkat cukup. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_19",
+      "title": "Skor 19 dari 45 — cukup",
+      "body": "Pola yang umum berhasil dikenali dan sebagian soal yang lebih menuntut dapat diselesaikan. Penalaran figural berada pada tingkat cukup. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_20",
+      "title": "Skor 20 dari 45 — cukup",
+      "body": "Pola yang umum berhasil dikenali dan sebagian soal yang lebih menuntut dapat diselesaikan. Penalaran figural berada pada tingkat cukup. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_21",
+      "title": "Skor 21 dari 45 — cukup",
+      "body": "Pola yang umum berhasil dikenali dan sebagian soal yang lebih menuntut dapat diselesaikan. Penalaran figural berada pada tingkat cukup. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_22",
+      "title": "Skor 22 dari 45 — cukup",
+      "body": "Pola yang umum berhasil dikenali dan sebagian soal yang lebih menuntut dapat diselesaikan. Penalaran figural berada pada tingkat cukup. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_23",
+      "title": "Skor 23 dari 45 — cukup",
+      "body": "Pola yang umum berhasil dikenali dan sebagian soal yang lebih menuntut dapat diselesaikan. Penalaran figural berada pada tingkat cukup. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_24",
+      "title": "Skor 24 dari 45 — cukup",
+      "body": "Pola yang umum berhasil dikenali dan sebagian soal yang lebih menuntut dapat diselesaikan. Penalaran figural berada pada tingkat cukup. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_25",
+      "title": "Skor 25 dari 45 — cukup",
+      "body": "Pola yang umum berhasil dikenali dan sebagian soal yang lebih menuntut dapat diselesaikan. Penalaran figural berada pada tingkat cukup. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_26",
+      "title": "Skor 26 dari 45 — cukup",
+      "body": "Pola yang umum berhasil dikenali dan sebagian soal yang lebih menuntut dapat diselesaikan. Penalaran figural berada pada tingkat cukup. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_27",
+      "title": "Skor 27 dari 45 — baik",
+      "body": "Sebagian besar pola, termasuk yang berlapis, berhasil dikenali dengan sedikit kekeliruan. Penalaran figural berada pada tingkat baik. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_28",
+      "title": "Skor 28 dari 45 — baik",
+      "body": "Sebagian besar pola, termasuk yang berlapis, berhasil dikenali dengan sedikit kekeliruan. Penalaran figural berada pada tingkat baik. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_29",
+      "title": "Skor 29 dari 45 — baik",
+      "body": "Sebagian besar pola, termasuk yang berlapis, berhasil dikenali dengan sedikit kekeliruan. Penalaran figural berada pada tingkat baik. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_30",
+      "title": "Skor 30 dari 45 — baik",
+      "body": "Sebagian besar pola, termasuk yang berlapis, berhasil dikenali dengan sedikit kekeliruan. Penalaran figural berada pada tingkat baik. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_31",
+      "title": "Skor 31 dari 45 — baik",
+      "body": "Sebagian besar pola, termasuk yang berlapis, berhasil dikenali dengan sedikit kekeliruan. Penalaran figural berada pada tingkat baik. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_32",
+      "title": "Skor 32 dari 45 — baik",
+      "body": "Sebagian besar pola, termasuk yang berlapis, berhasil dikenali dengan sedikit kekeliruan. Penalaran figural berada pada tingkat baik. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_33",
+      "title": "Skor 33 dari 45 — baik",
+      "body": "Sebagian besar pola, termasuk yang berlapis, berhasil dikenali dengan sedikit kekeliruan. Penalaran figural berada pada tingkat baik. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_34",
+      "title": "Skor 34 dari 45 — baik",
+      "body": "Sebagian besar pola, termasuk yang berlapis, berhasil dikenali dengan sedikit kekeliruan. Penalaran figural berada pada tingkat baik. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_35",
+      "title": "Skor 35 dari 45 — baik",
+      "body": "Sebagian besar pola, termasuk yang berlapis, berhasil dikenali dengan sedikit kekeliruan. Penalaran figural berada pada tingkat baik. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_36",
+      "title": "Skor 36 dari 45 — sangat baik",
+      "body": "Hampir seluruh pola dikenali, termasuk soal terakhir yang paling menuntut. Penalaran figural berada pada tingkat sangat baik. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_37",
+      "title": "Skor 37 dari 45 — sangat baik",
+      "body": "Hampir seluruh pola dikenali, termasuk soal terakhir yang paling menuntut. Penalaran figural berada pada tingkat sangat baik. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_38",
+      "title": "Skor 38 dari 45 — sangat baik",
+      "body": "Hampir seluruh pola dikenali, termasuk soal terakhir yang paling menuntut. Penalaran figural berada pada tingkat sangat baik. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_39",
+      "title": "Skor 39 dari 45 — sangat baik",
+      "body": "Hampir seluruh pola dikenali, termasuk soal terakhir yang paling menuntut. Penalaran figural berada pada tingkat sangat baik. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_40",
+      "title": "Skor 40 dari 45 — sangat baik",
+      "body": "Hampir seluruh pola dikenali, termasuk soal terakhir yang paling menuntut. Penalaran figural berada pada tingkat sangat baik. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_41",
+      "title": "Skor 41 dari 45 — sangat baik",
+      "body": "Hampir seluruh pola dikenali, termasuk soal terakhir yang paling menuntut. Penalaran figural berada pada tingkat sangat baik. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_42",
+      "title": "Skor 42 dari 45 — sangat baik",
+      "body": "Hampir seluruh pola dikenali, termasuk soal terakhir yang paling menuntut. Penalaran figural berada pada tingkat sangat baik. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_43",
+      "title": "Skor 43 dari 45 — sangat baik",
+      "body": "Hampir seluruh pola dikenali, termasuk soal terakhir yang paling menuntut. Penalaran figural berada pada tingkat sangat baik. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_44",
+      "title": "Skor 44 dari 45 — sangat baik",
+      "body": "Hampir seluruh pola dikenali, termasuk soal terakhir yang paling menuntut. Penalaran figural berada pada tingkat sangat baik. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    },
+    {
+      "patternCode": "RAW_45",
+      "title": "Skor 45 dari 45 — sangat baik",
+      "body": "Hampir seluruh pola dikenali, termasuk soal terakhir yang paling menuntut. Penalaran figural berada pada tingkat sangat baik. Sumber FRT tidak memuat tabel konversi skor standar, jadi hasil dilaporkan sebagai skor mentah (0-45) tanpa angka IQ."
+    }
+  ]
+}

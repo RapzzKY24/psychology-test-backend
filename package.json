@@ -34,6 +34,7 @@
     "seed:cfit2b": "tsx src/scripts/seed-cfit2b.ts",
     "seed:cfit3b": "tsx src/scripts/seed-cfit3b.ts",
     "seed:spm": "tsx src/scripts/seed-spm.ts",
+    "seed:frt": "tsx src/scripts/seed-frt.ts",
     "seed:holland": "tsx src/scripts/seed-holland.ts",
     "seed:aq": "tsx src/scripts/seed-aq.ts",
     "seed:instansi": "tsx src/scripts/seed-instansi.ts",
