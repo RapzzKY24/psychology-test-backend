@@ -130,4 +130,19 @@ describe.each(FILES)('seed %s', (file) => {
     if (seed.test.normTable == null) return;
     expect(NormTableSchema.safeParse(seed.test.normTable).success).toBe(true);
   });
+
+  // The psikogram a ladder is copied from can stop short of its own item set:
+  // the CFIT 3 workbooks sum 12/14/12/8 cells, capping raw at 46, while their
+  // RAW SCORE sheet runs 0-49. The ladder wins, so every printed item must be
+  // scorable — never trim the range to match a workbook's SUM formula.
+  it('lets the last item reach the norm table', () => {
+    if (seed.test.scorerType !== 'RIGHT_WRONG_NORM') return;
+    if (seed.test.normTable == null) return;
+    const rows = NormTableSchema.parse(seed.test.normTable);
+    const top = Math.max(...rows.map((row) => row.raw));
+    expect({
+      items: seed.items.length,
+      covered: top >= seed.items.length - 1,
+    }).toEqual({ items: seed.items.length, covered: true });
+  });
 });
