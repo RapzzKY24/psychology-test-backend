@@ -23,6 +23,8 @@ export interface AttemptAccessDetail {
     timeLimitMin: number | null;
     /** Raw -> IQ rows, null when the test has no norm. */
     normTable: unknown;
+    /** Family settings the scorer reads, null when the family needs none. */
+    scoringConfig: unknown;
     /** Norm age band in whole months; both null when the norm is not banded. */
     ageMinMonths: number | null;
     ageMaxMonths: number | null;

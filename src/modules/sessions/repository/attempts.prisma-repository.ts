@@ -25,6 +25,7 @@ export class PrismaAttemptsRepository implements AttemptsRepository {
             status: true,
             timeLimitMin: true,
             normTable: true,
+            scoringConfig: true,
             ageMinMonths: true,
             ageMaxMonths: true,
           },

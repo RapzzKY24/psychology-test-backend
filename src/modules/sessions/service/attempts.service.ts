@@ -249,6 +249,7 @@ export class AttemptsService {
       items: detail.items,
       responses: detail.responses,
       normTable: detail.test.normTable,
+      scoringConfig: detail.test.scoringConfig,
     });
     const result = await this.repo.completeAndCreateResult({
       attemptId,

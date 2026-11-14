@@ -1,0 +1,214 @@
+{
+  "test": {
+    "slug": "aq",
+    "name": "AQ (Adversity Quotient)",
+    "description": "Tes daya juang 15 soal pilihan. Tiap jawaban mewakili salah satu dari tiga tipe (Quitter, Camper, Climber); tipe yang paling dominan menjadi hasil.",
+    "category": "WORK_STYLE",
+    "scorerType": "CHOICE_TALLY",
+    "price": 50000,
+    "estimatedDurationMin": 10,
+    "timeLimitMin": null,
+    "scoringConfig": {
+      "tieBreak": "CA"
+    }
+  },
+  "items": [
+    {
+      "order": 1,
+      "content": {
+        "question": "Bagi saya, kesulitan adalah :",
+        "options": [
+          "Sesuatu yang harus dihindari",
+          "Sesuatu yang bisa dicoba untuk dihadapi",
+          "Bagian dari hidup. Menghindari kesulitan sama saja dengan menghindari kehidupan"
+        ],
+        "mapping": ["Q", "CA", "CL"]
+      }
+    },
+    {
+      "order": 2,
+      "content": {
+        "question": "Keyakinan saya terhadap masa depan adalah :",
+        "options": [
+          "Saya tidak berani menjamin, saya akan menunggu dan melihat bagaimana nantinya",
+          "Melihat kemampuan yang sekarang ini, saya cukup yakin dengan masa depan saya",
+          "Saya belum seberapa yakin, tetapi saya berharap bisa berhasil"
+        ],
+        "mapping": ["Q", "CL", "CA"]
+      }
+    },
+    {
+      "order": 3,
+      "content": {
+        "question": "Jika saya dihadapkan pada suatu masalah yang menurut saya sangat sulit dicapai keberhasilannya maka tanggapannya saya adalah :",
+        "options": [
+          "Saya akan mengerjakannya, tidak peduli betapapun sulitnya",
+          "Saya akan mencoba, namun jika keadaannya bertambah buruk saya akan berhenti",
+          "Saya tidak mau mengerjakannya, karena ini mustahil bisa berhasil"
+        ],
+        "mapping": ["CL", "CA", "Q"]
+      }
+    },
+    {
+      "order": 4,
+      "content": {
+        "question": "Saya adalah orang yang :",
+        "options": [
+          "Kadang-kadang menyerah tergantung situasi dan kondisi",
+          "Mudah menyerah",
+          "Pantang menyerah"
+        ],
+        "mapping": ["CA", "Q", "CL"]
+      }
+    },
+    {
+      "order": 5,
+      "content": {
+        "question": "Bagi saya, pengembangan diri adalah :",
+        "options": [
+          "Cukup perlu",
+          "Hal yang tidak seberapa perlu",
+          "Segalanya"
+        ],
+        "mapping": ["CA", "Q", "CL"]
+      }
+    },
+    {
+      "order": 6,
+      "content": {
+        "question": "Sikap saya terhadap perubahan adalah :",
+        "options": [
+          "Saya selalu menerima perubahan yang ditawarkan kepada saya",
+          "Saya agak sulit menyesuaikan diri dengan perubahan yang terjadi",
+          "Saya akan lihat dulu perubahan yang seperti apa, baru saya bisa memutuskannya"
+        ],
+        "mapping": ["CL", "Q", "CA"]
+      }
+    },
+    {
+      "order": 7,
+      "content": {
+        "question": "Saya tergolong sebagai orang yang :",
+        "options": [
+          "Menunjukkan beberapa usaha jika memang diperlukan",
+          "Ambisius",
+          "Santai, tidak terlalu berambisi"
+        ],
+        "mapping": ["CA", "CL", "Q"]
+      }
+    },
+    {
+      "order": 8,
+      "content": {
+        "question": "Diantara tiga hal dibawah ini, yang paling sesuai dengan keadaan diri saya :",
+        "options": [
+          "Saya sudah puas dengan kehidupan saya sekarang ini",
+          "Dalam hal tertentu saya sudah puas",
+          "Masih banyak hal yang perlu saya capai"
+        ],
+        "mapping": ["Q", "CA", "CL"]
+      }
+    },
+    {
+      "order": 9,
+      "content": {
+        "question": "Jika menghadapi masalah yang sangat sulit saya cenderung :",
+        "options": [
+          "Menghadapi dan menyelesaikan hingga saya berhasil",
+          "Menghindarinya",
+          "Menghadapinya namun jika merasa tidak mampu maka saya akan berhenti"
+        ],
+        "mapping": ["CL", "Q", "CA"]
+      }
+    },
+    {
+      "order": 10,
+      "content": {
+        "question": "Saya adalah orang yang :",
+        "options": [
+          "Sangat suka tantangan / hal baru",
+          "Suka melakukan hal-hal yang sudah ada/ tersedia/ sebagaimana mestinya",
+          "Mencoba sesuatu yang baru"
+        ],
+        "mapping": ["CL", "Q", "CA"]
+      }
+    },
+    {
+      "order": 11,
+      "content": {
+        "question": "Jika lingkungan, menawarkan suatu yang baru bagi saya :",
+        "options": [
+          "Saya cenderung menolaknya",
+          "Saya akan mencobanya tetapi tidak menjamin keberhasilannya",
+          "Saya langsung ikut serta dan melakukan segala hal hingga mencapai keberhasilannya"
+        ],
+        "mapping": ["Q", "CA", "CL"]
+      }
+    },
+    {
+      "order": 12,
+      "content": {
+        "question": "Slogan yang paling sesuai dengan diri saya adalah :",
+        "options": [
+          "Lakukan sekarang atau tidak sama sekali",
+          "Nikmati hidup ini bersama teman selagi masih muda",
+          "Pertimbangkan dulu masak-masak baru mengambil langkah"
+        ],
+        "mapping": ["CL", "Q", "CA"]
+      }
+    },
+    {
+      "order": 13,
+      "content": {
+        "question": "Orang yang bertanggung jawab terhadap kemajuan diri saya adalah :",
+        "options": [
+          "Lingkungan dan diri saya",
+          "Lingkungan saya (keluarga, saudara, teman, dll)",
+          "Sepenuhnya diri saya"
+        ],
+        "mapping": ["CA", "Q", "CL"]
+      }
+    },
+    {
+      "order": 14,
+      "content": {
+        "question": "Saya termotivasi untuk melakukan sesuatu jika :",
+        "options": [
+          "Saya merasa mampu",
+          "Saya telah mengevaluasi kemampuan saya",
+          "Walaupun merasa tidak mampu, saya tetap akan melakukannya"
+        ],
+        "mapping": ["Q", "CA", "CL"]
+      }
+    },
+    {
+      "order": 15,
+      "content": {
+        "question": "kebanyakan waktu luang, saya gunakan untuk :",
+        "options": [
+          "Membaca buku",
+          "Menghadiri seminar/ pelatihan dan mengikuti kegiatan-kegiatan diluar",
+          "Kumpul bersama teman"
+        ],
+        "mapping": ["CA", "CL", "Q"]
+      }
+    }
+  ],
+  "interpretations": [
+    {
+      "patternCode": "Q",
+      "title": "Quitter (Q) — tidak disarankan",
+      "body": "- Gaya hidup datar dan tidak menyenangkan\n- Menolak untuk berjuang dan mendaki lebih tinggi lagi\n- Bekerja sekedar untuk hidup\n- Cenderung menghindari tantangan yang timbul dari sebuah komitmen\n- Jarang sekali memiliki persahabatan yang sejati\n- Cenderung menolak perubahan atau lari dari perubahan\n- Terampil dala menggunakan kata - kata yang sifatnya membatasi, seperti\n\"tidak mau\", \"mustahil\", \"konyol\", dll\n- Kemampuan kecil atau bahkan tidak ada sama sekali\n- Tidak memiliki visi dan keyakinan akan masa depan\n\nKandidat tidak disarankan untuk posisi pekerjaan di lapangan yang penuh tantangan dan membutuhkan daya tahan serta daya juang yang cukup tinggi."
+    },
+    {
+      "patternCode": "CA",
+      "title": "Camper (CA) — kurang disarankan",
+      "body": "- Mau berusaha untuk mendaki, namun berhenti pada satu titik tertentu\n- Cukup puas saat mencapai suatu tahapan tertentu\n- Masih memiliki sejumlah inisiatif, sedikit semangat dan beberapa usaha\n- Mampu mengorbankan kemampuan pribadinya demi mendapat kepuasan\n- Mampu membina hubungan dengan camper lainnya\n- Menahan diri terhadap perubahan sekalipun itu adalah perubahan besar\nkarena merasa nyaman dengan kondisi yang ada\n- Menggunakan kata - kata yang bersifat kompromistis, seperti :\n\"ini cukup bagus\", \"cukup sampai di sini saja\", dll\n- Prestasi yang tidak tinggi dan kontribusi yang tidak besar juga\n\nKandidat kurang disarankan untuk posisi pekerjaan di lapangan yang penuh tantangan dan membutuhkan daya tahan serta daya juang yang cukup tinggi."
+    },
+    {
+      "patternCode": "CL",
+      "title": "Climber (CL) — disarankan",
+      "body": "- Berusaha untuk terus mendaki\n- Seorang pemikir yang selalu memikirkan kemungkinan - kemungkinan\n- Percaya bahwa melalui langkah - langkah kecil yang diambil sekarang\nakan menghasilkan sesuatu yang besar di masa yang akan datang\n- Menyambut baik suatu tantangan dan terus memotivasi diri sendiri\n- Memiliki semangat yang tinggi dan terus berjuang mendapatkan yang\nterbaik dalam hidup\n- Cenderung membuat segala sesuatu terwujud\n- Bersedia menerima kritik ataupun memahami kondisi yang menyakitkan\n- Menyambut baik setiap perubahan bahkan mendorong menuju perubahan\nyang positif\n- Berbicara dengan tindakan\n- Memberikan konstribusi yang cukup besar karena bisa mewujudkan\npotensi yang ada dalam dirinya\n- Tidak asing dengan kondisi yang sulit karena menganggap kesulitan\nadalah bagian dari hidup\n\nKandidat disarankan untuk posisi pekerjaan di lapangan yang penuh tantangan dan membutuhkan daya tahan serta daya juang yang cukup tinggi."
+    }
+  ]
+}

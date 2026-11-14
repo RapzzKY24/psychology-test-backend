@@ -35,6 +35,7 @@
     "seed:cfit3b": "tsx src/scripts/seed-cfit3b.ts",
     "seed:spm": "tsx src/scripts/seed-spm.ts",
     "seed:holland": "tsx src/scripts/seed-holland.ts",
+    "seed:aq": "tsx src/scripts/seed-aq.ts",
     "seed:instansi": "tsx src/scripts/seed-instansi.ts",
     "seed:articles": "tsx src/scripts/seed-articles.ts",
     "seed:report-settings": "tsx src/scripts/seed-report-settings.ts"

@@ -1,6 +1,11 @@
 import { z } from 'zod';
 import type { ScorerType } from './schemas';
 import {
+  ChoiceTallyItemContentSchema,
+  ChoiceTallyResponseSchema,
+  choiceTallyPatternCodes,
+} from './schemas/choice-tally';
+import {
   DiscItemContentSchema,
   DiscResponseSchema,
   DISC_PATTERN_CATALOG,
@@ -20,10 +25,12 @@ import {
   ScaleTallyResponseSchema,
   scaleTallyPatternCodes,
 } from './schemas/scale-tally';
+import { scoreChoiceTally } from './choice-tally';
 import { scoreDisc } from './disc-scorer';
 import { scoreForcedChoicePair } from './forced-choice-pair';
 import { scoreRightWrongNorm } from './right-wrong-norm';
 import { scoreScaleTally } from './scale-tally';
+import { sanitizeChoiceTallyItem } from './sanitize-choice-tally-item';
 import { sanitizePairItem } from './sanitize-pair-item';
 import { sanitizeRightWrongItem } from './sanitize-right-wrong-item';
 import { sanitizeScaleTallyItem } from './sanitize-scale-tally-item';
@@ -51,10 +58,22 @@ export interface Scorer {
     responses: { itemId: string; value: unknown }[];
     /** Optional conversion table carried by the test (raw -> IQ). */
     normTable?: unknown;
+    /** Family settings the items do not carry (e.g. a tally tie-break). */
+    scoringConfig?: unknown;
   }): Promise<ScorerOutput>;
 }
 
 export const SCORERS: Record<ScorerType, Scorer> = {
+  CHOICE_TALLY: {
+    type: 'CHOICE_TALLY',
+    itemSchema: ChoiceTallyItemContentSchema,
+    responseSchema: ChoiceTallyResponseSchema,
+    sanitize: sanitizeChoiceTallyItem,
+    patternCatalog: [],
+    patternCodesFor: choiceTallyPatternCodes,
+    score: (input) =>
+      Promise.resolve(scoreChoiceTally(input) as unknown as ScorerOutput),
+  },
   FORCED_CHOICE_DISC: {
     type: 'FORCED_CHOICE_DISC',
     itemSchema: DiscItemContentSchema,

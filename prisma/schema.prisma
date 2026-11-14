@@ -36,6 +36,7 @@ enum TestCategory {
 }
 
 enum ScorerType {
+  CHOICE_TALLY
   FORCED_CHOICE_DISC
   FORCED_CHOICE_PAIR
   RIGHT_WRONG_NORM
@@ -256,6 +257,12 @@ model Test {
   timeLimitMin         Int?
   /** Raw -> IQ conversion rows (`{ raw, iq }`); null when the test has no norm. */
   normTable            Json?
+  /**
+   * Family-specific settings the scorer needs but the items do not carry —
+   * e.g. `{ "tieBreak": "CA" }` for a tally whose source resolves a tie to a
+   * fixed scale. Null when the family needs nothing.
+   */
+  scoringConfig        Json?
   /**
    * Age range the norm is valid for, in whole months (e.g. 168-179 = 14y0m to
    * 14y11m). Null when the instrument's norm is not banded, which means the

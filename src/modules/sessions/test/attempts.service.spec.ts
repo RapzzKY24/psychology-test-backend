@@ -30,6 +30,7 @@ function makeDetail(
       status: 'PUBLISHED',
       timeLimitMin: null,
       normTable: null,
+      scoringConfig: null,
       ageMinMonths: null,
       ageMaxMonths: null,
     },
@@ -306,6 +307,7 @@ describe('AttemptsService', () => {
       status: 'PUBLISHED',
       timeLimitMin: 12,
       normTable: [{ raw: 0, iq: 59 }],
+      scoringConfig: null,
       ageMinMonths: null,
       ageMaxMonths: null,
     };
@@ -443,6 +445,7 @@ describe('AttemptsService', () => {
       status: 'PUBLISHED',
       timeLimitMin: null,
       normTable: null,
+      scoringConfig: null,
       ageMinMonths: 168,
       ageMaxMonths: 179,
     };
