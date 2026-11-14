@@ -1,0 +1,1219 @@
+{
+  "test": {
+    "slug": "spm",
+    "name": "SPM (Standard Progressive Matrices)",
+    "description": "Tes intelegensi nonverbal: 60 soal pola gambar dalam 5 set (A-E) yang makin sulit. Skor mentah 2-60 dikonversi ke IQ memakai tabel konversi Skoring SPM.",
+    "category": "COGNITIVE",
+    "scorerType": "RIGHT_WRONG_NORM",
+    "price": 50000,
+    "estimatedDurationMin": 45,
+    "timeLimitMin": null,
+    "normTable": [
+      {
+        "raw": 2,
+        "iq": 62
+      },
+      {
+        "raw": 3,
+        "iq": 62
+      },
+      {
+        "raw": 4,
+        "iq": 65
+      },
+      {
+        "raw": 5,
+        "iq": 66
+      },
+      {
+        "raw": 6,
+        "iq": 66
+      },
+      {
+        "raw": 7,
+        "iq": 66
+      },
+      {
+        "raw": 8,
+        "iq": 69
+      },
+      {
+        "raw": 9,
+        "iq": 70
+      },
+      {
+        "raw": 10,
+        "iq": 72
+      },
+      {
+        "raw": 11,
+        "iq": 73
+      },
+      {
+        "raw": 12,
+        "iq": 74
+      },
+      {
+        "raw": 13,
+        "iq": 74
+      },
+      {
+        "raw": 14,
+        "iq": 74
+      },
+      {
+        "raw": 15,
+        "iq": 74
+      },
+      {
+        "raw": 16,
+        "iq": 74
+      },
+      {
+        "raw": 17,
+        "iq": 76
+      },
+      {
+        "raw": 18,
+        "iq": 76
+      },
+      {
+        "raw": 19,
+        "iq": 77
+      },
+      {
+        "raw": 20,
+        "iq": 77
+      },
+      {
+        "raw": 21,
+        "iq": 78
+      },
+      {
+        "raw": 22,
+        "iq": 79
+      },
+      {
+        "raw": 23,
+        "iq": 80
+      },
+      {
+        "raw": 24,
+        "iq": 81
+      },
+      {
+        "raw": 25,
+        "iq": 82
+      },
+      {
+        "raw": 26,
+        "iq": 84
+      },
+      {
+        "raw": 27,
+        "iq": 85
+      },
+      {
+        "raw": 28,
+        "iq": 87
+      },
+      {
+        "raw": 29,
+        "iq": 88
+      },
+      {
+        "raw": 30,
+        "iq": 89
+      },
+      {
+        "raw": 31,
+        "iq": 90
+      },
+      {
+        "raw": 32,
+        "iq": 92
+      },
+      {
+        "raw": 33,
+        "iq": 93
+      },
+      {
+        "raw": 34,
+        "iq": 94
+      },
+      {
+        "raw": 35,
+        "iq": 96
+      },
+      {
+        "raw": 36,
+        "iq": 97
+      },
+      {
+        "raw": 37,
+        "iq": 98
+      },
+      {
+        "raw": 38,
+        "iq": 99
+      },
+      {
+        "raw": 39,
+        "iq": 100
+      },
+      {
+        "raw": 40,
+        "iq": 101
+      },
+      {
+        "raw": 41,
+        "iq": 102
+      },
+      {
+        "raw": 42,
+        "iq": 104
+      },
+      {
+        "raw": 43,
+        "iq": 105
+      },
+      {
+        "raw": 44,
+        "iq": 107
+      },
+      {
+        "raw": 45,
+        "iq": 108
+      },
+      {
+        "raw": 46,
+        "iq": 110
+      },
+      {
+        "raw": 47,
+        "iq": 113
+      },
+      {
+        "raw": 48,
+        "iq": 115
+      },
+      {
+        "raw": 49,
+        "iq": 117
+      },
+      {
+        "raw": 50,
+        "iq": 120
+      },
+      {
+        "raw": 51,
+        "iq": 122
+      },
+      {
+        "raw": 52,
+        "iq": 124
+      },
+      {
+        "raw": 53,
+        "iq": 125
+      },
+      {
+        "raw": 54,
+        "iq": 126
+      },
+      {
+        "raw": 55,
+        "iq": 129
+      },
+      {
+        "raw": 56,
+        "iq": 130
+      },
+      {
+        "raw": 57,
+        "iq": 134
+      },
+      {
+        "raw": 58,
+        "iq": 134
+      },
+      {
+        "raw": 59,
+        "iq": 138
+      },
+      {
+        "raw": 60,
+        "iq": 138
+      }
+    ]
+  },
+  "items": [
+    {
+      "order": 1,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set A",
+        "question": "Set A: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/058d714a-fbcc-5916-8c68-e068d5e6a47e.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 2,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set A",
+        "question": "Set A: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/21f66be2-ba16-578f-9a8a-6a9c70d8b537.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 3,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set A",
+        "question": "Set A: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/e2fa3c93-3533-566c-92dc-d066909af55d.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 4,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set A",
+        "question": "Set A: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/966e2f78-48ad-5926-aba5-46a9b45f55e4.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 5,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set A",
+        "question": "Set A: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/7b5c5c4e-4124-56ba-979f-57c9c8bcdc38.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [5]
+      }
+    },
+    {
+      "order": 6,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set A",
+        "question": "Set A: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/421c000c-d561-5b2d-9e31-60cfbed63d0b.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 7,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set A",
+        "question": "Set A: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/b2911bf6-8b6e-5cc5-8545-e0a84948c6b0.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [5]
+      }
+    },
+    {
+      "order": 8,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set A",
+        "question": "Set A: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/c77a0115-c3aa-5c42-a216-79de0c3552b5.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 9,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set A",
+        "question": "Set A: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/8ca89816-017a-5ff2-9af7-608d5c626ecb.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 10,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set A",
+        "question": "Set A: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/5d75e76a-6dab-55f9-84c0-a8557945d839.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 11,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set A",
+        "question": "Set A: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/4e10fc6b-3f43-5bf5-b3fa-127cdf477c64.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 12,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set A",
+        "question": "Set A: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/91fab586-d959-554c-b762-55c5df8b0ee8.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 13,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set B",
+        "question": "Set B: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/d0f58aa7-f66b-547e-8255-f6ca37e05d2b.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 14,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set B",
+        "question": "Set B: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/32b9bc08-4c90-561d-b871-ad9f7ce6f10e.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [5]
+      }
+    },
+    {
+      "order": 15,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set B",
+        "question": "Set B: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/f1a15571-a6fd-57c1-be25-a0cbd670725d.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 16,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set B",
+        "question": "Set B: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/e59057f4-0ad4-59d7-bda4-aef68f08d8c5.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 17,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set B",
+        "question": "Set B: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/d261b022-e3c7-5321-8b70-7006ba86936d.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 18,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set B",
+        "question": "Set B: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/51953f57-6ce0-5a2c-830f-125f5de10d7f.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 19,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set B",
+        "question": "Set B: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/db8f89db-dc63-584a-8955-6f1b3cfd274d.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 20,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set B",
+        "question": "Set B: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/0f716955-4408-5bfd-bfeb-f055d61d6345.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [5]
+      }
+    },
+    {
+      "order": 21,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set B",
+        "question": "Set B: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/aa219eca-eeab-5fca-8f3c-a88849fdcc32.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 22,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set B",
+        "question": "Set B: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/56c5ca3a-8646-53da-a728-10e81366cd61.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 23,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set B",
+        "question": "Set B: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/4a47c11a-c483-53ee-aa54-495a07973d8c.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 24,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set B",
+        "question": "Set B: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/8400b2d5-d194-5003-afa4-2547c4193c09.png",
+        "options": ["1", "2", "3", "4", "5", "6"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 25,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set C",
+        "question": "Set C: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/9f3b7a06-7c31-5b7c-b47f-50f4868f2602.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [7]
+      }
+    },
+    {
+      "order": 26,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set C",
+        "question": "Set C: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/c995b573-7b49-5be6-8557-330e950565bf.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 27,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set C",
+        "question": "Set C: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/d28f148a-55c2-5b07-aba9-8aa36c9d0b3e.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 28,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set C",
+        "question": "Set C: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/01ea5ae4-30df-51a2-9f45-8aafc334093b.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [7]
+      }
+    },
+    {
+      "order": 29,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set C",
+        "question": "Set C: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/fc3cd4b8-e707-521b-a4d1-40bc0db461c5.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [6]
+      }
+    },
+    {
+      "order": 30,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set C",
+        "question": "Set C: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/088cc2fe-4085-5111-9793-51a5168fd187.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 31,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set C",
+        "question": "Set C: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/dae1eac7-6739-5bc5-8cf3-341c9240533b.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 32,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set C",
+        "question": "Set C: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/8b43da12-b8b2-552d-b626-09e5df7eff46.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 33,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set C",
+        "question": "Set C: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/086d11f7-494d-5924-b0f6-4b9bfa98060e.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [6]
+      }
+    },
+    {
+      "order": 34,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set C",
+        "question": "Set C: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/b7d4f716-1945-507a-b8b2-ef8cca0921a4.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [5]
+      }
+    },
+    {
+      "order": 35,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set C",
+        "question": "Set C: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/054dea44-307a-5ae7-8ac9-9acd8c0f56a1.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 36,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set C",
+        "question": "Set C: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/41405cc4-b9ee-558d-9522-afde5a26c2da.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 37,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set D",
+        "question": "Set D: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/09185e90-581d-5b30-ab82-bd77a79784bd.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 38,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set D",
+        "question": "Set D: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/650e9a40-5981-573a-8fcf-eb70e1f8c42c.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 39,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set D",
+        "question": "Set D: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/4782e05f-0fe0-5791-8b84-ea2fd9837536.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 40,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set D",
+        "question": "Set D: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/b4d30fbb-be7f-5fd7-bc9c-8f9c809a47a8.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [6]
+      }
+    },
+    {
+      "order": 41,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set D",
+        "question": "Set D: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/3669ccc7-6b99-595a-8ccb-ff476fe671b1.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [7]
+      }
+    },
+    {
+      "order": 42,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set D",
+        "question": "Set D: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/5e36685e-72aa-563d-a7e2-ef785069939e.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [5]
+      }
+    },
+    {
+      "order": 43,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set D",
+        "question": "Set D: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/70e41a5e-871f-56b6-a36a-ba93f4e0c36b.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 44,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set D",
+        "question": "Set D: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/8113b0c6-4139-5973-a303-7789dbf5a434.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 45,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set D",
+        "question": "Set D: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/7faccff7-dc58-5669-8982-2b6a123e6d60.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 46,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set D",
+        "question": "Set D: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/9ad22834-8390-532c-b36b-9975454cdf1a.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 47,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set D",
+        "question": "Set D: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/b496a5e0-f967-5fa9-8aa5-2bde41efca7d.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 48,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set D",
+        "question": "Set D: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/c89cd2b1-6ebf-54e6-a38b-42c2f0a73c83.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [5]
+      }
+    },
+    {
+      "order": 49,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set E",
+        "question": "Set E: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/28f3d315-b37c-5037-a9af-292cf7cd496d.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [6]
+      }
+    },
+    {
+      "order": 50,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set E",
+        "question": "Set E: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/a9964fa2-840a-596f-ba27-d74a0768d12d.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [5]
+      }
+    },
+    {
+      "order": 51,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set E",
+        "question": "Set E: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/61c5b171-f7fb-5eb2-9cc7-883635dad5a7.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [7]
+      }
+    },
+    {
+      "order": 52,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set E",
+        "question": "Set E: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/692fafdd-09d6-5f4e-b31b-248bd1d92fae.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 53,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set E",
+        "question": "Set E: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/4421eb26-a91a-5926-ac74-a5c54cf909e3.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 54,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set E",
+        "question": "Set E: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/3350c9d3-b39a-5bc9-aca1-fb7e6424e9bd.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 55,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set E",
+        "question": "Set E: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/8a0297ed-51c0-5024-8ecf-65cc290487cc.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 56,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set E",
+        "question": "Set E: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/bbbe8cfc-b037-5ada-b2e1-b05d79245f49.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [5]
+      }
+    },
+    {
+      "order": 57,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set E",
+        "question": "Set E: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/065c8a7b-164b-5bfb-80eb-0601d0ed6c23.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 58,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set E",
+        "question": "Set E: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/e12a98dd-4ddc-585e-ae9d-ef5b286f308d.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 59,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set E",
+        "question": "Set E: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/ac967043-834e-5a94-bc14-1d61ed034ea1.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 60,
+      "content": {
+        "answerMode": "choice",
+        "subtest": "Set E",
+        "question": "Set E: pilih potongan yang tepat untuk mengisi kotak kosong pada pola di sebelah kanan.",
+        "imageUrl": "/uploads/test-items/1bcc93d9-3f4b-5e77-8bc0-d799beba536a.png",
+        "options": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "correctIndexes": [4]
+      }
+    }
+  ],
+  "interpretations": [
+    {
+      "patternCode": "RAW_0",
+      "title": "Skor 0 dari 60 — di bawah tabel norma",
+      "body": "Tidak ada jawaban benar. Tabel konversi IQ pada Skoring SPM dimulai dari skor mentah 2, sehingga skor 0 belum memperoleh angka IQ. Pengenalan pola masih sangat terbatas. Disarankan asesmen lanjutan oleh psikolog sebelum menarik kesimpulan."
+    },
+    {
+      "patternCode": "RAW_1",
+      "title": "Skor 1 dari 60 — di bawah tabel norma",
+      "body": "Satu jawaban benar. Tabel konversi IQ pada Skoring SPM dimulai dari skor mentah 2, sehingga skor 1 belum memperoleh angka IQ. Pengenalan pola masih sangat terbatas. Disarankan asesmen lanjutan oleh psikolog sebelum menarik kesimpulan."
+    },
+    {
+      "patternCode": "RAW_2",
+      "title": "Skor 2 dari 60 — IQ 62",
+      "body": "Kemampuan penalaran umum berada pada tingkat sangat rendah. Pengenalan pola masih sangat terbatas. Disarankan asesmen lanjutan oleh psikolog sebelum menarik kesimpulan."
+    },
+    {
+      "patternCode": "RAW_3",
+      "title": "Skor 3 dari 60 — IQ 62",
+      "body": "Kemampuan penalaran umum berada pada tingkat sangat rendah. Pengenalan pola masih sangat terbatas. Disarankan asesmen lanjutan oleh psikolog sebelum menarik kesimpulan."
+    },
+    {
+      "patternCode": "RAW_4",
+      "title": "Skor 4 dari 60 — IQ 65",
+      "body": "Kemampuan penalaran umum berada pada tingkat sangat rendah. Pengenalan pola masih sangat terbatas. Disarankan asesmen lanjutan oleh psikolog sebelum menarik kesimpulan."
+    },
+    {
+      "patternCode": "RAW_5",
+      "title": "Skor 5 dari 60 — IQ 66",
+      "body": "Kemampuan penalaran umum berada pada tingkat sangat rendah. Pengenalan pola masih sangat terbatas. Disarankan asesmen lanjutan oleh psikolog sebelum menarik kesimpulan."
+    },
+    {
+      "patternCode": "RAW_6",
+      "title": "Skor 6 dari 60 — IQ 66",
+      "body": "Kemampuan penalaran umum berada pada tingkat sangat rendah. Pengenalan pola masih sangat terbatas. Disarankan asesmen lanjutan oleh psikolog sebelum menarik kesimpulan."
+    },
+    {
+      "patternCode": "RAW_7",
+      "title": "Skor 7 dari 60 — IQ 66",
+      "body": "Kemampuan penalaran umum berada pada tingkat sangat rendah. Pengenalan pola masih sangat terbatas. Disarankan asesmen lanjutan oleh psikolog sebelum menarik kesimpulan."
+    },
+    {
+      "patternCode": "RAW_8",
+      "title": "Skor 8 dari 60 — IQ 69",
+      "body": "Kemampuan penalaran umum berada pada tingkat sangat rendah. Pengenalan pola masih sangat terbatas. Disarankan asesmen lanjutan oleh psikolog sebelum menarik kesimpulan."
+    },
+    {
+      "patternCode": "RAW_9",
+      "title": "Skor 9 dari 60 — IQ 70",
+      "body": "Kemampuan penalaran umum berada pada tingkat rendah. Pengenalan pola masih terbatas pada bentuk yang paling sederhana; latihan terarah akan membantu."
+    },
+    {
+      "patternCode": "RAW_10",
+      "title": "Skor 10 dari 60 — IQ 72",
+      "body": "Kemampuan penalaran umum berada pada tingkat rendah. Pengenalan pola masih terbatas pada bentuk yang paling sederhana; latihan terarah akan membantu."
+    },
+    {
+      "patternCode": "RAW_11",
+      "title": "Skor 11 dari 60 — IQ 73",
+      "body": "Kemampuan penalaran umum berada pada tingkat rendah. Pengenalan pola masih terbatas pada bentuk yang paling sederhana; latihan terarah akan membantu."
+    },
+    {
+      "patternCode": "RAW_12",
+      "title": "Skor 12 dari 60 — IQ 74",
+      "body": "Kemampuan penalaran umum berada pada tingkat rendah. Pengenalan pola masih terbatas pada bentuk yang paling sederhana; latihan terarah akan membantu."
+    },
+    {
+      "patternCode": "RAW_13",
+      "title": "Skor 13 dari 60 — IQ 74",
+      "body": "Kemampuan penalaran umum berada pada tingkat rendah. Pengenalan pola masih terbatas pada bentuk yang paling sederhana; latihan terarah akan membantu."
+    },
+    {
+      "patternCode": "RAW_14",
+      "title": "Skor 14 dari 60 — IQ 74",
+      "body": "Kemampuan penalaran umum berada pada tingkat rendah. Pengenalan pola masih terbatas pada bentuk yang paling sederhana; latihan terarah akan membantu."
+    },
+    {
+      "patternCode": "RAW_15",
+      "title": "Skor 15 dari 60 — IQ 74",
+      "body": "Kemampuan penalaran umum berada pada tingkat rendah. Pengenalan pola masih terbatas pada bentuk yang paling sederhana; latihan terarah akan membantu."
+    },
+    {
+      "patternCode": "RAW_16",
+      "title": "Skor 16 dari 60 — IQ 74",
+      "body": "Kemampuan penalaran umum berada pada tingkat rendah. Pengenalan pola masih terbatas pada bentuk yang paling sederhana; latihan terarah akan membantu."
+    },
+    {
+      "patternCode": "RAW_17",
+      "title": "Skor 17 dari 60 — IQ 76",
+      "body": "Kemampuan penalaran umum berada pada tingkat rendah. Pengenalan pola masih terbatas pada bentuk yang paling sederhana; latihan terarah akan membantu."
+    },
+    {
+      "patternCode": "RAW_18",
+      "title": "Skor 18 dari 60 — IQ 76",
+      "body": "Kemampuan penalaran umum berada pada tingkat rendah. Pengenalan pola masih terbatas pada bentuk yang paling sederhana; latihan terarah akan membantu."
+    },
+    {
+      "patternCode": "RAW_19",
+      "title": "Skor 19 dari 60 — IQ 77",
+      "body": "Kemampuan penalaran umum berada pada tingkat rendah. Pengenalan pola masih terbatas pada bentuk yang paling sederhana; latihan terarah akan membantu."
+    },
+    {
+      "patternCode": "RAW_20",
+      "title": "Skor 20 dari 60 — IQ 77",
+      "body": "Kemampuan penalaran umum berada pada tingkat rendah. Pengenalan pola masih terbatas pada bentuk yang paling sederhana; latihan terarah akan membantu."
+    },
+    {
+      "patternCode": "RAW_21",
+      "title": "Skor 21 dari 60 — IQ 78",
+      "body": "Kemampuan penalaran umum berada pada tingkat rendah. Pengenalan pola masih terbatas pada bentuk yang paling sederhana; latihan terarah akan membantu."
+    },
+    {
+      "patternCode": "RAW_22",
+      "title": "Skor 22 dari 60 — IQ 79",
+      "body": "Kemampuan penalaran umum berada pada tingkat rendah. Pengenalan pola masih terbatas pada bentuk yang paling sederhana; latihan terarah akan membantu."
+    },
+    {
+      "patternCode": "RAW_23",
+      "title": "Skor 23 dari 60 — IQ 80",
+      "body": "Kemampuan penalaran umum berada pada tingkat di bawah rata-rata. Pola sederhana terbaca, tetapi soal yang menuntut lebih dari satu langkah sering terlewat."
+    },
+    {
+      "patternCode": "RAW_24",
+      "title": "Skor 24 dari 60 — IQ 81",
+      "body": "Kemampuan penalaran umum berada pada tingkat di bawah rata-rata. Pola sederhana terbaca, tetapi soal yang menuntut lebih dari satu langkah sering terlewat."
+    },
+    {
+      "patternCode": "RAW_25",
+      "title": "Skor 25 dari 60 — IQ 82",
+      "body": "Kemampuan penalaran umum berada pada tingkat di bawah rata-rata. Pola sederhana terbaca, tetapi soal yang menuntut lebih dari satu langkah sering terlewat."
+    },
+    {
+      "patternCode": "RAW_26",
+      "title": "Skor 26 dari 60 — IQ 84",
+      "body": "Kemampuan penalaran umum berada pada tingkat di bawah rata-rata. Pola sederhana terbaca, tetapi soal yang menuntut lebih dari satu langkah sering terlewat."
+    },
+    {
+      "patternCode": "RAW_27",
+      "title": "Skor 27 dari 60 — IQ 85",
+      "body": "Kemampuan penalaran umum berada pada tingkat di bawah rata-rata. Pola sederhana terbaca, tetapi soal yang menuntut lebih dari satu langkah sering terlewat."
+    },
+    {
+      "patternCode": "RAW_28",
+      "title": "Skor 28 dari 60 — IQ 87",
+      "body": "Kemampuan penalaran umum berada pada tingkat di bawah rata-rata. Pola sederhana terbaca, tetapi soal yang menuntut lebih dari satu langkah sering terlewat."
+    },
+    {
+      "patternCode": "RAW_29",
+      "title": "Skor 29 dari 60 — IQ 88",
+      "body": "Kemampuan penalaran umum berada pada tingkat di bawah rata-rata. Pola sederhana terbaca, tetapi soal yang menuntut lebih dari satu langkah sering terlewat."
+    },
+    {
+      "patternCode": "RAW_30",
+      "title": "Skor 30 dari 60 — IQ 89",
+      "body": "Kemampuan penalaran umum berada pada tingkat di bawah rata-rata. Pola sederhana terbaca, tetapi soal yang menuntut lebih dari satu langkah sering terlewat."
+    },
+    {
+      "patternCode": "RAW_31",
+      "title": "Skor 31 dari 60 — IQ 90",
+      "body": "Kemampuan penalaran umum berada pada tingkat rata-rata. Pola dasar dan menengah terbaca baik; soal dengan beberapa aturan berlapis masih menjadi tantangan."
+    },
+    {
+      "patternCode": "RAW_32",
+      "title": "Skor 32 dari 60 — IQ 92",
+      "body": "Kemampuan penalaran umum berada pada tingkat rata-rata. Pola dasar dan menengah terbaca baik; soal dengan beberapa aturan berlapis masih menjadi tantangan."
+    },
+    {
+      "patternCode": "RAW_33",
+      "title": "Skor 33 dari 60 — IQ 93",
+      "body": "Kemampuan penalaran umum berada pada tingkat rata-rata. Pola dasar dan menengah terbaca baik; soal dengan beberapa aturan berlapis masih menjadi tantangan."
+    },
+    {
+      "patternCode": "RAW_34",
+      "title": "Skor 34 dari 60 — IQ 94",
+      "body": "Kemampuan penalaran umum berada pada tingkat rata-rata. Pola dasar dan menengah terbaca baik; soal dengan beberapa aturan berlapis masih menjadi tantangan."
+    },
+    {
+      "patternCode": "RAW_35",
+      "title": "Skor 35 dari 60 — IQ 96",
+      "body": "Kemampuan penalaran umum berada pada tingkat rata-rata. Pola dasar dan menengah terbaca baik; soal dengan beberapa aturan berlapis masih menjadi tantangan."
+    },
+    {
+      "patternCode": "RAW_36",
+      "title": "Skor 36 dari 60 — IQ 97",
+      "body": "Kemampuan penalaran umum berada pada tingkat rata-rata. Pola dasar dan menengah terbaca baik; soal dengan beberapa aturan berlapis masih menjadi tantangan."
+    },
+    {
+      "patternCode": "RAW_37",
+      "title": "Skor 37 dari 60 — IQ 98",
+      "body": "Kemampuan penalaran umum berada pada tingkat rata-rata. Pola dasar dan menengah terbaca baik; soal dengan beberapa aturan berlapis masih menjadi tantangan."
+    },
+    {
+      "patternCode": "RAW_38",
+      "title": "Skor 38 dari 60 — IQ 99",
+      "body": "Kemampuan penalaran umum berada pada tingkat rata-rata. Pola dasar dan menengah terbaca baik; soal dengan beberapa aturan berlapis masih menjadi tantangan."
+    },
+    {
+      "patternCode": "RAW_39",
+      "title": "Skor 39 dari 60 — IQ 100",
+      "body": "Kemampuan penalaran umum berada pada tingkat rata-rata. Pola dasar dan menengah terbaca baik; soal dengan beberapa aturan berlapis masih menjadi tantangan."
+    },
+    {
+      "patternCode": "RAW_40",
+      "title": "Skor 40 dari 60 — IQ 101",
+      "body": "Kemampuan penalaran umum berada pada tingkat rata-rata. Pola dasar dan menengah terbaca baik; soal dengan beberapa aturan berlapis masih menjadi tantangan."
+    },
+    {
+      "patternCode": "RAW_41",
+      "title": "Skor 41 dari 60 — IQ 102",
+      "body": "Kemampuan penalaran umum berada pada tingkat rata-rata. Pola dasar dan menengah terbaca baik; soal dengan beberapa aturan berlapis masih menjadi tantangan."
+    },
+    {
+      "patternCode": "RAW_42",
+      "title": "Skor 42 dari 60 — IQ 104",
+      "body": "Kemampuan penalaran umum berada pada tingkat rata-rata. Pola dasar dan menengah terbaca baik; soal dengan beberapa aturan berlapis masih menjadi tantangan."
+    },
+    {
+      "patternCode": "RAW_43",
+      "title": "Skor 43 dari 60 — IQ 105",
+      "body": "Kemampuan penalaran umum berada pada tingkat rata-rata. Pola dasar dan menengah terbaca baik; soal dengan beberapa aturan berlapis masih menjadi tantangan."
+    },
+    {
+      "patternCode": "RAW_44",
+      "title": "Skor 44 dari 60 — IQ 107",
+      "body": "Kemampuan penalaran umum berada pada tingkat rata-rata. Pola dasar dan menengah terbaca baik; soal dengan beberapa aturan berlapis masih menjadi tantangan."
+    },
+    {
+      "patternCode": "RAW_45",
+      "title": "Skor 45 dari 60 — IQ 108",
+      "body": "Kemampuan penalaran umum berada pada tingkat rata-rata. Pola dasar dan menengah terbaca baik; soal dengan beberapa aturan berlapis masih menjadi tantangan."
+    },
+    {
+      "patternCode": "RAW_46",
+      "title": "Skor 46 dari 60 — IQ 110",
+      "body": "Kemampuan penalaran umum berada pada tingkat di atas rata-rata. Sebagian besar pola terbaca dengan tepat; kekeliruan muncul pada soal yang menggabungkan dua aturan sekaligus."
+    },
+    {
+      "patternCode": "RAW_47",
+      "title": "Skor 47 dari 60 — IQ 113",
+      "body": "Kemampuan penalaran umum berada pada tingkat di atas rata-rata. Sebagian besar pola terbaca dengan tepat; kekeliruan muncul pada soal yang menggabungkan dua aturan sekaligus."
+    },
+    {
+      "patternCode": "RAW_48",
+      "title": "Skor 48 dari 60 — IQ 115",
+      "body": "Kemampuan penalaran umum berada pada tingkat di atas rata-rata. Sebagian besar pola terbaca dengan tepat; kekeliruan muncul pada soal yang menggabungkan dua aturan sekaligus."
+    },
+    {
+      "patternCode": "RAW_49",
+      "title": "Skor 49 dari 60 — IQ 117",
+      "body": "Kemampuan penalaran umum berada pada tingkat di atas rata-rata. Sebagian besar pola terbaca dengan tepat; kekeliruan muncul pada soal yang menggabungkan dua aturan sekaligus."
+    },
+    {
+      "patternCode": "RAW_50",
+      "title": "Skor 50 dari 60 — IQ 120",
+      "body": "Kemampuan penalaran umum berada pada tingkat superior. Pola dan relasi antarbentuk dikenali cepat; hanya soal paling rumit yang menyita waktu."
+    },
+    {
+      "patternCode": "RAW_51",
+      "title": "Skor 51 dari 60 — IQ 122",
+      "body": "Kemampuan penalaran umum berada pada tingkat superior. Pola dan relasi antarbentuk dikenali cepat; hanya soal paling rumit yang menyita waktu."
+    },
+    {
+      "patternCode": "RAW_52",
+      "title": "Skor 52 dari 60 — IQ 124",
+      "body": "Kemampuan penalaran umum berada pada tingkat superior. Pola dan relasi antarbentuk dikenali cepat; hanya soal paling rumit yang menyita waktu."
+    },
+    {
+      "patternCode": "RAW_53",
+      "title": "Skor 53 dari 60 — IQ 125",
+      "body": "Kemampuan penalaran umum berada pada tingkat superior. Pola dan relasi antarbentuk dikenali cepat; hanya soal paling rumit yang menyita waktu."
+    },
+    {
+      "patternCode": "RAW_54",
+      "title": "Skor 54 dari 60 — IQ 126",
+      "body": "Kemampuan penalaran umum berada pada tingkat superior. Pola dan relasi antarbentuk dikenali cepat; hanya soal paling rumit yang menyita waktu."
+    },
+    {
+      "patternCode": "RAW_55",
+      "title": "Skor 55 dari 60 — IQ 129",
+      "body": "Kemampuan penalaran umum berada pada tingkat superior. Pola dan relasi antarbentuk dikenali cepat; hanya soal paling rumit yang menyita waktu."
+    },
+    {
+      "patternCode": "RAW_56",
+      "title": "Skor 56 dari 60 — IQ 130",
+      "body": "Kemampuan penalaran umum berada pada tingkat sangat superior. Pola berlapis, relasi antarbentuk, dan aturan logis dikenali hampir tanpa kesalahan, termasuk pada soal terakhir yang paling menuntut."
+    },
+    {
+      "patternCode": "RAW_57",
+      "title": "Skor 57 dari 60 — IQ 134",
+      "body": "Kemampuan penalaran umum berada pada tingkat sangat superior. Pola berlapis, relasi antarbentuk, dan aturan logis dikenali hampir tanpa kesalahan, termasuk pada soal terakhir yang paling menuntut."
+    },
+    {
+      "patternCode": "RAW_58",
+      "title": "Skor 58 dari 60 — IQ 134",
+      "body": "Kemampuan penalaran umum berada pada tingkat sangat superior. Pola berlapis, relasi antarbentuk, dan aturan logis dikenali hampir tanpa kesalahan, termasuk pada soal terakhir yang paling menuntut."
+    },
+    {
+      "patternCode": "RAW_59",
+      "title": "Skor 59 dari 60 — IQ 138",
+      "body": "Kemampuan penalaran umum berada pada tingkat sangat superior. Pola berlapis, relasi antarbentuk, dan aturan logis dikenali hampir tanpa kesalahan, termasuk pada soal terakhir yang paling menuntut."
+    },
+    {
+      "patternCode": "RAW_60",
+      "title": "Skor 60 dari 60 — IQ 138",
+      "body": "Kemampuan penalaran umum berada pada tingkat sangat superior. Pola berlapis, relasi antarbentuk, dan aturan logis dikenali hampir tanpa kesalahan, termasuk pada soal terakhir yang paling menuntut."
+    }
+  ]
+}

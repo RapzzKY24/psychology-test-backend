@@ -1,0 +1,305 @@
+{
+  "note": "Satu halaman = satu soal, dipotong dari \"SOAL SPM.pdf\" halaman 3-62 (A1-E12). imageUrl memakai uuid5 tetap supaya seed idempoten.",
+  "items": [
+    {
+      "item": 1,
+      "file": "spm-01.png",
+      "imageUrl": "/uploads/test-items/058d714a-fbcc-5916-8c68-e068d5e6a47e.png"
+    },
+    {
+      "item": 2,
+      "file": "spm-02.png",
+      "imageUrl": "/uploads/test-items/21f66be2-ba16-578f-9a8a-6a9c70d8b537.png"
+    },
+    {
+      "item": 3,
+      "file": "spm-03.png",
+      "imageUrl": "/uploads/test-items/e2fa3c93-3533-566c-92dc-d066909af55d.png"
+    },
+    {
+      "item": 4,
+      "file": "spm-04.png",
+      "imageUrl": "/uploads/test-items/966e2f78-48ad-5926-aba5-46a9b45f55e4.png"
+    },
+    {
+      "item": 5,
+      "file": "spm-05.png",
+      "imageUrl": "/uploads/test-items/7b5c5c4e-4124-56ba-979f-57c9c8bcdc38.png"
+    },
+    {
+      "item": 6,
+      "file": "spm-06.png",
+      "imageUrl": "/uploads/test-items/421c000c-d561-5b2d-9e31-60cfbed63d0b.png"
+    },
+    {
+      "item": 7,
+      "file": "spm-07.png",
+      "imageUrl": "/uploads/test-items/b2911bf6-8b6e-5cc5-8545-e0a84948c6b0.png"
+    },
+    {
+      "item": 8,
+      "file": "spm-08.png",
+      "imageUrl": "/uploads/test-items/c77a0115-c3aa-5c42-a216-79de0c3552b5.png"
+    },
+    {
+      "item": 9,
+      "file": "spm-09.png",
+      "imageUrl": "/uploads/test-items/8ca89816-017a-5ff2-9af7-608d5c626ecb.png"
+    },
+    {
+      "item": 10,
+      "file": "spm-10.png",
+      "imageUrl": "/uploads/test-items/5d75e76a-6dab-55f9-84c0-a8557945d839.png"
+    },
+    {
+      "item": 11,
+      "file": "spm-11.png",
+      "imageUrl": "/uploads/test-items/4e10fc6b-3f43-5bf5-b3fa-127cdf477c64.png"
+    },
+    {
+      "item": 12,
+      "file": "spm-12.png",
+      "imageUrl": "/uploads/test-items/91fab586-d959-554c-b762-55c5df8b0ee8.png"
+    },
+    {
+      "item": 13,
+      "file": "spm-13.png",
+      "imageUrl": "/uploads/test-items/d0f58aa7-f66b-547e-8255-f6ca37e05d2b.png"
+    },
+    {
+      "item": 14,
+      "file": "spm-14.png",
+      "imageUrl": "/uploads/test-items/32b9bc08-4c90-561d-b871-ad9f7ce6f10e.png"
+    },
+    {
+      "item": 15,
+      "file": "spm-15.png",
+      "imageUrl": "/uploads/test-items/f1a15571-a6fd-57c1-be25-a0cbd670725d.png"
+    },
+    {
+      "item": 16,
+      "file": "spm-16.png",
+      "imageUrl": "/uploads/test-items/e59057f4-0ad4-59d7-bda4-aef68f08d8c5.png"
+    },
+    {
+      "item": 17,
+      "file": "spm-17.png",
+      "imageUrl": "/uploads/test-items/d261b022-e3c7-5321-8b70-7006ba86936d.png"
+    },
+    {
+      "item": 18,
+      "file": "spm-18.png",
+      "imageUrl": "/uploads/test-items/51953f57-6ce0-5a2c-830f-125f5de10d7f.png"
+    },
+    {
+      "item": 19,
+      "file": "spm-19.png",
+      "imageUrl": "/uploads/test-items/db8f89db-dc63-584a-8955-6f1b3cfd274d.png"
+    },
+    {
+      "item": 20,
+      "file": "spm-20.png",
+      "imageUrl": "/uploads/test-items/0f716955-4408-5bfd-bfeb-f055d61d6345.png"
+    },
+    {
+      "item": 21,
+      "file": "spm-21.png",
+      "imageUrl": "/uploads/test-items/aa219eca-eeab-5fca-8f3c-a88849fdcc32.png"
+    },
+    {
+      "item": 22,
+      "file": "spm-22.png",
+      "imageUrl": "/uploads/test-items/56c5ca3a-8646-53da-a728-10e81366cd61.png"
+    },
+    {
+      "item": 23,
+      "file": "spm-23.png",
+      "imageUrl": "/uploads/test-items/4a47c11a-c483-53ee-aa54-495a07973d8c.png"
+    },
+    {
+      "item": 24,
+      "file": "spm-24.png",
+      "imageUrl": "/uploads/test-items/8400b2d5-d194-5003-afa4-2547c4193c09.png"
+    },
+    {
+      "item": 25,
+      "file": "spm-25.png",
+      "imageUrl": "/uploads/test-items/9f3b7a06-7c31-5b7c-b47f-50f4868f2602.png"
+    },
+    {
+      "item": 26,
+      "file": "spm-26.png",
+      "imageUrl": "/uploads/test-items/c995b573-7b49-5be6-8557-330e950565bf.png"
+    },
+    {
+      "item": 27,
+      "file": "spm-27.png",
+      "imageUrl": "/uploads/test-items/d28f148a-55c2-5b07-aba9-8aa36c9d0b3e.png"
+    },
+    {
+      "item": 28,
+      "file": "spm-28.png",
+      "imageUrl": "/uploads/test-items/01ea5ae4-30df-51a2-9f45-8aafc334093b.png"
+    },
+    {
+      "item": 29,
+      "file": "spm-29.png",
+      "imageUrl": "/uploads/test-items/fc3cd4b8-e707-521b-a4d1-40bc0db461c5.png"
+    },
+    {
+      "item": 30,
+      "file": "spm-30.png",
+      "imageUrl": "/uploads/test-items/088cc2fe-4085-5111-9793-51a5168fd187.png"
+    },
+    {
+      "item": 31,
+      "file": "spm-31.png",
+      "imageUrl": "/uploads/test-items/dae1eac7-6739-5bc5-8cf3-341c9240533b.png"
+    },
+    {
+      "item": 32,
+      "file": "spm-32.png",
+      "imageUrl": "/uploads/test-items/8b43da12-b8b2-552d-b626-09e5df7eff46.png"
+    },
+    {
+      "item": 33,
+      "file": "spm-33.png",
+      "imageUrl": "/uploads/test-items/086d11f7-494d-5924-b0f6-4b9bfa98060e.png"
+    },
+    {
+      "item": 34,
+      "file": "spm-34.png",
+      "imageUrl": "/uploads/test-items/b7d4f716-1945-507a-b8b2-ef8cca0921a4.png"
+    },
+    {
+      "item": 35,
+      "file": "spm-35.png",
+      "imageUrl": "/uploads/test-items/054dea44-307a-5ae7-8ac9-9acd8c0f56a1.png"
+    },
+    {
+      "item": 36,
+      "file": "spm-36.png",
+      "imageUrl": "/uploads/test-items/41405cc4-b9ee-558d-9522-afde5a26c2da.png"
+    },
+    {
+      "item": 37,
+      "file": "spm-37.png",
+      "imageUrl": "/uploads/test-items/09185e90-581d-5b30-ab82-bd77a79784bd.png"
+    },
+    {
+      "item": 38,
+      "file": "spm-38.png",
+      "imageUrl": "/uploads/test-items/650e9a40-5981-573a-8fcf-eb70e1f8c42c.png"
+    },
+    {
+      "item": 39,
+      "file": "spm-39.png",
+      "imageUrl": "/uploads/test-items/4782e05f-0fe0-5791-8b84-ea2fd9837536.png"
+    },
+    {
+      "item": 40,
+      "file": "spm-40.png",
+      "imageUrl": "/uploads/test-items/b4d30fbb-be7f-5fd7-bc9c-8f9c809a47a8.png"
+    },
+    {
+      "item": 41,
+      "file": "spm-41.png",
+      "imageUrl": "/uploads/test-items/3669ccc7-6b99-595a-8ccb-ff476fe671b1.png"
+    },
+    {
+      "item": 42,
+      "file": "spm-42.png",
+      "imageUrl": "/uploads/test-items/5e36685e-72aa-563d-a7e2-ef785069939e.png"
+    },
+    {
+      "item": 43,
+      "file": "spm-43.png",
+      "imageUrl": "/uploads/test-items/70e41a5e-871f-56b6-a36a-ba93f4e0c36b.png"
+    },
+    {
+      "item": 44,
+      "file": "spm-44.png",
+      "imageUrl": "/uploads/test-items/8113b0c6-4139-5973-a303-7789dbf5a434.png"
+    },
+    {
+      "item": 45,
+      "file": "spm-45.png",
+      "imageUrl": "/uploads/test-items/7faccff7-dc58-5669-8982-2b6a123e6d60.png"
+    },
+    {
+      "item": 46,
+      "file": "spm-46.png",
+      "imageUrl": "/uploads/test-items/9ad22834-8390-532c-b36b-9975454cdf1a.png"
+    },
+    {
+      "item": 47,
+      "file": "spm-47.png",
+      "imageUrl": "/uploads/test-items/b496a5e0-f967-5fa9-8aa5-2bde41efca7d.png"
+    },
+    {
+      "item": 48,
+      "file": "spm-48.png",
+      "imageUrl": "/uploads/test-items/c89cd2b1-6ebf-54e6-a38b-42c2f0a73c83.png"
+    },
+    {
+      "item": 49,
+      "file": "spm-49.png",
+      "imageUrl": "/uploads/test-items/28f3d315-b37c-5037-a9af-292cf7cd496d.png"
+    },
+    {
+      "item": 50,
+      "file": "spm-50.png",
+      "imageUrl": "/uploads/test-items/a9964fa2-840a-596f-ba27-d74a0768d12d.png"
+    },
+    {
+      "item": 51,
+      "file": "spm-51.png",
+      "imageUrl": "/uploads/test-items/61c5b171-f7fb-5eb2-9cc7-883635dad5a7.png"
+    },
+    {
+      "item": 52,
+      "file": "spm-52.png",
+      "imageUrl": "/uploads/test-items/692fafdd-09d6-5f4e-b31b-248bd1d92fae.png"
+    },
+    {
+      "item": 53,
+      "file": "spm-53.png",
+      "imageUrl": "/uploads/test-items/4421eb26-a91a-5926-ac74-a5c54cf909e3.png"
+    },
+    {
+      "item": 54,
+      "file": "spm-54.png",
+      "imageUrl": "/uploads/test-items/3350c9d3-b39a-5bc9-aca1-fb7e6424e9bd.png"
+    },
+    {
+      "item": 55,
+      "file": "spm-55.png",
+      "imageUrl": "/uploads/test-items/8a0297ed-51c0-5024-8ecf-65cc290487cc.png"
+    },
+    {
+      "item": 56,
+      "file": "spm-56.png",
+      "imageUrl": "/uploads/test-items/bbbe8cfc-b037-5ada-b2e1-b05d79245f49.png"
+    },
+    {
+      "item": 57,
+      "file": "spm-57.png",
+      "imageUrl": "/uploads/test-items/065c8a7b-164b-5bfb-80eb-0601d0ed6c23.png"
+    },
+    {
+      "item": 58,
+      "file": "spm-58.png",
+      "imageUrl": "/uploads/test-items/e12a98dd-4ddc-585e-ae9d-ef5b286f308d.png"
+    },
+    {
+      "item": 59,
+      "file": "spm-59.png",
+      "imageUrl": "/uploads/test-items/ac967043-834e-5a94-bc14-1d61ed034ea1.png"
+    },
+    {
+      "item": 60,
+      "file": "spm-60.png",
+      "imageUrl": "/uploads/test-items/1bcc93d9-3f4b-5e77-8bc0-d799beba536a.png"
+    }
+  ]
+}
