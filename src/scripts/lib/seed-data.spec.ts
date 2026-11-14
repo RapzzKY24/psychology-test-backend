@@ -113,6 +113,19 @@ describe.each(FILES)('seed %s', (file) => {
     expect(new Set(codes).size).toBe(codes.length);
   });
 
+  // A missing row is invisible until a participant lands on that exact raw
+  // score and the result page says "interpretasi sedang disiapkan".
+  it('covers every raw score the scorer can emit', () => {
+    if (seed.test.scorerType !== 'RIGHT_WRONG_NORM') return;
+    const expected = Array.from(
+      { length: seed.items.length + 1 },
+      (_, raw) => `RAW_${raw}`,
+    );
+    expect(seed.interpretations.map((row) => row.patternCode).sort()).toEqual(
+      expected.sort(),
+    );
+  });
+
   it('carries a norm table the scorer can read', () => {
     if (seed.test.normTable == null) return;
     expect(NormTableSchema.safeParse(seed.test.normTable).success).toBe(true);

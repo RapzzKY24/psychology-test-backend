@@ -1,0 +1,155 @@
+{
+  "note": "Gambar soal dipotong dari \"Lembar Tes TIU 5.pdf\"; kepala kolom A B C 1 2 3 4 5 ditempel di atas tiap baris. imageUrl memakai uuid5 tetap supaya seed idempoten.",
+  "items": [
+    {
+      "item": 1,
+      "file": "tiu5-01.png",
+      "imageUrl": "/uploads/test-items/2ac0842e-e4fb-5ace-b8a3-a94b235118f1.png"
+    },
+    {
+      "item": 2,
+      "file": "tiu5-02.png",
+      "imageUrl": "/uploads/test-items/b2dd3fd2-37c4-5d33-8311-5958264f329c.png"
+    },
+    {
+      "item": 3,
+      "file": "tiu5-03.png",
+      "imageUrl": "/uploads/test-items/63341725-2e5d-527e-9a01-cd467b34f7ba.png"
+    },
+    {
+      "item": 4,
+      "file": "tiu5-04.png",
+      "imageUrl": "/uploads/test-items/2ece1f99-8d7c-59d0-8c3d-a3b457212ba2.png"
+    },
+    {
+      "item": 5,
+      "file": "tiu5-05.png",
+      "imageUrl": "/uploads/test-items/da0422ed-674e-5290-a22e-ee8c4d6fb7aa.png"
+    },
+    {
+      "item": 6,
+      "file": "tiu5-06.png",
+      "imageUrl": "/uploads/test-items/721d2666-c9e4-5bd3-a412-1b67040bc0ce.png"
+    },
+    {
+      "item": 7,
+      "file": "tiu5-07.png",
+      "imageUrl": "/uploads/test-items/705a620c-8a5e-566e-83cf-042cae82a75b.png"
+    },
+    {
+      "item": 8,
+      "file": "tiu5-08.png",
+      "imageUrl": "/uploads/test-items/6c6600f9-b4fd-54fb-b6db-f9fed1412d3e.png"
+    },
+    {
+      "item": 9,
+      "file": "tiu5-09.png",
+      "imageUrl": "/uploads/test-items/85d95e2a-fd58-5d6e-8e8e-0ecfab267fea.png"
+    },
+    {
+      "item": 10,
+      "file": "tiu5-10.png",
+      "imageUrl": "/uploads/test-items/362312f5-bd86-5ab4-a17c-0891d3ce3f60.png"
+    },
+    {
+      "item": 11,
+      "file": "tiu5-11.png",
+      "imageUrl": "/uploads/test-items/3f0cad67-8429-516e-aeae-2d2bad914981.png"
+    },
+    {
+      "item": 12,
+      "file": "tiu5-12.png",
+      "imageUrl": "/uploads/test-items/2f2be984-b088-5897-ac11-080c5211dce8.png"
+    },
+    {
+      "item": 13,
+      "file": "tiu5-13.png",
+      "imageUrl": "/uploads/test-items/f3912e0f-4085-59a3-8e29-c70f8b740ad0.png"
+    },
+    {
+      "item": 14,
+      "file": "tiu5-14.png",
+      "imageUrl": "/uploads/test-items/5004628e-1377-534c-9a23-4eab8b3497b9.png"
+    },
+    {
+      "item": 15,
+      "file": "tiu5-15.png",
+      "imageUrl": "/uploads/test-items/cdcad6d0-c6f6-5fc8-bb10-917e0fa96ac8.png"
+    },
+    {
+      "item": 16,
+      "file": "tiu5-16.png",
+      "imageUrl": "/uploads/test-items/ee4a114f-5c62-543e-b766-787690d0e367.png"
+    },
+    {
+      "item": 17,
+      "file": "tiu5-17.png",
+      "imageUrl": "/uploads/test-items/391447c5-f671-5d85-9309-926ad493f0db.png"
+    },
+    {
+      "item": 18,
+      "file": "tiu5-18.png",
+      "imageUrl": "/uploads/test-items/7d998aec-87be-506c-98f7-5a571829fdd2.png"
+    },
+    {
+      "item": 19,
+      "file": "tiu5-19.png",
+      "imageUrl": "/uploads/test-items/dd5ba518-8390-5d34-9667-1ab47b2d9867.png"
+    },
+    {
+      "item": 20,
+      "file": "tiu5-20.png",
+      "imageUrl": "/uploads/test-items/bf1b9b2f-6508-5dda-97f1-b1936405b7c6.png"
+    },
+    {
+      "item": 21,
+      "file": "tiu5-21.png",
+      "imageUrl": "/uploads/test-items/ac38c009-ec4e-50bc-b74e-4d8941fcd96c.png"
+    },
+    {
+      "item": 22,
+      "file": "tiu5-22.png",
+      "imageUrl": "/uploads/test-items/cc4c4ac4-7ec1-5dce-9593-68d40fb1eef6.png"
+    },
+    {
+      "item": 23,
+      "file": "tiu5-23.png",
+      "imageUrl": "/uploads/test-items/84e26126-dfcd-5d63-b425-62047e8d964d.png"
+    },
+    {
+      "item": 24,
+      "file": "tiu5-24.png",
+      "imageUrl": "/uploads/test-items/dbccb7a5-f24d-50f0-bb06-84b9bf71131d.png"
+    },
+    {
+      "item": 25,
+      "file": "tiu5-25.png",
+      "imageUrl": "/uploads/test-items/bde6ecb5-6d79-5889-9965-388ec7526ddb.png"
+    },
+    {
+      "item": 26,
+      "file": "tiu5-26.png",
+      "imageUrl": "/uploads/test-items/4168242b-f61b-5a58-8a06-ff795bc0b182.png"
+    },
+    {
+      "item": 27,
+      "file": "tiu5-27.png",
+      "imageUrl": "/uploads/test-items/0d697da8-da93-5166-9c0b-a532600a560f.png"
+    },
+    {
+      "item": 28,
+      "file": "tiu5-28.png",
+      "imageUrl": "/uploads/test-items/655741cf-1a24-5795-b93e-f2e90ea1697c.png"
+    },
+    {
+      "item": 29,
+      "file": "tiu5-29.png",
+      "imageUrl": "/uploads/test-items/143dc2aa-4112-5774-ac09-9ab4d10111ab.png"
+    },
+    {
+      "item": 30,
+      "file": "tiu5-30.png",
+      "imageUrl": "/uploads/test-items/a0d3480e-76af-58f8-888b-ab458f27c59c.png"
+    }
+  ]
+}

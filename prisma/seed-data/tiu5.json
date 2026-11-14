@@ -1,0 +1,472 @@
+{
+  "test": {
+    "slug": "tiu-5",
+    "name": "TIU 5 (Tes Intelegensi Umum)",
+    "description": "Tes intelegensi umum figural: 30 soal analogi gambar dalam 10 menit. Skor mentah dikonversi ke Weighted Score (WS) dan kategori BS–KS.",
+    "category": "COGNITIVE",
+    "scorerType": "RIGHT_WRONG_NORM",
+    "price": 40000,
+    "estimatedDurationMin": 10,
+    "timeLimitMin": 10,
+    "normTable": null
+  },
+  "items": [
+    {
+      "order": 1,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/2ac0842e-e4fb-5ace-b8a3-a94b235118f1.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 2,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/b2dd3fd2-37c4-5d33-8311-5958264f329c.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 3,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/63341725-2e5d-527e-9a01-cd467b34f7ba.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 4,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/2ece1f99-8d7c-59d0-8c3d-a3b457212ba2.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 5,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/da0422ed-674e-5290-a22e-ee8c4d6fb7aa.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 6,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/721d2666-c9e4-5bd3-a412-1b67040bc0ce.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 7,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/705a620c-8a5e-566e-83cf-042cae82a75b.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 8,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/6c6600f9-b4fd-54fb-b6db-f9fed1412d3e.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 9,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/85d95e2a-fd58-5d6e-8e8e-0ecfab267fea.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 10,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/362312f5-bd86-5ab4-a17c-0891d3ce3f60.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 11,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/3f0cad67-8429-516e-aeae-2d2bad914981.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 12,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/2f2be984-b088-5897-ac11-080c5211dce8.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 13,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/f3912e0f-4085-59a3-8e29-c70f8b740ad0.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 14,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/5004628e-1377-534c-9a23-4eab8b3497b9.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 15,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/cdcad6d0-c6f6-5fc8-bb10-917e0fa96ac8.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 16,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/ee4a114f-5c62-543e-b766-787690d0e367.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 17,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/391447c5-f671-5d85-9309-926ad493f0db.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 18,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/7d998aec-87be-506c-98f7-5a571829fdd2.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 19,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/dd5ba518-8390-5d34-9667-1ab47b2d9867.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 20,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/bf1b9b2f-6508-5dda-97f1-b1936405b7c6.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 21,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/ac38c009-ec4e-50bc-b74e-4d8941fcd96c.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 22,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/cc4c4ac4-7ec1-5dce-9593-68d40fb1eef6.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 23,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/84e26126-dfcd-5d63-b425-62047e8d964d.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 24,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/dbccb7a5-f24d-50f0-bb06-84b9bf71131d.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [3]
+      }
+    },
+    {
+      "order": 25,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/bde6ecb5-6d79-5889-9965-388ec7526ddb.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 26,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/4168242b-f61b-5a58-8a06-ff795bc0b182.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [0]
+      }
+    },
+    {
+      "order": 27,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/0d697da8-da93-5166-9c0b-a532600a560f.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [1]
+      }
+    },
+    {
+      "order": 28,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/655741cf-1a24-5795-b93e-f2e90ea1697c.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [4]
+      }
+    },
+    {
+      "order": 29,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/143dc2aa-4112-5774-ac09-9ab4d10111ab.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [2]
+      }
+    },
+    {
+      "order": 30,
+      "content": {
+        "answerMode": "choice",
+        "question": "Seperti halnya A diubah menjadi B, demikian pula C diubah menjadi salah satu dari kelima gambar berikutnya. Pilih nomor gambar yang tepat (1–5).",
+        "imageUrl": "/uploads/test-items/a0d3480e-76af-58f8-888b-ab458f27c59c.png",
+        "options": ["1", "2", "3", "4", "5"],
+        "correctIndexes": [4]
+      }
+    }
+  ],
+  "interpretations": [
+    {
+      "patternCode": "RAW_0",
+      "title": "Skor 0 dari 30 — WS 1 (Kurang Sekali)",
+      "body": "Kemampuan menemukan hubungan antargambar sangat terbatas. Diperlukan latihan dasar pengamatan bentuk, arah, dan pencerminan sebelum mengulang tes ini."
+    },
+    {
+      "patternCode": "RAW_1",
+      "title": "Skor 1 dari 30 — WS 2 (Kurang Sekali)",
+      "body": "Kemampuan menemukan hubungan antargambar sangat terbatas. Diperlukan latihan dasar pengamatan bentuk, arah, dan pencerminan sebelum mengulang tes ini."
+    },
+    {
+      "patternCode": "RAW_2",
+      "title": "Skor 2 dari 30 — WS 2 (Kurang Sekali)",
+      "body": "Kemampuan menemukan hubungan antargambar sangat terbatas. Diperlukan latihan dasar pengamatan bentuk, arah, dan pencerminan sebelum mengulang tes ini."
+    },
+    {
+      "patternCode": "RAW_3",
+      "title": "Skor 3 dari 30 — WS 3 (Kurang Sekali)",
+      "body": "Kemampuan menemukan hubungan antargambar sangat terbatas. Diperlukan latihan dasar pengamatan bentuk, arah, dan pencerminan sebelum mengulang tes ini."
+    },
+    {
+      "patternCode": "RAW_4",
+      "title": "Skor 4 dari 30 — WS 4 (Kurang Sekali)",
+      "body": "Kemampuan menemukan hubungan antargambar sangat terbatas. Diperlukan latihan dasar pengamatan bentuk, arah, dan pencerminan sebelum mengulang tes ini."
+    },
+    {
+      "patternCode": "RAW_5",
+      "title": "Skor 5 dari 30 — WS 4 (Kurang Sekali)",
+      "body": "Kemampuan menemukan hubungan antargambar sangat terbatas. Diperlukan latihan dasar pengamatan bentuk, arah, dan pencerminan sebelum mengulang tes ini."
+    },
+    {
+      "patternCode": "RAW_6",
+      "title": "Skor 6 dari 30 — WS 5 (Kurang)",
+      "body": "Kemampuan menemukan hubungan antargambar di bawah rata-rata. Masih sering terpaku pada bentuk keseluruhan dan belum memperhatikan arah, posisi, atau jumlah unsur."
+    },
+    {
+      "patternCode": "RAW_7",
+      "title": "Skor 7 dari 30 — WS 5 (Kurang)",
+      "body": "Kemampuan menemukan hubungan antargambar di bawah rata-rata. Masih sering terpaku pada bentuk keseluruhan dan belum memperhatikan arah, posisi, atau jumlah unsur."
+    },
+    {
+      "patternCode": "RAW_8",
+      "title": "Skor 8 dari 30 — WS 6 (Kurang)",
+      "body": "Kemampuan menemukan hubungan antargambar di bawah rata-rata. Masih sering terpaku pada bentuk keseluruhan dan belum memperhatikan arah, posisi, atau jumlah unsur."
+    },
+    {
+      "patternCode": "RAW_9",
+      "title": "Skor 9 dari 30 — WS 6 (Kurang)",
+      "body": "Kemampuan menemukan hubungan antargambar di bawah rata-rata. Masih sering terpaku pada bentuk keseluruhan dan belum memperhatikan arah, posisi, atau jumlah unsur."
+    },
+    {
+      "patternCode": "RAW_10",
+      "title": "Skor 10 dari 30 — WS 7 (Kurang)",
+      "body": "Kemampuan menemukan hubungan antargambar di bawah rata-rata. Masih sering terpaku pada bentuk keseluruhan dan belum memperhatikan arah, posisi, atau jumlah unsur."
+    },
+    {
+      "patternCode": "RAW_11",
+      "title": "Skor 11 dari 30 — WS 7 (Kurang)",
+      "body": "Kemampuan menemukan hubungan antargambar di bawah rata-rata. Masih sering terpaku pada bentuk keseluruhan dan belum memperhatikan arah, posisi, atau jumlah unsur."
+    },
+    {
+      "patternCode": "RAW_12",
+      "title": "Skor 12 dari 30 — WS 8 (Kurang)",
+      "body": "Kemampuan menemukan hubungan antargambar di bawah rata-rata. Masih sering terpaku pada bentuk keseluruhan dan belum memperhatikan arah, posisi, atau jumlah unsur."
+    },
+    {
+      "patternCode": "RAW_13",
+      "title": "Skor 13 dari 30 — WS 8 (Kurang)",
+      "body": "Kemampuan menemukan hubungan antargambar di bawah rata-rata. Masih sering terpaku pada bentuk keseluruhan dan belum memperhatikan arah, posisi, atau jumlah unsur."
+    },
+    {
+      "patternCode": "RAW_14",
+      "title": "Skor 14 dari 30 — WS 9 (Sedang)",
+      "body": "Kemampuan menemukan hubungan antargambar berada pada taraf rata-rata. Pola sederhana dikenali baik, namun soal dengan perubahan berlapis masih menyita waktu."
+    },
+    {
+      "patternCode": "RAW_15",
+      "title": "Skor 15 dari 30 — WS 9 (Sedang)",
+      "body": "Kemampuan menemukan hubungan antargambar berada pada taraf rata-rata. Pola sederhana dikenali baik, namun soal dengan perubahan berlapis masih menyita waktu."
+    },
+    {
+      "patternCode": "RAW_16",
+      "title": "Skor 16 dari 30 — WS 10 (Sedang)",
+      "body": "Kemampuan menemukan hubungan antargambar berada pada taraf rata-rata. Pola sederhana dikenali baik, namun soal dengan perubahan berlapis masih menyita waktu."
+    },
+    {
+      "patternCode": "RAW_17",
+      "title": "Skor 17 dari 30 — WS 10 (Sedang)",
+      "body": "Kemampuan menemukan hubungan antargambar berada pada taraf rata-rata. Pola sederhana dikenali baik, namun soal dengan perubahan berlapis masih menyita waktu."
+    },
+    {
+      "patternCode": "RAW_18",
+      "title": "Skor 18 dari 30 — WS 11 (Sedang)",
+      "body": "Kemampuan menemukan hubungan antargambar berada pada taraf rata-rata. Pola sederhana dikenali baik, namun soal dengan perubahan berlapis masih menyita waktu."
+    },
+    {
+      "patternCode": "RAW_19",
+      "title": "Skor 19 dari 30 — WS 11 (Sedang)",
+      "body": "Kemampuan menemukan hubungan antargambar berada pada taraf rata-rata. Pola sederhana dikenali baik, namun soal dengan perubahan berlapis masih menyita waktu."
+    },
+    {
+      "patternCode": "RAW_20",
+      "title": "Skor 20 dari 30 — WS 12 (Sedang)",
+      "body": "Kemampuan menemukan hubungan antargambar berada pada taraf rata-rata. Pola sederhana dikenali baik, namun soal dengan perubahan berlapis masih menyita waktu."
+    },
+    {
+      "patternCode": "RAW_21",
+      "title": "Skor 21 dari 30 — WS 12 (Sedang)",
+      "body": "Kemampuan menemukan hubungan antargambar berada pada taraf rata-rata. Pola sederhana dikenali baik, namun soal dengan perubahan berlapis masih menyita waktu."
+    },
+    {
+      "patternCode": "RAW_22",
+      "title": "Skor 22 dari 30 — WS 13 (Baik)",
+      "body": "Kemampuan menemukan hubungan antargambar di atas rata-rata. Sebagian besar pola dikenali dengan tepat, hanya soal yang menuntut dua perubahan sekaligus yang terlewat."
+    },
+    {
+      "patternCode": "RAW_23",
+      "title": "Skor 23 dari 30 — WS 14 (Baik)",
+      "body": "Kemampuan menemukan hubungan antargambar di atas rata-rata. Sebagian besar pola dikenali dengan tepat, hanya soal yang menuntut dua perubahan sekaligus yang terlewat."
+    },
+    {
+      "patternCode": "RAW_24",
+      "title": "Skor 24 dari 30 — WS 14 (Baik)",
+      "body": "Kemampuan menemukan hubungan antargambar di atas rata-rata. Sebagian besar pola dikenali dengan tepat, hanya soal yang menuntut dua perubahan sekaligus yang terlewat."
+    },
+    {
+      "patternCode": "RAW_25",
+      "title": "Skor 25 dari 30 — WS 15 (Baik)",
+      "body": "Kemampuan menemukan hubungan antargambar di atas rata-rata. Sebagian besar pola dikenali dengan tepat, hanya soal yang menuntut dua perubahan sekaligus yang terlewat."
+    },
+    {
+      "patternCode": "RAW_26",
+      "title": "Skor 26 dari 30 — WS 15 (Baik)",
+      "body": "Kemampuan menemukan hubungan antargambar di atas rata-rata. Sebagian besar pola dikenali dengan tepat, hanya soal yang menuntut dua perubahan sekaligus yang terlewat."
+    },
+    {
+      "patternCode": "RAW_27",
+      "title": "Skor 27 dari 30 — WS 16 (Baik)",
+      "body": "Kemampuan menemukan hubungan antargambar di atas rata-rata. Sebagian besar pola dikenali dengan tepat, hanya soal yang menuntut dua perubahan sekaligus yang terlewat."
+    },
+    {
+      "patternCode": "RAW_28",
+      "title": "Skor 28 dari 30 — WS 16 (Baik)",
+      "body": "Kemampuan menemukan hubungan antargambar di atas rata-rata. Sebagian besar pola dikenali dengan tepat, hanya soal yang menuntut dua perubahan sekaligus yang terlewat."
+    },
+    {
+      "patternCode": "RAW_29",
+      "title": "Skor 29 dari 30 — WS 17 (Baik Sekali)",
+      "body": "Kemampuan menemukan hubungan antargambar sangat tinggi. Pola rotasi, pencerminan, dan perubahan ukuran dikenali cepat dan tepat."
+    },
+    {
+      "patternCode": "RAW_30",
+      "title": "Skor 30 dari 30 — WS 17 (Baik Sekali)",
+      "body": "Kemampuan menemukan hubungan antargambar sangat tinggi. Pola rotasi, pencerminan, dan perubahan ukuran dikenali cepat dan tepat."
+    }
+  ]
+}
