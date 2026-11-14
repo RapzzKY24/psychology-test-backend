@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { getItemSchema } from '../../scorers/schemas';
+import { getScorer } from '../../scorers/registry';
 import { NormTableSchema } from '../../scorers/schemas/right-wrong-norm';
 
 /**
@@ -125,6 +126,18 @@ describe.each(FILES)('seed %s', (file) => {
     );
     expect(seed.interpretations.map((row) => row.patternCode).sort()).toEqual(
       expected.sort(),
+    );
+  });
+
+  // Families whose code depends on the items (MBTI's cartesian product, a
+  // tally's scales) can only be checked against the seed itself. A missing row
+  // here is a publish 422, not a crash — but it should not reach a deploy.
+  it('covers every pattern code its own items can produce', () => {
+    const scorer = getScorer(seed.test.scorerType);
+    if (!scorer?.patternCodesFor) return;
+    const expected = scorer.patternCodesFor(seed.items).sort();
+    expect(seed.interpretations.map((row) => row.patternCode).sort()).toEqual(
+      expected,
     );
   });
 

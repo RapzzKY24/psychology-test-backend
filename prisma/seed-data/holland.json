@@ -1,0 +1,910 @@
+{
+  "test": {
+    "slug": "holland-riasec",
+    "name": "Holland Test (RIASEC)",
+    "description": "Tes minat karier 108 pernyataan. Setiap jawaban \"Ya\" menambah skor pada satu dari enam tipe minat (Realistic, Investigative, Artistic, Social, Enterprising, Conventional); hasilnya kode tiga huruf dari tipe terkuat.",
+    "category": "INTEREST",
+    "scorerType": "SCALE_TALLY",
+    "price": 75000,
+    "estimatedDurationMin": 20,
+    "timeLimitMin": null
+  },
+  "items": [
+    {
+      "order": 1,
+      "content": {
+        "question": "Senang menonton drama",
+        "options": ["Ya", "Tidak"],
+        "scale": "A"
+      }
+    },
+    {
+      "order": 2,
+      "content": {
+        "question": "Senang Melatih Orang",
+        "options": ["Ya", "Tidak"],
+        "scale": "S"
+      }
+    },
+    {
+      "order": 3,
+      "content": {
+        "question": "Mampu bermain dalam drama / berakting",
+        "options": ["Ya", "Tidak"],
+        "scale": "A"
+      }
+    },
+    {
+      "order": 4,
+      "content": {
+        "question": "Suka membaca mengenai topik-topik khusus atas keinginan sendiri",
+        "options": ["Ya", "Tidak"],
+        "scale": "I"
+      }
+    },
+    {
+      "order": 5,
+      "content": {
+        "question": "Mampu melakukan percobaan atau penelitian ilmiah",
+        "options": ["Ya", "Tidak"],
+        "scale": "I"
+      }
+    },
+    {
+      "order": 6,
+      "content": {
+        "question": "Artistik",
+        "options": ["Ya", "Tidak"],
+        "scale": "A"
+      }
+    },
+    {
+      "order": 7,
+      "content": {
+        "question": "Mampu memprogram komputer untuk mempelajari masalah ilmiah",
+        "options": ["Ya", "Tidak"],
+        "scale": "I"
+      }
+    },
+    {
+      "order": 8,
+      "content": {
+        "question": "Tertarik menjadi pengawas konstruksi bangunan",
+        "options": ["Ya", "Tidak"],
+        "scale": "R"
+      }
+    },
+    {
+      "order": 9,
+      "content": {
+        "question": "Suka dalam memecahkan soal eksak",
+        "options": ["Ya", "Tidak"],
+        "scale": "I"
+      }
+    },
+    {
+      "order": 10,
+      "content": {
+        "question": "Mampu melakukan dan menyukai tugas administratif",
+        "options": ["Ya", "Tidak"],
+        "scale": "C"
+      }
+    },
+    {
+      "order": 11,
+      "content": {
+        "question": "Bisa mempengaruhi dan membujuk orang lain",
+        "options": ["Ya", "Tidak"],
+        "scale": "E"
+      }
+    },
+    {
+      "order": 12,
+      "content": {
+        "question": "Prosedural (Mengikuti aturan)",
+        "options": ["Ya", "Tidak"],
+        "scale": "C"
+      }
+    },
+    {
+      "order": 13,
+      "content": {
+        "question": "Suka menggunakan aplikasi pencatatan keuangan",
+        "options": ["Ya", "Tidak"],
+        "scale": "C"
+      }
+    },
+    {
+      "order": 14,
+      "content": {
+        "question": "Suka memperbaiki motor",
+        "options": ["Ya", "Tidak"],
+        "scale": "R"
+      }
+    },
+    {
+      "order": 15,
+      "content": {
+        "question": "Bisa mengekspresikan diri secara kreatif",
+        "options": ["Ya", "Tidak"],
+        "scale": "A"
+      }
+    },
+    {
+      "order": 16,
+      "content": {
+        "question": "Ingin bekerja dibagian Staff keuangan",
+        "options": ["Ya", "Tidak"],
+        "scale": "C"
+      }
+    },
+    {
+      "order": 17,
+      "content": {
+        "question": "Mampu menyebutkan makanan yang memiliki protein tinggi",
+        "options": ["Ya", "Tidak"],
+        "scale": "I"
+      }
+    },
+    {
+      "order": 18,
+      "content": {
+        "question": "Suka melakukan pekerjaan social",
+        "options": ["Ya", "Tidak"],
+        "scale": "S"
+      }
+    },
+    {
+      "order": 19,
+      "content": {
+        "question": "Mampu mengetahui bagaimana menjadi pemimpin yang baik/ berhasil",
+        "options": ["Ya", "Tidak"],
+        "scale": "E"
+      }
+    },
+    {
+      "order": 20,
+      "content": {
+        "question": "Tidak suka menyatakan perasaan",
+        "options": ["Ya", "Tidak"],
+        "scale": "R"
+      }
+    },
+    {
+      "order": 21,
+      "content": {
+        "question": "Percaya diri",
+        "options": ["Ya", "Tidak"],
+        "scale": "E"
+      }
+    },
+    {
+      "order": 22,
+      "content": {
+        "question": "Suka menerapkan matematika dalam masalah praktis",
+        "options": ["Ya", "Tidak"],
+        "scale": "I"
+      }
+    },
+    {
+      "order": 23,
+      "content": {
+        "question": "Emosional",
+        "options": ["Ya", "Tidak"],
+        "scale": "A"
+      }
+    },
+    {
+      "order": 24,
+      "content": {
+        "question": "Menyukai memperbaiki peralatan mekanik",
+        "options": ["Ya", "Tidak"],
+        "scale": "R"
+      }
+    },
+    {
+      "order": 25,
+      "content": {
+        "question": "Mampu menghibur dan menemani orang yang lebih tua dari saya",
+        "options": ["Ya", "Tidak"],
+        "scale": "S"
+      }
+    },
+    {
+      "order": 26,
+      "content": {
+        "question": "Senang memulai proyek baru",
+        "options": ["Ya", "Tidak"],
+        "scale": "E"
+      }
+    },
+    {
+      "order": 27,
+      "content": {
+        "question": "Suka kegiatan akademis",
+        "options": ["Ya", "Tidak"],
+        "scale": "I"
+      }
+    },
+    {
+      "order": 28,
+      "content": {
+        "question": "Ramah",
+        "options": ["Ya", "Tidak"],
+        "scale": "S"
+      }
+    },
+    {
+      "order": 29,
+      "content": {
+        "question": "Efisien dan Terstruktur",
+        "options": ["Ya", "Tidak"],
+        "scale": "C"
+      }
+    },
+    {
+      "order": 30,
+      "content": {
+        "question": "Suka menggunakan perkakas bengkel dan mesin",
+        "options": ["Ya", "Tidak"],
+        "scale": "R"
+      }
+    },
+    {
+      "order": 31,
+      "content": {
+        "question": "Suka menjaga / mengurus mengawasi anak-anak",
+        "options": ["Ya", "Tidak"],
+        "scale": "S"
+      }
+    },
+    {
+      "order": 32,
+      "content": {
+        "question": "Senang menganalisa dan mengevaluasi",
+        "options": ["Ya", "Tidak"],
+        "scale": "I"
+      }
+    },
+    {
+      "order": 33,
+      "content": {
+        "question": "Senang melatih binatang",
+        "options": ["Ya", "Tidak"],
+        "scale": "R"
+      }
+    },
+    {
+      "order": 34,
+      "content": {
+        "question": "Tertarik menjadi aktor/ aktris",
+        "options": ["Ya", "Tidak"],
+        "scale": "A"
+      }
+    },
+    {
+      "order": 35,
+      "content": {
+        "question": "Mampu memainkan alat musik",
+        "options": ["Ya", "Tidak"],
+        "scale": "A"
+      }
+    },
+    {
+      "order": 36,
+      "content": {
+        "question": "Tertarik menjadi konselor masalah pribadi",
+        "options": ["Ya", "Tidak"],
+        "scale": "S"
+      }
+    },
+    {
+      "order": 37,
+      "content": {
+        "question": "Ingin menjadi pemain dalam kelompok musik",
+        "options": ["Ya", "Tidak"],
+        "scale": "A"
+      }
+    },
+    {
+      "order": 38,
+      "content": {
+        "question": "Tertarik menjadi ahli biologi/ hayati",
+        "options": ["Ya", "Tidak"],
+        "scale": "I"
+      }
+    },
+    {
+      "order": 39,
+      "content": {
+        "question": "Tertarik menjadi pekerja sosial",
+        "options": ["Ya", "Tidak"],
+        "scale": "S"
+      }
+    },
+    {
+      "order": 40,
+      "content": {
+        "question": "Energetik",
+        "options": ["Ya", "Tidak"],
+        "scale": "E"
+      }
+    },
+    {
+      "order": 41,
+      "content": {
+        "question": "Suka bekerja dalam kelompok",
+        "options": ["Ya", "Tidak"],
+        "scale": "S"
+      }
+    },
+    {
+      "order": 42,
+      "content": {
+        "question": "Suka membaca buku/ majalah ilmiah",
+        "options": ["Ya", "Tidak"],
+        "scale": "I"
+      }
+    },
+    {
+      "order": 43,
+      "content": {
+        "question": "Suka mengutak-atik mesin/alat elektronik",
+        "options": ["Ya", "Tidak"],
+        "scale": "R"
+      }
+    },
+    {
+      "order": 44,
+      "content": {
+        "question": "Suka kegiatan di luar ruangan",
+        "options": ["Ya", "Tidak"],
+        "scale": "R"
+      }
+    },
+    {
+      "order": 45,
+      "content": {
+        "question": "Senang memotret atau videographer",
+        "options": ["Ya", "Tidak"],
+        "scale": "A"
+      }
+    },
+    {
+      "order": 46,
+      "content": {
+        "question": "Suka membuat lukisan/ foto orang",
+        "options": ["Ya", "Tidak"],
+        "scale": "A"
+      }
+    },
+    {
+      "order": 47,
+      "content": {
+        "question": "Senang bekerja di situasi yang bebas",
+        "options": ["Ya", "Tidak"],
+        "scale": "A"
+      }
+    },
+    {
+      "order": 48,
+      "content": {
+        "question": "Membuat Hari Saya Terstruktur",
+        "options": ["Ya", "Tidak"],
+        "scale": "C"
+      }
+    },
+    {
+      "order": 49,
+      "content": {
+        "question": "Mampu menarik perhatian orang untuk menceritakan masalah mereka",
+        "options": ["Ya", "Tidak"],
+        "scale": "S"
+      }
+    },
+    {
+      "order": 50,
+      "content": {
+        "question": "Memperhatikan Detailnya",
+        "options": ["Ya", "Tidak"],
+        "scale": "C"
+      }
+    },
+    {
+      "order": 51,
+      "content": {
+        "question": "Sering diminta mengumpulkan data",
+        "options": ["Ya", "Tidak"],
+        "scale": "C"
+      }
+    },
+    {
+      "order": 52,
+      "content": {
+        "question": "Suka membuat sketsa, Mendesign atau melukis",
+        "options": ["Ya", "Tidak"],
+        "scale": "A"
+      }
+    },
+    {
+      "order": 53,
+      "content": {
+        "question": "Mampu mengajar orang dewasa dengan mudah",
+        "options": ["Ya", "Tidak"],
+        "scale": "S"
+      }
+    },
+    {
+      "order": 54,
+      "content": {
+        "question": "Antusias berparisipasi dalam pencarian dana/ amal",
+        "options": ["Ya", "Tidak"],
+        "scale": "S"
+      }
+    },
+    {
+      "order": 55,
+      "content": {
+        "question": "Mampu mudah berbicara dengan semua orang",
+        "options": ["Ya", "Tidak"],
+        "scale": "S"
+      }
+    },
+    {
+      "order": 56,
+      "content": {
+        "question": "Suka mempelajari teori ilmiah",
+        "options": ["Ya", "Tidak"],
+        "scale": "I"
+      }
+    },
+    {
+      "order": 57,
+      "content": {
+        "question": "Tertarik menjadi pekerja riset ilmiah",
+        "options": ["Ya", "Tidak"],
+        "scale": "I"
+      }
+    },
+    {
+      "order": 58,
+      "content": {
+        "question": "Mampu mengatur pekerjaan orang lain",
+        "options": ["Ya", "Tidak"],
+        "scale": "E"
+      }
+    },
+    {
+      "order": 59,
+      "content": {
+        "question": "Bisa menguasai diri",
+        "options": ["Ya", "Tidak"],
+        "scale": "R"
+      }
+    },
+    {
+      "order": 60,
+      "content": {
+        "question": "Mampu membuat kelompok sosial/ kerja berjalan dengan baik",
+        "options": ["Ya", "Tidak"],
+        "scale": "E"
+      }
+    },
+    {
+      "order": 61,
+      "content": {
+        "question": "Tertarik menjadi insinyur otomotif",
+        "options": ["Ya", "Tidak"],
+        "scale": "R"
+      }
+    },
+    {
+      "order": 62,
+      "content": {
+        "question": "Suka membuat catatan pengeluaran yang terperinci",
+        "options": ["Ya", "Tidak"],
+        "scale": "C"
+      }
+    },
+    {
+      "order": 63,
+      "content": {
+        "question": "Kompleks",
+        "options": ["Ya", "Tidak"],
+        "scale": "I"
+      }
+    },
+    {
+      "order": 64,
+      "content": {
+        "question": "Mampu mengelola usaha kecil",
+        "options": ["Ya", "Tidak"],
+        "scale": "E"
+      }
+    },
+    {
+      "order": 65,
+      "content": {
+        "question": "Rumit",
+        "options": ["Ya", "Tidak"],
+        "scale": "A"
+      }
+    },
+    {
+      "order": 66,
+      "content": {
+        "question": "Tertarik menjadi spesialis perikanan/ margasatwa",
+        "options": ["Ya", "Tidak"],
+        "scale": "R"
+      }
+    },
+    {
+      "order": 67,
+      "content": {
+        "question": "Suka memimpin kelompok dalam meraih tujuan tertentu",
+        "options": ["Ya", "Tidak"],
+        "scale": "E"
+      }
+    },
+    {
+      "order": 68,
+      "content": {
+        "question": "Suka menjual suatu barang",
+        "options": ["Ya", "Tidak"],
+        "scale": "E"
+      }
+    },
+    {
+      "order": 69,
+      "content": {
+        "question": "Tegas",
+        "options": ["Ya", "Tidak"],
+        "scale": "E"
+      }
+    },
+    {
+      "order": 70,
+      "content": {
+        "question": "Mampu mencatat dengan cermat pembayaran/ penjualan",
+        "options": ["Ya", "Tidak"],
+        "scale": "C"
+      }
+    },
+    {
+      "order": 71,
+      "content": {
+        "question": "Suka mengerjakan proyek ilmiah",
+        "options": ["Ya", "Tidak"],
+        "scale": "I"
+      }
+    },
+    {
+      "order": 72,
+      "content": {
+        "question": "Bisa menyatakan perasaan dengan jelas",
+        "options": ["Ya", "Tidak"],
+        "scale": "S"
+      }
+    },
+    {
+      "order": 73,
+      "content": {
+        "question": "Menyusun Sesuatu Atau Merakit Model",
+        "options": ["Ya", "Tidak"],
+        "scale": "R"
+      }
+    },
+    {
+      "order": 74,
+      "content": {
+        "question": "Senang mengamati",
+        "options": ["Ya", "Tidak"],
+        "scale": "I"
+      }
+    },
+    {
+      "order": 75,
+      "content": {
+        "question": "Mampu memengaruhi orang lain supaya melakukan sesuatu dengan caranya",
+        "options": ["Ya", "Tidak"],
+        "scale": "E"
+      }
+    },
+    {
+      "order": 76,
+      "content": {
+        "question": "Senang mengerjakan kerajinan tangan",
+        "options": ["Ya", "Tidak"],
+        "scale": "A"
+      }
+    },
+    {
+      "order": 77,
+      "content": {
+        "question": "Suka bekerja menggunakan tangan",
+        "options": ["Ya", "Tidak"],
+        "scale": "R"
+      }
+    },
+    {
+      "order": 78,
+      "content": {
+        "question": "Suka membantu orang lain dengan masalah pribadinya",
+        "options": ["Ya", "Tidak"],
+        "scale": "S"
+      }
+    },
+    {
+      "order": 79,
+      "content": {
+        "question": "Senang kegiatan fisik",
+        "options": ["Ya", "Tidak"],
+        "scale": "R"
+      }
+    },
+    {
+      "order": 80,
+      "content": {
+        "question": "Tertarik menjadi ahli teknisi laboratorium medis",
+        "options": ["Ya", "Tidak"],
+        "scale": "I"
+      }
+    },
+    {
+      "order": 81,
+      "content": {
+        "question": "Ingin menjadi seniman",
+        "options": ["Ya", "Tidak"],
+        "scale": "A"
+      }
+    },
+    {
+      "order": 82,
+      "content": {
+        "question": "Mampu melakukan perbaikan kecil pada pipa air, kran, dan lain-lain",
+        "options": ["Ya", "Tidak"],
+        "scale": "R"
+      }
+    },
+    {
+      "order": 83,
+      "content": {
+        "question": "Mampu membuat gambar dengan skala",
+        "options": ["Ya", "Tidak"],
+        "scale": "R"
+      }
+    },
+    {
+      "order": 84,
+      "content": {
+        "question": "Prosedural (Suka mengikuti aturan)",
+        "options": ["Ya", "Tidak"],
+        "scale": "C"
+      }
+    },
+    {
+      "order": 85,
+      "content": {
+        "question": "Suka mengarsip surat dan berkas-berkas lain",
+        "options": ["Ya", "Tidak"],
+        "scale": "C"
+      }
+    },
+    {
+      "order": 86,
+      "content": {
+        "question": "Mampu menjadi seorang pembicara di depan umum yang baik",
+        "options": ["Ya", "Tidak"],
+        "scale": "E"
+      }
+    },
+    {
+      "order": 87,
+      "content": {
+        "question": "Mampu memimpin diskusi kelompok",
+        "options": ["Ya", "Tidak"],
+        "scale": "S"
+      }
+    },
+    {
+      "order": 88,
+      "content": {
+        "question": "Suka melakukan pekerjaan surat menyurat/ masalah perkantoran",
+        "options": ["Ya", "Tidak"],
+        "scale": "C"
+      }
+    },
+    {
+      "order": 89,
+      "content": {
+        "question": "Senang bertemu orang baru",
+        "options": ["Ya", "Tidak"],
+        "scale": "E"
+      }
+    },
+    {
+      "order": 90,
+      "content": {
+        "question": "Bisa bekerja dengan baik dalam system /aturan",
+        "options": ["Ya", "Tidak"],
+        "scale": "C"
+      }
+    },
+    {
+      "order": 91,
+      "content": {
+        "question": "Suka merancang perabotan, pakaian atau poster",
+        "options": ["Ya", "Tidak"],
+        "scale": "A"
+      }
+    },
+    {
+      "order": 92,
+      "content": {
+        "question": "Tertarik menjadi pembawa acara / MC",
+        "options": ["Ya", "Tidak"],
+        "scale": "E"
+      }
+    },
+    {
+      "order": 93,
+      "content": {
+        "question": "Tertarik menjadi ilmuwan peneliti",
+        "options": ["Ya", "Tidak"],
+        "scale": "I"
+      }
+    },
+    {
+      "order": 94,
+      "content": {
+        "question": "Suka memperbaiki alat-alat listrik",
+        "options": ["Ya", "Tidak"],
+        "scale": "R"
+      }
+    },
+    {
+      "order": 95,
+      "content": {
+        "question": "Terbuka",
+        "options": ["Ya", "Tidak"],
+        "scale": "E"
+      }
+    },
+    {
+      "order": 96,
+      "content": {
+        "question": "Tertarik menjadi penaksir biaya",
+        "options": ["Ya", "Tidak"],
+        "scale": "C"
+      }
+    },
+    {
+      "order": 97,
+      "content": {
+        "question": "Suka mendamaikan orang",
+        "options": ["Ya", "Tidak"],
+        "scale": "S"
+      }
+    },
+    {
+      "order": 98,
+      "content": {
+        "question": "Suka mengerjakan teka-teki",
+        "options": ["Ya", "Tidak"],
+        "scale": "I"
+      }
+    },
+    {
+      "order": 99,
+      "content": {
+        "question": "Mampu mengajar anak-anak dengan mudah",
+        "options": ["Ya", "Tidak"],
+        "scale": "S"
+      }
+    },
+    {
+      "order": 100,
+      "content": {
+        "question": "Suka membuat daftar inventaris dari persediaan/ produk",
+        "options": ["Ya", "Tidak"],
+        "scale": "C"
+      }
+    },
+    {
+      "order": 101,
+      "content": {
+        "question": "Suka olahraga",
+        "options": ["Ya", "Tidak"],
+        "scale": "R"
+      }
+    },
+    {
+      "order": 102,
+      "content": {
+        "question": "Bisa menulis karya sastra",
+        "options": ["Ya", "Tidak"],
+        "scale": "A"
+      }
+    },
+    {
+      "order": 103,
+      "content": {
+        "question": "Tertarik menjadi konselor kejuruan dan pekerjaan",
+        "options": ["Ya", "Tidak"],
+        "scale": "S"
+      }
+    },
+    {
+      "order": 104,
+      "content": {
+        "question": "Sensitif",
+        "options": ["Ya", "Tidak"],
+        "scale": "A"
+      }
+    },
+    {
+      "order": 105,
+      "content": {
+        "question": "Senang petualangan / mengambil resiko",
+        "options": ["Ya", "Tidak"],
+        "scale": "E"
+      }
+    },
+    {
+      "order": 106,
+      "content": {
+        "question": "Ambisius dan cenderung berbicara apa adanya (Spontan)",
+        "options": ["Ya", "Tidak"],
+        "scale": "E"
+      }
+    },
+    {
+      "order": 107,
+      "content": {
+        "question": "Penurut",
+        "options": ["Ya", "Tidak"],
+        "scale": "C"
+      }
+    },
+    {
+      "order": 108,
+      "content": {
+        "question": "Suka menyusun sistem pengarsipan",
+        "options": ["Ya", "Tidak"],
+        "scale": "C"
+      }
+    }
+  ],
+  "interpretations": [
+    {
+      "patternCode": "R",
+      "title": "Tipe R — Realistic",
+      "body": "Profil ini menyukai pekerjaan yang mencakup masalah dan jawaban praktis dan langsung. Menyukai kegiatan yang melibatkan keterampilan motorik, peralatan, mesin Seringkali orang dengan minat Realistis tidak menyukai karier yang melibatkan dokumen atau bekerja sama dengan orang lain.\n\nContoh profesi: Mekanik, Insinyur, pengawas bangunan, Petani /Peternak Modern, Atlet, Operator, Polisi, Pemadam Kebakaran, Koki"
+    },
+    {
+      "patternCode": "I",
+      "title": "Tipe I — Investigative",
+      "body": "Profil ini menyukai pekerjaan yang berkaitan dengan ide dan pemikiran. memilih kegiatan penyelidikan yang observasional, simbolis, sistematis dan kreatif atas fenomena fisik, biologis dan kultural dalam usahanya untuk mengerti dan mengendalikan fenomena tersebut. Mereka berprestasi terutama dalam bidang akademik dan ilmiah, serta biasanya kurang menyukai aktivitas fisik atau memimpin orang.\n\nContoh profesi: Ahli antropologi, astronomi, biologi, botani, kimia, editor penerbitan ilmiah, geologi, pekerjaan penelitian, dan pekerjaan lain yang sejenis"
+    },
+    {
+      "patternCode": "A",
+      "title": "Tipe A — Artistic",
+      "body": "Profil ini menyukai pekerjaan dan aktivitas yang bebas, tidak sistematis, ambisius dalam usahanya memanipulasi material fisik, verbal dan humanistic untuk tujuan menciptakan bentuk-bentuk atau produk-produk seni. Kecenderungan ini mengantarkannya memiliki kompetensi artistik, bahasa, musik, drama, mengarang. Tetapi mengurangi kompetensi dibidang klerikal dan bisnis.\n\nContoh profesi: Desainer, Penulis, Musisi, Arsitek, Wartawan, Penari, Translator, Artis dan pekerjaan lain yang sejenis."
+    },
+    {
+      "patternCode": "S",
+      "title": "Tipe S — Social",
+      "body": "Profil ini menyukai aktivitas yang melibatkan berelasi, berkomunikasi dan mengajar orang. Mereka dilambangkan dengan ketrampilan sosial dan kebutuhan untuk interaksi sosial. Pekerjaannya sering melibatkan membantu atau memberikan layanan kepada orang lain. Tetapi mengurangi kompetensi di bidang teknik dan manual.\n\nContoh profesi: Guru, Terapis, Tour Guide, Perawat, Hakim, Konselor, Psikolog, Sejarawan, misionari, Pekerja Sosial, Ahli Patolog Bicara dan pekerjaan lain yang sejenis."
+    },
+    {
+      "patternCode": "E",
+      "title": "Tipe E — Enterprising",
+      "body": "Profil ini menghasilkan preferensi yang mendorong individu untuk menikmati memanipulasi kegiatan orang lain dalam usahanya mencapai tujuan organisasi atau keuntungan ekonomi. Kecenderungan ini akan mengarah pada kompetensi kepemimpinan, hubungan timbal balik pribadi dan persuasif, tugas yang menitikberatkan kepada kemampuan verbal yang digunakan untuk mengarahkan dan mempengaruhi orang lain. Tetapi mengurangi kompetensi ilmiah.\n\nContoh profesi: Pengacara, Pelobi, Politikus, Pegawai humas, Pelobi, Manajer penjualan, Staf penjualan, perwakilan dagang, dan pekerjaan lain yang sejenis."
+    },
+    {
+      "patternCode": "C",
+      "title": "Tipe C — Conventional",
+      "body": "Profil ini menghasilkan preferensi yang membawa individu untuk menyenangi aktivitas yang teratur dan sistematis seperti misalnya mengarsipkan sesuatu, mereproduksi material, mencatat data, mengolah data, menyukai pekerjaan yang mengikuti prosedur dan rutinitas yang ditetapkan. Kecenderungan ini me-ngantarkan individu memiliki kompetensi klerikal, menghitung / kompetensi Operasional bisnis. Tapi mengurangi kompetensi artistik.\n\nContoh profesi: Akuntan, Aktuaris, Ahli Statistik, Analis Keuangan, Operator komputer, Pustakawan, Programer Bisnis, Pengarsip, dan pekerjaan yang berhubungan dengan administrasi."
+    }
+  ]
+}

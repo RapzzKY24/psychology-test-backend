@@ -15,11 +15,18 @@ import {
   RightWrongResponseSchema,
   RIGHT_WRONG_PATTERN_CATALOG,
 } from './schemas/right-wrong-norm';
+import {
+  ScaleTallyItemContentSchema,
+  ScaleTallyResponseSchema,
+  scaleTallyPatternCodes,
+} from './schemas/scale-tally';
 import { scoreDisc } from './disc-scorer';
 import { scoreForcedChoicePair } from './forced-choice-pair';
 import { scoreRightWrongNorm } from './right-wrong-norm';
+import { scoreScaleTally } from './scale-tally';
 import { sanitizePairItem } from './sanitize-pair-item';
 import { sanitizeRightWrongItem } from './sanitize-right-wrong-item';
+import { sanitizeScaleTallyItem } from './sanitize-scale-tally-item';
 
 export interface ScorerOutput {
   scores: Record<string, unknown>;
@@ -83,6 +90,16 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     patternCatalog: [...RIGHT_WRONG_PATTERN_CATALOG],
     score: (input) =>
       Promise.resolve(scoreRightWrongNorm(input) as unknown as ScorerOutput),
+  },
+  SCALE_TALLY: {
+    type: 'SCALE_TALLY',
+    itemSchema: ScaleTallyItemContentSchema,
+    responseSchema: ScaleTallyResponseSchema,
+    sanitize: sanitizeScaleTallyItem,
+    patternCatalog: [],
+    patternCodesFor: scaleTallyPatternCodes,
+    score: (input) =>
+      Promise.resolve(scoreScaleTally(input) as unknown as ScorerOutput),
   },
 };
 

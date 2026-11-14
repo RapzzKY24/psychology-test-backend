@@ -64,3 +64,35 @@ describe('SCORERS registry (task 4.3)', () => {
     expect(out.patternCode).toBe('38');
   });
 });
+
+describe('SCALE_TALLY registry entry', () => {
+  const tally = SCORERS.SCALE_TALLY;
+  const tallyItems = [
+    {
+      id: 't1',
+      content: { question: 'a', options: ['Ya', 'Tidak'], scale: 'R' },
+    },
+    {
+      id: 't2',
+      content: { question: 'b', options: ['Ya', 'Tidak'], scale: 'I' },
+    },
+  ];
+
+  it('derives its pattern codes from the item scales', () => {
+    expect(tally.patternCodesFor?.(tallyItems)).toEqual(['R', 'I']);
+    expect(tally.patternCatalog).toEqual([]);
+  });
+
+  it('scores through the registry and strips the scale on sanitize', async () => {
+    const out = await tally.score({
+      items: tallyItems,
+      responses: [{ itemId: 't2', value: { chosen: 0 } }],
+    });
+
+    expect(out.patternCode).toBe('I');
+    expect(tally.sanitize(tallyItems[0].content)).toEqual({
+      question: 'a',
+      options: ['Ya', 'Tidak'],
+    });
+  });
+});
