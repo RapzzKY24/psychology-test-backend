@@ -15,6 +15,7 @@ import {
   PairResponseSchema,
   pairPatternCodes,
 } from './schemas/forced-choice-pair';
+import { pairTallyPatternCodes } from './schemas/pair-tally';
 import {
   RightWrongItemContentSchema,
   RightWrongResponseSchema,
@@ -28,6 +29,7 @@ import {
 import { scoreChoiceTally } from './choice-tally';
 import { scoreDisc } from './disc-scorer';
 import { scoreForcedChoicePair } from './forced-choice-pair';
+import { scorePairTally } from './pair-tally';
 import { scoreRightWrongNorm } from './right-wrong-norm';
 import { scoreScaleTally } from './scale-tally';
 import { sanitizeChoiceTallyItem } from './sanitize-choice-tally-item';
@@ -100,6 +102,16 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     patternCodesFor: pairPatternCodes,
     score: (input) =>
       Promise.resolve(scoreForcedChoicePair(input) as unknown as ScorerOutput),
+  },
+  PAIR_TALLY: {
+    type: 'PAIR_TALLY',
+    itemSchema: PairItemContentSchema,
+    responseSchema: PairResponseSchema,
+    sanitize: sanitizePairItem,
+    patternCatalog: [],
+    patternCodesFor: pairTallyPatternCodes,
+    score: (input) =>
+      Promise.resolve(scorePairTally(input) as unknown as ScorerOutput),
   },
   RIGHT_WRONG_NORM: {
     type: 'RIGHT_WRONG_NORM',

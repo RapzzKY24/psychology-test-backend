@@ -9,6 +9,7 @@ export const ScorerSchemas = {
   CHOICE_TALLY: ChoiceTallyItemContentSchema,
   FORCED_CHOICE_DISC: DiscItemContentSchema,
   FORCED_CHOICE_PAIR: PairItemContentSchema,
+  PAIR_TALLY: PairItemContentSchema,
   RIGHT_WRONG_NORM: RightWrongItemContentSchema,
   SCALE_TALLY: ScaleTallyItemContentSchema,
 } as const;

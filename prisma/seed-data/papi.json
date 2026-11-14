@@ -1,0 +1,1449 @@
+{
+  "test": {
+    "slug": "papi-kostick",
+    "name": "PAPI Kostick",
+    "description": "Tes kepribadian kerja: 90 pasang pernyataan, pilih satu yang paling menggambarkan diri. Menghasilkan skor 20 need dalam 7 kelompok kerja, masing-masing dengan tingkat LOW/MIDDLE/HIGH.",
+    "category": "WORK_STYLE",
+    "scorerType": "PAIR_TALLY",
+    "price": 50000,
+    "estimatedDurationMin": 25,
+    "timeLimitMin": null,
+    "scoringConfig": {
+      "bands": [
+        {
+          "max": 3,
+          "label": "LOW ANALYSIS"
+        },
+        {
+          "max": 6,
+          "label": "MIDDLE RANGE"
+        },
+        {
+          "max": 9,
+          "label": "HIGH ANALYSIS"
+        }
+      ],
+      "groups": [
+        {
+          "name": "WORK DIRECTION",
+          "scales": [
+            "N",
+            "G",
+            "A"
+          ]
+        },
+        {
+          "name": "LEADERSHIP",
+          "scales": [
+            "L",
+            "P",
+            "I"
+          ]
+        },
+        {
+          "name": "ACTIVITY",
+          "scales": [
+            "T",
+            "V"
+          ]
+        },
+        {
+          "name": "SOCIAL NATURE",
+          "scales": [
+            "X",
+            "S",
+            "B",
+            "O"
+          ]
+        },
+        {
+          "name": "WORK STYLE",
+          "scales": [
+            "R",
+            "D",
+            "C"
+          ]
+        },
+        {
+          "name": "TEMPERAMENT",
+          "scales": [
+            "Z",
+            "E",
+            "K"
+          ]
+        },
+        {
+          "name": "FOLLOWERSHIP",
+          "scales": [
+            "F",
+            "W"
+          ]
+        }
+      ]
+    }
+  },
+  "items": [
+    {
+      "order": 1,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya seorang pekerja giat",
+          "Saya bukan seorang murung"
+        ],
+        "mapping": [
+          "G",
+          "E"
+        ]
+      }
+    },
+    {
+      "order": 2,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka bekerja lebih baik daripada orang lain",
+          "Saya melakukan pekerjaan hingga tuntas"
+        ],
+        "mapping": [
+          "A",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 3,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka memberi orang petunjuk bagaimana melakukan sesuatu",
+          "Saya senang memberitahukan orang apa yang harus dikerjakan"
+        ],
+        "mapping": [
+          "P",
+          "A"
+        ]
+      }
+    },
+    {
+      "order": 4,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya melakukan hal-hal yang lucu",
+          "Saya suka mengatakan kepada orang lain apa yang harus dikerjakan"
+        ],
+        "mapping": [
+          "X",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka bergabung didalam kelompok",
+          "Saya ingin diperhatikan didalam kelompok"
+        ],
+        "mapping": [
+          "B",
+          "X"
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka menjalin persahabatan",
+          "Saya suka menggabungkan diri dalam suatu kelompok"
+        ],
+        "mapping": [
+          "O",
+          "B"
+        ]
+      }
+    },
+    {
+      "order": 7,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Jika saya rasa perlu, saya bisa cepat menyesuaikan diri",
+          "Saya berusaha menjalin persahabatan"
+        ],
+        "mapping": [
+          "Z",
+          "O"
+        ]
+      }
+    },
+    {
+      "order": 8,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka membalas jika benar-benar disakiti",
+          "Saya suka mengerjakan sesuatu hal yang baru dan berbeda"
+        ],
+        "mapping": [
+          "K",
+          "Z"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya ingin atasan menyukai saya",
+          "Saya suka memberitahu orang lain jika mereka berbuat salah"
+        ],
+        "mapping": [
+          "F",
+          "K"
+        ]
+      }
+    },
+    {
+      "order": 10,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya senang mengikuti petunjuk-petunjuk yang diberikan kepada saya",
+          "Saya ingin menyenangkan atasan saya"
+        ],
+        "mapping": [
+          "W",
+          "F"
+        ]
+      }
+    },
+    {
+      "order": 11,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya berusaha keras sekali",
+          "Saya adalah seorang yang rapi saya menempatkan segala sesuatu ditempatnya"
+        ],
+        "mapping": [
+          "G",
+          "C"
+        ]
+      }
+    },
+    {
+      "order": 12,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya mampu mempengaruhi orang lain untuk melakukan apa yang saya kehendaki",
+          "Saya tidak mudah marah"
+        ],
+        "mapping": [
+          "L",
+          "E"
+        ]
+      }
+    },
+    {
+      "order": 13,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka memberitahukan apa yang harus dikerjakan oleh kelompok",
+          "Saya selalu melakukan pekerjaan sampai tuntas"
+        ],
+        "mapping": [
+          "P",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 14,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya ingin menjadi orang yang menarik dan mengasyikkan",
+          "Saya ingin menjadi orang yang sangat berhasil"
+        ],
+        "mapping": [
+          "X",
+          "A"
+        ]
+      }
+    },
+    {
+      "order": 15,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka menyesuaikan diri dalam kelompok",
+          "Saya suka membantu orang mengambil keputusan"
+        ],
+        "mapping": [
+          "B",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 16,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya cemas bila seseorang tidak menyukai saya",
+          "Saya suka orang memperhatikan saya"
+        ],
+        "mapping": [
+          "O",
+          "X"
+        ]
+      }
+    },
+    {
+      "order": 17,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka mencoba hal-hal yang baru",
+          "Saya lebih suka bekerja sama daripada bekerja sendiri"
+        ],
+        "mapping": [
+          "Z",
+          "B"
+        ]
+      }
+    },
+    {
+      "order": 18,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Kadang-kadang saya menyalahkan orang lain bila ada sesuatu yang tidak beres",
+          "Saya merasa terganggu bila ada yang tidak menyukai saya"
+        ],
+        "mapping": [
+          "K",
+          "O"
+        ]
+      }
+    },
+    {
+      "order": 19,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya ingin menyenangkan atasan-atasan saya",
+          "Saya suka mencoba suatu pekerjaan yang baru dan berbeda"
+        ],
+        "mapping": [
+          "F",
+          "Z"
+        ]
+      }
+    },
+    {
+      "order": 20,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka penjelasan-penjelasan terperinci dalam menyelesaikan pekerjaan",
+          "Akan saya katakan kepada orang-orang yang bersangkutan bila mereka menjengkelkan saya"
+        ],
+        "mapping": [
+          "W",
+          "K"
+        ]
+      }
+    },
+    {
+      "order": 21,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya selalu berusaha keras",
+          "Saya suka melaksanakan setiap langkah dengan hati-hati"
+        ],
+        "mapping": [
+          "G",
+          "D"
+        ]
+      }
+    },
+    {
+      "order": 22,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya akan menjadi seorang pemimpin yang baik",
+          "Saya dapat mengorganisir suatu pekerjaan dengan baik"
+        ],
+        "mapping": [
+          "L",
+          "C"
+        ]
+      }
+    },
+    {
+      "order": 23,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya mudah tersinggung",
+          "Saya lamban dalam membuat keputusan-keputusan"
+        ],
+        "mapping": [
+          "I",
+          "E"
+        ]
+      }
+    },
+    {
+      "order": 24,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka mengerjakan beberapa pekerjaan sekaligus",
+          "Bila saya dalam kelompok, saya lebih sering sebagai pendengar"
+        ],
+        "mapping": [
+          "X",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 25,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya sangat senang bila mendapat undangan",
+          "saya ingin lebih baik dari yang lain dalam mengerjakan sesuatu"
+        ],
+        "mapping": [
+          "B",
+          "A"
+        ]
+      }
+    },
+    {
+      "order": 26,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka menjalin persahabatan",
+          "Saya suka memberi nasehat kepada orang lain"
+        ],
+        "mapping": [
+          "O",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 27,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka mengerjakan sesuatu hal yang baru dan berbeda",
+          "Saya suka memberitahu bagaimana saya berhasil dalam melakukan sesuatu"
+        ],
+        "mapping": [
+          "Z",
+          "X"
+        ]
+      }
+    },
+    {
+      "order": 28,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Jika memang saya benar, saya akan mempertahankannya",
+          "Saya ingin di terima dan diakui dalam kelompok"
+        ],
+        "mapping": [
+          "K",
+          "B"
+        ]
+      }
+    },
+    {
+      "order": 29,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya tidak ingin menjadi lain dari yang lain",
+          "Saya berusaha dekat dengan orang-orang"
+        ],
+        "mapping": [
+          "F",
+          "O"
+        ]
+      }
+    },
+    {
+      "order": 30,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya senang memberitahu orang bagaimana melakukan suatu pekerjaan",
+          "Saya berusaha dekat dengan orang-orang"
+        ],
+        "mapping": [
+          "W",
+          "Z"
+        ]
+      }
+    },
+    {
+      "order": 31,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya bekerja keras",
+          "Saya banyak berfikir dan membuat rencana"
+        ],
+        "mapping": [
+          "G",
+          "R"
+        ]
+      }
+    },
+    {
+      "order": 32,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya memimpin suatu kelompok",
+          "Saya tertarik dengan hal-hal yang lebih detail"
+        ],
+        "mapping": [
+          "L",
+          "D"
+        ]
+      }
+    },
+    {
+      "order": 33,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya membuat keputusan dengan mudah dan cepat",
+          "Saya merawat barang-barang saya dengan rapi dan teratur"
+        ],
+        "mapping": [
+          "I",
+          "C"
+        ]
+      }
+    },
+    {
+      "order": 34,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya mengerjakan sesuatu dengan cepat",
+          "Saya jarang marah atau sedih"
+        ],
+        "mapping": [
+          "T",
+          "E"
+        ]
+      }
+    },
+    {
+      "order": 35,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya ingin menjadi bagian dari suatu kelompok",
+          "Saya hanya ingin mengerjakan satu pekerjaan dalam satu saat"
+        ],
+        "mapping": [
+          "B",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 36,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya berusaha menjalin persahabatan",
+          "Saya berusaha keras untuk menjadi yang paling baik"
+        ],
+        "mapping": [
+          "O",
+          "A"
+        ]
+      }
+    },
+    {
+      "order": 37,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka baju-baju dan mobil-mobil model mutakhir",
+          "Saya senang bertanggung jawab atas orang lain"
+        ],
+        "mapping": [
+          "Z",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 38,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya senang berdebat",
+          "Saya senang mendapat perhatian"
+        ],
+        "mapping": [
+          "K",
+          "X"
+        ]
+      }
+    },
+    {
+      "order": 39,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka menyenangkan atasan saya",
+          "Saya tertarik untuk menjadi bagian dari suatu kelompok"
+        ],
+        "mapping": [
+          "F",
+          "B"
+        ]
+      }
+    },
+    {
+      "order": 40,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka mematuhi peraturan dengan sungguh-sungguh",
+          "Saya ingin agar orang-orang benar-benar mengenal saya"
+        ],
+        "mapping": [
+          "W",
+          "O"
+        ]
+      }
+    },
+    {
+      "order": 41,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya berusaha keras sekali",
+          "Saya sangat ramah"
+        ],
+        "mapping": [
+          "G",
+          "S"
+        ]
+      }
+    },
+    {
+      "order": 42,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Orang-orang menganggap saya adalah pemimpin yang baik",
+          "Saya berfikir panjang dan hati-hati"
+        ],
+        "mapping": [
+          "L",
+          "R"
+        ]
+      }
+    },
+    {
+      "order": 43,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Bila ada kesempatan, saya akan memanfaatkannya",
+          "Saya senang mengurusi hal-hal yang kecil"
+        ],
+        "mapping": [
+          "I",
+          "D"
+        ]
+      }
+    },
+    {
+      "order": 44,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Orang-orang menganggap saya bekerja dengan cepat",
+          "Orang-orang berpendapat bahwa saya rapi dan teratur"
+        ],
+        "mapping": [
+          "T",
+          "C"
+        ]
+      }
+    },
+    {
+      "order": 45,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka berolahraga",
+          "Saya memiliki kepribadian yang menyenangkan"
+        ],
+        "mapping": [
+          "V",
+          "E"
+        ]
+      }
+    },
+    {
+      "order": 46,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya senang jika orangdekat dan bersahabat dengan saya",
+          "Saya selalu berusaha menyelesaikan pekerjaan yang telah saya mulai"
+        ],
+        "mapping": [
+          "O",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 47,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka bereksperimen dan mencoba hal-hal yang baru",
+          "Saya senang menyelesaikan dengan baik pekerjaan yang sulit"
+        ],
+        "mapping": [
+          "Z",
+          "A"
+        ]
+      }
+    },
+    {
+      "order": 48,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya senang diperlakukan secara adil",
+          "Saya suka memberitahu orang bagaimana mengerjakan sesuatu"
+        ],
+        "mapping": [
+          "K",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 49,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka melakukan apa yang diharapkan dari saya",
+          "Saya suka bila orang perduli terhadap saya"
+        ],
+        "mapping": [
+          "F",
+          "X"
+        ]
+      }
+    },
+    {
+      "order": 50,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka penjelasan-penjelasan yang terperinci dalam bekerja",
+          "Saya senang berada diantara orang-orang"
+        ],
+        "mapping": [
+          "W",
+          "B"
+        ]
+      }
+    },
+    {
+      "order": 51,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya selalu berusaha menyelesaikan tugas-tugas secara sempurna",
+          "Saya adalah orang yang tak mengenal lelah"
+        ],
+        "mapping": [
+          "G",
+          "V"
+        ]
+      }
+    },
+    {
+      "order": 52,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya adalah tipe pemimpin",
+          "Saya mudah bergaul"
+        ],
+        "mapping": [
+          "L",
+          "S"
+        ]
+      }
+    },
+    {
+      "order": 53,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka mengambil kesempatan-kesempatan yang ada",
+          "Saya banyak berfikir"
+        ],
+        "mapping": [
+          "I",
+          "R"
+        ]
+      }
+    },
+    {
+      "order": 54,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya bekerja dengan tempo yang tinggi dan mantap",
+          "Saya senang menangani detail suatu pekerjaan"
+        ],
+        "mapping": [
+          "T",
+          "D"
+        ]
+      }
+    },
+    {
+      "order": 55,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya memiliki banyak tenaga untuk berolah raga dan bermain",
+          "Saya merawat barang-barang saya dengan rapi dan teratur"
+        ],
+        "mapping": [
+          "V",
+          "C"
+        ]
+      }
+    },
+    {
+      "order": 56,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya dapat bergaul baik dengan semua orang",
+          "Saya orang yang berwatak tenang"
+        ],
+        "mapping": [
+          "S",
+          "E"
+        ]
+      }
+    },
+    {
+      "order": 57,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka bertemu dengan orang-orang baru dan melakukan sesuatu yang baru",
+          "Saya selalu ingin menyelesaikan pekerjaan yang saya mulai"
+        ],
+        "mapping": [
+          "Z",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 58,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya biasanya mempertahankan pendapat yang saya yakini",
+          "Saya biasanya suka bekerja keras"
+        ],
+        "mapping": [
+          "K",
+          "A"
+        ]
+      }
+    },
+    {
+      "order": 59,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya menyambut baik saran-saran dari orang yang saya kagumi",
+          "Saya senang bertanggung jawab atas orang lain"
+        ],
+        "mapping": [
+          "F",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 60,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya membiarkan orang lain mempengaruhi saya",
+          "Saya senang mendapatkan banyak perhatian"
+        ],
+        "mapping": [
+          "W",
+          "X"
+        ]
+      }
+    },
+    {
+      "order": 61,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya biasanya bekerja keras",
+          "Saya biasanya bekerja cepat"
+        ],
+        "mapping": [
+          "G",
+          "T"
+        ]
+      }
+    },
+    {
+      "order": 62,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Bila saya berbicara orang-orang mendengarkan",
+          "Saya sangat mahir menggunakan peralatan"
+        ],
+        "mapping": [
+          "L",
+          "V"
+        ]
+      }
+    },
+    {
+      "order": 63,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya lamban dalam membuat persahabatan",
+          "Saya lamban dalam memutuskan sesuatu"
+        ],
+        "mapping": [
+          "I",
+          "S"
+        ]
+      }
+    },
+    {
+      "order": 64,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya biasanya makan dengan cepat",
+          "Saya senang membaca"
+        ],
+        "mapping": [
+          "T",
+          "R"
+        ]
+      }
+    },
+    {
+      "order": 65,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya menyukai pekerjaan dimana saya banyak bergerak",
+          "Saya senang pada pekerjaan yang membutuhkan ketelitian"
+        ],
+        "mapping": [
+          "V",
+          "D"
+        ]
+      }
+    },
+    {
+      "order": 66,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya mudah membuat sebanyak mungkin teman",
+          "Saya mudah menemukan kembali barang-barang yang saya simpan"
+        ],
+        "mapping": [
+          "S",
+          "C"
+        ]
+      }
+    },
+    {
+      "order": 67,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya merencanakan sesuatu jauh-jauh sebelumnya",
+          "Saya selalu menyenangkan"
+        ],
+        "mapping": [
+          "R",
+          "E"
+        ]
+      }
+    },
+    {
+      "order": 68,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya menjunjung tinggi nama baik saya",
+          "Saya memusatkan perhatian pada satu persoalan sampai persoalan tersebut terpecahkan"
+        ],
+        "mapping": [
+          "K",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 69,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka menyenangkan orang-orang yang saya hormati dan kagumi",
+          "Saya ingin sukses dan berhasil"
+        ],
+        "mapping": [
+          "F",
+          "A"
+        ]
+      }
+    },
+    {
+      "order": 70,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya senang orang lain yang membuat keputusan untuk kelompok",
+          "Saya suka membuat keputusan untuk kelompok"
+        ],
+        "mapping": [
+          "W",
+          "P"
+        ]
+      }
+    },
+    {
+      "order": 71,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya selalu berusaha keras",
+          "Saya memutuskan sesuatu dengan mudah dan cepat"
+        ],
+        "mapping": [
+          "G",
+          "I"
+        ]
+      }
+    },
+    {
+      "order": 72,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Kelompok biasanya menjalankan apa yang saya inginkan",
+          "Saya biasanya berkerja cepat-cepat"
+        ],
+        "mapping": [
+          "L",
+          "T"
+        ]
+      }
+    },
+    {
+      "order": 73,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya sering merasa lelah",
+          "Saya lamban dalam memutuskan sesuatu"
+        ],
+        "mapping": [
+          "I",
+          "V"
+        ]
+      }
+    },
+    {
+      "order": 74,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya bekerja dengan cepat",
+          "Saya mudah berteman"
+        ],
+        "mapping": [
+          "T",
+          "S"
+        ]
+      }
+    },
+    {
+      "order": 75,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya biasanya bersemangat dan bergairah",
+          "Saya memerlukan banyak waktu untuk berfikir"
+        ],
+        "mapping": [
+          "V",
+          "R"
+        ]
+      }
+    },
+    {
+      "order": 76,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya sangat ramah kepada orang",
+          "Saya senang pada pekerjaan yang membutuhkan ketepatan"
+        ],
+        "mapping": [
+          "S",
+          "D"
+        ]
+      }
+    },
+    {
+      "order": 77,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya banyak sekali berfikir dan membuat rencana",
+          "Saya meletakkan segalanya pada tempatnya"
+        ],
+        "mapping": [
+          "R",
+          "C"
+        ]
+      }
+    },
+    {
+      "order": 78,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya senang pada pekerjaan yang membutuhkan ketelitian dan detail",
+          "Saya tidak mudah marah"
+        ],
+        "mapping": [
+          "D",
+          "E"
+        ]
+      }
+    },
+    {
+      "order": 79,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka menurut pada orang-orang yang saya kagumi",
+          "Saya selalu menyelesaikan pekerjaan yang telah saya mulai"
+        ],
+        "mapping": [
+          "F",
+          "N"
+        ]
+      }
+    },
+    {
+      "order": 80,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka mengikuti petunjuk-petunjuk yang jelas",
+          "Saya senang bekerja keras"
+        ],
+        "mapping": [
+          "W",
+          "A"
+        ]
+      }
+    },
+    {
+      "order": 81,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya berusaha mendapatkan apa yang saya inginkan",
+          "Saya seorang pemimpin yang baik"
+        ],
+        "mapping": [
+          "G",
+          "L"
+        ]
+      }
+    },
+    {
+      "order": 82,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya dapat membuat orang lain bekerja keras",
+          "Saya adalah type orang yang tidak kenal susah"
+        ],
+        "mapping": [
+          "L",
+          "I"
+        ]
+      }
+    },
+    {
+      "order": 83,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya mengambil keputusan dengan cepat",
+          "Saya berbicara dengan cepat"
+        ],
+        "mapping": [
+          "I",
+          "T"
+        ]
+      }
+    },
+    {
+      "order": 84,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Rasanya saya bekerja dengan tergesa-gesa",
+          "Saya berlatih / berolah raga dengan teratur"
+        ],
+        "mapping": [
+          "T",
+          "V"
+        ]
+      }
+    },
+    {
+      "order": 85,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya tidak suka bertemu kebanyakan orang",
+          "Saya cepat merasa lelah"
+        ],
+        "mapping": [
+          "V",
+          "S"
+        ]
+      }
+    },
+    {
+      "order": 86,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya mempunyai banyak sekali teman",
+          "Saya banyak menghabiskan waktu untuk berfikir"
+        ],
+        "mapping": [
+          "S",
+          "R"
+        ]
+      }
+    },
+    {
+      "order": 87,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka menerapkan teori-teori dalam bekerja",
+          "Saya suka mengerjakan sesuatu sampai pada hal-hal yang detail dan jelas"
+        ],
+        "mapping": [
+          "R",
+          "D"
+        ]
+      }
+    },
+    {
+      "order": 88,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya suka mengerjakan sesuatu sampai pada hal-hal yang detail dan jelas",
+          "Saya suka mengatur dan mengorganisir pekerjaan saya"
+        ],
+        "mapping": [
+          "D",
+          "C"
+        ]
+      }
+    },
+    {
+      "order": 89,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya meletakkan segalanya pada tempatnya",
+          "Saya selalu menyenangkan"
+        ],
+        "mapping": [
+          "C",
+          "E"
+        ]
+      }
+    },
+    {
+      "order": 90,
+      "content": {
+        "question": "Pilih satu pernyataan yang paling menggambarkan diri Anda.",
+        "statements": [
+          "Saya senang diberi petunjuk apa yang harus dikerjakan",
+          "Saya harus menyelesaikan apa yang saya mulai"
+        ],
+        "mapping": [
+          "W",
+          "N"
+        ]
+      }
+    }
+  ],
+  "interpretations": [
+    {
+      "patternCode": "N",
+      "title": "N — Need to finish task",
+      "body": "Kebutuhan menyelesaikan tugas secara mandiri. Skor <3: menunda atau menghindari pekerjaan. Skor 3-4: berhati-hati atau ragu dalam bekerja. Skor 4-6: cukup bertanggung jawab pada pekerjaan. Skor 6-9: tekun, tanggung jawab tinggi."
+    },
+    {
+      "patternCode": "G",
+      "title": "G — Hard intense worker",
+      "body": "Peran pekerja keras. Skor 3-4: bekerja untuk kesenangan saja, bukan hasil optimal. Skor 4-7: kemauan bekerja keras tinggi."
+    },
+    {
+      "patternCode": "A",
+      "title": "A — Need to achieve",
+      "body": "Kebutuhan berprestasi. Skor 0-5: ketidakpastian tujuan, kepuasan pada pekerjaan, tidak ada usaha lebih. Skor 6-9: tujuan jelas, kebutuhan sukses dan ambisi tinggi."
+    },
+    {
+      "patternCode": "L",
+      "title": "L — Leadership role",
+      "body": "Peran kepemimpinan. Skor 5-9: memproyeksikan diri sebagai pemimpin dan menggunakan orang lain untuk mencapai tujuan. Skor 0-4: cenderung tidak aktif menggunakan orang lain dalam bekerja."
+    },
+    {
+      "patternCode": "P",
+      "title": "P — Need to control others",
+      "body": "Kebutuhan mengatur orang lain. Skor 5-9: kebutuhan menerima tanggung jawab atas pekerjaan dan tindakan orang lain. Skor 0-4: keinginan bertanggung jawab menurun."
+    },
+    {
+      "patternCode": "I",
+      "title": "I — Ease in decision making",
+      "body": "Peran membuat keputusan. Skor 0-2: ragu, menolak mengambil keputusan. Skor 3-4: berhati-hati. Skor 5-7: lancar dan mudah mengambil keputusan. Skor 8-9: tidak ragu."
+    },
+    {
+      "patternCode": "T",
+      "title": "T — Pace (on the go)",
+      "body": "Peran sibuk. Skor <4: melakukan segala sesuatu menurut kemauannya sendiri. Skor 4-6: tergolong aktif secara internal dan mental."
+    },
+    {
+      "patternCode": "V",
+      "title": "V — Vigorous type",
+      "body": "Peran penuh semangat. Skor <5: cenderung pasif. Skor 5-7: aktif secara fisik, cenderung sportif."
+    },
+    {
+      "patternCode": "X",
+      "title": "X — Need to be noticed",
+      "body": "Kebutuhan untuk diperhatikan. Skor <2: cenderung pemalu. Skor 2-3: rendah hati, tulus. Skor 4-5: pola perilaku unik. Skor 6-9: membutuhkan perhatian nyata."
+    },
+    {
+      "patternCode": "S",
+      "title": "S — Social extension",
+      "body": "Peran hubungan sosial. Skor <6: perhatian rendah terhadap hubungan sosial, kurang percaya pada orang lain. Skor 6-9: kepercayaan tinggi dalam hubungan sosial, suka interaksi sosial."
+    },
+    {
+      "patternCode": "B",
+      "title": "B — Need to belong to group",
+      "body": "Kebutuhan diterima dalam kelompok. Skor 0-3: selektif. Skor 4-5: butuh diterima tetapi tidak mudah dipengaruhi kelompok. Skor 6-9: butuh disukai dan diakui, mudah dipengaruhi."
+    },
+    {
+      "patternCode": "O",
+      "title": "O — Need for closeness and affection",
+      "body": "Kebutuhan kedekatan dan kasih sayang. Skor <3: tidak suka hubungan perorangan. Skor 3-4: sadar akan hubungan perorangan tetapi tidak terlalu tergantung. Skor 5-9: sangat tergantung, butuh penerimaan diri."
+    },
+    {
+      "patternCode": "R",
+      "title": "R — Theoretical type",
+      "body": "Peran orang yang teoritis. Skor 0-4: kurang perhatian, bersifat praktis. Skor 5-9: nilai penalaran tergolong tinggi."
+    },
+    {
+      "patternCode": "D",
+      "title": "D — Interest in working with details",
+      "body": "Peran bekerja dengan hal-hal rinci. Skor 0-3: menyadari kebutuhan kecermatan tetapi tidak berminat bekerja detail. Skor 4-9: minat tinggi untuk bekerja secara detail."
+    },
+    {
+      "patternCode": "C",
+      "title": "C — Organized type",
+      "body": "Peran mengatur. Skor 0-2: fleksibel, tidak teratur. Skor 3-5: teratur tetapi tidak tergolong fleksibel. Skor 6-9: keteraturan tinggi, cenderung kaku."
+    },
+    {
+      "patternCode": "Z",
+      "title": "Z — Need for change",
+      "body": "Kebutuhan untuk berubah. Skor 0-2: tidak suka berubah. Skor 3-4: tidak suka perubahan jika dipaksakan. Skor 5-6: mudah menyesuaikan diri. Skor 6-7: perubahan selektif, berpikir jauh ke depan. Skor 8-9: mudah gelisah dan frustrasi."
+    },
+    {
+      "patternCode": "E",
+      "title": "E — Emotional restraint",
+      "body": "Peran pengendalian emosi. Skor <2: terbuka, cepat bereaksi, tidak normatif. Skor 2-3: terbuka. Skor 4-6: pendekatan emosional seimbang, mampu mengendalikan. Skor >6: sangat normatif, kebutuhan pengendalian diri berlebihan."
+    },
+    {
+      "patternCode": "K",
+      "title": "K — Need for defensive aggressiveness",
+      "body": "Kebutuhan untuk agresif. Skor 0-2: menghindari masalah. Skor 3-4: suka lingkungan tenang, menghindari konflik. Skor 5: keras kepala. Skor 6-7: agresi berhubungan dengan kerja. Skor 8-9: agresif, cenderung defensif."
+    },
+    {
+      "patternCode": "F",
+      "title": "F — Need to support authority",
+      "body": "Kebutuhan membantu atasan. Skor 6-9: setia dan membantu, kemungkinan bantuannya bersifat politis. Skor 4-5: setia terhadap perusahaan. Skor 2-3: mengurus kepentingan sendiri. Skor <2: cenderung egois, bisa memberontak."
+    },
+    {
+      "patternCode": "W",
+      "title": "W — Need for rules and supervision",
+      "body": "Kebutuhan mengikuti aturan dan pengawasan. Skor <4: berorientasi pada tujuan, mandiri. Skor 4-5: butuh pengarahan dan harapan yang dirumuskan. Skor 6-9: orientasi tugas meningkat, butuh instruksi jelas."
+    }
+  ]
+}

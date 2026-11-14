@@ -114,5 +114,6 @@ function winner(
   const tieBreak = config.success ? config.data.tieBreak : undefined;
   if (tieBreak && scales.includes(tieBreak)) return tieBreak;
 
-  return scales[0];
+  // First of the tied scales in item order — never a scale that scored less.
+  return leaders[0];
 }
