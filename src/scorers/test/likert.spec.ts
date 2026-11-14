@@ -1,5 +1,6 @@
 import {
   DEFAULT_RATING_RANGE,
+  LikertConfigSchema,
   LikertItemContentSchema,
   LikertResponseSchema,
   bandCode,
@@ -61,14 +62,26 @@ describe('LIKERT item content', () => {
     ).toBe(true);
   });
 
-  it('rejects an empty statement or a non-letter scale', () => {
+  it('accepts a numbered type code, so Enneagram can use T1..T9', () => {
+    expect(
+      LikertItemContentSchema.parse({ text: 'Saya suka bergaul', scale: 't1' }),
+    ).toEqual({ text: 'Saya suka bergaul', scale: 'T1' });
+  });
+
+  it('rejects an empty statement or a scale that does not start with a letter', () => {
     expect(
       LikertItemContentSchema.safeParse({ text: '', scale: 'E' }).success,
     ).toBe(false);
     expect(
       LikertItemContentSchema.safeParse({
         text: 'Saya suka bergaul',
-        scale: 'E1',
+        scale: '1',
+      }).success,
+    ).toBe(false);
+    expect(
+      LikertItemContentSchema.safeParse({
+        text: 'Saya suka bergaul',
+        scale: 'T-1',
       }).success,
     ).toBe(false);
   });
@@ -83,6 +96,16 @@ describe('LIKERT item content', () => {
 describe('LIKERT scales and pattern codes', () => {
   it('collects scales in first-appearance order', () => {
     expect(likertScales(items())).toEqual(['E', 'A', 'C', 'N', 'O']);
+  });
+
+  it('keeps a numbered scale as its own code', () => {
+    const enneagram = [
+      { content: { text: 'a', scale: 'T3' } },
+      { content: { text: 'b', scale: 'T1' } },
+      { content: { text: 'c', scale: 'T3' } },
+    ];
+    expect(likertScales(enneagram)).toEqual(['T3', 'T1']);
+    expect(likertPatternCodes(enneagram)).toEqual(['T3', 'T1']);
   });
 
   it('returns the bare scales when the test declares no bands', () => {
@@ -120,6 +143,60 @@ describe('sanitizeLikertItem', () => {
 
   it('returns an empty object for content that is not a Likert item', () => {
     expect(sanitizeLikertItem({ question: 'bukan likert' })).toEqual({});
+  });
+
+  it('ships the meaning of each point when the test declares labels', () => {
+    expect(
+      sanitizeLikertItem(
+        { text: 'Saya suka bergaul', scale: 'T1' },
+        {
+          ratingRange: { min: 0, max: 3 },
+          ratingLabels: [
+            'Tidak sama sekali',
+            'Agak',
+            'Cukup baik',
+            'Sangat baik',
+          ],
+        },
+      ),
+    ).toEqual({
+      text: 'Saya suka bergaul',
+      min: 0,
+      max: 3,
+      labels: ['Tidak sama sekali', 'Agak', 'Cukup baik', 'Sangat baik'],
+    });
+  });
+
+  it('omits labels when the test declares none', () => {
+    const sanitized = sanitizeLikertItem(
+      { text: 'Saya suka bergaul', scale: 'E' },
+      { ratingRange: { min: 1, max: 5 } },
+    );
+    expect(sanitized).not.toHaveProperty('labels');
+  });
+});
+
+describe('LikertConfigSchema', () => {
+  it('accepts a label for every point of the scale', () => {
+    expect(
+      LikertConfigSchema.safeParse({
+        ratingRange: { min: 0, max: 3 },
+        ratingLabels: ['a', 'b', 'c', 'd'],
+      }).success,
+    ).toBe(true);
+  });
+
+  it('counts the labels against the effective range', () => {
+    // 1-5 by default, so three labels are one short.
+    const short = LikertConfigSchema.safeParse({
+      ratingLabels: ['a', 'b', 'c'],
+    });
+    expect(short.success).toBe(false);
+    expect(
+      short.error?.issues.some((issue) =>
+        issue.message.includes('must have 5 labels'),
+      ),
+    ).toBe(true);
   });
 });
 

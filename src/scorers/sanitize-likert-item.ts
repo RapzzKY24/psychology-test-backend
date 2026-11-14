@@ -15,7 +15,15 @@ export function sanitizeLikertItem(
 ): Record<string, unknown> {
   const item = parseLikertItem(content);
   if (!item) return {};
-  const range =
-    parseLikertConfig(scoringConfig).ratingRange ?? DEFAULT_RATING_RANGE;
-  return { text: item.text, min: range.min, max: range.max };
+  const config = parseLikertConfig(scoringConfig);
+  const range = config.ratingRange ?? DEFAULT_RATING_RANGE;
+  const sanitized: Record<string, unknown> = {
+    text: item.text,
+    min: range.min,
+    max: range.max,
+  };
+  // The label of each point is the instrument's, not the family's: without it
+  // a 0–3 scale reads as four anonymous numbers.
+  if (config.ratingLabels) sanitized.labels = config.ratingLabels;
+  return sanitized;
 }

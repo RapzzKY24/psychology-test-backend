@@ -3,7 +3,8 @@ import { z } from 'zod';
 /**
  * One scale of a Likert inventory. Uppercased on parse so the seed, the builder
  * and the scorer never disagree about casing — Big Five uses single letters
- * (E/A/C/N/O), a later inventory may use a longer code.
+ * (E/A/C/N/O), Enneagram numbers its types (T1..T9), a later inventory may use
+ * a longer code. A code starts with a letter so it can never read as a number.
  */
 const ScaleSchema = z
   .string()
@@ -11,7 +12,7 @@ const ScaleSchema = z
   .toUpperCase()
   .min(1)
   .max(12)
-  .regex(/^[A-Z]+$/, 'scale must be A-Z');
+  .regex(/^[A-Z][A-Z0-9]*$/, 'scale must start with a letter');
 
 /**
  * A statement the participant rates on a numeric scale. `scale` is the hidden
@@ -47,28 +48,51 @@ export type LikertResponse = z.infer<typeof LikertResponseSchema>;
  * Optional settings a Likert test can carry in `Test.scoringConfig`. Strict:
  * the config is seed-owned, so an unknown key means a typo, not an extension.
  */
-export const LikertConfigSchema = z.strictObject({
-  /** Defaults to 1–5. */
-  ratingRange: z
-    .object({
-      min: z.number().int().min(0).max(10),
-      max: z.number().int().min(0).max(10),
-    })
-    .refine((range) => range.max > range.min, 'max must be greater than min')
-    .optional(),
-  /**
-   * Score bands, checked against the **percent** of the scale maximum: the
-   * first row whose `max` covers it wins, the last row is the catch-all.
-   */
-  bands: z
-    .array(
-      z.object({
-        max: z.number().min(0).max(100),
-        label: z.string().trim().min(1).max(40),
-      }),
-    )
-    .optional(),
-});
+export const LikertConfigSchema = z
+  .strictObject({
+    /** Defaults to 1–5. */
+    ratingRange: z
+      .object({
+        min: z.number().int().min(0).max(10),
+        max: z.number().int().min(0).max(10),
+      })
+      .refine((range) => range.max > range.min, 'max must be greater than min')
+      .optional(),
+    /**
+     * What each point of the scale means, lowest first. Only the source
+     * instrument knows this — Enneagram's 0–3 is "tidak sama sekali … sangat
+     * baik", and a bare number would leave the participant guessing.
+     */
+    ratingLabels: z
+      .array(z.string().trim().min(1).max(60))
+      .min(2)
+      .max(11)
+      .optional(),
+    /**
+     * Score bands, checked against the **percent** of the scale maximum: the
+     * first row whose `max` covers it wins, the last row is the catch-all.
+     */
+    bands: z
+      .array(
+        z.object({
+          max: z.number().min(0).max(100),
+          label: z.string().trim().min(1).max(40),
+        }),
+      )
+      .optional(),
+  })
+  .superRefine((config, ctx) => {
+    if (!config.ratingLabels) return;
+    const range = config.ratingRange ?? DEFAULT_RATING_RANGE;
+    const expected = range.max - range.min + 1;
+    if (config.ratingLabels.length !== expected) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['ratingLabels'],
+        message: `must have ${expected} labels for a ${range.min}-${range.max} scale`,
+      });
+    }
+  });
 
 export type LikertConfig = z.infer<typeof LikertConfigSchema>;
 

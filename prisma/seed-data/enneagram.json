@@ -1,0 +1,1333 @@
+{
+  "test": {
+    "slug": "enneagram",
+    "name": "Enneagram",
+    "description": "Inventaris kepribadian 180 butir dengan skala 0–3. Setiap butir menyumbang ke satu dari sembilan tipe; tipe dengan skor tertinggi menjadi hasil.",
+    "category": "PERSONALITY",
+    "scorerType": "LIKERT",
+    "price": 75000,
+    "estimatedDurationMin": 20,
+    "timeLimitMin": null,
+    "scoringConfig": {
+      "ratingRange": {
+        "min": 0,
+        "max": 3
+      },
+      "ratingLabels": [
+        "Tidak sama sekali",
+        "Agak",
+        "Cukup baik",
+        "Sangat baik"
+      ]
+    }
+  },
+  "items": [
+    {
+      "order": 1,
+      "content": {
+        "text": "Saya suka ide melibatkan pasangan intim saya dalam kehidupan kerja saya, jadi kami tidak berpisah.",
+        "scale": "T3"
+      }
+    },
+    {
+      "order": 2,
+      "content": {
+        "text": "Kebanyakan orang melihat saya lebih damai daripada yang sebenarnya.",
+        "scale": "T9"
+      }
+    },
+    {
+      "order": 3,
+      "content": {
+        "text": "Saya sering merasakan kerinduan tanpa benar-benar tahu mengapa.",
+        "scale": "T4"
+      }
+    },
+    {
+      "order": 4,
+      "content": {
+        "text": "Keinginan saya untuk berpikir positif terkadang bisa seperti kecanduan.",
+        "scale": "T7"
+      }
+    },
+    {
+      "order": 5,
+      "content": {
+        "text": "Memiliki ruang pribadi adalah kebutuhan, bukan kemewahan.",
+        "scale": "T5"
+      }
+    },
+    {
+      "order": 6,
+      "content": {
+        "text": "Bertemu deadline saya lebih penting daripada mendapatkan setiap detail kecil tepat.",
+        "scale": "T3"
+      }
+    },
+    {
+      "order": 7,
+      "content": {
+        "text": "Perasaan takut saya kurang kuat ketika saya memiliki proyek untuk dikerjakan.",
+        "scale": "T6"
+      }
+    },
+    {
+      "order": 8,
+      "content": {
+        "text": "Saya bisa merangkul sisi manis dari kesedihan.",
+        "scale": "T4"
+      }
+    },
+    {
+      "order": 9,
+      "content": {
+        "text": "Aku adalah kekuatan yang harus diperhitungkan.",
+        "scale": "T8"
+      }
+    },
+    {
+      "order": 10,
+      "content": {
+        "text": "Ketidakjujuran saya kadang-kadang bisa melenyapkan orang.",
+        "scale": "T8"
+      }
+    },
+    {
+      "order": 11,
+      "content": {
+        "text": "Saya benci meminta bantuan, meskipun saya suka memberikannya.",
+        "scale": "T2"
+      }
+    },
+    {
+      "order": 12,
+      "content": {
+        "text": "Saya merasa sulit untuk menahan ketika datang untuk menawarkan bantuan dan saran.",
+        "scale": "T2"
+      }
+    },
+    {
+      "order": 13,
+      "content": {
+        "text": "Menjadi pemenang membuat usaha saya berharga.",
+        "scale": "T3"
+      }
+    },
+    {
+      "order": 14,
+      "content": {
+        "text": "Berada di alam sangat menenangkanku.",
+        "scale": "T9"
+      }
+    },
+    {
+      "order": 15,
+      "content": {
+        "text": "Aku bisa marah ketika semuanya menjadi terlalu rumit.",
+        "scale": "T9"
+      }
+    },
+    {
+      "order": 16,
+      "content": {
+        "text": "Membuat orang lain tertawa membantu saya merasa lebih tenang dan kurang cemas.",
+        "scale": "T6"
+      }
+    },
+    {
+      "order": 17,
+      "content": {
+        "text": "Situasi emosional yang kuat membuat saya merasa benar-benar hidup.",
+        "scale": "T4"
+      }
+    },
+    {
+      "order": 18,
+      "content": {
+        "text": "Saya suka melakukan sesuatu yang baru, bukan hal yang sama.",
+        "scale": "T7"
+      }
+    },
+    {
+      "order": 19,
+      "content": {
+        "text": "Saya bangga dengan cara saya membuat orang merasa nyaman.",
+        "scale": "T2"
+      }
+    },
+    {
+      "order": 20,
+      "content": {
+        "text": "Saya suka melakukan banyak hal sehingga mudah untuk menyebarkan diri terlalu kurus.",
+        "scale": "T7"
+      }
+    },
+    {
+      "order": 21,
+      "content": {
+        "text": "Keinginan saya untuk mencapai tidak mengenal batas.",
+        "scale": "T3"
+      }
+    },
+    {
+      "order": 22,
+      "content": {
+        "text": "Bahkan ketika saya terlihat diterima oleh suatu kelompok, sulit untuk merasa bahwa saya benar-benar milik.",
+        "scale": "T4"
+      }
+    },
+    {
+      "order": 23,
+      "content": {
+        "text": "Saya bisa keras kepala dengan cara yang menghindari konfrontasi langsung.",
+        "scale": "T9"
+      }
+    },
+    {
+      "order": 24,
+      "content": {
+        "text": "Orang mengatakan saya memiliki aura yang kuat.",
+        "scale": "T8"
+      }
+    },
+    {
+      "order": 25,
+      "content": {
+        "text": "Saya bisa membuat peraturan dan menegakkannya.",
+        "scale": "T8"
+      }
+    },
+    {
+      "order": 26,
+      "content": {
+        "text": "Sulit untuk tidak menangis ketika saya merasa sentimental, bahkan ketika saya berada di depan umum.",
+        "scale": "T2"
+      }
+    },
+    {
+      "order": 27,
+      "content": {
+        "text": "Saya bisa merasa kesal karena tidak ada alasan khusus.",
+        "scale": "T1"
+      }
+    },
+    {
+      "order": 28,
+      "content": {
+        "text": "Saya mampu menciptakan keharmonisan di lingkungan saya.",
+        "scale": "T9"
+      }
+    },
+    {
+      "order": 29,
+      "content": {
+        "text": "Saya mencari orang-orang yang tidak dapat melihat diri mereka sendiri.",
+        "scale": "T8"
+      }
+    },
+    {
+      "order": 30,
+      "content": {
+        "text": "Menemukan tujuan hidup saya berarti segalanya bagi saya.",
+        "scale": "T4"
+      }
+    },
+    {
+      "order": 31,
+      "content": {
+        "text": "Saya lebih suka memikirkan masalah sebelum bertindak.",
+        "scale": "T5"
+      }
+    },
+    {
+      "order": 32,
+      "content": {
+        "text": "Belajar untuk menegaskan diri memberi saya kepercayaan diri dan mengurangi kecemasan saya.",
+        "scale": "T6"
+      }
+    },
+    {
+      "order": 33,
+      "content": {
+        "text": "Saya tidak bisa membantu tetapi melihat kedua sisi dari hampir semua pertanyaan.",
+        "scale": "T9"
+      }
+    },
+    {
+      "order": 34,
+      "content": {
+        "text": "Saya merasa tidak nyaman berbicara dengan orang-orang yang tampaknya tidak terlibat secara emosional.",
+        "scale": "T2"
+      }
+    },
+    {
+      "order": 35,
+      "content": {
+        "text": "Saya ingin membuat hidup sederhana dan tidak rumit.",
+        "scale": "T9"
+      }
+    },
+    {
+      "order": 36,
+      "content": {
+        "text": "Mempertahankan hubungan dekat dengan teman dan keluarga membantu saya merasa aman di dunia yang kacau.",
+        "scale": "T6"
+      }
+    },
+    {
+      "order": 37,
+      "content": {
+        "text": "Meskipun saya dapat dengan mudah membayangkan panik dalam krisis, ketika keadaan darurat yang sebenarnya datang, saya melakukannya dengan sangat baik.",
+        "scale": "T6"
+      }
+    },
+    {
+      "order": 38,
+      "content": {
+        "text": "Saya jauh lebih dari hati orang daripada kepala orang.",
+        "scale": "T2"
+      }
+    },
+    {
+      "order": 39,
+      "content": {
+        "text": "Mendapatkan pekerjaan yang dilakukan dengan benar lebih penting daripada menyelesaikan pekerjaan dengan cepat.",
+        "scale": "T1"
+      }
+    },
+    {
+      "order": 40,
+      "content": {
+        "text": "Saya suka membaca terlebih dahulu sebelum mencoba beberapa aktivitas baru.",
+        "scale": "T5"
+      }
+    },
+    {
+      "order": 41,
+      "content": {
+        "text": "Saya lebih menghargai orisinalitas daripada sukses.",
+        "scale": "T4"
+      }
+    },
+    {
+      "order": 42,
+      "content": {
+        "text": "Sesuai dengan norma kelompok tidak memungkinkan saya untuk mengungkapkan siapa diri saya sebenarnya.",
+        "scale": "T4"
+      }
+    },
+    {
+      "order": 43,
+      "content": {
+        "text": "Saya merasa sulit untuk menanggung aspek-aspek kehidupan yang menumpulkan hati dan membunuh jiwa.",
+        "scale": "T4"
+      }
+    },
+    {
+      "order": 44,
+      "content": {
+        "text": "Tidak ada yang saya nikmati seperti membuat perkenalan dan membantu orang saling mengenal satu sama lain.",
+        "scale": "T2"
+      }
+    },
+    {
+      "order": 45,
+      "content": {
+        "text": "Sebagai seorang anak, saya lebih serius dan realistis daripada banyak anak lain.",
+        "scale": "T1"
+      }
+    },
+    {
+      "order": 46,
+      "content": {
+        "text": "Detail masa kecil saya terkadang tampak kabur dan jauh.",
+        "scale": "T9"
+      }
+    },
+    {
+      "order": 47,
+      "content": {
+        "text": "Tidak ada yang lebih kritis terhadap saya daripada saya sendiri.",
+        "scale": "T1"
+      }
+    },
+    {
+      "order": 48,
+      "content": {
+        "text": "Saya sering merasa sulit untuk mencapai sesuatu tanpa terganggu oleh tugas-tugas lain.",
+        "scale": "T9"
+      }
+    },
+    {
+      "order": 49,
+      "content": {
+        "text": "Iman dan kepercayaan itu sulit bagiku, karena aku meragukan hal-hal yang tampaknya diterima sebagian besar orang.",
+        "scale": "T6"
+      }
+    },
+    {
+      "order": 50,
+      "content": {
+        "text": "Perhatian saya terlalu mudah pergi ke skenario terburuk, bahkan ketika mereka tidak mungkin terjadi.",
+        "scale": "T6"
+      }
+    },
+    {
+      "order": 51,
+      "content": {
+        "text": "Saya cenderung membuat diri saya begitu sibuk dengan pekerjaan sehingga tidak ada banyak waktu untuk duduk dan merenung.",
+        "scale": "T3"
+      }
+    },
+    {
+      "order": 52,
+      "content": {
+        "text": "Saya terkadang dilihat oleh orang lain sebagai tidak responsif secara sosial.",
+        "scale": "T5"
+      }
+    },
+    {
+      "order": 53,
+      "content": {
+        "text": "Saya merasakan dorongan untuk melarikan diri ketika saya mendarat dalam situasi yang membutuhkan komitmen emosional.",
+        "scale": "T7"
+      }
+    },
+    {
+      "order": 54,
+      "content": {
+        "text": "Saya cenderung menghormati atau menentang otoritas.",
+        "scale": "T6"
+      }
+    },
+    {
+      "order": 55,
+      "content": {
+        "text": "Saya suka berkonsentrasi pada satu hal pada satu waktu dan tidak menghargai gangguan.",
+        "scale": "T1"
+      }
+    },
+    {
+      "order": 56,
+      "content": {
+        "text": "Terkadang sulit untuk membedakan antara gambar yang saya proyeksikan dan orang yang ada di dalam saya.",
+        "scale": "T3"
+      }
+    },
+    {
+      "order": 57,
+      "content": {
+        "text": "Saya selalu sadar akan aturan yang harus saya ikuti, apakah saya memilih untuk menyesuaikan dengan mereka atau melanggarnya.",
+        "scale": "T6"
+      }
+    },
+    {
+      "order": 58,
+      "content": {
+        "text": "Saya optimis tentang banyak hal.",
+        "scale": "T7"
+      }
+    },
+    {
+      "order": 59,
+      "content": {
+        "text": "Sulit untuk tidak merasa gugup saat bertemu orang baru.",
+        "scale": "T6"
+      }
+    },
+    {
+      "order": 60,
+      "content": {
+        "text": "Saya tidak dapat membayangkan kehidupan tanpa banyak kenalan dan kontak sosial saya.",
+        "scale": "T2"
+      }
+    },
+    {
+      "order": 61,
+      "content": {
+        "text": "Naluri pertama saya selalu membantu orang, apakah mereka memintanya atau tidak.",
+        "scale": "T2"
+      }
+    },
+    {
+      "order": 62,
+      "content": {
+        "text": "Orang-orang melihat saya sebagai pemimpin alami.",
+        "scale": "T8"
+      }
+    },
+    {
+      "order": 63,
+      "content": {
+        "text": "Dalam situasi kelompok, saya biasanya lebih suka berbaur, daripada mengambil pimpinan atau keberatan suara.",
+        "scale": "T9"
+      }
+    },
+    {
+      "order": 64,
+      "content": {
+        "text": "Memiliki rutinitas sehari-hari membantu saya tetap di jalur dan menyelesaikan berbagai hal.",
+        "scale": "T9"
+      }
+    },
+    {
+      "order": 65,
+      "content": {
+        "text": "Saya tidak perlu membuktikan apa pun kepada siapa pun.",
+        "scale": "T8"
+      }
+    },
+    {
+      "order": 66,
+      "content": {
+        "text": "Sebagai orang tua atau wali, saya lebih ketat daripada permisif.",
+        "scale": "T1"
+      }
+    },
+    {
+      "order": 67,
+      "content": {
+        "text": "Saya bekerja keras untuk berhasil karena kegagalan bukanlah pilihan.",
+        "scale": "T3"
+      }
+    },
+    {
+      "order": 68,
+      "content": {
+        "text": "Saya lebih bersedia daripada banyak orang untuk melakukan pekerjaan \"menggerutu\" pada proyek kelompok.",
+        "scale": "T6"
+      }
+    },
+    {
+      "order": 69,
+      "content": {
+        "text": "Menjadi orang yang autentik lebih berarti bagiku daripada kesuksesan materi.",
+        "scale": "T4"
+      }
+    },
+    {
+      "order": 70,
+      "content": {
+        "text": "Saya memiliki begitu banyak ide berdengung di kepala saya sehingga sulit untuk mengerjakannya satu per satu.",
+        "scale": "T7"
+      }
+    },
+    {
+      "order": 71,
+      "content": {
+        "text": "Saya adalah karyawan yang sangat andal, setia, dan mantap.",
+        "scale": "T6"
+      }
+    },
+    {
+      "order": 72,
+      "content": {
+        "text": "Seringkali saya merasa bahwa pendapat pribadi saya tidak begitu penting untuk diskusi kelompok.",
+        "scale": "T9"
+      }
+    },
+    {
+      "order": 73,
+      "content": {
+        "text": "Saya sangat sadar akan kesan yang saya buat pada orang lain.",
+        "scale": "T3"
+      }
+    },
+    {
+      "order": 74,
+      "content": {
+        "text": "Kebanggaan adalah kekuatan terbesar saya dan kelemahan terbesar saya.",
+        "scale": "T2"
+      }
+    },
+    {
+      "order": 75,
+      "content": {
+        "text": "Meluangkan waktu untuk hubungan bisa jadi sulit karena jadwal sibuk saya.",
+        "scale": "T3"
+      }
+    },
+    {
+      "order": 76,
+      "content": {
+        "text": "Memberi, peduli, dan berbagi sangat berarti bagiku.",
+        "scale": "T2"
+      }
+    },
+    {
+      "order": 77,
+      "content": {
+        "text": "Mendengarkan dengan tidak sopan datang dengan mudah bagi saya.",
+        "scale": "T9"
+      }
+    },
+    {
+      "order": 78,
+      "content": {
+        "text": "Ide sering datang kepada saya seperti kilatan petir.",
+        "scale": "T7"
+      }
+    },
+    {
+      "order": 79,
+      "content": {
+        "text": "Saya memiliki banyak energi gugup dan imajinasi yang terlalu aktif.",
+        "scale": "T6"
+      }
+    },
+    {
+      "order": 80,
+      "content": {
+        "text": "Ketidaktahuan emosi benar-benar menggangguku.",
+        "scale": "T4"
+      }
+    },
+    {
+      "order": 81,
+      "content": {
+        "text": "Saya bisa sangat terbelit oleh keprihatinan saya terhadap orang lain.",
+        "scale": "T2"
+      }
+    },
+    {
+      "order": 82,
+      "content": {
+        "text": "Saya memiliki kekuatan untuk mengambil tugas yang akan mengalahkan orang yang lebih lemah.",
+        "scale": "T8"
+      }
+    },
+    {
+      "order": 83,
+      "content": {
+        "text": "Emosi mendalam saya adalah sumber daya kreatif terbesar saya.",
+        "scale": "T4"
+      }
+    },
+    {
+      "order": 84,
+      "content": {
+        "text": "Ini sangat memalukan untuk dikritik publik.",
+        "scale": "T2"
+      }
+    },
+    {
+      "order": 85,
+      "content": {
+        "text": "Orang yang tidak menganggap serius sesuatu mengganggu saya.",
+        "scale": "T1"
+      }
+    },
+    {
+      "order": 86,
+      "content": {
+        "text": "Tidak ada yang memotivasi saya seperti pencapaian yang tinggi.",
+        "scale": "T3"
+      }
+    },
+    {
+      "order": 87,
+      "content": {
+        "text": "Mengendalikan amarah saya sangat sulit.",
+        "scale": "T8"
+      }
+    },
+    {
+      "order": 88,
+      "content": {
+        "text": "Saya disebut perfeksionis, meskipun saya merasa tidak sempurna.",
+        "scale": "T1"
+      }
+    },
+    {
+      "order": 89,
+      "content": {
+        "text": "Karena saya melakukan banyak hal untuk orang lain, saya terkadang merasa berhak atas perlakuan khusus.",
+        "scale": "T2"
+      }
+    },
+    {
+      "order": 90,
+      "content": {
+        "text": "Pengakuan publik sangat berarti bagi saya.",
+        "scale": "T3"
+      }
+    },
+    {
+      "order": 91,
+      "content": {
+        "text": "Saya cenderung melihat orang lain sebagai sederajat.",
+        "scale": "T7"
+      }
+    },
+    {
+      "order": 92,
+      "content": {
+        "text": "Saya ingin memastikan bahwa saya memenuhi standar perilaku tinggi saya sendiri.",
+        "scale": "T1"
+      }
+    },
+    {
+      "order": 93,
+      "content": {
+        "text": "Ketika saya beresonansi dengan seseorang, itu bukan pada tingkat yang dangkal.",
+        "scale": "T4"
+      }
+    },
+    {
+      "order": 94,
+      "content": {
+        "text": "Penting bagi saya untuk menjadi pendengar yang simpatik dan teman yang mendukung.",
+        "scale": "T2"
+      }
+    },
+    {
+      "order": 95,
+      "content": {
+        "text": "Saya menghargai makanan yang baik, perusahaan yang baik, dan kehidupan yang baik.",
+        "scale": "T7"
+      }
+    },
+    {
+      "order": 96,
+      "content": {
+        "text": "Terkadang melakukan pelanggaran adalah satu-satunya cara untuk menaklukkan rasa takut.",
+        "scale": "T6"
+      }
+    },
+    {
+      "order": 97,
+      "content": {
+        "text": "Saya sangat tertarik dengan pekerjaan kemanusiaan dengan orang atau hewan.",
+        "scale": "T2"
+      }
+    },
+    {
+      "order": 98,
+      "content": {
+        "text": "Kegembiraan alami saya biasanya membuat saya tidak terjebak dalam emosi yang berat.",
+        "scale": "T7"
+      }
+    },
+    {
+      "order": 99,
+      "content": {
+        "text": "Saya adalah pemelihara alami.",
+        "scale": "T2"
+      }
+    },
+    {
+      "order": 100,
+      "content": {
+        "text": "Saya biasanya menikmati mengendap-endap dan kehilangan diri sendiri dalam tugas-tugas kecil kehidupan sehari-hari.",
+        "scale": "T9"
+      }
+    },
+    {
+      "order": 101,
+      "content": {
+        "text": "Saya adalah pengamat yang cermat terhadap orang dan situasi.",
+        "scale": "T5"
+      }
+    },
+    {
+      "order": 102,
+      "content": {
+        "text": "Meskipun saya ingin diterima, saya benci gagasan penyesuaian tanpa berpikir.",
+        "scale": "T4"
+      }
+    },
+    {
+      "order": 103,
+      "content": {
+        "text": "Ketika saya peduli dengan orang lain, saya ingin memperbaiki perilaku mereka.",
+        "scale": "T1"
+      }
+    },
+    {
+      "order": 104,
+      "content": {
+        "text": "Tidak terlalu menyenangkan hanya melakukan satu aktivitas dalam satu waktu.",
+        "scale": "T7"
+      }
+    },
+    {
+      "order": 105,
+      "content": {
+        "text": "Ketika saya berjalan di ruangan penuh orang, saya langsung merasakan siapa yang bertanggung jawab.",
+        "scale": "T8"
+      }
+    },
+    {
+      "order": 106,
+      "content": {
+        "text": "Saya senang mencari solusi yang cerdik untuk masalah yang tidak biasa.",
+        "scale": "T5"
+      }
+    },
+    {
+      "order": 107,
+      "content": {
+        "text": "Saya menemukan tampilan umum emosi tidak menarik.",
+        "scale": "T5"
+      }
+    },
+    {
+      "order": 108,
+      "content": {
+        "text": "Saya mengambil sesuatu secara pribadi dan tidak peduli siapa yang mengetahuinya.",
+        "scale": "T8"
+      }
+    },
+    {
+      "order": 109,
+      "content": {
+        "text": "Kebanyakan orang menganggap saya tidak menghakimi dan santai.",
+        "scale": "T9"
+      }
+    },
+    {
+      "order": 110,
+      "content": {
+        "text": "Menjunjung tinggi etika dan prinsip sangat penting bagi saya.",
+        "scale": "T1"
+      }
+    },
+    {
+      "order": 111,
+      "content": {
+        "text": "Menerjemahkan visi batin saya ke dalam karya seni dapat menjadi sangat menarik.",
+        "scale": "T4"
+      }
+    },
+    {
+      "order": 112,
+      "content": {
+        "text": "Saya dapat menyesuaikan pakaian dan perilaku saya dengan kebutuhan situasi.",
+        "scale": "T3"
+      }
+    },
+    {
+      "order": 113,
+      "content": {
+        "text": "Saya mencoba membuka opsi saya.",
+        "scale": "T7"
+      }
+    },
+    {
+      "order": 114,
+      "content": {
+        "text": "Saya dapat mengabaikan emosi yang menyakitkan untuk menyelesaikan pekerjaan.",
+        "scale": "T3"
+      }
+    },
+    {
+      "order": 115,
+      "content": {
+        "text": "Game dapat membuat saya terpesona.",
+        "scale": "T5"
+      }
+    },
+    {
+      "order": 116,
+      "content": {
+        "text": "Berada di lingkungan yang plastik dan impersonal hanya menguras kehidupan langsung dari saya.",
+        "scale": "T4"
+      }
+    },
+    {
+      "order": 117,
+      "content": {
+        "text": "Saya suka mempelajari pola yang rumit dan konsep yang rumit.",
+        "scale": "T5"
+      }
+    },
+    {
+      "order": 118,
+      "content": {
+        "text": "Saya memiliki kritik batin yang sangat aktif.",
+        "scale": "T1"
+      }
+    },
+    {
+      "order": 119,
+      "content": {
+        "text": "Kadang-kadang sulit untuk memenuhi kebutuhan pribadi saya sendiri.",
+        "scale": "T9"
+      }
+    },
+    {
+      "order": 120,
+      "content": {
+        "text": "Saya merasa sulit untuk tidak menghakimi orang terlalu keras.",
+        "scale": "T1"
+      }
+    },
+    {
+      "order": 121,
+      "content": {
+        "text": "Rumah dan keluarga saya memberi saya tempat berlindung yang aman di dunia yang tidak aman.",
+        "scale": "T6"
+      }
+    },
+    {
+      "order": 122,
+      "content": {
+        "text": "Kata-kata saya adalah ikatan saya.",
+        "scale": "T8"
+      }
+    },
+    {
+      "order": 123,
+      "content": {
+        "text": "Toleransi datang dengan mudah bagi saya.",
+        "scale": "T9"
+      }
+    },
+    {
+      "order": 124,
+      "content": {
+        "text": "Saya tidak keberatan memberikan cinta yang kuat ketika dibutuhkan.",
+        "scale": "T8"
+      }
+    },
+    {
+      "order": 125,
+      "content": {
+        "text": "Saya merasa cukup bersalah ketika saya marah tanpa pembenaran.",
+        "scale": "T1"
+      }
+    },
+    {
+      "order": 126,
+      "content": {
+        "text": "Saya cenderung tidak taat ketika orang mendorong reaksi emosional.",
+        "scale": "T5"
+      }
+    },
+    {
+      "order": 127,
+      "content": {
+        "text": "Ketika saya menyukai seni, sering ada sesuatu yang aneh atau tidak biasa.",
+        "scale": "T5"
+      }
+    },
+    {
+      "order": 128,
+      "content": {
+        "text": "Kenyamanan yang familier memberi saya rasa damai.",
+        "scale": "T9"
+      }
+    },
+    {
+      "order": 129,
+      "content": {
+        "text": "Saya jarang menerima ide yang tidak bertahan dalam ujian waktu.",
+        "scale": "T6"
+      }
+    },
+    {
+      "order": 130,
+      "content": {
+        "text": "Kadang-kadang butuh waktu untuk emosi saya untuk mengejar pikiran saya.",
+        "scale": "T5"
+      }
+    },
+    {
+      "order": 131,
+      "content": {
+        "text": "Saya adalah ketua di lingkaran teman-teman saya.",
+        "scale": "T8"
+      }
+    },
+    {
+      "order": 132,
+      "content": {
+        "text": "Merasa rentan membuatku menggeliat.",
+        "scale": "T8"
+      }
+    },
+    {
+      "order": 133,
+      "content": {
+        "text": "Saya tidak peduli dengan gangguan ketika saya mencoba memikirkan masalah.",
+        "scale": "T5"
+      }
+    },
+    {
+      "order": 134,
+      "content": {
+        "text": "Teman-teman menggambarkan saya sebagai orang yang hangat, romantis, dan penuh kasih sayang.",
+        "scale": "T2"
+      }
+    },
+    {
+      "order": 135,
+      "content": {
+        "text": "Lebih dari segalanya, saya adalah tipe orang yang \"bisa melakukan\".",
+        "scale": "T3"
+      }
+    },
+    {
+      "order": 136,
+      "content": {
+        "text": "Tidak sulit untuk berhati-hati jika diperlukan.",
+        "scale": "T5"
+      }
+    },
+    {
+      "order": 137,
+      "content": {
+        "text": "Teman-teman terkadang mengatakan bahwa saya terlalu keras untuk diri sendiri.",
+        "scale": "T1"
+      }
+    },
+    {
+      "order": 138,
+      "content": {
+        "text": "Saya menjadi tegang atau kritis lebih mudah daripada kebanyakan orang.",
+        "scale": "T1"
+      }
+    },
+    {
+      "order": 139,
+      "content": {
+        "text": "Berada di mata publik adalah sesuatu yang biasanya saya nikmati.",
+        "scale": "T3"
+      }
+    },
+    {
+      "order": 140,
+      "content": {
+        "text": "Saya selalu melindungi apa milik saya.",
+        "scale": "T8"
+      }
+    },
+    {
+      "order": 141,
+      "content": {
+        "text": "Sudah menjadi sifat saya untuk mencari hal baru, bukan rutinitas.",
+        "scale": "T7"
+      }
+    },
+    {
+      "order": 142,
+      "content": {
+        "text": "Saya sangat sensitif dengan suasana hati orang lain.",
+        "scale": "T4"
+      }
+    },
+    {
+      "order": 143,
+      "content": {
+        "text": "Apapun yang saya lakukan, saya selalu berusaha melebihi yang terbaik dari diri saya.",
+        "scale": "T3"
+      }
+    },
+    {
+      "order": 144,
+      "content": {
+        "text": "Saya sangat setia kepada orang-orang yang telah mendapatkan kepercayaan saya.",
+        "scale": "T6"
+      }
+    },
+    {
+      "order": 145,
+      "content": {
+        "text": "Saya seorang pemikir sistem yang dapat memisahkan pikiran dari emosi.",
+        "scale": "T5"
+      }
+    },
+    {
+      "order": 146,
+      "content": {
+        "text": "Saya adalah orang yang selamat alami, dan persediaan saya ditimbun untuk membuktikannya!",
+        "scale": "T8"
+      }
+    },
+    {
+      "order": 147,
+      "content": {
+        "text": "Saya sering dapat memilih ide \"keluar dari udara.\"",
+        "scale": "T7"
+      }
+    },
+    {
+      "order": 148,
+      "content": {
+        "text": "Ketika saya dihalau, itu membantu saya menjalankan rencana yang ada, bukan hanya mengembangkan yang baru.",
+        "scale": "T7"
+      }
+    },
+    {
+      "order": 149,
+      "content": {
+        "text": "Saya tahu bagaimana rasanya mengalami kesepian yang intens.",
+        "scale": "T4"
+      }
+    },
+    {
+      "order": 150,
+      "content": {
+        "text": "Dalam hubungan yang intim, saya sering mengalami perasaan cemburu, meskipun saya tidak menyetujui mereka.",
+        "scale": "T1"
+      }
+    },
+    {
+      "order": 151,
+      "content": {
+        "text": "Prestasi dan pengakuan memberi tahu saya bahwa saya menargetkan sasaran saya.",
+        "scale": "T3"
+      }
+    },
+    {
+      "order": 152,
+      "content": {
+        "text": "Saya pandai membuat orang tertawa, karena saya cepat tanggap dan tidak menganggap diri saya terlalu serius.",
+        "scale": "T7"
+      }
+    },
+    {
+      "order": 153,
+      "content": {
+        "text": "Saya menggunakan \"radar batin\" saya untuk menggerakkan motif orang lain dan memutuskan apakah aman untuk memercayai mereka atau tidak.",
+        "scale": "T6"
+      }
+    },
+    {
+      "order": 154,
+      "content": {
+        "text": "Saya menghargai pertukaran intelektual lebih dari berbagi secara emosional.",
+        "scale": "T5"
+      }
+    },
+    {
+      "order": 155,
+      "content": {
+        "text": "Saya merasa terkejut dengan proyek-proyek inovatif atau ide-ide visioner.",
+        "scale": "T7"
+      }
+    },
+    {
+      "order": 156,
+      "content": {
+        "text": "Kata-kata \"harus\" dan \"seharusnya\" muncul banyak dalam pemikiran saya.",
+        "scale": "T1"
+      }
+    },
+    {
+      "order": 157,
+      "content": {
+        "text": "Banyak orang menganggap saya terlalu emosional atau dramatis.",
+        "scale": "T4"
+      }
+    },
+    {
+      "order": 158,
+      "content": {
+        "text": "Saya sering menjadi ahli dalam topik yang saya pelajari.",
+        "scale": "T5"
+      }
+    },
+    {
+      "order": 159,
+      "content": {
+        "text": "Sendirian memungkinkan saya untuk berhubungan dengan diri saya yang terdalam.",
+        "scale": "T4"
+      }
+    },
+    {
+      "order": 160,
+      "content": {
+        "text": "Saya lebih terpisah daripada emosional.",
+        "scale": "T5"
+      }
+    },
+    {
+      "order": 161,
+      "content": {
+        "text": "Saya bersedia berkorban untuk berada dalam hubungan.",
+        "scale": "T2"
+      }
+    },
+    {
+      "order": 162,
+      "content": {
+        "text": "Saya memiliki selera besar dan keinginan “lebih besar dari hidup”.",
+        "scale": "T8"
+      }
+    },
+    {
+      "order": 163,
+      "content": {
+        "text": "Istilah \"Tipe A kepribadian\" diciptakan dengan saya dalam pikiran.",
+        "scale": "T3"
+      }
+    },
+    {
+      "order": 164,
+      "content": {
+        "text": "Jika saya masuk ke grup yang tidak memiliki pemimpin, saya akan bertanggung jawab.",
+        "scale": "T8"
+      }
+    },
+    {
+      "order": 165,
+      "content": {
+        "text": "Terkadang saya merasa seperti akan meledak.",
+        "scale": "T1"
+      }
+    },
+    {
+      "order": 166,
+      "content": {
+        "text": "Saya bisa menjadi penindas kejam yang menempel untuk diunggulkan.",
+        "scale": "T6"
+      }
+    },
+    {
+      "order": 167,
+      "content": {
+        "text": "Pembicaraan kecil tidak banyak bermanfaat bagi saya.",
+        "scale": "T5"
+      }
+    },
+    {
+      "order": 168,
+      "content": {
+        "text": "Merasa dihargai sangat berarti bagiku.",
+        "scale": "T2"
+      }
+    },
+    {
+      "order": 169,
+      "content": {
+        "text": "Membuat kesan yang baik itu penting bagiku.",
+        "scale": "T3"
+      }
+    },
+    {
+      "order": 170,
+      "content": {
+        "text": "Mengetahui saya benar mengambil tepi dari ketegangan yang saya rasakan.",
+        "scale": "T1"
+      }
+    },
+    {
+      "order": 171,
+      "content": {
+        "text": "Keputusan pribadi yang besar dapat melumpuhkan saya.",
+        "scale": "T9"
+      }
+    },
+    {
+      "order": 172,
+      "content": {
+        "text": "Saya alami suka bermain, suka bersenang-senang, dan berjiwa bebas.",
+        "scale": "T7"
+      }
+    },
+    {
+      "order": 173,
+      "content": {
+        "text": "Kadang-kadang lebih mudah untuk langsung menghadapi ketakutan saya daripada membiarkan imajinasi saya menjadi liar.",
+        "scale": "T6"
+      }
+    },
+    {
+      "order": 174,
+      "content": {
+        "text": "Saya seorang pemain tim yang hebat.",
+        "scale": "T3"
+      }
+    },
+    {
+      "order": 175,
+      "content": {
+        "text": "Saya secara mental keluar ketika saya kekurangan waktu sendirian.",
+        "scale": "T5"
+      }
+    },
+    {
+      "order": 176,
+      "content": {
+        "text": "Pikiran saya cepat, tetapi tidak terlalu menyeluruh.",
+        "scale": "T7"
+      }
+    },
+    {
+      "order": 177,
+      "content": {
+        "text": "Sangat mudah untuk membiarkan teman-teman saya memutuskan bagaimana kita menghabiskan waktu bersama.",
+        "scale": "T9"
+      }
+    },
+    {
+      "order": 178,
+      "content": {
+        "text": "Saya mudah mengidentifikasi dengan luka yang telah saya terima dalam hidup.",
+        "scale": "T4"
+      }
+    },
+    {
+      "order": 179,
+      "content": {
+        "text": "Saya mengambil tindakan ketika orang lain masih mencoba memilah perasaan mereka.",
+        "scale": "T8"
+      }
+    },
+    {
+      "order": 180,
+      "content": {
+        "text": "Kebebasan lebih berarti bagi saya daripada hampir apa pun.",
+        "scale": "T7"
+      }
+    }
+  ],
+  "interpretations": [
+    {
+      "patternCode": "T1",
+      "title": "Tipe Perfeksionis (The Reformer)",
+      "body": "Tipe kepribadian ini adalah tipe orang yang sulit menerima dirinya ketika ia melakukan sebuah kesalahan, Tipe perfeksionis ini memiliki standar yang tinggi terhadap sesuatu, kepribadian perfeksionis dimotivasi oleh kebutuhan untuk menjalani hidup dengan benar, sesuai dengan standar yang ia miliki. Ia merasa harus memperbaiki diri serta lingkungan di sekitarnya. Tipe ini adalah orang yang sangat memegang etika serta bisa diandalkan. Mereka merasa akan gagal jika ia tidak bisa mengontrol situasi dimana ia memikul tanggungjawab disitu. Mereka seringkali mendapat kepercayaan untuk menjadi pucuk pimpinan pada sebuah organisasi, sangat produktif dan amat bijaksana. Orang perfeksionis biasanya juga amat idealis ketika memilih sesuatu.\n\nCiri-ciri:\nMemili standar tinggi, Idealis, Bijaksana, Produktif, Minim membuat kesalahan, Obsesif kompulsif kelainan ini ditandai dengan pikiran dan ketakutan tidak masuk akal (obsesi) yang dapat menyebabkan perilaku repetitif (kompulsi). Misalnya, orang yang merasa harus memeriksa pintu dan jendela lebih dari 3 kali sebelum keluar rumah."
+    },
+    {
+      "patternCode": "T2",
+      "title": "Tipe Penolong (The Helper)",
+      "body": "Tipe penolong adalah tipe manusia yang sangat murah hati dan senang memberikan pertolongan kepada orang lain. Namun belum tentu apa yang ia lakukan itu benar-benar tulus ingin menolong. Bisa jadi apa yang ia lakukan itu karena merasa tidak enak untuk menolak. Tergerak oleh motivasi terhadap kebutuhan untuk dicintai, dihargai, juga untuk mengekpresikan perasaan positif mereka kepada orang lain. Seorang tipe penolong memiliki sifat mengasihi, perhatian, berwawasan luas, murah hati, antusias, & amat peka terhadap apa yang orang lain rasakan. Orang dengan tipe ini adalah orang yang amat menyenangkan. Banyak orang yang menyenangi dirinya. tipe sosial yang mudah bergaul dan pandai membina relasi pertemanan. orang dengan tipe ini amat peka pada orang lain dan tahu apa yang orang lain butuhkan.\n\nCiri-ciri:\nMurah hati, Suka menolong orang lain, Peka terhadap perasaan orang lain, Sosial, Sedikit Manupulatif. (Kemampuan memanipulasi (disebut juga kelicikan) Ini berhubungan erat dengan kecerdasan seseorang. Hampir semua manusia bisa memanipulasi keadaan yang dialaminya dimana hal ini juga turut dipengaruhi oleh pengalaman pribadi dan kepercayaan seseorang. Kepribadian manipulatif yang syarat dengan tipu muslihat adalah mereka yang suka mengkambing hitamkan sesuatu atau yang gemar mencari alibi atas semua yang terjadi dalam hidupnya. Ciri khas manusia seperti ini adalah enggan menerima kenyataan dan selalu mengalihkan kesalahan bahkan kadang membiaskan tuduhan kepada pihak lain.)"
+    },
+    {
+      "patternCode": "T3",
+      "title": "Tipe Pengejar Prestasi (The Achiever) /Motivator/ Performer",
+      "body": "Tipe pemburu prestasi adalah tipe kepribadian yang digerakan oleh kebutuhan untuk menjadi terus produktif. Tipe ini adalah tipe orang yang ambisi besarnya meraih kesuksesan. Sebisa mungkin ia akan menghindari kegagalan, terutama jika berhubungan dengan pekerjaan, secara natural sangat optimis. Ia sangat yakin bahwa berbagai kerja yang ia lakukan akan berbuah baik. Orang seperti ini, percaya bahwa tidak ada rintangan yang tidak bisa dihancurkan. Semua rintangan adalah batu penghalang yang menjadi ujian bagi setiap orang. Terkadang akan melakukan segala cara untuk meraih kesuksesan. Ia akan kompetitif dan bisa menjadi sangat manipulatif. Terkadang ia akan memperdaya orang lain agar bisa memuluskan jalannya menuju goal yang ia rancang.\n\nCiri-ciri:\nProduktif, Ambisius, Optimis, Kompetitif, Senang berbagi, Manipulatif"
+    },
+    {
+      "patternCode": "T4",
+      "title": "Tipe Romantis / Artist / Individualist (The Melancholy)",
+      "body": "Romantis atau melankolis ini seringkali disebut the individualist. Orang yang seringkali tenggelam dalam perasaannya sendiri. Ia begitu mengamini serta memaklumi berbagai hal yang ia alami dalam hidup dengan amat dalam. Melankolis ini seringkali merasa tidak ada yang bisa memahami apa yang ia rasakan. Ia seperti merasa berjalan sendirian. Ia juga gemar mencari makna hidup, dan menghindari citra diri yang datar-datar saja. Melankolik ini ingin menjadi seseorang yang tidak biasa, atau ia ingin menjadi si eksentrik. Seseorang yang dianggap tidak mainstream pada lingkungannya. Ia memiliki hati yang amat halus, sehingga jika ada hal-hal yang mengerikan, atau tindakan yang amat keji, hatinya tidak akan kuat melihat hal-hal seperti itu.\n\nCiri-ciri:\nPerasaannya halus, Moody, Dalam, Menyukai seni, Ekspresif, Depresif"
+    },
+    {
+      "patternCode": "T5",
+      "title": "Tipe Pengamat Observer / Thinker (The Investigator)",
+      "body": "Tipe pengamat adalah seorang yang memiliki rasa ingin tahu yang tinggi, ingin memahami dunia di sekitarnya. Ibarat seorang peneliti atau detektif, seorang pengamat akan mencari berbagai data dan mengumpulkan berbagai cerita agar ia bisa mencari jawaban atas berbagai pertanyaan dalam dirinya. Orang yang memiliki kepekaan tinggi terhadap lingkungan dan sesamanya. Tanpa harus bertanya atau mengumpulkan jawaban dari sana-sini, lewat pengamatannya yang tajam, ia bisa menyimpulkan jawaban atau merangkai sebuah cerita dari sebuah fenomena yang terjadi di depannya. Seorang yang sangat analitis dan memiliki tingkat intelektualitas yang tinggi. Jika ada sebuah masalah, ia adalah orang yang amat tepat untuk bisa memetakan permasalahan itu. Secara bijaksana ia pun akan mencari berbagai alternatif jawaban yang sangat masuk akal untuk bisa memecahkan masalah tersebut.\n\nCiri-ciri:\nRasa ingin tahu tinggi, Analitis, Objektif, Problem solver, Keras kepala, Argumentatif, Tidak mau mendengar pendapat orang."
+    },
+    {
+      "patternCode": "T6",
+      "title": "Tipe Pencemas (The Sceptic) Loyalist / Pessimist",
+      "body": "Tipe pencemas adalah orang yang selalu menginginkan rasa aman dalam hidupnya. Ia seringmerasa cemas karena selalu merasa tidak bisa mengontrol segala hal yang mungkin terjadi. Si pencemas ini sulit untuk memasrahkan hidupnya pada alam semesta atau pada orang lain. Ia cenderung tidak mudah percaya. Namun ia adalah orang yang setia, amat perhatian dan hangat, serta senang membantu orang lain. Seorang pencemas juga mudah khawatir terhadap sesuatu. Ia tidak akan nyaman jika ada sebuah masalah belum benar-benar selesai. Ia harus menjadi saksi sendiri atas penyelesaian masalah yang ia hadapi itu. Misalnya saja jika ada sebuah kasus hukum yang menimpa dirinya, tipe ini tidak akan benar-benar percaya pada pengacara yang sudah ia pilih. Sehingga ia akan terus mengontrol dan mengecek ulang berbagai pekerjaan yang dikerjakan oleh pengacaranya itu. Seorang tipe pencemas umumnya memiliki komitmen kuat terhadap sesuatu yang sudah ia pegang.\n\nCiri-ciri:\nInsecure (perasan tidak aman), Terlalu khawatir, Tidak mudah percaya, Komitmen kuat, Setia, Bertanggung jawab."
+    },
+    {
+      "patternCode": "T7",
+      "title": "Tipe Petualang (The Enthusiast) Generalist / Optimist / Adventure",
+      "body": "Si petualang ini adalah tipe orang yang tidak bisa diam dan energinya begitu menggebu. Motivasi dan tujuannya adalah mencapai kehidupan yang gembira serta setiap hari bisa melakukan kegiatan yang menyenangkan. Ini yang membuatnya cepat bosan. Ia tidak akan tahan jika harus terus-menerus berada pada satu tempat yang sama dengan kegiatan yang sama pula. Ia adalah orang yang menyenangkan, spontan, dan tidak akan pernah bisa membosankan berteman dengan si petualang ini. Selalu ada hal-hal menyenangkan yang bisa dilakukan bersamanya. Ia pun amat imajinatif, dan amat antusias jika melakukan kegiatan yang sesuai dengan kata hatinya.\n\nCiri-ciri:\nCepat bosan, Spontan, Menyenangkan, Imajinatif, Tidak konsisten, Tidak disiplin, Tidak focus"
+    },
+    {
+      "patternCode": "T8",
+      "title": "Tipe Pejuang (The Challenger) Leader / Boss/ Protector/ Intimidator",
+      "body": "Tipe pejuang ini adalah tipe manusia yang tidak mudah menyerah. Ia memiliki semangat baja dan memiliki pengendalian diri yang luar biasa. Ia tidak ingin orang lain sampai melihat kelemahannya. Ia pun amat mandiri dan tidak ingin bergantung pada orang lain, amat percaya diri dengan kemampuannya. Ia yakin segala sesuatu bisa ia kerjakan sendiri, sikap positif yang luar biasa. Namun, ia cenderung otoriter dan ingin menguasai orang lain. Yang jelas orang dengan tipe seperti ini tidak bisa diperintah atau berada di bawah kendali orang lain. Seorang dengan tipe pejuang adalah seseorang dengan tipe pemberontak. Ia tidak suka berada dalam sebuah sistem yang represif (Pengendalian sosial yang bertujuan untuk mengembalikan keserasian yang pernah terganggu karena terjadinya suatu pelanggaran dengan cara menjatuhkan sanksi sesuai dengan pelanggaran yang dilakukan. Contohnya, sanksi skors diberikan kepada siswa yang sering melanggar). Seorang tipe pejuang juga tidak sensitif terhadap orang-orang di sekitarnya. Ia tidak suka hal-hal yang sifatnya artifisial (Bahasa artifisial atau bahasa buatan atau bahasa terkonstruksi). Ia tidak terlalu menyukai orang-orang yang sangat 'jaga image'.\n\nCiri-ciri:\nTidak mudah menyerah, Semangat baja, Mandiri, Percaya diri, Otoriter, Tidak sensitive, Kurang memiliki sifat Empati."
+    },
+    {
+      "patternCode": "T9",
+      "title": "Tipe Pendamai (The Mediator) Peacemaker / Mediator/ Accomodator",
+      "body": "Tipe pendamai adalah tipe manusia yang tidak suka dengan konflik. Ia amat menjaga kedamaian dirinya serta orang-orang yang di sekitarnya. Jika harus memilih antara dua pihak yang berkecamuk, ia akan berusaha mengambil jalan tengah, sehingga tida ada satu pun yang akan tersinggung. Ada yang memiliki perasaan halus dan lembut, ada juga yang amat mandiri dan amat keras. Sebagai seorang teman, tipe pendamai ini adalah kawan yang amat menyenangkan. Ia adalah orang yang amat sabar dan diplomatis. Jika sedang berselisih paham, ia akan selalu berusaha mencari kata-kata yang amat diplomatis, sehingga lawan bicaranya tidak akan sakit hati. Namun, mereka amat pasif dan kesannya amat pemalu. Ia bukan tipe orang yang akan lantang berbicara, atau melakukan tindakan-tindakan yang memulai sebuah gerakan. Sikapnya itu sebenarnya juga didorong oleh sifat apatis dalam dirinya. Ia lebih bersikap tidak mau tahu atau tidak mau berada dalam posisi yang membahayakan. Seringkali ia bersikap cari aman.\n\nCiri-ciri:\nTidak suka konflik, Diplomatis, Sabar, Apresiasif, Pendengar yang baik, Pasif, Cari aman, Pelupa."
+    }
+  ]
+}
