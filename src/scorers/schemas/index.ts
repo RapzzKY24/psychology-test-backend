@@ -5,6 +5,7 @@ import { PairItemContentSchema } from './forced-choice-pair';
 import { LikertItemContentSchema } from './likert';
 import { ManualItemContentSchema } from './manual';
 import { MarkGroupItemContentSchema } from './mark-group';
+import { MultiSubtestItemContentSchema } from './multi-subtest';
 import { OptionScaleItemContentSchema } from './option-scale';
 import { PairNormItemContentSchema } from './pair-norm';
 import { RankGroupItemContentSchema } from './rank-group';
@@ -20,6 +21,7 @@ export const ScorerSchemas = {
   LIKERT: LikertItemContentSchema,
   MANUAL: ManualItemContentSchema,
   MARK_GROUP: MarkGroupItemContentSchema,
+  MULTI_SUBTEST: MultiSubtestItemContentSchema,
   OPTION_SCALE: OptionScaleItemContentSchema,
   PAIR_NORM: PairNormItemContentSchema,
   PAIR_TALLY: PairItemContentSchema,

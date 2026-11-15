@@ -16,6 +16,29 @@ export const AttemptReadResponseSchema = z.object({
 
 export type AttemptReadResponseDto = z.infer<typeof AttemptReadResponseSchema>;
 
+/**
+ * One subtest of a battery (IST). The windows are absolute offsets from
+ * `startedAt`, so the client ticks against the same clock the server enforces
+ * and never has to know the config.
+ */
+export const AttemptReadSubtestSchema = z.object({
+  code: z.string(),
+  name: z.string(),
+  kind: z.string(),
+  instruction: z.string(),
+  /** Item order range, both inclusive. */
+  itemFrom: z.number().int(),
+  itemTo: z.number().int(),
+  /** Seconds after `startedAt` when the answering window opens. */
+  startOffsetSec: z.number().int(),
+  /** Seconds the answering window lasts. */
+  durationSec: z.number().int(),
+  /** Seconds of printed-list study before the window opens (ME only). */
+  memorizeSec: z.number().int(),
+});
+
+export type AttemptReadSubtestDto = z.infer<typeof AttemptReadSubtestSchema>;
+
 export const AttemptReadSchema = z.object({
   id: z.string(),
   sessionId: z.string(),
@@ -42,6 +65,8 @@ export const AttemptReadSchema = z.object({
   education: z.string().nullable(),
   items: z.array(AttemptReadItemSchema),
   responses: z.array(AttemptReadResponseSchema),
+  /** Present only for a battery; empty for every other family. */
+  subtests: z.array(AttemptReadSubtestSchema).default([]),
 });
 
 export type AttemptReadDto = z.infer<typeof AttemptReadSchema>;

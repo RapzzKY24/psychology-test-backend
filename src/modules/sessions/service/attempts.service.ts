@@ -21,6 +21,12 @@ import {
 import { ensureUploadDir } from '../../../lib/fs/ensure-upload-dir';
 import { getResponseSchema, getScorer } from '../../../scorers/registry';
 import { manualImagePath } from '../../../scorers/schemas/manual';
+import {
+  parseMultiSubtestConfig,
+  subtestOffsetMin,
+  subtestOfItem,
+} from '../../../scorers/schemas/multi-subtest';
+import type { AttemptReadSubtestDto } from '../dto/attempt-read.dto';
 import type {
   AttemptReadDto,
   AttemptCompleteResponseDto,
@@ -70,6 +76,63 @@ export class AttemptsService {
     const deadline = this.deadlineOf(detail);
     if (!deadline) return null;
     return Math.max(0, Math.round((deadline.getTime() - Date.now()) / 1000));
+  }
+
+  /**
+   * The battery's windows, as offsets from `startedAt`. The client renders the
+   * subtest the clock says is open, so the server stays the only clock.
+   */
+  private subtestsOf(detail: AttemptAccessDetail): AttemptReadSubtestDto[] {
+    if (detail.test.scorerType !== 'MULTI_SUBTEST') return [];
+    const config = parseMultiSubtestConfig(detail.test.scoringConfig);
+    if (!config) return [];
+
+    let offsetMin = 0;
+    let itemFrom = 1;
+    const out: AttemptReadSubtestDto[] = [];
+    for (const section of config.subtests) {
+      const memorizeMin = section.memorizeMin ?? 0;
+      out.push({
+        code: section.code,
+        name: section.name,
+        kind: section.kind,
+        instruction: section.instruction,
+        itemFrom,
+        itemTo: itemFrom + section.itemCount - 1,
+        startOffsetSec: (offsetMin + memorizeMin) * 60,
+        durationSec: section.timeLimitMin * 60,
+        memorizeSec: memorizeMin * 60,
+      });
+      offsetMin += memorizeMin + section.timeLimitMin;
+      itemFrom += section.itemCount;
+    }
+    return out;
+  }
+
+  /**
+   * IST gives every subtest its own window and never reopens one. Without this
+   * gate the global deadline would let a participant who reached the end early
+   * go back and answer the subtests the clock already closed.
+   */
+  private assertWithinSubtest(
+    detail: AttemptAccessDetail,
+    itemOrder: number,
+  ): void {
+    if (detail.test.scorerType !== 'MULTI_SUBTEST') return;
+    const config = parseMultiSubtestConfig(detail.test.scoringConfig);
+    if (!config) return;
+
+    const section = subtestOfItem(config, itemOrder);
+    if (!section) return;
+    const offset = subtestOffsetMin(config, section.code);
+    if (offset === null) return;
+
+    const started = detail.attempt.startedAt.getTime();
+    const start = started + (offset + (section.memorizeMin ?? 0)) * 60_000;
+    const end = start + section.timeLimitMin * 60_000;
+    const now = Date.now();
+    if (now < start) throw new ConflictException('subtest_not_started');
+    if (now > end) throw new ConflictException('subtest_time_expired');
   }
 
   private assertWithinGrace(session: {
@@ -231,6 +294,7 @@ export class AttemptsService {
           : {},
       })),
       responses: detail.responses,
+      subtests: this.subtestsOf(detail),
     };
   }
 
@@ -251,6 +315,8 @@ export class AttemptsService {
         details: ["itemId: item does not belong to the attempt's test"],
       });
     }
+
+    this.assertWithinSubtest(detail, item.order);
 
     const scorer = getScorer(detail.test.scorerType);
     if (!scorer) {
@@ -396,6 +462,11 @@ export class AttemptsService {
       gender: detail.attempt.gender,
       // 16PF picks the sten table by schooling as well, recorded the same way.
       education: detail.attempt.education,
+      // IST picks its whole norm row by age band, so the scorer needs the age
+      // the attempt recorded, not the one the browser claims today.
+      ageMonths: detail.attempt.birthDate
+        ? ageInMonthsFromIsoDate(isoDateOf(detail.attempt.birthDate), new Date())
+        : null,
     });
     const result = await this.repo.completeAndCreateResult({
       attemptId,

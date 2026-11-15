@@ -97,6 +97,14 @@ import { sanitizePairItem } from './sanitize-pair-item';
 import { sanitizePairNormItem } from './sanitize-pair-norm-item';
 import { sanitizeLikertItem } from './sanitize-likert-item';
 import { sanitizeManualItem } from './sanitize-manual-item';
+import {
+  MultiSubtestConfigSchema,
+  MultiSubtestItemContentSchema,
+  MultiSubtestResponseSchema,
+  multiSubtestPatternCodes,
+} from './schemas/multi-subtest';
+import { scoreMultiSubtest } from './multi-subtest';
+import { sanitizeMultiSubtestItem } from './sanitize-multi-subtest-item';
 import { sanitizeMarkGroupItem } from './sanitize-mark-group-item';
 import { sanitizeOptionScaleItem } from './sanitize-option-scale-item';
 import { sanitizeRankGroupItem } from './sanitize-rank-group-item';
@@ -214,6 +222,12 @@ export interface Scorer {
     gender?: string | null;
     /** Declared schooling, for a family whose norm table is banded (16PF). */
     education?: string | null;
+    /**
+     * Age in whole months, for a family whose norm rows are picked by age band
+     * (IST). Derived from the birth date the attempt recorded, never from a
+     * value the client sends.
+     */
+    ageMonths?: number | null;
   }): Promise<ScorerOutput>;
 }
 
@@ -279,6 +293,22 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     // participant could read as a verdict.
     publicScores: () => ({}),
     score: () => Promise.resolve(scoreManual()),
+  },
+  MULTI_SUBTEST: {
+    type: 'MULTI_SUBTEST',
+    itemSchema: MultiSubtestItemContentSchema,
+    responseSchema: MultiSubtestResponseSchema,
+    configSchema: MultiSubtestConfigSchema,
+    sanitize: sanitizeMultiSubtestItem,
+    patternCatalog: [],
+    patternCodesFor: multiSubtestPatternCodes,
+    // The clock ends each subtest, not the participant, so a battery cannot be
+    // refused for the items the buzzer cut off.
+    allowsBlank: true,
+    // An IQ belongs in the psychologist's report, not in the result screen.
+    publicScores: () => ({}),
+    score: (input) =>
+      Promise.resolve(scoreMultiSubtest(input) as unknown as ScorerOutput),
   },
   MARK_GROUP: {
     type: 'MARK_GROUP',
