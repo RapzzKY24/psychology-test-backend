@@ -47,6 +47,7 @@
     "seed:msai": "tsx src/scripts/seed-msai.ts",
     "seed:rmib": "tsx src/scripts/seed-rmib.ts",
     "seed:kraepelin": "tsx src/scripts/seed-kraepelin.ts",
+    "seed:pauli": "tsx src/scripts/seed-pauli.ts",
     "seed:wartegg": "tsx src/scripts/seed-wartegg.ts",
     "seed:ist": "tsx src/scripts/seed-ist.ts",
     "seed:instansi": "tsx src/scripts/seed-instansi.ts",

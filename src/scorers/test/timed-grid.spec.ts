@@ -223,6 +223,18 @@ describe('scoreTimedGrid', () => {
     expect(scores.gaps).toBe(20);
   });
 
+  // Pauli's workbook computes LQ, the error rate and the deviation, but carries
+  // no norm table, so its seed ships without a config. The curve and the
+  // per-lajur tallies must still come out — they are what the psychologist
+  // reads, and a null config must not empty them.
+  it('scores a grid that carries no norm table', () => {
+    const { scores, patternCode } = scoreTimedGrid({ items, responses });
+    expect(scores.curve).toEqual([2, 4, 6, 8]);
+    expect(scores.correct).toBe(20);
+    expect(scores.metrics).toEqual({});
+    expect(patternCode).toBe('WORK_CURVE');
+  });
+
   it('computes the mean correct per lajur', () => {
     const { scores } = scoreTimedGrid({ items, responses, scoringConfig: CONFIG });
     expect(scores.metrics.PAN.value).toBe(5);

@@ -334,6 +334,28 @@ describe.each(FILES)('seed %s', (file) => {
     expect(gaps).toHaveLength(1);
   });
 
+  // The Pauli packet prints two parts of 40 lajur, and Part 2 repeats 19 of
+  // Part 1's lajur glyph for glyph at the same position — checked against the
+  // source PDF, not a transcription slip. Pinned here so "cleaning up" the
+  // duplicate has to be a decision, and so a re-extraction that drops a lajur
+  // fails instead of shipping a 79-lajur sheet.
+  it('keeps the lajur the Pauli packet repeats', () => {
+    if (seed.test.slug !== 'pauli') return;
+    const digits = seed.items.map(
+      (item) => TimedGridItemContentSchema.parse(item.content).digits,
+    );
+    expect(digits).toHaveLength(80);
+    const repeated = digits
+      .slice(40)
+      .map((part2, index) =>
+        part2.join() === digits[index].join() ? index + 1 : null,
+      )
+      .filter((column) => column !== null);
+    expect(repeated).toEqual([
+      6, 7, 19, 20, 21, 22, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+    ]);
+  });
+
   // A drawing sheet is fixed: eight boxes, each printed once. A duplicate box
   // would show the participant the same mark twice, and a gap would leave a
   // box with nothing to complete — neither is visible until someone sits down
