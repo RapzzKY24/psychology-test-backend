@@ -80,7 +80,9 @@ export function scoreTimedGrid(input: {
     const content = parseTimedGridItem(item.content);
     if (!content) continue;
     const key = timedGridKey(content.digits);
-    const parsed = TimedGridResponseSchema.safeParse(answersByItem.get(item.id));
+    const parsed = TimedGridResponseSchema.safeParse(
+      answersByItem.get(item.id),
+    );
     const answers = parsed.success ? parsed.data.answers : [];
 
     let correct = 0;
@@ -121,7 +123,8 @@ export function scoreTimedGrid(input: {
       factor.defaultGroup;
     const raw = factorValue(factor, curve, scores);
     const value = round(raw, factor.decimals);
-    const bands = factor.groups[group] ?? factor.groups[factor.defaultGroup] ?? [];
+    const bands =
+      factor.groups[group] ?? factor.groups[factor.defaultGroup] ?? [];
     scores.metrics[factor.code] = {
       label: factor.label,
       value,
@@ -153,7 +156,10 @@ function factorValue(
       if (n < 2) return 0;
       const sumX = (n * (n + 1)) / 2;
       const sumY = scores.correct;
-      const sumXY = curve.reduce((sum, value, index) => sum + (index + 1) * value, 0);
+      const sumXY = curve.reduce(
+        (sum, value, index) => sum + (index + 1) * value,
+        0,
+      );
       const sumXX = (n * (n + 1) * (2 * n + 1)) / 6;
       const denominator = n * sumXX - sumX * sumX;
       if (denominator === 0) return 0;

@@ -79,9 +79,10 @@ export function normalizeAnswer(value: string): string {
 function says(answer: string, term: string): boolean {
   const needle = normalizeAnswer(term);
   if (!needle) return false;
-  return new RegExp(`(^|\\s)${needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\s|$)`, 'u').test(
-    answer,
-  );
+  return new RegExp(
+    `(^|\\s)${needle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\s|$)`,
+    'u',
+  ).test(answer);
 }
 
 /** What one GE answer is worth: 2, 1, or 0 for "tidak cocok". */
@@ -188,12 +189,7 @@ export function scoreMultiSubtest(input: {
     const slice = ordered.slice(cursor, cursor + section.itemCount);
     cursor += section.itemCount;
 
-    const { correct, answered } = rawOfSection(
-      config,
-      section,
-      slice,
-      answers,
-    );
+    const { correct, answered } = rawOfSection(config, section, slice, answers);
     // GE is the only subtest whose printed rubric can exceed the 0–20 scale.
     const raw = section.code === 'GE' ? convertGe(config, correct) : correct;
     totalRaw += raw;

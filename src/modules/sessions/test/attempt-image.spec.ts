@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/unbound-method */
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -42,16 +41,18 @@ describe('validateAttemptImage', () => {
   });
 
   it('rejects a missing file, a jpeg, an empty file and an oversized one', () => {
-    expect(() => validateAttemptImage(undefined as unknown as Express.Multer.File)).toThrow(
-      'file is required',
+    expect(() =>
+      validateAttemptImage(undefined as unknown as Express.Multer.File),
+    ).toThrow('file is required');
+    expect(() =>
+      validateAttemptImage(makeFile({ mimetype: 'image/jpeg' })),
+    ).toThrow('unsupported_media_type');
+    expect(() => validateAttemptImage(makeFile({ size: 0 }))).toThrow(
+      'file is empty',
     );
-    expect(() => validateAttemptImage(makeFile({ mimetype: 'image/jpeg' }))).toThrow(
-      'unsupported_media_type',
-    );
-    expect(() => validateAttemptImage(makeFile({ size: 0 }))).toThrow('file is empty');
-    expect(() => validateAttemptImage(makeFile({ size: 3 * 1024 * 1024 }))).toThrow(
-      'file_too_large',
-    );
+    expect(() =>
+      validateAttemptImage(makeFile({ size: 3 * 1024 * 1024 })),
+    ).toThrow('file_too_large');
   });
 });
 
@@ -94,7 +95,9 @@ describe('AttemptImagesService', () => {
   it('serves the drawing to the guest who owns the attempt', async () => {
     const file = writeDrawing();
     repo.findAccessDetail.mockResolvedValue(detail as never);
-    sessions.findParticipantByTokenHash.mockResolvedValue({ id: 'p-1' } as never);
+    sessions.findParticipantByTokenHash.mockResolvedValue({
+      id: 'p-1',
+    } as never);
 
     await expect(
       service.pathFor(ATTEMPT, ITEM, { participantToken: 'tok' }),
@@ -108,9 +111,9 @@ describe('AttemptImagesService', () => {
       attempt: { participantId: null, userId: 'u-1' },
     } as never);
 
-    await expect(service.pathFor(ATTEMPT, ITEM, { userId: 'u-1' })).resolves.toBe(
-      file,
-    );
+    await expect(
+      service.pathFor(ATTEMPT, ITEM, { userId: 'u-1' }),
+    ).resolves.toBe(file);
   });
 
   it('serves the drawing to an admin, including the array form of the role', async () => {
@@ -140,7 +143,9 @@ describe('AttemptImagesService', () => {
   it('answers 404 to a stranger, never 403', async () => {
     writeDrawing();
     repo.findAccessDetail.mockResolvedValue(detail as never);
-    sessions.findParticipantByTokenHash.mockResolvedValue({ id: 'p-OTHER' } as never);
+    sessions.findParticipantByTokenHash.mockResolvedValue({
+      id: 'p-OTHER',
+    } as never);
 
     await expect(
       service.pathFor(ATTEMPT, ITEM, { participantToken: 'tok' }),

@@ -22,7 +22,9 @@ export const OPTION_SCALE_DEFAULT_POINTS = [2, 1, 0];
  */
 export const OptionScaleItemContentSchema = z.object({
   text: z.string().trim().min(1).max(2000),
-  options: z.array(z.string().trim().min(1).max(500)).length(OPTION_SCALE_CHOICES),
+  options: z
+    .array(z.string().trim().min(1).max(500))
+    .length(OPTION_SCALE_CHOICES),
   scale: ScaleSchema,
   points: z
     .array(z.number().int().min(0).max(2))
@@ -33,7 +35,9 @@ export const OptionScaleItemContentSchema = z.object({
     .optional(),
 });
 
-export type OptionScaleItemContent = z.infer<typeof OptionScaleItemContentSchema>;
+export type OptionScaleItemContent = z.infer<
+  typeof OptionScaleItemContentSchema
+>;
 
 export function parseOptionScaleItem(
   content: unknown,
@@ -52,7 +56,11 @@ export function optionScalePoints(item: OptionScaleItemContent): number[] {
  * because the option count lives in the item rather than the config.
  */
 export const OptionScaleResponseSchema = z.object({
-  chosen: z.number().int().min(0).max(OPTION_SCALE_CHOICES - 1),
+  chosen: z
+    .number()
+    .int()
+    .min(0)
+    .max(OPTION_SCALE_CHOICES - 1),
 });
 
 export type OptionScaleResponse = z.infer<typeof OptionScaleResponseSchema>;
@@ -60,7 +68,9 @@ export type OptionScaleResponse = z.infer<typeof OptionScaleResponseSchema>;
 /** Narrows `chosen` to the option count of the item being answered. */
 export function optionScaleResponseSchema(itemContent?: unknown): z.ZodSchema {
   const parsed = OptionScaleItemContentSchema.safeParse(itemContent);
-  const last = parsed.success ? parsed.data.options.length - 1 : OPTION_SCALE_CHOICES - 1;
+  const last = parsed.success
+    ? parsed.data.options.length - 1
+    : OPTION_SCALE_CHOICES - 1;
   return z.object({ chosen: z.number().int().min(0).max(last) });
 }
 
@@ -76,6 +86,8 @@ export function optionScaleScales(items: { content: unknown }[]): string[] {
 }
 
 /** One interpretation per factor — 17 for 16PF. */
-export function optionScalePatternCodes(items: { content: unknown }[]): string[] {
+export function optionScalePatternCodes(
+  items: { content: unknown }[],
+): string[] {
   return optionScaleScales(items);
 }

@@ -65,7 +65,13 @@ function items() {
       content: {
         kind: 'CHOICE',
         prompt: 'Pengaruh seseorang bergantung pada …',
-        options: { a: 'kekuasaan', b: 'bujukan', c: 'kekayaan', d: 'keberanian', e: 'kewibawaan' },
+        options: {
+          a: 'kekuasaan',
+          b: 'bujukan',
+          c: 'kekayaan',
+          d: 'keberanian',
+          e: 'kewibawaan',
+        },
         key: 'e',
       },
     },
@@ -75,7 +81,13 @@ function items() {
       content: {
         kind: 'CHOICE',
         prompt: 'Lawannya hemat ialah …',
-        options: { a: 'murah', b: 'kikir', c: 'boros', d: 'bernilai', e: 'kaya' },
+        options: {
+          a: 'murah',
+          b: 'kikir',
+          c: 'boros',
+          d: 'bernilai',
+          e: 'kaya',
+        },
         key: 'c',
       },
     },
@@ -85,7 +97,13 @@ function items() {
       content: {
         kind: 'CHOICE',
         prompt: 'Huruf A adalah …',
-        options: { a: 'bunga', b: 'perkakas', c: 'burung', d: 'kesenian', e: 'binatang' },
+        options: {
+          a: 'bunga',
+          b: 'perkakas',
+          c: 'burung',
+          d: 'kesenian',
+          e: 'binatang',
+        },
         key: 'd',
       },
     },
@@ -95,7 +113,13 @@ function items() {
       content: {
         kind: 'CHOICE',
         prompt: 'Huruf B adalah …',
-        options: { a: 'bunga', b: 'perkakas', c: 'burung', d: 'kesenian', e: 'binatang' },
+        options: {
+          a: 'bunga',
+          b: 'perkakas',
+          c: 'burung',
+          d: 'kesenian',
+          e: 'binatang',
+        },
         key: 'b',
       },
     },
@@ -104,18 +128,32 @@ function items() {
 
 describe('MULTI_SUBTEST item schema', () => {
   it('accepts the four printed shapes', () => {
-    expect(parseMultiSubtestItem({ kind: 'PAIR', words: ['mawar', 'melati'] })).not.toBeNull();
     expect(
-      parseMultiSubtestItem({ kind: 'NUMBER', series: [6, 9, 12, 15], key: 27 }),
+      parseMultiSubtestItem({ kind: 'PAIR', words: ['mawar', 'melati'] }),
     ).not.toBeNull();
     expect(
-      parseMultiSubtestItem({ kind: 'IMAGE', imageUrl: '/uploads/test-items/abc-1.png', key: 'a' }),
+      parseMultiSubtestItem({
+        kind: 'NUMBER',
+        series: [6, 9, 12, 15],
+        key: 27,
+      }),
+    ).not.toBeNull();
+    expect(
+      parseMultiSubtestItem({
+        kind: 'IMAGE',
+        imageUrl: '/uploads/test-items/abc-1.png',
+        key: 'a',
+      }),
     ).not.toBeNull();
   });
 
   it('rejects a figure that is not a seeded item image', () => {
     expect(
-      parseMultiSubtestItem({ kind: 'IMAGE', imageUrl: 'https://example.com/x.png', key: 'a' }),
+      parseMultiSubtestItem({
+        kind: 'IMAGE',
+        imageUrl: 'https://example.com/x.png',
+        key: 'a',
+      }),
     ).toBeNull();
   });
 
@@ -149,11 +187,18 @@ describe('sanitizeMultiSubtestItem', () => {
       imageUrl: '/uploads/test-items/abc-1.png',
       key: 'c',
     });
-    expect(out).toEqual({ kind: 'IMAGE', imageUrl: '/uploads/test-items/abc-1.png' });
+    expect(out).toEqual({
+      kind: 'IMAGE',
+      imageUrl: '/uploads/test-items/abc-1.png',
+    });
   });
 
   it('keeps a series but not its answer', () => {
-    const out = sanitizeMultiSubtestItem({ kind: 'NUMBER', series: [6, 9, 12], key: 15 });
+    const out = sanitizeMultiSubtestItem({
+      kind: 'NUMBER',
+      series: [6, 9, 12],
+      key: 15,
+    });
     expect(out).toEqual({ kind: 'NUMBER', series: [6, 9, 12] });
   });
 });
@@ -198,7 +243,10 @@ describe('GE rubric', () => {
   const config: MultiSubtestConfig = {
     ...CONFIG,
     geRubric: {
-      '61': { score2: ['Bunga', 'Kembang', 'Perdu'], score1: ['Tumbuh-tumbuhan', 'Harum'] },
+      '61': {
+        score2: ['Bunga', 'Kembang', 'Perdu'],
+        score1: ['Tumbuh-tumbuhan', 'Harum'],
+      },
     },
   };
 
@@ -282,7 +330,10 @@ describe('scoreMultiSubtest', () => {
         },
       ],
       responses: [{ itemId: 'n1', value: { answer: '1.050' } }],
-      scoringConfig: { ...CONFIG, subtests: [{ ...CONFIG.subtests[0]!, itemCount: 1 }] },
+      scoringConfig: {
+        ...CONFIG,
+        subtests: [{ ...CONFIG.subtests[0], itemCount: 1 }],
+      },
       ageMonths: 160,
     });
     expect(out.scores.sections[0]?.correct).toBe(1);

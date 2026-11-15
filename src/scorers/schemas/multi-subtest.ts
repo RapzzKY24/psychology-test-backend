@@ -60,7 +60,10 @@ export const MultiSubtestImageItemSchema = z.object({
  */
 export const MultiSubtestPairItemSchema = z.object({
   kind: z.literal('PAIR'),
-  words: z.tuple([z.string().trim().min(1).max(200), z.string().trim().min(1).max(200)]),
+  words: z.tuple([
+    z.string().trim().min(1).max(200),
+    z.string().trim().min(1).max(200),
+  ]),
 });
 
 /**
@@ -253,10 +256,7 @@ export function iqFor(
  * raw runs to 32 while every other subtest stops at 20. This is that
  * conversion, and it is also what makes the total land on the 0–180 table.
  */
-export function convertGe(
-  config: MultiSubtestConfig,
-  raw: number,
-): number {
+export function convertGe(config: MultiSubtestConfig, raw: number): number {
   const index = Math.min(Math.max(raw, 0), config.geConversion.length - 1);
   return config.geConversion[index] ?? 1;
 }

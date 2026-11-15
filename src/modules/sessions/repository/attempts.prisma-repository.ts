@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '../../../generated/prisma/client';
-import type { Education, Gender, TestResult } from '../../../generated/prisma/client';
+import type {
+  Education,
+  Gender,
+  TestResult,
+} from '../../../generated/prisma/client';
 import { PrismaService } from '../../../prisma/prisma.service';
 import type {
   AttemptsRepository,

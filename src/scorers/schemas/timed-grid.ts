@@ -88,7 +88,10 @@ const FactorSchema = z
     /** Group code read when the attempt's education has no mapping. */
     defaultGroup: z.string().trim().min(1).max(10),
     /** Norm group code -> its band rows. */
-    groups: z.record(z.string().trim().min(1).max(10), z.array(BandSchema).min(1)),
+    groups: z.record(
+      z.string().trim().min(1).max(10),
+      z.array(BandSchema).min(1),
+    ),
   })
   .superRefine((factor, ctx) => {
     for (const [group, bands] of Object.entries(factor.groups)) {
@@ -165,7 +168,10 @@ export const TimedGridConfigSchema = z
      * Else` table is reached.
      */
     educationGroups: z
-      .record(z.string().trim().min(1).max(40), z.string().trim().min(1).max(10))
+      .record(
+        z.string().trim().min(1).max(40),
+        z.string().trim().min(1).max(10),
+      )
       .default({}),
     factors: z.array(FactorSchema).min(1),
   })
@@ -184,9 +190,7 @@ export type TimedGridConfig = z.infer<typeof TimedGridConfigSchema>;
 export type TimedGridFactor = TimedGridConfig['factors'][number];
 export type TimedGridBand = z.infer<typeof BandSchema>;
 
-export function parseTimedGridConfig(
-  config: unknown,
-): TimedGridConfig | null {
+export function parseTimedGridConfig(config: unknown): TimedGridConfig | null {
   const parsed = TimedGridConfigSchema.safeParse(config);
   return parsed.success ? parsed.data : null;
 }

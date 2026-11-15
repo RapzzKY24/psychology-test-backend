@@ -15,9 +15,9 @@ const ITEM = '0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d';
 describe('MANUAL item schema', () => {
   it('accepts every printed mark', () => {
     MANUAL_MARKS.forEach((mark, index) => {
-      expect(ManualItemContentSchema.safeParse({ box: index + 1, mark }).success).toBe(
-        true,
-      );
+      expect(
+        ManualItemContentSchema.safeParse({ box: index + 1, mark }).success,
+      ).toBe(true);
     });
   });
 
@@ -54,7 +54,10 @@ describe('MANUAL response schema', () => {
       { imageUrl: 42 },
       {},
     ]) {
-      expect({ value, ok: ManualResponseSchema.safeParse(value).success }).toEqual({
+      expect({
+        value,
+        ok: ManualResponseSchema.safeParse(value).success,
+      }).toEqual({
         value,
         ok: false,
       });
@@ -108,7 +111,9 @@ describe('MANUAL registry entry', () => {
   it('scores through the registry without touching the responses', async () => {
     const out = await scorer.score({
       items: [{ id: ITEM, content: { box: 1, mark: 'DOT' } }],
-      responses: [{ itemId: ITEM, value: { imageUrl: manualImagePath(ATTEMPT, ITEM) } }],
+      responses: [
+        { itemId: ITEM, value: { imageUrl: manualImagePath(ATTEMPT, ITEM) } },
+      ],
     });
     expect(out).toEqual({ scores: {}, patternCode: 'MANUAL' });
   });

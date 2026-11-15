@@ -917,7 +917,11 @@ describe('AttemptsService', () => {
     it('refuses an item whose subtest has not opened yet', async () => {
       mockRepo.findAccessDetail.mockResolvedValue(batteryDetail(60));
       await expect(
-        service.respond('att-1', { itemId: 'it-3', value: { answer: 'a' } }, 'p-1'),
+        service.respond(
+          'att-1',
+          { itemId: 'it-3', value: { answer: 'a' } },
+          'p-1',
+        ),
       ).rejects.toThrow('subtest_not_started');
       expect(mockRepo.upsertResponse).not.toHaveBeenCalled();
     });
@@ -926,7 +930,11 @@ describe('AttemptsService', () => {
       // 7 minutes in: SE is over, ME is still studying its list.
       mockRepo.findAccessDetail.mockResolvedValue(batteryDetail(7 * 60));
       await expect(
-        service.respond('att-1', { itemId: 'it-1', value: { answer: 'a' } }, 'p-1'),
+        service.respond(
+          'att-1',
+          { itemId: 'it-1', value: { answer: 'a' } },
+          'p-1',
+        ),
       ).rejects.toThrow('subtest_time_expired');
       expect(mockRepo.upsertResponse).not.toHaveBeenCalled();
     });
@@ -987,7 +995,12 @@ describe('AttemptsService', () => {
       expect(out).toEqual({
         imageUrl: '/api/v1/public/attempts/att-1/items/it-1/image',
       });
-      const stored = path.join(uploadRoot, 'attempt-images', 'att-1', 'it-1.png');
+      const stored = path.join(
+        uploadRoot,
+        'attempt-images',
+        'att-1',
+        'it-1.png',
+      );
       expect(fs.readFileSync(stored)).toEqual(png);
       expect(mockRepo.upsertResponse).toHaveBeenCalledWith('att-1', 'it-1', {
         imageUrl: '/api/v1/public/attempts/att-1/items/it-1/image',
@@ -1000,7 +1013,12 @@ describe('AttemptsService', () => {
       const second = { ...file, buffer: Buffer.from('deadbeef', 'hex') };
       await service.saveItemImage('att-1', 'it-1', 'p-1', second);
 
-      const stored = path.join(uploadRoot, 'attempt-images', 'att-1', 'it-1.png');
+      const stored = path.join(
+        uploadRoot,
+        'attempt-images',
+        'att-1',
+        'it-1.png',
+      );
       expect(fs.readFileSync(stored).toString('hex')).toBe('deadbeef');
     });
 

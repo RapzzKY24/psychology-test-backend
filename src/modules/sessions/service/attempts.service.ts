@@ -14,10 +14,7 @@ import type {
   AttemptAccessDetail,
 } from '../repository/attempts.repository';
 import { ageInMonthsFromIsoDate, isoDateOf } from '../utils/age-in-months';
-import {
-  attemptImageDir,
-  attemptImageFile,
-} from '../utils/attempt-image-path';
+import { attemptImageDir, attemptImageFile } from '../utils/attempt-image-path';
 import { ensureUploadDir } from '../../../lib/fs/ensure-upload-dir';
 import { getResponseSchema, getScorer } from '../../../scorers/registry';
 import { manualImagePath } from '../../../scorers/schemas/manual';
@@ -466,7 +463,10 @@ export class AttemptsService {
       // IST picks its whole norm row by age band, so the scorer needs the age
       // the attempt recorded, not the one the browser claims today.
       ageMonths: detail.attempt.birthDate
-        ? ageInMonthsFromIsoDate(isoDateOf(detail.attempt.birthDate), new Date())
+        ? ageInMonthsFromIsoDate(
+            isoDateOf(detail.attempt.birthDate),
+            new Date(),
+          )
         : null,
     });
     const result = await this.repo.completeAndCreateResult({

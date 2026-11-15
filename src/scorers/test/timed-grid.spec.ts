@@ -90,7 +90,9 @@ function lajur(column: number, gaps: number) {
 /** Answers `correct` gaps right, then fills the rest with wrong digits. */
 function answer(correct: number, gaps: number) {
   return {
-    answers: Array.from({ length: gaps }, (_, index) => (index < correct ? 0 : 1)),
+    answers: Array.from({ length: gaps }, (_, index) =>
+      index < correct ? 0 : 1,
+    ),
   };
 }
 
@@ -104,14 +106,15 @@ describe('timedGridKey', () => {
 
 describe('TimedGridItemContentSchema', () => {
   it('rejects a single digit, which would have no gap', () => {
-    expect(TimedGridItemContentSchema.safeParse({ column: 1, digits: [3] }).success).toBe(
-      false,
-    );
+    expect(
+      TimedGridItemContentSchema.safeParse({ column: 1, digits: [3] }).success,
+    ).toBe(false);
   });
 
   it('rejects a digit outside 0-9', () => {
     expect(
-      TimedGridItemContentSchema.safeParse({ column: 1, digits: [1, 10] }).success,
+      TimedGridItemContentSchema.safeParse({ column: 1, digits: [1, 10] })
+        .success,
     ).toBe(false);
   });
 });
@@ -136,27 +139,27 @@ describe('TimedGridConfigSchema', () => {
   });
 
   it('rejects an else row that is not last', () => {
-    const broken = structuredClone(CONFIG) as typeof CONFIG;
-    broken.factors[0]!.groups['8']!.unshift({
+    const broken = structuredClone(CONFIG);
+    broken.factors[0].groups['8']!.unshift({
       op: 'else',
       value: null,
       label: 'x',
-    } as never);
+    });
     expect(TimedGridConfigSchema.safeParse(broken).success).toBe(false);
   });
 
   it('rejects a group that mixes comparison directions', () => {
-    const broken = structuredClone(CONFIG) as typeof CONFIG;
-    broken.factors[0]!.groups['8']![1] = {
+    const broken = structuredClone(CONFIG);
+    broken.factors[0].groups['8']![1] = {
       op: 'gte',
       value: 9.52,
       label: 'Kurang',
-    } as never;
+    };
     expect(TimedGridConfigSchema.safeParse(broken).success).toBe(false);
   });
 
   it('rejects a defaultGroup that names no table', () => {
-    const broken = structuredClone(CONFIG) as typeof CONFIG;
+    const broken = structuredClone(CONFIG);
     broken.factors[0].defaultGroup = '99';
     expect(TimedGridConfigSchema.safeParse(broken).success).toBe(false);
   });
@@ -214,11 +217,19 @@ describe('scoreTimedGrid', () => {
       responses: [],
       scoringConfig: CONFIG,
     });
-    expect(scores.columns[0]).toMatchObject({ correct: 0, wrong: 0, skipped: 3 });
+    expect(scores.columns[0]).toMatchObject({
+      correct: 0,
+      wrong: 0,
+      skipped: 3,
+    });
   });
 
   it('builds the curve in item order', () => {
-    const { scores } = scoreTimedGrid({ items, responses, scoringConfig: CONFIG });
+    const { scores } = scoreTimedGrid({
+      items,
+      responses,
+      scoringConfig: CONFIG,
+    });
     expect(scores.curve).toEqual([2, 4, 6, 8]);
     expect(scores.total).toBe(4);
     expect(scores.gaps).toBe(20);
@@ -237,13 +248,21 @@ describe('scoreTimedGrid', () => {
   });
 
   it('computes the mean correct per lajur', () => {
-    const { scores } = scoreTimedGrid({ items, responses, scoringConfig: CONFIG });
+    const { scores } = scoreTimedGrid({
+      items,
+      responses,
+      scoringConfig: CONFIG,
+    });
     expect(scores.metrics.PAN.value).toBe(5);
     expect(scores.metrics.PAN.band).toBe('Kurang sekali');
   });
 
   it('computes the mean absolute deviation', () => {
-    const { scores } = scoreTimedGrid({ items, responses, scoringConfig: CONFIG });
+    const { scores } = scoreTimedGrid({
+      items,
+      responses,
+      scoringConfig: CONFIG,
+    });
     expect(scores.metrics.JAN.value).toBe(2);
     expect(scores.metrics.JAN.band).toBe('Kurang sekali');
   });
@@ -251,7 +270,11 @@ describe('scoreTimedGrid', () => {
   it('scales the regression slope by the lajur count', () => {
     // curve 2,4,6,8 has a slope of 2, so the fitted line rises by 8 over four
     // lajur — the workbook's `y(50) - y(0)` with n = 4.
-    const { scores } = scoreTimedGrid({ items, responses, scoringConfig: CONFIG });
+    const { scores } = scoreTimedGrid({
+      items,
+      responses,
+      scoringConfig: CONFIG,
+    });
     expect(scores.metrics.HAN.value).toBe(8);
     expect(scores.metrics.HAN.band).toBe('Baik sekali');
   });

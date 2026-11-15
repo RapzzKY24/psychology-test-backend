@@ -422,7 +422,9 @@ describe.each(FILES)('seed %s', (file) => {
     if (seed.test.scorerType !== 'MULTI_SUBTEST') return;
     const config = MultiSubtestConfigSchema.parse(seed.test.scoringConfig);
     const labels = config.ageBands.map((band) => band.label);
-    expect(Object.keys(config.standardScores).sort()).toEqual([...labels].sort());
+    expect(Object.keys(config.standardScores).sort()).toEqual(
+      [...labels].sort(),
+    );
     expect(Object.keys(config.iqTable).sort()).toEqual([...labels].sort());
 
     // GE is the one subtest whose printed rubric can exceed its item count: the
@@ -460,7 +462,9 @@ describe.each(FILES)('seed %s', (file) => {
     // A GE answer can earn 2, so the conversion has to reach twice the items.
     const ge = config.subtests.find((section) => section.code === 'GE');
     if (ge) {
-      expect(config.geConversion.length).toBeGreaterThanOrEqual(ge.itemCount * 2 + 1);
+      expect(config.geConversion.length).toBeGreaterThanOrEqual(
+        ge.itemCount * 2 + 1,
+      );
       const geOrders = seed.items
         .filter((item) => subtestOfItem(config, item.order)?.code === 'GE')
         .map((item) => String(item.order));
@@ -482,7 +486,7 @@ describe.each(FILES)('seed %s', (file) => {
     const initials = new Map(
       (studied.memorizeList ?? []).map((group) => [
         group.label.toUpperCase(),
-        new Set(group.words.map((word) => word[0]!.toUpperCase())),
+        new Set(group.words.map((word) => word[0].toUpperCase())),
       ]),
     );
 
@@ -499,7 +503,9 @@ describe.each(FILES)('seed %s', (file) => {
       expect({
         order: item.order,
         letter,
-        matched: letter !== null && (initials.get(category.toUpperCase())?.has(letter) ?? false),
+        matched:
+          letter !== null &&
+          (initials.get(category.toUpperCase())?.has(letter) ?? false),
       }).toEqual({ order: item.order, letter, matched: true });
     }
   });

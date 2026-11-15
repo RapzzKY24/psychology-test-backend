@@ -48,7 +48,8 @@ export function manualImagePath(attemptId: string, itemId: string): string {
   return `/api/v1/public/attempts/${attemptId}/items/${itemId}/image`;
 }
 
-const UUID = '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
+const UUID =
+  '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}';
 
 /**
  * The answer is the drawing's location, not the drawing. The file itself is

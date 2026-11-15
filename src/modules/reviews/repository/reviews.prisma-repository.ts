@@ -156,7 +156,12 @@ export class PrismaReviewsRepository implements ReviewsRepository {
       where: { id: result.attemptId },
       include: {
         test: {
-          select: { id: true, name: true, scorerType: true, scoringConfig: true },
+          select: {
+            id: true,
+            name: true,
+            scorerType: true,
+            scoringConfig: true,
+          },
         },
         session: { select: { id: true, title: true } },
         participant: { select: { name: true, email: true } },
@@ -223,9 +228,8 @@ export class PrismaReviewsRepository implements ReviewsRepository {
         id: (attempt as unknown as { test: { id: string; name: string } }).test
           .id,
         name: (attempt as unknown as { test: { name: string } }).test.name,
-        scorerType: (
-          attempt as unknown as { test: { scorerType: string } }
-        ).test.scorerType,
+        scorerType: (attempt as unknown as { test: { scorerType: string } })
+          .test.scorerType,
         scoringConfig: (
           attempt as unknown as { test: { scoringConfig: unknown } }
         ).test.scoringConfig,
