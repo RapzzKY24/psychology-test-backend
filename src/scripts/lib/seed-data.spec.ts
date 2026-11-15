@@ -17,6 +17,11 @@ import {
 } from '../../scorers/schemas/option-scale';
 import { TimedGridItemContentSchema } from '../../scorers/schemas/timed-grid';
 import { ManualItemContentSchema } from '../../scorers/schemas/manual';
+import {
+  MultiSubtestConfigSchema,
+  parseMultiSubtestItem,
+  subtestOfItem,
+} from '../../scorers/schemas/multi-subtest';
 
 /**
  * Seeds bypass the Test Builder, so nothing else validates their shape before
@@ -342,6 +347,103 @@ describe.each(FILES)('seed %s', (file) => {
     expect([...boxes].sort((a, b) => a - b)).toEqual(
       Array.from({ length: boxes.length }, (_, i) => i + 1),
     );
+  });
+
+  // A battery splits one item list into separately normed subtests, so the
+  // counts in the config have to describe the items exactly: one item too many
+  // shifts every later subtest by one, and the participant is scored against
+  // another subtest's norm row without anything failing.
+  it('splits its items into the subtests its config declares', () => {
+    if (seed.test.scorerType !== 'MULTI_SUBTEST') return;
+    const config = MultiSubtestConfigSchema.parse(seed.test.scoringConfig);
+
+    expect(config.subtests.reduce((sum, s) => sum + s.itemCount, 0)).toBe(
+      seed.items.length,
+    );
+
+    for (const item of seed.items) {
+      const content = parseMultiSubtestItem(item.content);
+      expect({ order: item.order, valid: Boolean(content) }).toEqual({
+        order: item.order,
+        valid: true,
+      });
+      const section = subtestOfItem(config, item.order);
+      // An item printed as a pair or a series belongs to the subtest that
+      // prints it that way; a mismatch means the split drifted.
+      const shape =
+        content?.kind === 'PAIR'
+          ? 'GE'
+          : content?.kind === 'IMAGE'
+            ? null
+            : content?.kind === 'NUMBER' && content.series
+              ? 'ZR'
+              : null;
+      if (shape) {
+        expect({ order: item.order, code: section?.code }).toEqual({
+          order: item.order,
+          code: shape,
+        });
+      }
+    }
+
+    // Age bands are read in order with the first match winning, so a band
+    // declared out of order makes every older participant fall into it.
+    const ceilings = config.ageBands.map((band) => band.maxMonths);
+    expect(ceilings).toEqual([...ceilings].sort((a, b) => a - b));
+  });
+
+  // Each subtest's raw score is read off its own row, and the total is read off
+  // the band's IQ table. A row that stops before the subtest's ceiling, or a
+  // band missing from either table, leaves those participants with a null
+  // score — the report prints an empty cell instead of failing.
+  it('covers every subtest ceiling in every age band', () => {
+    if (seed.test.scorerType !== 'MULTI_SUBTEST') return;
+    const config = MultiSubtestConfigSchema.parse(seed.test.scoringConfig);
+    const labels = config.ageBands.map((band) => band.label);
+    expect(Object.keys(config.standardScores).sort()).toEqual([...labels].sort());
+    expect(Object.keys(config.iqTable).sort()).toEqual([...labels].sort());
+
+    // GE is the one subtest whose printed rubric can exceed its item count: the
+    // workbook awards 2 for a precise concept. Its raw is converted onto the
+    // 1–20 scale before it meets a standard-score row, so the row covers the
+    // conversion's top, not the rubric's.
+    const ceiling = (code: string, itemCount: number) =>
+      code === 'GE' ? Math.max(...config.geConversion) : itemCount;
+    const totalCeiling = config.subtests.reduce(
+      (sum, s) => sum + ceiling(s.code, s.itemCount),
+      0,
+    );
+
+    for (const band of labels) {
+      for (const section of config.subtests) {
+        const row = config.standardScores[band]?.[section.code];
+        expect({
+          band,
+          code: section.code,
+          rows: row?.length ?? 0,
+          needed: ceiling(section.code, section.itemCount) + 1,
+        }).toEqual({
+          band,
+          code: section.code,
+          rows: ceiling(section.code, section.itemCount) + 1,
+          needed: ceiling(section.code, section.itemCount) + 1,
+        });
+      }
+      expect({ band, rows: config.iqTable[band]?.length ?? 0 }).toEqual({
+        band,
+        rows: totalCeiling + 1,
+      });
+    }
+
+    // A GE answer can earn 2, so the conversion has to reach twice the items.
+    const ge = config.subtests.find((section) => section.code === 'GE');
+    if (ge) {
+      expect(config.geConversion.length).toBeGreaterThanOrEqual(ge.itemCount * 2 + 1);
+      const geOrders = seed.items
+        .filter((item) => subtestOfItem(config, item.order)?.code === 'GE')
+        .map((item) => String(item.order));
+      expect(Object.keys(config.geRubric).sort()).toEqual(geOrders.sort());
+    }
   });
 
   // The config is seed-owned and never edited in the admin UI, so nothing else

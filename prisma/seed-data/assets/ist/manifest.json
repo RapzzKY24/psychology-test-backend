@@ -1,0 +1,205 @@
+{
+  "note": "Soal figural IST dipotong dari \"Alat Tes IST.pdf\" halaman FA (117-136) dan WU (137-156). Satu berkas = satu soal: gambar soal di kiri, lima opsi a-e di kanan. imageUrl memakai uuid5 tetap supaya seed idempoten.",
+  "items": [
+    {
+      "item": 117,
+      "file": "ist-fa-117.png",
+      "imageUrl": "/uploads/test-items/53d3030d-843b-53b5-bec7-0faa797e2a3e.png"
+    },
+    {
+      "item": 118,
+      "file": "ist-fa-118.png",
+      "imageUrl": "/uploads/test-items/ee2afd5e-40c3-5f8c-afad-05abebf1f04a.png"
+    },
+    {
+      "item": 119,
+      "file": "ist-fa-119.png",
+      "imageUrl": "/uploads/test-items/be3c8f7b-00ce-5384-a8af-0a4fe1ee5155.png"
+    },
+    {
+      "item": 120,
+      "file": "ist-fa-120.png",
+      "imageUrl": "/uploads/test-items/680abd6c-9f94-5f97-8231-8e2dddf799c8.png"
+    },
+    {
+      "item": 121,
+      "file": "ist-fa-121.png",
+      "imageUrl": "/uploads/test-items/a84e50af-a468-5852-910a-b6759cb33f2f.png"
+    },
+    {
+      "item": 122,
+      "file": "ist-fa-122.png",
+      "imageUrl": "/uploads/test-items/5fde4da0-1a7a-5773-936e-deba62b3a301.png"
+    },
+    {
+      "item": 123,
+      "file": "ist-fa-123.png",
+      "imageUrl": "/uploads/test-items/c2c784c8-3201-5aab-9ef0-4ce614377100.png"
+    },
+    {
+      "item": 124,
+      "file": "ist-fa-124.png",
+      "imageUrl": "/uploads/test-items/73990d6f-7652-53b9-b207-1af7e53b1873.png"
+    },
+    {
+      "item": 125,
+      "file": "ist-fa-125.png",
+      "imageUrl": "/uploads/test-items/f8f79a0e-dbe0-5f95-87b9-75a745a1ac54.png"
+    },
+    {
+      "item": 126,
+      "file": "ist-fa-126.png",
+      "imageUrl": "/uploads/test-items/03d78eaa-8946-59fc-a97e-506ba98aab04.png"
+    },
+    {
+      "item": 127,
+      "file": "ist-fa-127.png",
+      "imageUrl": "/uploads/test-items/d98b1c43-f38b-5a5e-b133-962ff4318d2c.png"
+    },
+    {
+      "item": 128,
+      "file": "ist-fa-128.png",
+      "imageUrl": "/uploads/test-items/e4f75d4f-1917-5572-aa98-131a352ed757.png"
+    },
+    {
+      "item": 129,
+      "file": "ist-fa-129.png",
+      "imageUrl": "/uploads/test-items/5bf754b9-b893-5aee-83bf-b6a7e899b605.png"
+    },
+    {
+      "item": 130,
+      "file": "ist-fa-130.png",
+      "imageUrl": "/uploads/test-items/3ab1d59b-a352-529e-8b9d-63158583ee6f.png"
+    },
+    {
+      "item": 131,
+      "file": "ist-fa-131.png",
+      "imageUrl": "/uploads/test-items/891d7e70-295a-5472-9dfb-f69fdd8c554a.png"
+    },
+    {
+      "item": 132,
+      "file": "ist-fa-132.png",
+      "imageUrl": "/uploads/test-items/99aea7ba-d1b9-5c92-aa30-f4e551e91555.png"
+    },
+    {
+      "item": 133,
+      "file": "ist-fa-133.png",
+      "imageUrl": "/uploads/test-items/9f49e371-422b-580a-9b1e-ce96627d68da.png"
+    },
+    {
+      "item": 134,
+      "file": "ist-fa-134.png",
+      "imageUrl": "/uploads/test-items/2a411dec-d70f-5e5a-88ce-4cca475af696.png"
+    },
+    {
+      "item": 135,
+      "file": "ist-fa-135.png",
+      "imageUrl": "/uploads/test-items/f02b3d81-d2a0-5dc1-9062-690c8bb0ddfa.png"
+    },
+    {
+      "item": 136,
+      "file": "ist-fa-136.png",
+      "imageUrl": "/uploads/test-items/ac836a21-0c8f-554c-a3a8-729160fe87e3.png"
+    },
+    {
+      "item": 137,
+      "file": "ist-wu-137.png",
+      "imageUrl": "/uploads/test-items/a42d1cdf-cf17-500f-9914-a246eb96f966.png"
+    },
+    {
+      "item": 138,
+      "file": "ist-wu-138.png",
+      "imageUrl": "/uploads/test-items/b43b168e-86a8-5455-8f2d-974a518f4b1e.png"
+    },
+    {
+      "item": 139,
+      "file": "ist-wu-139.png",
+      "imageUrl": "/uploads/test-items/a87b2ea8-c021-5f5b-afcb-7fe402fd4781.png"
+    },
+    {
+      "item": 140,
+      "file": "ist-wu-140.png",
+      "imageUrl": "/uploads/test-items/7a4b518c-cdda-5db7-bc25-07b3e2766d0b.png"
+    },
+    {
+      "item": 141,
+      "file": "ist-wu-141.png",
+      "imageUrl": "/uploads/test-items/79c1eb1b-a961-56ec-a4c8-7b9a3d5c4764.png"
+    },
+    {
+      "item": 142,
+      "file": "ist-wu-142.png",
+      "imageUrl": "/uploads/test-items/88c3d847-3fb3-56ec-a884-b0fb62dde267.png"
+    },
+    {
+      "item": 143,
+      "file": "ist-wu-143.png",
+      "imageUrl": "/uploads/test-items/5b0bca20-e566-5e7a-9923-bd1d1a60a33d.png"
+    },
+    {
+      "item": 144,
+      "file": "ist-wu-144.png",
+      "imageUrl": "/uploads/test-items/d4a23637-94d6-5df3-abc8-1bfdb2a6aa1f.png"
+    },
+    {
+      "item": 145,
+      "file": "ist-wu-145.png",
+      "imageUrl": "/uploads/test-items/9f1cd020-6f45-5133-91df-616489f73c06.png"
+    },
+    {
+      "item": 146,
+      "file": "ist-wu-146.png",
+      "imageUrl": "/uploads/test-items/f4adb292-872f-51c4-88d0-57490012337c.png"
+    },
+    {
+      "item": 147,
+      "file": "ist-wu-147.png",
+      "imageUrl": "/uploads/test-items/daca6254-d29c-594c-8a9e-f54911fd576d.png"
+    },
+    {
+      "item": 148,
+      "file": "ist-wu-148.png",
+      "imageUrl": "/uploads/test-items/265dd917-58b9-5d8f-b822-08ef7551fd5a.png"
+    },
+    {
+      "item": 149,
+      "file": "ist-wu-149.png",
+      "imageUrl": "/uploads/test-items/36b1ebe6-7090-58f5-b5d8-7cf03ec4e434.png"
+    },
+    {
+      "item": 150,
+      "file": "ist-wu-150.png",
+      "imageUrl": "/uploads/test-items/a5afc302-7598-5d29-9663-2478df9e7219.png"
+    },
+    {
+      "item": 151,
+      "file": "ist-wu-151.png",
+      "imageUrl": "/uploads/test-items/4b4e313a-8cca-500b-bcee-ba2d86b08552.png"
+    },
+    {
+      "item": 152,
+      "file": "ist-wu-152.png",
+      "imageUrl": "/uploads/test-items/33beb384-c6df-5d7a-98a0-527ce2f8e3cb.png"
+    },
+    {
+      "item": 153,
+      "file": "ist-wu-153.png",
+      "imageUrl": "/uploads/test-items/c6fda35e-7cb9-58f5-901c-53cb1bc2cc18.png"
+    },
+    {
+      "item": 154,
+      "file": "ist-wu-154.png",
+      "imageUrl": "/uploads/test-items/b02754d3-cc34-5bdf-ab07-e08a85075e7b.png"
+    },
+    {
+      "item": 155,
+      "file": "ist-wu-155.png",
+      "imageUrl": "/uploads/test-items/0d0a5f19-b94c-53f9-bd4f-a0bd12a8c0e1.png"
+    },
+    {
+      "item": 156,
+      "file": "ist-wu-156.png",
+      "imageUrl": "/uploads/test-items/16f5947b-b360-5c81-9ca6-991e4d2ced44.png"
+    }
+  ]
+}
