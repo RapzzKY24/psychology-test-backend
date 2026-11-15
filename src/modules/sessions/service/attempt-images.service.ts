@@ -9,7 +9,7 @@ import type { SessionsRepository } from '../repository/sessions.repository';
 import { attemptImageFile } from '../utils/attempt-image-path';
 import { hashParticipantToken } from '../utils/hash-participant-token';
 
-/** Who is asking for a drawing: an admin, the signed-in owner, or a guest. */
+/** Who is asking for a drawing: staff, the signed-in owner, or a guest. */
 export interface ImageReader {
   userId?: string | null;
   /** better-auth types this loosely; it may arrive as an array. */
@@ -65,10 +65,11 @@ export class AttemptImagesService {
     reader: ImageReader,
   ): Promise<boolean> {
     const role = reader.role;
-    const isAdmin = Array.isArray(role)
-      ? role.includes('ADMIN')
-      : role === 'ADMIN';
-    if (isAdmin) return true;
+    const roles = Array.isArray(role) ? role : role ? [role] : [];
+    // A psychologist reads the drawings from the review screen. The review
+    // list is open to every psychologist, so the images follow the same rule —
+    // scoping them tighter here would only break the screen.
+    if (roles.includes('ADMIN') || roles.includes('PSYCHOLOGIST')) return true;
 
     if (reader.userId && detail.attempt.userId === reader.userId) return true;
 

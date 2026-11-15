@@ -16,6 +16,7 @@ import {
   OptionScaleItemContentSchema,
 } from '../../scorers/schemas/option-scale';
 import { TimedGridItemContentSchema } from '../../scorers/schemas/timed-grid';
+import { ManualItemContentSchema } from '../../scorers/schemas/manual';
 
 /**
  * Seeds bypass the Test Builder, so nothing else validates their shape before
@@ -326,6 +327,21 @@ describe.each(FILES)('seed %s', (file) => {
     );
     const gaps = [...new Set(columns.map((row) => row.gaps))];
     expect(gaps).toHaveLength(1);
+  });
+
+  // A drawing sheet is fixed: eight boxes, each printed once. A duplicate box
+  // would show the participant the same mark twice, and a gap would leave a
+  // box with nothing to complete — neither is visible until someone sits down
+  // to take the test.
+  it('prints every drawing box exactly once', () => {
+    if (seed.test.scorerType !== 'MANUAL') return;
+    const boxes = seed.items.map(
+      (item) => ManualItemContentSchema.parse(item.content).box,
+    );
+    expect(boxes.length).toBeGreaterThan(0);
+    expect([...boxes].sort((a, b) => a - b)).toEqual(
+      Array.from({ length: boxes.length }, (_, i) => i + 1),
+    );
   });
 
   // The config is seed-owned and never edited in the admin UI, so nothing else

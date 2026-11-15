@@ -1,0 +1,23 @@
+{
+  "test": {
+    "slug": "wartegg",
+    "name": "Wartegg (WZT)",
+    "description": "Tes gambar proyektif berisi delapan kotak. Setiap kotak sudah berisi satu goresan kecil — titik, garis, atau busur — dan Anda melengkapinya menjadi satu gambar utuh. Tidak ada jawaban benar atau salah dan tidak ada batas waktu; gambarlah apa yang pertama terlintas. Hasilnya dibaca psikolog bersama Anda pada sesi konsultasi.",
+    "category": "PROJECTIVE",
+    "scorerType": "MANUAL",
+    "price": 75000,
+    "estimatedDurationMin": 20,
+    "timeLimitMin": null
+  },
+  "items": [
+    { "order": 1, "content": { "box": 1, "mark": "DOT" } },
+    { "order": 2, "content": { "box": 2, "mark": "CURVE" } },
+    { "order": 3, "content": { "box": 3, "mark": "BARS" } },
+    { "order": 4, "content": { "box": 4, "mark": "SQUARE" } },
+    { "order": 5, "content": { "box": 5, "mark": "DIAGONALS" } },
+    { "order": 6, "content": { "box": 6, "mark": "AXES" } },
+    { "order": 7, "content": { "box": 7, "mark": "DOTTED_ARC" } },
+    { "order": 8, "content": { "box": 8, "mark": "ARC" } }
+  ],
+  "interpretations": []
+}

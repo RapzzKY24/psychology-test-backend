@@ -125,6 +125,18 @@ describe('AttemptImagesService', () => {
     ).resolves.toBe(file);
   });
 
+  it('serves the drawing to a psychologist reading the review screen', async () => {
+    const file = writeDrawing();
+    repo.findAccessDetail.mockResolvedValue(detail as never);
+
+    await expect(
+      service.pathFor(ATTEMPT, ITEM, { role: 'PSYCHOLOGIST' }),
+    ).resolves.toBe(file);
+    await expect(
+      service.pathFor(ATTEMPT, ITEM, { role: ['PSYCHOLOGIST'] }),
+    ).resolves.toBe(file);
+  });
+
   it('answers 404 to a stranger, never 403', async () => {
     writeDrawing();
     repo.findAccessDetail.mockResolvedValue(detail as never);
