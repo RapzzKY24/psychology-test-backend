@@ -827,6 +827,129 @@ describe('AttemptsService', () => {
     });
   });
 
+  describe('a battery', () => {
+    // SE runs 0–6'; ME studies 6'–9' and answers 9'–12'.
+    const batteryConfig = {
+      subtests: [
+        {
+          code: 'SE',
+          name: 'Melengkapi kalimat',
+          kind: 'CHOICE',
+          itemCount: 2,
+          timeLimitMin: 6,
+          instruction: 'Pilih satu kata.',
+        },
+        {
+          code: 'ME',
+          name: 'Mengingat kata',
+          kind: 'CHOICE',
+          itemCount: 2,
+          timeLimitMin: 3,
+          memorizeMin: 3,
+          memorizeList: [{ label: 'BUNGA', words: ['SOKA', 'DAHLIA'] }],
+          instruction: 'Hafalkan daftar kata.',
+        },
+      ],
+      ageBands: [{ label: '>45', maxMonths: 2400 }],
+      standardScores: { '>45': { SE: [90, 95], ME: [90, 95] } },
+      iqTable: { '>45': [100, 105, 110, 115, 120] },
+      geConversion: [1, 2],
+      geRubric: {},
+      dominanceBalancedWithin: 10,
+    };
+
+    const batteryTest = {
+      ...makeDetail().test,
+      name: 'IST',
+      scorerType: 'MULTI_SUBTEST' as const,
+      timeLimitMin: 12,
+      scoringConfig: batteryConfig,
+    };
+
+    const batteryItems = [1, 2, 3, 4].map((order) => ({
+      id: `it-${order}`,
+      order,
+      content: {
+        kind: 'CHOICE',
+        prompt: `Soal ${order}`,
+        options: { a: 'satu', b: 'dua', c: 'tiga', d: 'empat', e: 'lima' },
+        key: 'a',
+      },
+    }));
+
+    function batteryDetail(startedAgoSec = 0): AttemptAccessDetail {
+      return makeDetail({
+        test: batteryTest,
+        items: batteryItems,
+        attempt: {
+          ...makeDetail().attempt,
+          startedAt: new Date(NOW - startedAgoSec * 1000),
+        },
+      });
+    }
+
+    it('publishes one window per subtest, with its own clock', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(batteryDetail());
+      const out = await service.read('att-1', 'p-1');
+
+      expect(out.subtests.map((s) => [s.code, s.itemFrom, s.itemTo])).toEqual([
+        ['SE', 1, 2],
+        ['ME', 3, 4],
+      ]);
+      expect(out.subtests[0]).toEqual(
+        expect.objectContaining({
+          startOffsetSec: 0,
+          durationSec: 360,
+          memorizeSec: 0,
+        }),
+      );
+      // The study window sits before the answering window, not inside it.
+      expect(out.subtests[1]).toEqual(
+        expect.objectContaining({
+          startOffsetSec: 540,
+          durationSec: 180,
+          memorizeSec: 180,
+          memorizeList: [{ label: 'BUNGA', words: ['SOKA', 'DAHLIA'] }],
+        }),
+      );
+    });
+
+    it('refuses an item whose subtest has not opened yet', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(batteryDetail(60));
+      await expect(
+        service.respond('att-1', { itemId: 'it-3', value: { answer: 'a' } }, 'p-1'),
+      ).rejects.toThrow('subtest_not_started');
+      expect(mockRepo.upsertResponse).not.toHaveBeenCalled();
+    });
+
+    it('refuses an item whose subtest has closed', async () => {
+      // 7 minutes in: SE is over, ME is still studying its list.
+      mockRepo.findAccessDetail.mockResolvedValue(batteryDetail(7 * 60));
+      await expect(
+        service.respond('att-1', { itemId: 'it-1', value: { answer: 'a' } }, 'p-1'),
+      ).rejects.toThrow('subtest_time_expired');
+      expect(mockRepo.upsertResponse).not.toHaveBeenCalled();
+    });
+
+    it('accepts an item inside the open window', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(batteryDetail(60));
+      await service.respond(
+        'att-1',
+        { itemId: 'it-1', value: { answer: 'a' } },
+        'p-1',
+      );
+      expect(mockRepo.upsertResponse).toHaveBeenCalledWith('att-1', 'it-1', {
+        answer: 'a',
+      });
+    });
+
+    it('leaves every other family without windows', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(makeDetail());
+      const out = await service.read('att-1', 'p-1');
+      expect(out.subtests).toEqual([]);
+    });
+  });
+
   describe('saveItemImage', () => {
     const manualTest = {
       id: 't-1',

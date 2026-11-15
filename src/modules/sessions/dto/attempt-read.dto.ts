@@ -35,6 +35,15 @@ export const AttemptReadSubtestSchema = z.object({
   durationSec: z.number().int(),
   /** Seconds of printed-list study before the window opens (ME only). */
   memorizeSec: z.number().int(),
+  /** The printed list itself, shown during `memorizeSec`. */
+  memorizeList: z
+    .array(
+      z.object({
+        label: z.string(),
+        words: z.array(z.string()),
+      }),
+    )
+    .default([]),
 });
 
 export type AttemptReadSubtestDto = z.infer<typeof AttemptReadSubtestSchema>;

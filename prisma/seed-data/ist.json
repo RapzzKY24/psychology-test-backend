@@ -84,6 +84,28 @@
      "itemCount": 20,
      "timeLimitMin": 3,
      "memorizeMin": 3,
+     "memorizeList": [
+      {
+       "label": "BUNGA",
+       "words": ["SOKA", "LARAT", "FLAMBOYAN", "YASMIN", "DAHLIA"]
+      },
+      {
+       "label": "PERKAKAS",
+       "words": ["WAJAN", "JARUM", "KIKIR", "CANGKUL", "PALU"]
+      },
+      {
+       "label": "BURUNG",
+       "words": ["ITIK", "ELANG", "WALET", "TEKUKUR", "NURI"]
+      },
+      {
+       "label": "KESENIAN",
+       "words": ["QUINTET", "ARCA", "OPERA", "UKIRAN", "GAMELAN"]
+      },
+      {
+       "label": "BINATANG",
+       "words": ["RUSA", "MUSANG", "BERUANG", "HARIMAU", "ZEBRA"]
+      }
+     ],
      "instruction": "Hafalkan daftar kata selama 3 menit. Setelah itu jawab pertanyaan tentang kata-kata tersebut."
     }
    ],

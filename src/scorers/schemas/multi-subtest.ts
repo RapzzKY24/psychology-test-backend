@@ -97,6 +97,16 @@ export const MultiSubtestResponseSchema = z.object({ answer: Answer });
 
 export type MultiSubtestResponse = z.infer<typeof MultiSubtestResponseSchema>;
 
+/**
+ * The printed list a subtest asks the participant to study. ME is the only one
+ * that has it, and it is not derivable from the items: the items name the five
+ * categories, while the list holds the five members under each.
+ */
+export const MultiSubtestMemorizeGroupSchema = z.object({
+  label: z.string().trim().min(1).max(40),
+  words: z.array(z.string().trim().min(1).max(40)).min(1).max(40),
+});
+
 /** One subtest as the seed declares it. */
 export const MultiSubtestSectionSchema = z.object({
   code: z.string().trim().min(2).max(4),
@@ -110,6 +120,8 @@ export const MultiSubtestSectionSchema = z.object({
   timeLimitMin: z.number().int().min(1).max(60),
   /** ME prints its word list first; the answer clock starts after this. */
   memorizeMin: z.number().int().min(0).max(30).optional(),
+  /** The list itself, printed during `memorizeMin`. */
+  memorizeList: z.array(MultiSubtestMemorizeGroupSchema).max(20).optional(),
   instruction: z.string().trim().min(1).max(2000),
 });
 

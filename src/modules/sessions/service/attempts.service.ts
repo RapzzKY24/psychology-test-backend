@@ -102,6 +102,7 @@ export class AttemptsService {
         startOffsetSec: (offsetMin + memorizeMin) * 60,
         durationSec: section.timeLimitMin * 60,
         memorizeSec: memorizeMin * 60,
+        memorizeList: section.memorizeList ?? [],
       });
       offsetMin += memorizeMin + section.timeLimitMin;
       itemFrom += section.itemCount;

@@ -155,7 +155,9 @@ export class PrismaReviewsRepository implements ReviewsRepository {
     const attempt = await this.prisma.attempt.findUnique({
       where: { id: result.attemptId },
       include: {
-        test: { select: { id: true, name: true } },
+        test: {
+          select: { id: true, name: true, scorerType: true, scoringConfig: true },
+        },
         session: { select: { id: true, title: true } },
         participant: { select: { name: true, email: true } },
         responses: { select: { itemId: true, value: true } },
@@ -221,6 +223,12 @@ export class PrismaReviewsRepository implements ReviewsRepository {
         id: (attempt as unknown as { test: { id: string; name: string } }).test
           .id,
         name: (attempt as unknown as { test: { name: string } }).test.name,
+        scorerType: (
+          attempt as unknown as { test: { scorerType: string } }
+        ).test.scorerType,
+        scoringConfig: (
+          attempt as unknown as { test: { scoringConfig: unknown } }
+        ).test.scoringConfig,
       },
       session: {
         id: (attempt as unknown as { session: { id: string; title: string } })

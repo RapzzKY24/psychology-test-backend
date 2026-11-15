@@ -19,7 +19,17 @@ export interface ReviewListItem {
 
 export interface ReviewDetail {
   result: TestResult;
-  test: { id: string; name: string };
+  /** The family decides which answer table the review screen draws. */
+  test: {
+    id: string;
+    name: string;
+    scorerType: string;
+    /**
+     * Seed-owned settings. A battery's subtest split lives here and nowhere
+     * else, so the answer table cannot group its 176 rows without it.
+     */
+    scoringConfig: unknown;
+  };
   session: { id: string; title: string };
   participant: { name: string; email: string | null };
   attempt: { id: string; completedAt: Date | null };

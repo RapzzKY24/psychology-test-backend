@@ -446,6 +446,42 @@ describe.each(FILES)('seed %s', (file) => {
     }
   });
 
+  // ME asks which category holds a word starting with a given letter, so the
+  // printed list and the key have to agree. Nothing else checks that: a wrong
+  // key still scores, it just scores the wrong answer as right.
+  it('gives the memorisation list a word for every letter its items ask', () => {
+    if (seed.test.scorerType !== 'MULTI_SUBTEST') return;
+    const config = MultiSubtestConfigSchema.parse(seed.test.scoringConfig);
+    const studied = config.subtests.find((s) => (s.memorizeMin ?? 0) > 0);
+    if (!studied) return;
+
+    // A study window with nothing to study is three minutes of a blank screen.
+    expect(studied.memorizeList?.length ?? 0).toBeGreaterThan(0);
+    const initials = new Map(
+      (studied.memorizeList ?? []).map((group) => [
+        group.label.toUpperCase(),
+        new Set(group.words.map((word) => word[0]!.toUpperCase())),
+      ]),
+    );
+
+    const items = seed.items.filter(
+      (item) => subtestOfItem(config, item.order)?.code === studied.code,
+    );
+    expect(items.length).toBe(studied.itemCount);
+
+    for (const item of items) {
+      const content = parseMultiSubtestItem(item.content);
+      if (content?.kind !== 'CHOICE') continue;
+      const letter = /–\s*([A-Z])\s*–/.exec(content.prompt)?.[1] ?? null;
+      const category = content.options[content.key];
+      expect({
+        order: item.order,
+        letter,
+        matched: letter !== null && (initials.get(category.toUpperCase())?.has(letter) ?? false),
+      }).toEqual({ order: item.order, letter, matched: true });
+    }
+  });
+
   // The config is seed-owned and never edited in the admin UI, so nothing else
   // would catch a misspelled band key before it silently scores every
   // participant with the family defaults.
