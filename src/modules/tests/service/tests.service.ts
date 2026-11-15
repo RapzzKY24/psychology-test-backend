@@ -21,6 +21,7 @@ import type { PaginatedResponse } from '../../../common/interfaces/api-response.
 import type { QueryTestDto } from '../dto/query-test.dto';
 import type { PublicTestDto } from '../dto/public-test.dto';
 import { getItemSchema } from '../../../scorers/schemas';
+import { getScorer } from '../../../scorers/registry';
 
 /** Public projection — the only test fields a participant or institution may see. */
 function toPublicTestDto(test: Test): PublicTestDto {
@@ -279,12 +280,16 @@ export class TestsService {
 
     // The flag exists so the attempt read can ask for a sex before showing any
     // item. It has to follow the items: an admin who adds a second list gets
-    // the gate, and one who removes it stops asking.
-    const requiresGender = items.some((item) => {
-      const female = (item.content as { femaleOptions?: unknown } | null)
-        ?.femaleOptions;
-      return Array.isArray(female) && female.length > 0;
-    });
+    // the gate, and one who removes it stops asking. The family decides, since
+    // a split norm table (KUDER) gates the attempt without changing the items.
+    const scorer = getScorer(test.scorerType);
+    const requiresGender =
+      scorer?.requiresGenderFor?.(items, test.scoringConfig) ??
+      items.some((item) => {
+        const female = (item.content as { femaleOptions?: unknown } | null)
+          ?.femaleOptions;
+        return Array.isArray(female) && female.length > 0;
+      });
     await this.repo.replaceItems(testId, items, { requiresGender });
 
     return { count: items.length };

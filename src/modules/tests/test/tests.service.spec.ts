@@ -374,6 +374,39 @@ describe('TestsService', () => {
       );
     });
 
+    it('asks for a sex when the family scores against two norm tables', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: '1',
+        status: 'DRAFT',
+        scorerType: 'MARK_GROUP',
+        scoringConfig: {
+          norms: {
+            MALE: { OUT: [0, 0.5] },
+            FEMALE: { OUT: [0, 0.4] },
+          },
+        },
+      } as any);
+      mockRepo.hasInProgressAttempts.mockResolvedValue(false);
+      mockRepo.replaceItems.mockResolvedValue(undefined);
+
+      await service.putItems('1', [
+        {
+          content: {
+            question: 'Kelompok 1',
+            options: ['Berkebun', 'Menanam padi'],
+            mapping: [['OUT'], ['OUT']],
+          },
+        },
+      ]);
+
+      // The items are identical for both sexes; only the norm table differs.
+      expect(mockRepo.replaceItems).toHaveBeenCalledWith(
+        '1',
+        expect.any(Array),
+        { requiresGender: true },
+      );
+    });
+
     it('asks for a sex once an item ships a second list', async () => {
       mockRepo.findById.mockResolvedValue({
         id: '1',

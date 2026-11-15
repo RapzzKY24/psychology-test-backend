@@ -492,6 +492,47 @@ describe('AttemptsService', () => {
       );
     });
 
+    it('reads the norm table of the sex the attempt recorded', async () => {
+      const base = makeDetail();
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({
+          attempt: { ...base.attempt, gender: 'FEMALE' },
+          test: {
+            ...base.test,
+            scorerType: 'MARK_GROUP',
+            scoringConfig: {
+              norms: {
+                MALE: { OUT: [0, 0.1] },
+                FEMALE: { OUT: [0, 0.9] },
+              },
+            },
+          },
+          items: [
+            {
+              id: 'k-1',
+              order: 1,
+              content: {
+                options: ['Berkebun', 'Menanam padi'],
+                mapping: [['OUT'], ['OUT']],
+              },
+            },
+          ],
+          responses: [{ itemId: 'k-1', value: { liked: [0], disliked: [] } }],
+        }),
+      );
+      mockRepo.completeAndCreateResult.mockResolvedValue({
+        id: 'res-1',
+        patternCode: 'OUT',
+      } as any);
+
+      await service.complete('att-1', 'p-1');
+
+      const [stored] = mockRepo.completeAndCreateResult.mock.calls[0];
+      const result = stored.scores as { scales: { OUT: { percent: number } } };
+      // Same answer, different table: the female row is 0.9, the male 0.1.
+      expect(result.scales.OUT.percent).toBe(90);
+    });
+
     it('still refuses a DISC attempt with missing word pairs', async () => {
       mockRepo.findAccessDetail.mockResolvedValue(makeDetail());
       await expect(service.complete('att-1', 'p-1')).rejects.toThrow(

@@ -290,6 +290,9 @@ export class AttemptsService {
       responses: detail.responses,
       normTable: detail.test.normTable,
       scoringConfig: detail.test.scoringConfig,
+      // KUDER reads a different percentile table per sex; the value is the
+      // one recorded by the read, so a re-score always uses the same table.
+      gender: detail.attempt.gender,
     });
     const result = await this.repo.completeAndCreateResult({
       attemptId,

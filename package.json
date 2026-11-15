@@ -40,6 +40,7 @@
     "seed:papi": "tsx src/scripts/seed-papi.ts",
     "seed:big-five": "tsx src/scripts/seed-big-five.ts",
     "seed:enneagram": "tsx src/scripts/seed-enneagram.ts",
+    "seed:kuder": "tsx src/scripts/seed-kuder.ts",
     "seed:msai": "tsx src/scripts/seed-msai.ts",
     "seed:rmib": "tsx src/scripts/seed-rmib.ts",
     "seed:instansi": "tsx src/scripts/seed-instansi.ts",

@@ -26,6 +26,13 @@ import {
   likertResponseSchema,
 } from './schemas/likert';
 import {
+  MarkGroupConfigSchema,
+  MarkGroupItemContentSchema,
+  MarkGroupResponseSchema,
+  markGroupPatternCodes,
+  markGroupResponseSchema,
+} from './schemas/mark-group';
+import {
   RankGroupItemContentSchema,
   RankGroupResponseSchema,
   rankGroupPatternCodes,
@@ -46,12 +53,14 @@ import { scoreDisc } from './disc-scorer';
 import { scoreForcedChoicePair } from './forced-choice-pair';
 import { scorePairTally } from './pair-tally';
 import { scoreLikert } from './likert';
+import { scoreMarkGroup } from './mark-group';
 import { scoreRankGroup } from './rank-group';
 import { scoreRightWrongNorm } from './right-wrong-norm';
 import { scoreScaleTally } from './scale-tally';
 import { sanitizeChoiceTallyItem } from './sanitize-choice-tally-item';
 import { sanitizePairItem } from './sanitize-pair-item';
 import { sanitizeLikertItem } from './sanitize-likert-item';
+import { sanitizeMarkGroupItem } from './sanitize-mark-group-item';
 import { sanitizeRankGroupItem } from './sanitize-rank-group-item';
 import { sanitizeRightWrongItem } from './sanitize-right-wrong-item';
 import { sanitizeScaleTallyItem } from './sanitize-scale-tally-item';
@@ -112,6 +121,16 @@ export interface Scorer {
     items: { content: unknown }[],
     scoringConfig?: unknown,
   ): string[];
+  /**
+   * Whether this item set can only be answered once the participant declares a
+   * sex. RANK_GROUP says yes when an item ships a second list; MARK_GROUP says
+   * yes when the norm table is split, even though both sexes see one list.
+   * `putItems` uses it to keep `Test.requiresGender` in step with the items.
+   */
+  requiresGenderFor?(
+    items: { content: unknown }[],
+    scoringConfig?: unknown,
+  ): boolean;
   score(input: {
     items: { id: string; content: unknown }[];
     responses: { itemId: string; value: unknown }[];
@@ -119,6 +138,8 @@ export interface Scorer {
     normTable?: unknown;
     /** Family settings the items do not carry (e.g. a tally tie-break). */
     scoringConfig?: unknown;
+    /** Declared sex, for a family whose norm table is split (KUDER). */
+    gender?: string | null;
   }): Promise<ScorerOutput>;
 }
 
@@ -173,6 +194,33 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     score: (input) =>
       Promise.resolve(scoreLikert(input) as unknown as ScorerOutput),
   },
+  MARK_GROUP: {
+    type: 'MARK_GROUP',
+    itemSchema: MarkGroupItemContentSchema,
+    responseSchema: MarkGroupResponseSchema,
+    responseSchemaFor: (_scoringConfig, itemContent) =>
+      markGroupResponseSchema(itemContent),
+    configSchema: MarkGroupConfigSchema,
+    sanitize: sanitizeMarkGroupItem,
+    patternCatalog: [],
+    patternCodesFor: markGroupPatternCodes,
+    // Both sexes see the same activities, but the percentiles come from two
+    // tables, so the attempt still has to declare one before it is scored.
+    requiresGenderFor: (items, scoringConfig) => {
+      const parsed = MarkGroupConfigSchema.safeParse(scoringConfig ?? {});
+      if (parsed.success && parsed.data.norms) {
+        const { MALE, FEMALE } = parsed.data.norms;
+        return Boolean(MALE) && Boolean(FEMALE);
+      }
+      return items.some((item) => {
+        const female = (item.content as { femaleOptions?: unknown } | null)
+          ?.femaleOptions;
+        return Array.isArray(female) && female.length > 0;
+      });
+    },
+    score: (input) =>
+      Promise.resolve(scoreMarkGroup(input) as unknown as ScorerOutput),
+  },
   PAIR_TALLY: {
     type: 'PAIR_TALLY',
     itemSchema: PairItemContentSchema,
@@ -193,6 +241,12 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     sanitize: sanitizeRankGroupItem,
     patternCatalog: [],
     patternCodesFor: rankGroupPatternCodes,
+    requiresGenderFor: (items) =>
+      items.some((item) => {
+        const female = (item.content as { femaleOptions?: unknown } | null)
+          ?.femaleOptions;
+        return Array.isArray(female) && female.length > 0;
+      }),
     score: (input) =>
       Promise.resolve(scoreRankGroup(input) as unknown as ScorerOutput),
   },
