@@ -1,0 +1,1093 @@
+{
+  "test": {
+    "slug": "msdt",
+    "name": "MSDT (Management Style Diagnostic Test)",
+    "description": "Tes gaya kepemimpinan Reddin 3-D – 64 pasang pernyataan, 8 gaya manajemen.",
+    "category": "WORK_STYLE",
+    "scorerType": "STYLE_GRID",
+    "price": 75000,
+    "estimatedDurationMin": 20,
+    "scoringConfig": {
+      "scales": [
+        {
+          "code": "DS",
+          "label": "Deserter",
+          "correction": 1
+        },
+        {
+          "code": "MI",
+          "label": "Missionary",
+          "correction": 2
+        },
+        {
+          "code": "AU",
+          "label": "Autocrat",
+          "correction": 1
+        },
+        {
+          "code": "CO",
+          "label": "Compromiser",
+          "correction": 0
+        },
+        {
+          "code": "BU",
+          "label": "Bureaucrat",
+          "correction": 3
+        },
+        {
+          "code": "DV",
+          "label": "Developer",
+          "correction": -1
+        },
+        {
+          "code": "BA",
+          "label": "Benevolent autocrat",
+          "correction": 0
+        },
+        {
+          "code": "E",
+          "label": "Executive",
+          "correction": -4
+        }
+      ],
+      "dimensions": [
+        {
+          "code": "TO",
+          "label": "Task orientation",
+          "scales": [
+            "AU",
+            "CO",
+            "BA",
+            "E"
+          ]
+        },
+        {
+          "code": "RO",
+          "label": "Relationship orientation",
+          "scales": [
+            "MI",
+            "CO",
+            "DV",
+            "E"
+          ]
+        },
+        {
+          "code": "EF",
+          "label": "Effectiveness",
+          "scales": [
+            "BU",
+            "DV",
+            "BA",
+            "E"
+          ]
+        },
+        {
+          "code": "O",
+          "label": "Other",
+          "scales": [
+            "DS"
+          ]
+        }
+      ],
+      "levels": [
+        {
+          "max": 29,
+          "value": 0
+        },
+        {
+          "max": 31,
+          "value": 0.6
+        },
+        {
+          "max": 32,
+          "value": 1.2
+        },
+        {
+          "max": 33,
+          "value": 1.8
+        },
+        {
+          "max": 34,
+          "value": 2.4
+        },
+        {
+          "max": 35,
+          "value": 3
+        },
+        {
+          "max": 37,
+          "value": 3.6
+        },
+        {
+          "max": null,
+          "value": 4
+        }
+      ],
+      "cut": 2,
+      "profiles": [
+        {
+          "code": "E",
+          "label": "Executive",
+          "high": [
+            "TO",
+            "RO",
+            "EF"
+          ],
+          "low": []
+        },
+        {
+          "code": "CO",
+          "label": "Compromiser",
+          "high": [
+            "TO",
+            "RO"
+          ],
+          "low": [
+            "EF"
+          ]
+        },
+        {
+          "code": "BA",
+          "label": "Benevolent autocrat",
+          "high": [
+            "TO",
+            "EF"
+          ],
+          "low": [
+            "RO"
+          ]
+        },
+        {
+          "code": "AU",
+          "label": "Autocrat",
+          "high": [
+            "TO"
+          ],
+          "low": [
+            "RO",
+            "EF"
+          ]
+        },
+        {
+          "code": "DV",
+          "label": "Developer",
+          "high": [
+            "RO",
+            "EF"
+          ],
+          "low": [
+            "TO"
+          ]
+        },
+        {
+          "code": "MI",
+          "label": "Missionary",
+          "high": [
+            "RO"
+          ],
+          "low": [
+            "TO",
+            "EF"
+          ]
+        },
+        {
+          "code": "BU",
+          "label": "Bureaucrat",
+          "high": [
+            "EF"
+          ],
+          "low": [
+            "TO",
+            "RO"
+          ]
+        },
+        {
+          "code": "DS",
+          "label": "Deserter",
+          "high": [],
+          "low": [
+            "TO",
+            "RO",
+            "EF"
+          ]
+        }
+      ]
+    }
+  },
+  "items": [
+    {
+      "order": 1,
+      "content": {
+        "statements": [
+          "Saya mengabaikan pelanggar-pelanggar peraturan bila saya merasa pasti bahwa tidak ada satu orangpun yang mengetahui tentang pelanggar-pelanggar tersebut.",
+          "Bila saya mengumumkan suatu keputusan yang kurang menyenangkan, saya akan menjelaskan kepada bawahan saya bahwa keputusan ini dibuat oleh Direktur."
+        ],
+        "mapping": [
+          "DS",
+          "DS"
+        ]
+      }
+    },
+    {
+      "order": 2,
+      "content": {
+        "statements": [
+          "Bila ada seorang karyawan yang hasil kerjanya selalu tidak memuaskan saya, saya akan menunggu suatu kesempatan untuk memindahkannya dan bukan untuk memecatnya.",
+          "Bila ada bawahan saya yang dikucilkan dari kelompok kerjanya, saya akan mencarikan cara-cara agar supaya orang lain dapat berteman dengannya."
+        ],
+        "mapping": [
+          "DS",
+          "MI"
+        ]
+      }
+    },
+    {
+      "order": 3,
+      "content": {
+        "statements": [
+          "Bila Direktur memberikan perintah yang kurang menyenangkan, saya pikir adalah cukup bijaksana bila saya menyebutkan namanya dan bukan nama saya.",
+          "Saya biasanya membuat keputusan-keputusan saya sendiri dan menyampaikannya kepada bawahan saya."
+        ],
+        "mapping": [
+          "DS",
+          "AU"
+        ]
+      }
+    },
+    {
+      "order": 4,
+      "content": {
+        "statements": [
+          "Bila saya ditegur oleh atasan saya, saya akan memanggil semua bawahan saya dan mengatakan semua teguran tersebut kepada mereka.",
+          "Saya selalu memberikan tugas-tugas yang sangat sulit kepada karyawan-karyawan yang paling berpengalaman"
+        ],
+        "mapping": [
+          "DS",
+          "CO"
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "content": {
+        "statements": [
+          "Saya selalu melakukan diskusi-diskusi untuk mencapai kata sepakat.",
+          "Saya selalu menganjurkan kepada bawahan saya untuk memberikan usul-usul, tetapi kadang-kadang juga saya langsung membuat suatu tindakan tertentu."
+        ],
+        "mapping": [
+          "DS",
+          "BU"
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "content": {
+        "statements": [
+          "Kadang-kadang saya berpikir bahwa perasaan-perasaan saya dan sikap-sikap saya adalah mementingkan tugas saya.",
+          "Saya mengijinkan bawahan-bawahan saya untuk ikut serta mengambil keputusan yang dibuat berdasarkan atas suara terbanyak."
+        ],
+        "mapping": [
+          "DS",
+          "DV"
+        ]
+      }
+    },
+    {
+      "order": 7,
+      "content": {
+        "statements": [
+          "Bila jumlah dan mutu hasil kerja bagian saya tidak memuaskan, saya menjelaskan kepada bawahan-bawahan saya bahwa Direktur merasa kecewa dan oleh karena itu mereka harus memperbaiki kerja mereka.",
+          "Saya membuat keputusan-keputusan sendiri dan kemudian saya mencoba untuk menjual keputusan-keputusan itu kepada bawahan saya."
+        ],
+        "mapping": [
+          "DS",
+          "BA"
+        ]
+      }
+    },
+    {
+      "order": 8,
+      "content": {
+        "statements": [
+          "Bila saya mengumumkan suatu keputusan yang kurang menyenangkan, saya akan menjelaskan kepada bawahan saya bahwa keputusan ini dibuat oleh Direktur.",
+          "Saya mengijinkan bawahan-bawahan saya untuk ikut serta di dalam pengambilan keputusan, tetapi sayapun menyediakan sesuatu keputusan terakhir."
+        ],
+        "mapping": [
+          "DS",
+          "E"
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "content": {
+        "statements": [
+          "Saya akan memberikan tugas-tugas yang sulit kepada bawahan saya yang belum berpengalaman, tetapi bila mereka memperoleh kesukaran, saya akan mengambil alih tanggung jawab mereka.",
+          "Bila jumlah dan mutu hasil kerja bagian saya tidak memuaskan, saya menjelaskan kepada bawahan-bawahan saya bahwa Direktur merasa kecewa dan oleh karena itu mereka harus memperbaiki mutu kerja mereka itu."
+        ],
+        "mapping": [
+          "MI",
+          "DS"
+        ]
+      }
+    },
+    {
+      "order": 10,
+      "content": {
+        "statements": [
+          "Saya merasa bahwa adalah penting agar bawahan-bawahan menyukai saya apabila saya bekerja keras untuk mereka.",
+          "Saya membiarkan orang-orang lain menangani tugas-tugas mereka masing-masing, walaupun mereka membuat banyak kesalahan."
+        ],
+        "mapping": [
+          "MI",
+          "MI"
+        ]
+      }
+    },
+    {
+      "order": 11,
+      "content": {
+        "statements": [
+          "Saya menunjukkan minat saya terhadap kehidupan pribadi bawahan-bawahan saya, sebab saya merasa bahwa saya mengerti mengapa mereka mengerjakan sesuatu hal sejauh mereka mengerjakan hal tersebut.",
+          "Saya saya merasa bahwa adalah tidak terlalu perlu untuk bawahan-bawahan saya mengerti mengapa mereka mengerjakan sesuatu hal sejauh mereka mengerjakan hal tersebut."
+        ],
+        "mapping": [
+          "MI",
+          "AU"
+        ]
+      }
+    },
+    {
+      "order": 12,
+      "content": {
+        "statements": [
+          "Saya percaya bahwa bawahan-bawahan yang disiplin tidak akan memperbaiki jumlah atau mutu kerja mereka di dalam jangka waktu yang panjang.",
+          "Bila menghadapi masalah yang sulit, saya berusaha untuk mencapai pemecahan yang paling sedikit bisa diterima oleh sebagian besar orang-orang yang bersangkutan."
+        ],
+        "mapping": [
+          "MI",
+          "CO"
+        ]
+      }
+    },
+    {
+      "order": 13,
+      "content": {
+        "statements": [
+          "Saya berpikir bahwa bila beberapa bawahan saya merasa tidak berbahagia, saya akan mencoba melakukan sesuatu mengenai hal tersebut.",
+          "Saya mengurusi pekerjaan saya sendiri dan saya merasa bahwa pekerjaan saya itu bisa mencapai “Dewan Direksi” untuk mengembangkan ide-ide baru."
+        ],
+        "mapping": [
+          "MI",
+          "BU"
+        ]
+      }
+    },
+    {
+      "order": 14,
+      "content": {
+        "statements": [
+          "Saya menyetujui kenaikan tunjangan-tunjangan untuk staf dan karyawan.",
+          "Saya menunjukkan persetujuan untuk meningkatkan pengetahuan tentang pekerjaan dan perusahaan dari bawahanbawahan saya, walaupun hal itu sebenarnya belum diperlukan untuk kedudukan mereka sekarang."
+        ],
+        "mapping": [
+          "MI",
+          "DV"
+        ]
+      }
+    },
+    {
+      "order": 15,
+      "content": {
+        "statements": [
+          "Saya membiarkan orang-orang lain menangani tugas-tugas mereka masing-masing, walaupun mereka membuat banyak kesalahan.",
+          "Saya membuat keputusan-keputusan sendiri tetapi saya akan mempertimbangkan usul-usul yang masuk di akal dari bawahanbawahan saya yang untuk memperbaiki keputusan tersebut apabila saya bertanya kepada mereka."
+        ],
+        "mapping": [
+          "MI",
+          "BA"
+        ]
+      }
+    },
+    {
+      "order": 16,
+      "content": {
+        "statements": [
+          "Bila ada bawahan saya yang dikucilkan dari kelompok kerjanya, saya akan mencarikan cara-cara agar supaya orang lain dapat berteman dengannya.",
+          "Bila seorang karyawan tidak sanggup menyelesaikan tugasnya, saya akan membantu dia untuk menyelesaikan tugas tersebut"
+        ],
+        "mapping": [
+          "MI",
+          "E"
+        ]
+      }
+    },
+    {
+      "order": 17,
+      "content": {
+        "statements": [
+          "Saya percaya bahwa suatu penerapan disiplin adalah merupakan seperangkat contoh untuk karyawan-karyawan lainnya.",
+          "Kadang-kadang saya berpikir bahwa perasaan-perasaan saya dan sikap-sikap saya adalah mementingkan tugas saya."
+        ],
+        "mapping": [
+          "AU",
+          "DS"
+        ]
+      }
+    },
+    {
+      "order": 18,
+      "content": {
+        "statements": [
+          "Saya mencela pembicaraan-pembicaraan yang tidak perlu di antara bawahan-bawahan saya selama mereka bekerja.",
+          "Saya menyetujui tunjangan-tunjangan untuk staf dan karyawankaryawan."
+        ],
+        "mapping": [
+          "AU",
+          "MI"
+        ]
+      }
+    },
+    {
+      "order": 19,
+      "content": {
+        "statements": [
+          "Saya selalu memperhatikan mengenai keterlambatan dan kemangkiran.",
+          "Saya percaya bahwa Serikat-Serikat Buruh akan mencoba untuk meruntuhkan kewibawaan pimpinan perusahaan."
+        ],
+        "mapping": [
+          "AU",
+          "AU"
+        ]
+      }
+    },
+    {
+      "order": 20,
+      "content": {
+        "statements": [
+          "Kadang-kadang saya menentang keluhan-keluhan serikat buruh sebagai suatu perkara yang prinsipil.",
+          "Saya merasa bahwa keluhan-keluhan tidak dapat dicegah dan saya mencoba sebaik mungkin untuk dapat dilenyapkan."
+        ],
+        "mapping": [
+          "AU",
+          "CO"
+        ]
+      }
+    },
+    {
+      "order": 21,
+      "content": {
+        "statements": [
+          "Adalah penting bagi saya untuk memperoleh nilai kredit bagi ide-ide saya yang baik.",
+          "Saya menyuarakan pendapat-pendapat saya di muka umum hanya bila saya merasa bahwa orang lain akan setuju dengan saya."
+        ],
+        "mapping": [
+          "AU",
+          "BU"
+        ]
+      }
+    },
+    {
+      "order": 22,
+      "content": {
+        "statements": [
+          "Saya percaya bahwa Serikat-Serikat Buruh akan mencoba meruntuhkan kewibawaan pimpinan perusahaan.",
+          "Saya percaya bahwa pertemuan-pertemuan yang sering dengan karyawan secara pribadi adalah membantu pengembangan diri mereka."
+        ],
+        "mapping": [
+          "AU",
+          "DV"
+        ]
+      }
+    },
+    {
+      "order": 23,
+      "content": {
+        "statements": [
+          "Saya merasa bahwa tidak terlalu perlu untuk bawahan-bawahan saya mengerti mengapa mereka mengerjakan seuatu hal sejauh mereka mengerjakan hal tersebut.",
+          "Saya merasa bahwa jam pencatat waktu datang dan pulangnya para pegawai, mengurangi keterlambatan."
+        ],
+        "mapping": [
+          "AU",
+          "BA"
+        ]
+      }
+    },
+    {
+      "order": 24,
+      "content": {
+        "statements": [
+          "Saya biasanya membuat keputusan-keputusan saya sendiri dan menyampaikannya kepada bawahan saya.",
+          "Saya merasa bahwa Serikat-Serikat Buruh dan pimpinan perusahaan adalah bekerja untuk mencapai tujuan-tujuan yang sama."
+        ],
+        "mapping": [
+          "AU",
+          "E"
+        ]
+      }
+    },
+    {
+      "order": 25,
+      "content": {
+        "statements": [
+          "Saya menyukai penggunaan dari skala penggajian karyawan.",
+          "Saya selalu melakukan diskusi-diskusi untuk mencapai kata sepakat."
+        ],
+        "mapping": [
+          "CO",
+          "DS"
+        ]
+      }
+    },
+    {
+      "order": 26,
+      "content": {
+        "statements": [
+          "Saya merasa bangga di dalam kenyataannya bahwa saya biasanya tidak akan menanyakan kepada seseorang untuk mengerjakan suatu tugas yang kalau untuk saya sendiri, tidak akan saya kerjakan.",
+          "Saya berpikir bahwa bila beberapa bawahan saya merasa tidak berbahagia, saya akan mencoba melakukan sesuatu mengenai hal tersebut."
+        ],
+        "mapping": [
+          "CO",
+          "MI"
+        ]
+      }
+    },
+    {
+      "order": 27,
+      "content": {
+        "statements": [
+          "Bila ada suatu tugas yang mendesak, walaupun semua peralatannya sudah disediakan saya akan membiarkannya saja, dan mengatakan kepada salah seorang bawahan saya untuk mengerjakan sesuatu tugas tersebut.",
+          "Adalah penting bagi saya untuk memperoleh nilai kredit bagi ideide saya yang baik."
+        ],
+        "mapping": [
+          "CO",
+          "AU"
+        ]
+      }
+    },
+    {
+      "order": 28,
+      "content": {
+        "statements": [
+          "Tujuan saya adalah mencapai bagaimana tugas-tugas dapat dikerjakan, tanpa saya merasa lebih benci daripada siapapun yang mengerjakan.",
+          "Saya mungkin menentukan tugas-tugas tanpa banyak mempertimbangkan pengalaman atau kemampuan, tetapi saya lebih menuntut pada pencapaian hasil-hasilnya saja."
+        ],
+        "mapping": [
+          "CO",
+          "CO"
+        ]
+      }
+    },
+    {
+      "order": 29,
+      "content": {
+        "statements": [
+          "Saya mungkin menentukan tugas-tugas tanpa banyak mempertimbangkan pengalaman atau kemampuan, tetapi saya lebih menuntut pada pencapaian hasil-hasilnya saja.",
+          "Saya dengan sabar mendengarkan keluhan-keluhan dan ketidakpuasan-ketidakpuasan dari bawahan saya tetapi seringkali saya meralat apa yang mereka katakan."
+        ],
+        "mapping": [
+          "CO",
+          "BU"
+        ]
+      }
+    },
+    {
+      "order": 30,
+      "content": {
+        "statements": [
+          "Saya merasa bahwa keluhan-keluhan tidak dapat dicegah dan saya mencoba sebaik mungkin untuk dapat dilenyapkan.",
+          "Saya percaya bahwa bawahan-bawahan saya akan merasakan kepuasan kerja mereka tanpa merasakan tekanan apapun dari saya."
+        ],
+        "mapping": [
+          "CO",
+          "DV"
+        ]
+      }
+    },
+    {
+      "order": 31,
+      "content": {
+        "statements": [
+          "Bila menghadapi masalah yang sulit, saya berusaha untuk mencapai pemecahan yang paling sedikit bisa diterima oleh sebagian besar orang-orang yang bersangkutan.",
+          "Saya percaya bahwa latihan melalui pengalaman bekerja, adalah lebih bermanfaat daripada pendidikan teoritis"
+        ],
+        "mapping": [
+          "CO",
+          "BA"
+        ]
+      }
+    },
+    {
+      "order": 32,
+      "content": {
+        "statements": [
+          "Saya selalu memberikan tugas-tugas yang sangat sulit kepada karyawan-karyawan yang paling berpengalaman. .",
+          "Saya percaya bahwa kenaikan jabatan adalah semata-mata berdasarkan kemampuan yang ada"
+        ],
+        "mapping": [
+          "CO",
+          "E"
+        ]
+      }
+    },
+    {
+      "order": 33,
+      "content": {
+        "statements": [
+          "Saya merasa bahwa masalah-masalah yang timbul di antara para karyawan biasanya akan dapat diselesaikan di antara mereka sendiri, tanpa campur tangan dari saya.",
+          "Bila saya ditegur oleh atasan saya, saya akan memanggil semua bawahan saya dan mengatakan semua teguran tersebut kepada mereka."
+        ],
+        "mapping": [
+          "BU",
+          "DS"
+        ]
+      }
+    },
+    {
+      "order": 34,
+      "content": {
+        "statements": [
+          "Saya tidak peduli dengan apa yang dikerjakan oleh karyawan saya di luar jam kerja kantornya.",
+          "Saya percaya bahwa bawahan-bawahan yang disiplin tidak akan memperbaiki jumlah atau mutu kerja mereka di dalam jangka waktu panjang."
+        ],
+        "mapping": [
+          "BU",
+          "MI"
+        ]
+      }
+    },
+    {
+      "order": 35,
+      "content": {
+        "statements": [
+          "Saya memberikan informasi kepada “Dewan Direksi” tidak lebih dari pada apa yang mereka tanyakan.",
+          "Kadang-kadang saya menentang keluhan-keluhan Serikat Buruh sebagai sesuatu perkara yang prinsipil."
+        ],
+        "mapping": [
+          "BU",
+          "AU"
+        ]
+      }
+    },
+    {
+      "order": 36,
+      "content": {
+        "statements": [
+          "Saya kadang-kadang merasa ragu-ragu untuk membuat suatu keputusan yang akan tidak disukai oleh bawahan-bawahan saya.",
+          "Tujuan saya adalah mencapai bagaimana tugas-tugas dapat dikerjakan, tanpa saya merasa lebih benci daripada siapapun yang mengerjakannya."
+        ],
+        "mapping": [
+          "BU",
+          "CO"
+        ]
+      }
+    },
+    {
+      "order": 37,
+      "content": {
+        "statements": [
+          "Saya dengan sabar mendengarkan keluhan-keluhan dan ketidakpuasan–ketidakpuasan dari bawahan saya, tetapi seringkali saya meralat apa yang mereka katakan.",
+          "Saya kadang-kadang merasa ragu-ragu untuk membuat keputusan-keputusan yang akan tidak disukai oleh bawahanbawahan saya."
+        ],
+        "mapping": [
+          "BU",
+          "BU"
+        ]
+      }
+    },
+    {
+      "order": 38,
+      "content": {
+        "statements": [
+          "Saya menyuarakan pendapat-pendapat saya di muka umum hanya bila saya merasa bahwa orang lain akan setuju dengan saya.",
+          "Sebagian besar dari bawahan-bawahan saya dapat menyelesaikan tugas-tugas mereka, bila perlu, tanpa kehadiran saya."
+        ],
+        "mapping": [
+          "BU",
+          "DV"
+        ]
+      }
+    },
+    {
+      "order": 39,
+      "content": {
+        "statements": [
+          "Saya mengurusi pekerjaan saya sendiri, dan saya merasa bahwa pekerjaan saya itu bisa mencapai “Dewan Direksi” untuk mengembangkan ide-ide baru.",
+          "Bila saya memberikan perintah kepada bawahan-bawahan saya, saya menentukan batas waktu untuk mereka menyelesaikannya."
+        ],
+        "mapping": [
+          "BU",
+          "BA"
+        ]
+      }
+    },
+    {
+      "order": 40,
+      "content": {
+        "statements": [
+          "Saya selalu menganjurkan kepada bawahan saya untuk memberikan usul-usul, tetapi kadang-kadang juga saya langsung membuat suatu tindakan tertentu.",
+          "Saya mencoba untuk membuat bawahan-bawahan saya merasa senang hatinya apabila mereka berbicara dengan saya"
+        ],
+        "mapping": [
+          "BU",
+          "E"
+        ]
+      }
+    },
+    {
+      "order": 41,
+      "content": {
+        "statements": [
+          "Di dalam diskusi, saya memberikan fakta-fakta seperti apa yang mereka pahami, dan membiarkan mereka melukiskan kesimpulan-kesimpulan mereka sendiri.",
+          "Bila Direktur memberikan perintah yang kurang menyenangkan, saya pikir adalah cukup bijaksana bila saya menyebutkan namanya dan bukan nama saya."
+        ],
+        "mapping": [
+          "DV",
+          "DS"
+        ]
+      }
+    },
+    {
+      "order": 42,
+      "content": {
+        "statements": [
+          "Bila ada tugas-tugas yang tidak dikehendaki yang harus dikerjakan, sebelumnya saya akan menanyakan kepada beberapa sukarelawan yang mau mengerjakan tugas tersebut.",
+          "Saya menunjukkan minat saya terhadap kehidupan pribadi bawahan-bawahan saya, sebab saya merasa bahwa sayapun mengharapkan mereka berbuat seperti itu kepada saya."
+        ],
+        "mapping": [
+          "DV",
+          "MI"
+        ]
+      }
+    },
+    {
+      "order": 43,
+      "content": {
+        "statements": [
+          "Saya adalah seorang yang sangat memperhatikan kebahagiaan karyawan-karyawan saya di dalam mereka mengerjakan tugas-tugas mereka.",
+          "Saya selalu memperhatikan mengenai keterlambatan dan kemangkiran."
+        ],
+        "mapping": [
+          "DV",
+          "AU"
+        ]
+      }
+    },
+    {
+      "order": 44,
+      "content": {
+        "statements": [
+          "Sebagian besar dari bawahan-bawahan saya dapat menyelesaikan tugas-tugas mereka, bila perlu tanpa kehadiran saya.",
+          "Bila ada sesuatu tugas yang mendesak, walaupun semua peralatannya sesudah disediakan, saya akan membiarkannya saja dan mengatakan kepada salah seorang bawahan saya untuk mengerjakan tugas tersebut."
+        ],
+        "mapping": [
+          "DV",
+          "CO"
+        ]
+      }
+    },
+    {
+      "order": 45,
+      "content": {
+        "statements": [
+          "Saya percaya bahwa bawahan-bawahan saya akan merasakan kepuasan kerja mereka tanpa merasakan tekanan apapun dari saya.",
+          "Saya memberikan informasi kepada “Dewan Direksi” tidak lebih daripada apa yang mereka tanyakan."
+        ],
+        "mapping": [
+          "DV",
+          "BU"
+        ]
+      }
+    },
+    {
+      "order": 46,
+      "content": {
+        "statements": [
+          "Saya percaya bahwa pertemuan-pertemuan yang sering dengan karyawan secara pribadi adalah membantu pengembangan diri mereka.",
+          "Saya adalah seorang yang sangat memperhatikan karyawan-karyawan saya di dalam mereka mengerjakan tugas-tugas mereka."
+        ],
+        "mapping": [
+          "DV",
+          "DV"
+        ]
+      }
+    },
+    {
+      "order": 47,
+      "content": {
+        "statements": [
+          "Saya menunjukkan persetujuan untuk meningkatkan pengetahuan tentang pekerjaan dan perusahaan dari bawahan-bawahan saya, walaupun hal itu sebenarnya belum diperlukan untuk kedudukan mereka sekarang.",
+          "Saya mengawasi benar bawahan-bawahan saya yang kurang mahir di dalam bekerjanya atau bawahan-bawahan saya yang hasil kerjanya kurang memuaskan."
+        ],
+        "mapping": [
+          "DV",
+          "BA"
+        ]
+      }
+    },
+    {
+      "order": 48,
+      "content": {
+        "statements": [
+          "Saya mengijinkan bawahan-bawahan saya untuk ikut serta mengambil keputusan dan saya selalu mematuhi keputusan yang dibuat berdasarkan atas suara terbanyak.",
+          "Saya membuat bawahan-bawahan saya bekerja keras, dan saya berusaha menyakinkan mereka bahwa biasanya mereka mendapat perlakukan yang adil dari “Dewan Direksi”."
+        ],
+        "mapping": [
+          "DV",
+          "E"
+        ]
+      }
+    },
+    {
+      "order": 49,
+      "content": {
+        "statements": [
+          "Saya merasa bahwa semua karyawan pada jabatan yang sama seharusnya memperoleh gaji yang sama.",
+          "Bila ada seorang karyawan yang hasil kerjanya selalu tidak memuaskan saya, saya akan menunggu suatu kesempatan untuk memindahkannya dan bukan untuk memecatnya."
+        ],
+        "mapping": [
+          "BA",
+          "DS"
+        ]
+      }
+    },
+    {
+      "order": 50,
+      "content": {
+        "statements": [
+          "Saya merasa bahwa tujuan-tujuan Serikat Buruh dan tujuan-tujuan perusahaan adalah saling berbeda dan saya mencoba untuk tidak membuat pandangan saya secara jelas.",
+          "Saya merasa bahwa adalah penting agar bawahan saya menyukai saya apabila saya bekerja keras untuk mereka."
+        ],
+        "mapping": [
+          "BA",
+          "MI"
+        ]
+      }
+    },
+    {
+      "order": 51,
+      "content": {
+        "statements": [
+          "Saya mengawasi benar bawahan-bawahan saya yang kurang mahir di dalam bekerjanya atau bawahan-bawahan saya yang hasil kerjanya kurang memuaskan.",
+          "Saya mencela pembicaraan-pembicaraan yang tidak perlu di antara bawahan-bawahan saya selama mereka bekerja."
+        ],
+        "mapping": [
+          "BA",
+          "AU"
+        ]
+      }
+    },
+    {
+      "order": 52,
+      "content": {
+        "statements": [
+          "Bila saya memberikan perintah kepada bawahan-bawahan saya, saya menentukan batas waktu untuk mereka menyelesaikannya.",
+          "Saya merasa bangga di dalam kenyataannya bahwa saya biasanya tidak akan menanyakan kepada seseorang untuk mengerjakan suatu tugas yang kalau saya sendiri tidak akan saya kerjakan."
+        ],
+        "mapping": [
+          "BA",
+          "CO"
+        ]
+      }
+    },
+    {
+      "order": 53,
+      "content": {
+        "statements": [
+          "Saya percaya bahwa latihan melalui pengalaman bekerja, adalah lebih bermanfaat daripada pendidikan teoritis.",
+          "Saya tidak peduli dengan apa yang dikerjakan oleh para pegawai saya di luar jam kantornya."
+        ],
+        "mapping": [
+          "BA",
+          "BU"
+        ]
+      }
+    },
+    {
+      "order": 54,
+      "content": {
+        "statements": [
+          "Saya merasa bahwa jam pencatat waktu datang dan pulangnya para pegawai, mengurangi keterlambatan.",
+          "Saya mengijinkan bawahan-bawahan saya untuk ikut serta mengambil keputusan dan saya selalu mematuhi keputusan yang dibuat berdasarkan atas suara terbanyak"
+        ],
+        "mapping": [
+          "BA",
+          "DV"
+        ]
+      }
+    },
+    {
+      "order": 55,
+      "content": {
+        "statements": [
+          "Saya mengambil keputusan-keputusan saya sendiri, tetapi saya dapat mempertimbangkan saran-saran yang wajar dari bawahan-bawahan saya untuk saya manfaatkan, bilamana saya bertanya kepada mereka.",
+          "Saya merasa bahwa tujuan-tujuan Serikat Buruh dan tujuan-tujuan perusahaan adalah saling berbeda, dan saya mencoba untuk tidak membuat pandangan saya secara jelas."
+        ],
+        "mapping": [
+          "BA",
+          "BA"
+        ]
+      }
+    },
+    {
+      "order": 56,
+      "content": {
+        "statements": [
+          "Saya membuat keputusan-keputusan sendiri dan kemudian saya mencoba untuk “menjual” keputusan-keputusan itu kepada bawahan saya.",
+          "Apabila mungkin saya membentuk kelompok-kelompok kerja yang terdiri dari orang-orang yang sudah menjadi teman-teman baik saya."
+        ],
+        "mapping": [
+          "BA",
+          "E"
+        ]
+      }
+    },
+    {
+      "order": 57,
+      "content": {
+        "statements": [
+          "Saya tidak akan ragu-ragu untuk mempekerjakan pegawai-pegawai yang cacat jasmaninya, bilamana saya merasa pasti bahwa dia dapat mempelajari pekerjannya.",
+          "Saya mengabaikan pelanggar-pelanggar peraturan bila saya merasa pasti bahwa tidak ada satu orangpun yang mengetahui tentang pelanggaran-pelanggaran tersebut."
+        ],
+        "mapping": [
+          "E",
+          "DS"
+        ]
+      }
+    },
+    {
+      "order": 58,
+      "content": {
+        "statements": [
+          "Apabila mungkin saya membentuk kelompok-kelompok kerja yang terdiri dari orang-orang yang sudah menjadi teman-teman baik saya.",
+          "Saya akan memberikan tugas-tugas yang sulit kepada bawahan-bawahan saya yang berpengalaman, tetapi bila mereka memperoleh kesukaran, saya akan mengambil alih tanggung jawab mereka."
+        ],
+        "mapping": [
+          "E",
+          "MI"
+        ]
+      }
+    },
+    {
+      "order": 59,
+      "content": {
+        "statements": [
+          "Saya membuat bawahan-bawahan saya bekerja keras, dan saya berusaha meyakinkan mereka bahwa biasanya mereka mendapat perlakuan yang adil dari “Dewan Direksi”.",
+          "Saya percaya bahwa suatu penerapan disiplin adalah merupakan seperangkat contoh untuk karyawan-karyawan lainnya."
+        ],
+        "mapping": [
+          "E",
+          "AU"
+        ]
+      }
+    },
+    {
+      "order": 60,
+      "content": {
+        "statements": [
+          "Saya mencoba untuk membuat bawahan-bawahan saya merasa senang hatinya apabila mereka berbicara dengan saya.",
+          "Saya menyukai penggunaan dari skala penggajian karyawan."
+        ],
+        "mapping": [
+          "E",
+          "CO"
+        ]
+      }
+    },
+    {
+      "order": 61,
+      "content": {
+        "statements": [
+          "Saya percaya bahwa kenaikan jabatan adalah semata-mata berdasarkan kemampuan yang ada.",
+          "Saya merasa bahwa masalah-masalah yang timbul di antara mereka sendiri, tanpa campur tangan dari saya."
+        ],
+        "mapping": [
+          "E",
+          "BU"
+        ]
+      }
+    },
+    {
+      "order": 62,
+      "content": {
+        "statements": [
+          "Saya merasa bahwa Serikat-Serikat Buruh dan pimpinan perusahaan adalah bekerja untuk mencapai tujuan-tujuan yang sama.",
+          "Di dalam diskusi, saya memberikan fakta-fakta seperti apa yang mereka pahami, dan membiarkan mereka melukiskan kesimpulan-kesimpulan mereka sendiri"
+        ],
+        "mapping": [
+          "E",
+          "DV"
+        ]
+      }
+    },
+    {
+      "order": 63,
+      "content": {
+        "statements": [
+          "Bila seorang karyawan tidak sanggup menyelesaikan tugasnya, saya akan membantu dia untuk menyelesaikan tugas tersebut.",
+          "Saya merasa bahwa semua karyawan pada jabatan yang sama seharusnya memperoleh gaji yang sama."
+        ],
+        "mapping": [
+          "E",
+          "BA"
+        ]
+      }
+    },
+    {
+      "order": 64,
+      "content": {
+        "statements": [
+          "Saya mengijinkan bawahan-bawahan saya untuk ikut serta di dalam pengambilan keputusan, tetapi sayapun menyediakan sesuatu yang jitu untuk membuat keputusan terakhir.",
+          "Saya tidak akan ragu-ragu untuk mempekerjakan pegawai-pegawai yang cacat jasmaninya, bilamana saya merasa bahwa dia dapat mempelajari pekerjaannya."
+        ],
+        "mapping": [
+          "E",
+          "E"
+        ]
+      }
+    }
+  ],
+  "interpretations": [
+    {
+      "patternCode": "E",
+      "title": "Executive (E)",
+      "body": "Gaya ini dianggap efektif karena dapat mengelola dengan baik antara tugas dan hubungan. Model ini adalah sisi efektif dari gaya kompromis. Pola yang dilakukan dapat mengintegrasikan antara tugas dan hubungan dengan baik, mengelola dan memanfaatkan kedua aspek dengan sinergi yang optimal. Pendekatan ini dapat dikatakan sebagai pendekatan konsultatif, interaktif dan pemecah masalah. Pendekatan ini memanfaatkan eksplorasi terhadap berbagai sumber daya, keragaman informasi dan dapat memanfaatkan isu negatif menjadi dorongan untuk hasil yang lebih optimal. Gaya ini melibatkan tim dalam perencanaan dan mengambil kesimpulan. Komunikasi dilakukan terhadap bawahan untuk meningkatkan kualitas informasi yang dapat menjadikan keputusan lebih baik."
+    },
+    {
+      "patternCode": "CO",
+      "title": "Compromiser (CO)",
+      "body": "Mengandalkan tugas dan relasi yang seimbang, namun dianggap kurang efektif karena tidak berpendirian tetap, tidak ada keputusan yang jelas. Gaya ini akan merasa kebingungan antara pengaturan tugas dan kebutuhan untuk berinteraksi. Dalam menghadapi tekanan, maka akan cenderung kompromi sehingga berbagai tujuan seringkali menyimpang dan tidak tercapai"
+    },
+    {
+      "patternCode": "BA",
+      "title": "Benevolent autocrat (BA)",
+      "body": "Gaya ini dianggap efektif karena memberikan unsur komunikatif dalam melakukan gaya otokratik. Gaya ini masih mengandalkan instruksi dan intervensi. Skor tinggi dapat dilihat sebagai guru dalam memberi tugas, dimana dapat memberikan instruksi dengan tidak mengesampingkan komunikasi kepada bawahan secara lebih fleksibel. Pola yang dilakukan memberikan kesediaan untuk bertanya, membantu apabila ada hal yang dianggap salah atau menyimpang. Pola keseharian terstruktur dalam menentukan target kerja, produktivitas dan memberi perintah, tidak ragu memberikan hukuman namun bertindak adil dalam menyikapinya. Gaya ini dapat bekerjasama dengan baik namun menghindari hubungan keterdekatan antar personal"
+    },
+    {
+      "patternCode": "AU",
+      "title": "Autocrat (AU)",
+      "body": "Lebih perhatian hanya pada produktivitas dan hasil. Memberikan tugas ke bawahan berdasarkan instruksi dan mengawasi secara ketat proses yang terjadi. Kesalahan tidak bisa ditolerir, penyimpangan harus dihindari. Kebijakan adalah urusan atasan sementara bawahan cukup melaksanakan apa yang harus dikerjakan tanpa ada alasan."
+    },
+    {
+      "patternCode": "DV",
+      "title": "Developer (DV)",
+      "body": "Gaya manajemen developer adalah sisi efektif dari gaya missionary. Tujuan dari gaya seperti ini adalah untuk bertindak secara profesional tanpa mengesampingkan aspek emosi. Bawahan diberikan kesempatan untuk memberikan ide, pandangan atau peran lebih dari kebijakan yang ada untuk mengembangkan potensi. Kontribusi diberikan dan perhatian untuk pengembangan pun diperhatikan. Skor tinggi memiliki keyakinan optimis tentang individu untuk bekerja dan menghasilkan. Sifat pendekatan berupa kolegial, bawahan sebagai partner bukan hanya sebagai “pembantu” dalam mengerjakan sesuatu. Gaya seperti ini senang untuk berbagi pengetahuan dan keahlian dan potensi bawahan dapat dioptimalkan"
+    },
+    {
+      "patternCode": "MI",
+      "title": "Missionary (MI)",
+      "body": "Menggunakan unsur afektif yang sangat kental. Missionary berupaya mendorong situasi positif dalam manajemen dengan memberikan kandungan sensitivitas, kepedulian dan hal-hal yang mungkin dianggap penting untuk meningkatkan kinerja melalui sentuhan emosi/perasaan. Model manajerial seperti ini berupaya menjaga orang lain termasuk bawahan pada situasi bahagia dalam situasi apapun. Gaya ini dikatakan kurang efektif karena kurang ketersediaanya peluang konflik, berupaya tetap halus dalam bertindak dan kesulitan untuk menolak atau berkata tidak, padahal banyak pekerjaan perlu ketegasan dalam manajemen."
+    },
+    {
+      "patternCode": "BU",
+      "title": "Bureaucrat (BU)",
+      "body": "Prosedural, berdasarkan aturan atau tata pelaksanaan, menerima dengan tulus hirarki kewenangan dan menggunakan komunikasi sangat formal dalam bersikap. Birokrat berpegang pada sistem, gaya manajemen seperti ini tampak seperti otokrat, kaku dan dapat membosankan bagi orang-orang yang fleksibel"
+    },
+    {
+      "patternCode": "DS",
+      "title": "Deserter (DS)",
+      "body": "Suka mengabaikan masalah, cuci tangan, tidak mau bertanggung jawab (laisser-faire). Tipe gaya ini mengabaikan berbagai keterlibatan atau intervensi yang dapat menjadikan situasi dianggap sulit atau rumit. Sikapnya selalu mencoba netral terhadap apa yang terjadi di keseharian, mencari jalan untuk menghindar dari aturan yang dianggap menyulitkan. Pola yang tampak secara manajerial adalah defensif, misalkan ada kebijakan yang menyulitkan bawahan maka ia mengatakan saya hanya menjalankan perintah, kebijakan dari atasan. Bukan berarti pola seperti ini buruk, deserter hanya berupaya menjaga keadaan status-quo dan menghindari perubahan drastis atau “guncangan dalam manajemen”."
+    }
+  ]
+}

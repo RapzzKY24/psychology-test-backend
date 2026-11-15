@@ -48,6 +48,12 @@ import {
   ScaleTallyResponseSchema,
   scaleTallyPatternCodes,
 } from './schemas/scale-tally';
+import {
+  StyleGridConfigSchema,
+  StyleGridItemContentSchema,
+  StyleGridResponseSchema,
+  styleGridPatternCodes,
+} from './schemas/style-grid';
 import { scoreChoiceTally } from './choice-tally';
 import { scoreDisc } from './disc-scorer';
 import { scoreForcedChoicePair } from './forced-choice-pair';
@@ -57,6 +63,7 @@ import { scoreMarkGroup } from './mark-group';
 import { scoreRankGroup } from './rank-group';
 import { scoreRightWrongNorm } from './right-wrong-norm';
 import { scoreScaleTally } from './scale-tally';
+import { scoreStyleGrid } from './style-grid';
 import { sanitizeChoiceTallyItem } from './sanitize-choice-tally-item';
 import { sanitizePairItem } from './sanitize-pair-item';
 import { sanitizeLikertItem } from './sanitize-likert-item';
@@ -64,6 +71,7 @@ import { sanitizeMarkGroupItem } from './sanitize-mark-group-item';
 import { sanitizeRankGroupItem } from './sanitize-rank-group-item';
 import { sanitizeRightWrongItem } from './sanitize-right-wrong-item';
 import { sanitizeScaleTallyItem } from './sanitize-scale-tally-item';
+import { sanitizeStyleGridItem } from './sanitize-style-grid-item';
 
 export interface ScorerOutput {
   scores: Record<string, unknown>;
@@ -268,6 +276,20 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     patternCodesFor: scaleTallyPatternCodes,
     score: (input) =>
       Promise.resolve(scoreScaleTally(input) as unknown as ScorerOutput),
+  },
+  STYLE_GRID: {
+    type: 'STYLE_GRID',
+    itemSchema: StyleGridItemContentSchema,
+    responseSchema: StyleGridResponseSchema,
+    configSchema: StyleGridConfigSchema,
+    sanitize: sanitizeStyleGridItem,
+    patternCatalog: [],
+    // The style comes from the profile table, not from the items: one code per
+    // declared high/low pattern (MSDT's eight management styles).
+    patternCodesFor: (_items, scoringConfig) =>
+      styleGridPatternCodes(scoringConfig),
+    score: (input) =>
+      Promise.resolve(scoreStyleGrid(input) as unknown as ScorerOutput),
   },
 };
 

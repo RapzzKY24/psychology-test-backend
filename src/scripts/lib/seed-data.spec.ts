@@ -3,6 +3,10 @@ import { join } from 'path';
 import { getItemSchema } from '../../scorers/schemas';
 import { getScorer, scoringConfigIssues } from '../../scorers/registry';
 import { NormTableSchema } from '../../scorers/schemas/right-wrong-norm';
+import {
+  StyleGridConfigSchema,
+  StyleGridItemContentSchema,
+} from '../../scorers/schemas/style-grid';
 
 /**
  * Seeds bypass the Test Builder, so nothing else validates their shape before
@@ -148,6 +152,32 @@ describe.each(FILES)('seed %s', (file) => {
   it('carries a norm table the scorer can read', () => {
     if (seed.test.normTable == null) return;
     expect(NormTableSchema.safeParse(seed.test.normTable).success).toBe(true);
+  });
+
+  // STYLE_GRID keys each pick to a scale named in `scoringConfig`, so a typo in
+  // either place silently drops every pick on that scale — the scale still
+  // prints, it just never scores.
+  it('keys every statement to a scale its config declares', () => {
+    if (seed.test.scorerType !== 'STYLE_GRID') return;
+    const config = StyleGridConfigSchema.safeParse(seed.test.scoringConfig);
+    expect(config.success).toBe(true);
+    if (!config.success) return;
+    const codes = new Set(config.data.scales.map((scale) => scale.code));
+    for (const item of seed.items) {
+      const parsed = StyleGridItemContentSchema.safeParse(item.content);
+      expect({ order: item.order, valid: parsed.success }).toEqual({
+        order: item.order,
+        valid: true,
+      });
+      if (!parsed.success) continue;
+      for (const code of parsed.data.mapping) {
+        expect({ order: item.order, code, declared: codes.has(code) }).toEqual({
+          order: item.order,
+          code,
+          declared: true,
+        });
+      }
+    }
   });
 
   // The config is seed-owned and never edited in the admin UI, so nothing else

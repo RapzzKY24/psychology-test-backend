@@ -45,6 +45,7 @@ enum ScorerType {
   RANK_GROUP
   RIGHT_WRONG_NORM
   SCALE_TALLY
+  STYLE_GRID
 }
 
 /**
