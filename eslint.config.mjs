@@ -27,10 +27,17 @@ export default tseslint.config(
   },
   {
     rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
       'prettier/prettier': ['error', { endOfLine: 'auto' }],
     },
+  },
+  {
+    // Specs build partial Prisma rows and stubbed repositories on purpose: a
+    // fixture that satisfies the whole model would test the fixture, not the
+    // service. Production code keeps the rule at `error`.
+    files: ['**/*.spec.ts'],
+    rules: { '@typescript-eslint/no-explicit-any': 'off' },
   },
 );

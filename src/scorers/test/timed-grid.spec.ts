@@ -7,6 +7,7 @@ import {
   timedGridKey,
   timedGridResponseSchema,
 } from '../schemas/timed-grid';
+import type { TimedGridConfig } from '../schemas/timed-grid';
 
 /** Kraepelin's four factors, trimmed to the general (`Case Else`) table. */
 const CONFIG = {
@@ -266,14 +267,15 @@ describe('scoreTimedGrid', () => {
   });
 
   it('reads the group named by the declared education', () => {
-    const config = structuredClone(CONFIG) as typeof CONFIG & {
-      educationGroups: Record<string, string>;
-    };
+    // Parsed rather than cloned: the literal only declares the `8` table, so
+    // indexing it with `3` is an implicit any. The schema's record type is
+    // what the scorer actually reads.
+    const config: TimedGridConfig = TimedGridConfigSchema.parse(CONFIG);
     config.educationGroups = { S1: '8', SMP_SMA: '8' };
     config.factors[0].groups['3'] = [
       { op: 'lte', value: 1, label: 'rendah' },
       { op: 'else', value: null, label: 'tinggi' },
-    ] as never;
+    ];
     config.educationGroups.SMP_SMA = '3';
 
     const { scores } = scoreTimedGrid({
