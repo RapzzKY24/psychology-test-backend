@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { PsychologistPingController } from './controller/psychologist-ping.controller';
 import { PsychologistProfileController } from './controller/psychologist-profile.controller';
 import { PsychologistStatsController } from './controller/psychologist-stats.controller';
+import { PublicPsychologistsController } from './controller/public-psychologists.controller';
 import { PsychologistService } from './service/psychologist.service';
 import { PsychologistStatsService } from './service/psychologist-stats.service';
 import { PSYCHOLOGIST_PROFILE_REPO } from './repository/psychologist-profile.repository';
@@ -14,6 +15,7 @@ import { PrismaPsychologistStatsRepository } from './repository/psychologist-sta
     PsychologistPingController,
     PsychologistProfileController,
     PsychologistStatsController,
+    PublicPsychologistsController,
   ],
   providers: [
     PsychologistService,

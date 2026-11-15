@@ -13,6 +13,11 @@ export interface UpsertPsychologistProfileInput {
 
 export interface PsychologistProfileRepository {
   findByUserId(userId: string): Promise<PsychologistProfile | null>;
+  /**
+   * Profiles of psychologists who may still sign documents — banned accounts
+   * are excluded, because their name must not appear on a public page.
+   */
+  findSigners(): Promise<PsychologistProfile[]>;
   upsert(
     userId: string,
     data: UpsertPsychologistProfileInput,

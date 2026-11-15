@@ -15,6 +15,7 @@ describe('PsychologistService.updateProfile', () => {
   let service: PsychologistService;
   let mockRepo: {
     findByUserId: jest.Mock;
+    findSigners: jest.Mock;
     upsert: jest.Mock;
     updateSignature: jest.Mock;
   };
@@ -31,6 +32,7 @@ describe('PsychologistService.updateProfile', () => {
   beforeEach(() => {
     mockRepo = {
       findByUserId: jest.fn(),
+      findSigners: jest.fn(),
       upsert: jest.fn(),
       updateSignature: jest.fn(),
     };
@@ -91,6 +93,7 @@ describe('PsychologistService.getProfile completeness', () => {
   let service: PsychologistService;
   let mockRepo: {
     findByUserId: jest.Mock;
+    findSigners: jest.Mock;
     upsert: jest.Mock;
     updateSignature: jest.Mock;
   };
@@ -99,6 +102,7 @@ describe('PsychologistService.getProfile completeness', () => {
   beforeEach(() => {
     mockRepo = {
       findByUserId: jest.fn(),
+      findSigners: jest.fn(),
       upsert: jest.fn(),
       updateSignature: jest.fn(),
     };
@@ -171,6 +175,7 @@ describe('PsychologistService.getSignaturePath', () => {
   let service: PsychologistService;
   let mockRepo: {
     findByUserId: jest.Mock;
+    findSigners: jest.Mock;
     upsert: jest.Mock;
     updateSignature: jest.Mock;
   };
@@ -179,6 +184,7 @@ describe('PsychologistService.getSignaturePath', () => {
   beforeEach(() => {
     mockRepo = {
       findByUserId: jest.fn(),
+      findSigners: jest.fn(),
       upsert: jest.fn(),
       updateSignature: jest.fn(),
     };
@@ -233,5 +239,77 @@ describe('PsychologistService.getSignaturePath', () => {
     await expect(service.getSignaturePath('u1')).rejects.toThrow(
       'signature_not_found',
     );
+  });
+});
+
+describe('PsychologistService.listPublic', () => {
+  let service: PsychologistService;
+  let mockRepo: {
+    findByUserId: jest.Mock;
+    findSigners: jest.Mock;
+    upsert: jest.Mock;
+    updateSignature: jest.Mock;
+  };
+
+  beforeEach(() => {
+    mockRepo = {
+      findByUserId: jest.fn(),
+      findSigners: jest.fn(),
+      upsert: jest.fn(),
+      updateSignature: jest.fn(),
+    };
+    service = new PsychologistService(mockRepo, { get: jest.fn() } as never);
+  });
+
+  it('should return only the credentials the report prints', async () => {
+    mockRepo.findSigners.mockResolvedValue([
+      {
+        id: 'p1',
+        userId: 'u1',
+        fullName: 'Ayu Lestari',
+        degree: 'Psikolog',
+        licenseNumber: 'STR-123',
+        sippNumber: 'SIPP-9',
+        nik: '3201010101010001',
+        institutionName: 'RS Harapan',
+        signatureImagePath: 'uploads/sig.png',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]);
+
+    const result = await service.listPublic();
+
+    expect(result).toEqual([
+      {
+        fullName: 'Ayu Lestari',
+        degree: 'Psikolog',
+        licenseNumber: 'STR-123',
+        sippNumber: 'SIPP-9',
+        institutionName: 'RS Harapan',
+      },
+    ]);
+    // NIK and the signature file must never reach a public response.
+    expect(result[0]).not.toHaveProperty('nik');
+    expect(result[0]).not.toHaveProperty('signatureImagePath');
+  });
+
+  it('should skip a profile with no name or no registration number', async () => {
+    mockRepo.findSigners.mockResolvedValue([
+      { fullName: '', degree: 'Psikolog', licenseNumber: 'STR-1' },
+      { fullName: 'Budi', degree: 'Psikolog', licenseNumber: '' },
+      { fullName: 'Citra', degree: '', licenseNumber: 'STR-3' },
+    ]);
+
+    const result = await service.listPublic();
+
+    expect(result).toHaveLength(1);
+    expect(result[0].fullName).toBe('Citra');
+  });
+
+  it('should return an empty list when nobody signs yet', async () => {
+    mockRepo.findSigners.mockResolvedValue([]);
+
+    await expect(service.listPublic()).resolves.toEqual([]);
   });
 });

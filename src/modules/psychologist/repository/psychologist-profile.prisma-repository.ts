@@ -14,6 +14,20 @@ export class PrismaPsychologistProfileRepository implements PsychologistProfileR
     return this.prisma.psychologistProfile.findUnique({ where: { userId } });
   }
 
+  async findSigners(): Promise<PsychologistProfile[]> {
+    // No relation between the profile and the Better Auth user table, so the
+    // role/banned filter is a separate lookup rather than a join.
+    const users = await this.prisma.user.findMany({
+      where: { role: 'PSYCHOLOGIST', banned: false },
+      select: { id: true },
+    });
+    if (users.length === 0) return [];
+    return this.prisma.psychologistProfile.findMany({
+      where: { userId: { in: users.map((user) => user.id) } },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
+
   upsert(
     userId: string,
     data: UpsertPsychologistProfileInput,
