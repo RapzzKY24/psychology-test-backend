@@ -6,13 +6,17 @@ import {
   Param,
   Query,
   Body,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 import type { SessionParticipant } from '../../../generated/prisma/client';
 import { Participant } from '../../../common/decorators/participant.decorator';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
 import { ParticipantTokenGuard } from '../guards/participant-token.guard';
+import { validateAttemptImage } from '../utils/validate-attempt-image';
 import { PutResponseSchema } from '../dto/put-response.dto';
 import type { PutResponseDto } from '../dto/put-response.dto';
 import {
@@ -57,6 +61,30 @@ export class AttemptsPublicController {
   ): Promise<ApiResponse<{ itemId: string }>> {
     await this.attemptsService.respond(id, dto, participant.id);
     return { data: { itemId: dto.itemId }, message: 'Response saved' };
+  }
+
+  /**
+   * One drawing, one call. The file and the answer are written together, so a
+   * failed upload cannot leave an item marked as answered.
+   */
+  @Post(':id/items/:itemId/image')
+  @UseInterceptors(
+    FileInterceptor('file', { limits: { fileSize: 2 * 1024 * 1024 } }),
+  )
+  async uploadItemImage(
+    @Param('id') id: string,
+    @Param('itemId') itemId: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Participant() participant: SessionParticipant,
+  ): Promise<ApiResponse<{ imageUrl: string }>> {
+    validateAttemptImage(file);
+    const data = await this.attemptsService.saveItemImage(
+      id,
+      itemId,
+      participant.id,
+      file,
+    );
+    return { data, message: 'Drawing saved' };
   }
 
   @Post(':id/complete')

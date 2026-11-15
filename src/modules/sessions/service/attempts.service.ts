@@ -6,13 +6,21 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import fs from 'fs';
 import { ATTEMPTS_REPOSITORY } from '../repository/attempts.repository';
 import type {
   AttemptsRepository,
   AttemptAccessDetail,
 } from '../repository/attempts.repository';
 import { ageInMonthsFromIsoDate, isoDateOf } from '../utils/age-in-months';
+import {
+  attemptImageDir,
+  attemptImageFile,
+} from '../utils/attempt-image-path';
+import { ensureUploadDir } from '../../../lib/fs/ensure-upload-dir';
 import { getResponseSchema, getScorer } from '../../../scorers/registry';
+import { manualImagePath } from '../../../scorers/schemas/manual';
 import type {
   AttemptReadDto,
   AttemptCompleteResponseDto,
@@ -29,6 +37,7 @@ export class AttemptsService {
   constructor(
     @Inject(ATTEMPTS_REPOSITORY)
     private readonly repo: AttemptsRepository,
+    private readonly config: ConfigService,
   ) {}
 
   private assertOwnerOr404(
@@ -72,6 +81,30 @@ export class AttemptsService {
       throw new GoneException(
         session.status === 'CLOSED' ? 'session_closed' : 'session_expired',
       );
+    }
+  }
+
+  /**
+   * Every way an answer can be refused, in one place. A drawing is an answer
+   * too, so the upload endpoint runs exactly this: if the two paths ever drift,
+   * one of them starts accepting writes after the deadline.
+   */
+  private async assertAcceptsAnswers(
+    detail: AttemptAccessDetail,
+  ): Promise<void> {
+    if (detail.attempt.status !== 'IN_PROGRESS') {
+      throw new ConflictException('attempt_not_in_progress');
+    }
+    this.assertWithinGrace(detail.session);
+    // Answers are only accepted after the read recorded a fitting birth date;
+    // this keeps the gate closed even for a client that guessed item ids.
+    await this.assertAgeWithinBand(detail);
+    await this.resolveGender(detail);
+    await this.resolveEducation(detail);
+
+    const deadline = this.deadlineOf(detail);
+    if (deadline && Date.now() > deadline.getTime()) {
+      throw new ConflictException('attempt_time_expired');
     }
   }
 
@@ -209,21 +242,7 @@ export class AttemptsService {
     const detail = await this.repo.findAccessDetail(attemptId);
     if (!detail) throw new NotFoundException('Attempt not found');
     this.assertOwnerOr404(detail.attempt.participantId, participantId);
-
-    if (detail.attempt.status !== 'IN_PROGRESS') {
-      throw new ConflictException('attempt_not_in_progress');
-    }
-    this.assertWithinGrace(detail.session);
-    // Answers are only accepted after the read recorded a fitting birth date;
-    // this keeps the gate closed even for a client that guessed item ids.
-    await this.assertAgeWithinBand(detail);
-    await this.resolveGender(detail);
-    await this.resolveEducation(detail);
-
-    const deadline = this.deadlineOf(detail);
-    if (deadline && Date.now() > deadline.getTime()) {
-      throw new ConflictException('attempt_time_expired');
-    }
+    await this.assertAcceptsAnswers(detail);
 
     const item = detail.items.find((it) => it.id === dto.itemId);
     if (!item) {
@@ -258,6 +277,51 @@ export class AttemptsService {
     }
 
     await this.repo.upsertResponse(attemptId, item.id, parsed.data);
+  }
+
+  /**
+   * Stores one box of a projective drawing and records the answer in the same
+   * call. Two calls would leave a file on disk with no response (or a response
+   * pointing at a file that was never written) whenever the second one failed.
+   *
+   * The path comes from the two ids, so the client never names a file: a
+   * drawing can only be written under its own attempt and item.
+   */
+  async saveItemImage(
+    attemptId: string,
+    itemId: string,
+    participantId: string,
+    file: Express.Multer.File,
+  ): Promise<{ imageUrl: string }> {
+    const detail = await this.repo.findAccessDetail(attemptId);
+    if (!detail) throw new NotFoundException('Attempt not found');
+    this.assertOwnerOr404(detail.attempt.participantId, participantId);
+    await this.assertAcceptsAnswers(detail);
+
+    const item = detail.items.find((it) => it.id === itemId);
+    if (!item) {
+      throw new UnprocessableEntityException({
+        message: 'validation_failed',
+        details: ["itemId: item does not belong to the attempt's test"],
+      });
+    }
+    if (detail.test.scorerType !== 'MANUAL') {
+      throw new UnprocessableEntityException({
+        message: 'validation_failed',
+        details: ['scorerType: this test does not accept drawings'],
+      });
+    }
+
+    const root = this.config.get<string>('app.uploadDir', './uploads');
+    await ensureUploadDir(attemptImageDir(root, attemptId));
+    await fs.promises.writeFile(
+      attemptImageFile(root, attemptId, itemId),
+      file.buffer,
+    );
+
+    const imageUrl = manualImagePath(attemptId, itemId);
+    await this.repo.upsertResponse(attemptId, item.id, { imageUrl });
+    return { imageUrl };
   }
 
   async complete(

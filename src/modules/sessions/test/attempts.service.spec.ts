@@ -1,4 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/unbound-method */
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+import type { ConfigService } from '@nestjs/config';
 import { AttemptsService } from '../service/attempts.service';
 import type {
   AttemptsRepository,
@@ -21,6 +25,7 @@ function makeDetail(
       startedAt: new Date(NOW),
       completedAt: null,
       participantId: 'p-1',
+      userId: null,
       birthDate: null,
       gender: null,
       education: null,
@@ -71,8 +76,10 @@ function makeDetail(
 describe('AttemptsService', () => {
   let service: AttemptsService;
   let mockRepo: jest.Mocked<AttemptsRepository>;
+  let uploadRoot: string;
 
   beforeEach(() => {
+    uploadRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'attempt-images-'));
     mockRepo = {
       findAccessDetail: jest.fn(),
       setBirthDate: jest.fn(),
@@ -84,7 +91,13 @@ describe('AttemptsService', () => {
       completeAndCreateResult: jest.fn(),
       listByUser: jest.fn(),
     };
-    service = new AttemptsService(mockRepo);
+    service = new AttemptsService(mockRepo, {
+      get: () => uploadRoot,
+    } as unknown as ConfigService);
+  });
+
+  afterEach(() => {
+    fs.rmSync(uploadRoot, { recursive: true, force: true });
   });
 
   describe('read', () => {
@@ -811,6 +824,117 @@ describe('AttemptsService', () => {
       expect(out.requiresGender).toBe(false);
       expect(out.gender).toBeNull();
       expect(mockRepo.setGender).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('saveItemImage', () => {
+    const manualTest = {
+      id: 't-1',
+      name: 'Wartegg',
+      scorerType: 'MANUAL',
+      status: 'PUBLISHED',
+      timeLimitMin: null,
+      normTable: null,
+      scoringConfig: null,
+      ageMinMonths: null,
+      ageMaxMonths: null,
+      requiresGender: false,
+      requiresEducation: false,
+    };
+    const manualItems = [
+      { id: 'it-1', order: 1, content: { box: 1, mark: 'DOT' } },
+      { id: 'it-2', order: 2, content: { box: 2, mark: 'CURVE' } },
+    ];
+    const png = Buffer.from('89504e470d0a1a0a', 'hex');
+    const file = {
+      mimetype: 'image/png',
+      size: png.length,
+      buffer: png,
+    } as Express.Multer.File;
+
+    function manualDetail() {
+      return makeDetail({ test: manualTest, items: manualItems });
+    }
+
+    it('writes the drawing and records the answer in one call', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(manualDetail());
+
+      const out = await service.saveItemImage('att-1', 'it-1', 'p-1', file);
+
+      expect(out).toEqual({
+        imageUrl: '/api/v1/public/attempts/att-1/items/it-1/image',
+      });
+      const stored = path.join(uploadRoot, 'attempt-images', 'att-1', 'it-1.png');
+      expect(fs.readFileSync(stored)).toEqual(png);
+      expect(mockRepo.upsertResponse).toHaveBeenCalledWith('att-1', 'it-1', {
+        imageUrl: '/api/v1/public/attempts/att-1/items/it-1/image',
+      });
+    });
+
+    it('replaces an earlier drawing of the same box', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(manualDetail());
+      await service.saveItemImage('att-1', 'it-1', 'p-1', file);
+      const second = { ...file, buffer: Buffer.from('deadbeef', 'hex') };
+      await service.saveItemImage('att-1', 'it-1', 'p-1', second);
+
+      const stored = path.join(uploadRoot, 'attempt-images', 'att-1', 'it-1.png');
+      expect(fs.readFileSync(stored).toString('hex')).toBe('deadbeef');
+    });
+
+    it('refuses a drawing for an item of another test', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(manualDetail());
+      await expect(
+        service.saveItemImage('att-1', 'it-OTHER', 'p-1', file),
+      ).rejects.toThrow('validation_failed');
+      expect(mockRepo.upsertResponse).not.toHaveBeenCalled();
+    });
+
+    it('refuses a drawing on a test that does not take one', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(makeDetail());
+      await expect(
+        service.saveItemImage('att-1', 'it-1', 'p-1', file),
+      ).rejects.toMatchObject({
+        response: {
+          details: ['scorerType: this test does not accept drawings'],
+        },
+      });
+      expect(mockRepo.upsertResponse).not.toHaveBeenCalled();
+    });
+
+    it('hides the attempt from a participant who does not own it', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(manualDetail());
+      await expect(
+        service.saveItemImage('att-1', 'it-1', 'p-OTHER', file),
+      ).rejects.toThrow('Attempt not found');
+    });
+
+    it('refuses once the attempt is completed', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({
+          test: manualTest,
+          items: manualItems,
+          attempt: { ...manualDetail().attempt, status: 'COMPLETED' },
+        }),
+      );
+      await expect(
+        service.saveItemImage('att-1', 'it-1', 'p-1', file),
+      ).rejects.toThrow('attempt_not_in_progress');
+    });
+
+    it('refuses once the clock has run out', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({
+          test: { ...manualTest, timeLimitMin: 20 },
+          items: manualItems,
+          attempt: {
+            ...manualDetail().attempt,
+            startedAt: new Date(NOW - 21 * 60 * 1000),
+          },
+        }),
+      );
+      await expect(
+        service.saveItemImage('att-1', 'it-1', 'p-1', file),
+      ).rejects.toThrow('attempt_time_expired');
     });
   });
 });

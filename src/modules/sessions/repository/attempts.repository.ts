@@ -10,7 +10,10 @@ export interface AttemptAccessDetail {
     status: string;
     startedAt: Date;
     completedAt: Date | null;
+    /** Guest owner (ADR-005); null when a signed-in user owns the attempt. */
     participantId: string | null;
+    /** Signed-in owner; null for a guest attempt. */
+    userId: string | null;
     /** Declared birth date, recorded the first time a banded test is opened. */
     birthDate: Date | null;
     /** Declared sex, recorded the first time a gendered test is opened. */

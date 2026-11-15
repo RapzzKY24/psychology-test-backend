@@ -3,6 +3,7 @@ import { ChoiceTallyItemContentSchema } from './choice-tally';
 import { DiscItemContentSchema } from './forced-choice-disc';
 import { PairItemContentSchema } from './forced-choice-pair';
 import { LikertItemContentSchema } from './likert';
+import { ManualItemContentSchema } from './manual';
 import { MarkGroupItemContentSchema } from './mark-group';
 import { OptionScaleItemContentSchema } from './option-scale';
 import { PairNormItemContentSchema } from './pair-norm';
@@ -17,6 +18,7 @@ export const ScorerSchemas = {
   FORCED_CHOICE_DISC: DiscItemContentSchema,
   FORCED_CHOICE_PAIR: PairItemContentSchema,
   LIKERT: LikertItemContentSchema,
+  MANUAL: ManualItemContentSchema,
   MARK_GROUP: MarkGroupItemContentSchema,
   OPTION_SCALE: OptionScaleItemContentSchema,
   PAIR_NORM: PairNormItemContentSchema,

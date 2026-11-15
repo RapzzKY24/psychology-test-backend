@@ -32,6 +32,11 @@ import {
   likertResponseSchema,
 } from './schemas/likert';
 import {
+  ManualItemContentSchema,
+  ManualResponseSchema,
+  manualPatternCodes,
+} from './schemas/manual';
+import {
   MarkGroupConfigSchema,
   MarkGroupItemContentSchema,
   MarkGroupResponseSchema,
@@ -79,6 +84,7 @@ import { scoreForcedChoicePair } from './forced-choice-pair';
 import { scorePairTally } from './pair-tally';
 import { scorePairNorm } from './pair-norm';
 import { scoreLikert } from './likert';
+import { scoreManual } from './manual';
 import { scoreMarkGroup } from './mark-group';
 import { scoreOptionScale } from './option-scale';
 import { scoreRankGroup } from './rank-group';
@@ -90,6 +96,7 @@ import { sanitizeChoiceTallyItem } from './sanitize-choice-tally-item';
 import { sanitizePairItem } from './sanitize-pair-item';
 import { sanitizePairNormItem } from './sanitize-pair-norm-item';
 import { sanitizeLikertItem } from './sanitize-likert-item';
+import { sanitizeManualItem } from './sanitize-manual-item';
 import { sanitizeMarkGroupItem } from './sanitize-mark-group-item';
 import { sanitizeOptionScaleItem } from './sanitize-option-scale-item';
 import { sanitizeRankGroupItem } from './sanitize-rank-group-item';
@@ -260,6 +267,18 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     patternCodesFor: likertPatternCodes,
     score: (input) =>
       Promise.resolve(scoreLikert(input) as unknown as ScorerOutput),
+  },
+  MANUAL: {
+    type: 'MANUAL',
+    itemSchema: ManualItemContentSchema,
+    responseSchema: ManualResponseSchema,
+    sanitize: sanitizeManualItem,
+    patternCatalog: [],
+    patternCodesFor: manualPatternCodes,
+    // The drawings are the result. There is nothing to compute, and nothing a
+    // participant could read as a verdict.
+    publicScores: () => ({}),
+    score: () => Promise.resolve(scoreManual()),
   },
   MARK_GROUP: {
     type: 'MARK_GROUP',

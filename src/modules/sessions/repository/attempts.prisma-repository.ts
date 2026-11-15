@@ -54,6 +54,7 @@ export class PrismaAttemptsRepository implements AttemptsRepository {
         startedAt: attempt.startedAt,
         completedAt: attempt.completedAt,
         participantId: attempt.participantId,
+        userId: attempt.userId,
         birthDate: attempt.birthDate,
         gender: attempt.gender,
         education: attempt.education,
