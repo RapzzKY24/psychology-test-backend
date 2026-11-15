@@ -370,7 +370,7 @@ describe('TestsService', () => {
       expect(mockRepo.replaceItems).toHaveBeenCalledWith(
         '1',
         expect.any(Array),
-        { requiresGender: false },
+        { requiresGender: false, requiresEducation: false },
       );
     });
 
@@ -403,7 +403,7 @@ describe('TestsService', () => {
       expect(mockRepo.replaceItems).toHaveBeenCalledWith(
         '1',
         expect.any(Array),
-        { requiresGender: true },
+        { requiresGender: true, requiresEducation: false },
       );
     });
 
@@ -430,7 +430,7 @@ describe('TestsService', () => {
       expect(mockRepo.replaceItems).toHaveBeenCalledWith(
         '1',
         expect.any(Array),
-        { requiresGender: true },
+        { requiresGender: true, requiresEducation: false },
       );
     });
   });

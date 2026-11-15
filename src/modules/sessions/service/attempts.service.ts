@@ -21,6 +21,9 @@ import type { PutResponseDto } from '../dto/put-response.dto';
 
 const GRACE_MS = 24 * 60 * 60 * 1000; // decision D1: joins blocked, in-flight attempts get +24h
 
+/** Values of the Prisma `Education` enum, in the order the gate offers them. */
+const EDUCATION_LEVELS = ['SMP_SMA', 'S1', 'UMUM'];
+
 @Injectable()
 export class AttemptsService {
   constructor(
@@ -134,17 +137,42 @@ export class AttemptsService {
     return gender;
   }
 
+  /**
+   * 16PF reads a different sten table per schooling, so an education-banded
+   * test cannot be opened before the attempt records one. Like gender, the
+   * first declaration is stored and every later call reads the stored value.
+   */
+  private async resolveEducation(
+    detail: AttemptAccessDetail,
+    declaredEducation?: string,
+  ): Promise<string | null> {
+    const recorded = detail.attempt.education;
+    if (!detail.test.requiresEducation) return recorded;
+    if (recorded) return recorded;
+    if (!declaredEducation) {
+      throw new UnprocessableEntityException('education_required');
+    }
+    const education = declaredEducation.trim().toUpperCase();
+    if (!EDUCATION_LEVELS.includes(education)) {
+      throw new UnprocessableEntityException('education_invalid');
+    }
+    await this.repo.setEducation(detail.attempt.id, education);
+    return education;
+  }
+
   async read(
     attemptId: string,
     participantId: string,
     declaredBirthDate?: string,
     declaredGender?: string,
+    declaredEducation?: string,
   ): Promise<AttemptReadDto> {
     const detail = await this.repo.findAccessDetail(attemptId);
     if (!detail) throw new NotFoundException('Attempt not found');
     this.assertOwnerOr404(detail.attempt.participantId, participantId);
     await this.assertAgeWithinBand(detail, declaredBirthDate);
     const gender = await this.resolveGender(detail, declaredGender);
+    const education = await this.resolveEducation(detail, declaredEducation);
 
     const scorer = getScorer(detail.test.scorerType);
     return {
@@ -160,6 +188,8 @@ export class AttemptsService {
       remainingSeconds: this.remainingSecondsOf(detail),
       requiresGender: detail.test.requiresGender,
       gender,
+      requiresEducation: detail.test.requiresEducation,
+      education,
       items: detail.items.map((item) => ({
         id: item.id,
         order: item.order,
@@ -188,6 +218,7 @@ export class AttemptsService {
     // this keeps the gate closed even for a client that guessed item ids.
     await this.assertAgeWithinBand(detail);
     await this.resolveGender(detail);
+    await this.resolveEducation(detail);
 
     const deadline = this.deadlineOf(detail);
     if (deadline && Date.now() > deadline.getTime()) {
@@ -262,6 +293,7 @@ export class AttemptsService {
     // Same for a gendered test: the item list the participant answered came
     // from the read, so the declaration must already be on the attempt.
     await this.resolveGender(detail);
+    await this.resolveEducation(detail);
 
     const answered = new Set(detail.responses.map((r) => r.itemId));
     const missing = detail.items
@@ -285,14 +317,20 @@ export class AttemptsService {
       });
     }
 
+    // ADR-011 norm rows live in their own table, so they are fetched once per
+    // scoring pass rather than on every read/respond call.
+    const normRows = await this.repo.findNormRows(detail.test.id);
     const output = await scorer.score({
       items: detail.items,
       responses: detail.responses,
       normTable: detail.test.normTable,
+      normRows,
       scoringConfig: detail.test.scoringConfig,
       // KUDER reads a different percentile table per sex; the value is the
       // one recorded by the read, so a re-score always uses the same table.
       gender: detail.attempt.gender,
+      // 16PF picks the sten table by schooling as well, recorded the same way.
+      education: detail.attempt.education,
     });
     const result = await this.repo.completeAndCreateResult({
       attemptId,

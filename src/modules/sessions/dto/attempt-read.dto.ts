@@ -36,6 +36,10 @@ export const AttemptReadSchema = z.object({
   requiresGender: z.boolean(),
   /** `MALE` / `FEMALE` once declared; null when the test does not ask. */
   gender: z.string().nullable(),
+  /** The norm differs by schooling, so the client must ask for one first. */
+  requiresEducation: z.boolean(),
+  /** `SMP_SMA` / `S1` / `UMUM` once declared; null when the test does not ask. */
+  education: z.string().nullable(),
   items: z.array(AttemptReadItemSchema),
   responses: z.array(AttemptReadResponseSchema),
 });

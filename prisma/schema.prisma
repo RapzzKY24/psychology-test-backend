@@ -41,6 +41,7 @@ enum ScorerType {
   FORCED_CHOICE_PAIR
   LIKERT
   MARK_GROUP
+  OPTION_SCALE
   PAIR_NORM
   PAIR_TALLY
   RANK_GROUP
@@ -56,6 +57,16 @@ enum ScorerType {
 enum Gender {
   MALE
   FEMALE
+}
+
+/**
+ * Declared once per attempt when the norm is banded by schooling (16PF ships
+ * one sten table per education level). Mirrors `Gender`.
+ */
+enum Education {
+  SMP_SMA
+  S1
+  UMUM
 }
 
 enum TestStatus {
@@ -290,11 +301,17 @@ model Test {
    * lists). The attempt must record `gender` before it can be read.
    */
   requiresGender       Boolean          @default(false)
+  /**
+   * True when the norm is picked by schooling (16PF's nine sten tables). The
+   * attempt must record `education` before it can be read, exactly like gender.
+   */
+  requiresEducation    Boolean          @default(false)
   status               TestStatus       @default(DRAFT)
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt
   items                TestItem[]
   interpretations      Interpretation[]
+  norms                NormTable[]
   sessionTests         SessionTest[]
   orders               Order[]
   attempts             Attempt[]
@@ -325,6 +342,32 @@ model Interpretation {
 
   @@unique([testId, patternCode])
   @@map("interpretations")
+}
+
+/**
+ * One lookup segment of a raw -> derived conversion (ADR-011). `group` names the
+ * norm set the row belongs to — 16PF ships nine (education x gender, plus the
+ * `_LP` tables used when sex is unknown) — and stays empty for instruments with
+ * a single table. `scale` is the factor/subtest the row converts, null when the
+ * row converts the whole-test total.
+ */
+model NormTable {
+  id           String    @id @default(uuid()) @db.Uuid
+  testId       String    @db.Uuid
+  group        String    @default("")
+  scale        String?
+  rawMin       Int
+  rawMax       Int
+  outputValue  Int
+  outputLabel  String?
+  verifiedById String?
+  verifiedAt   DateTime?
+
+  test Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@unique([testId, group, scale, rawMin])
+  @@index([testId])
+  @@map("norm_tables")
 }
 
 model Article {
@@ -478,6 +521,12 @@ model Attempt {
    * the list after seeing the questions.
    */
   gender        Gender?
+  /**
+   * Declared when the participant first opened a test whose norm is banded by
+   * schooling. Recorded once, like `gender`, so a re-score always reads the
+   * same sten table.
+   */
+  education     Education?
   session       TestSession         @relation(fields: [sessionId], references: [id])
   test          Test                @relation(fields: [testId], references: [id])
   participant   SessionParticipant? @relation(fields: [participantId], references: [id])

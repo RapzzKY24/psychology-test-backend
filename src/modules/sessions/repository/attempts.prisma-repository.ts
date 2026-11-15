@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '../../../generated/prisma/client';
-import type { Gender, TestResult } from '../../../generated/prisma/client';
+import type { Education, Gender, TestResult } from '../../../generated/prisma/client';
 import { PrismaService } from '../../../prisma/prisma.service';
 import type {
   AttemptsRepository,
   AttemptAccessDetail,
   AttemptListItemRow,
   CompleteAttemptParams,
+  NormRow,
 } from './attempts.repository';
 
 @Injectable()
@@ -29,6 +30,7 @@ export class PrismaAttemptsRepository implements AttemptsRepository {
             ageMinMonths: true,
             ageMaxMonths: true,
             requiresGender: true,
+            requiresEducation: true,
           },
         },
         session: { select: { id: true, status: true, expiresAt: true } },
@@ -54,6 +56,7 @@ export class PrismaAttemptsRepository implements AttemptsRepository {
         participantId: attempt.participantId,
         birthDate: attempt.birthDate,
         gender: attempt.gender,
+        education: attempt.education,
       },
       test: attempt.test,
       session: attempt.session,
@@ -77,6 +80,30 @@ export class PrismaAttemptsRepository implements AttemptsRepository {
     await this.prisma.attempt.updateMany({
       where: { id: attemptId, gender: null },
       data: { gender: gender as Gender },
+    });
+  }
+
+  async setEducation(attemptId: string, education: string): Promise<void> {
+    // Same null guard again: the first declaration wins, so a participant
+    // cannot switch to another sten table after seeing the questions.
+    await this.prisma.attempt.updateMany({
+      where: { id: attemptId, education: null },
+      data: { education: education as Education },
+    });
+  }
+
+  async findNormRows(testId: string): Promise<NormRow[]> {
+    return this.prisma.normTable.findMany({
+      where: { testId },
+      orderBy: [{ group: 'asc' }, { scale: 'asc' }, { rawMin: 'asc' }],
+      select: {
+        group: true,
+        scale: true,
+        rawMin: true,
+        rawMax: true,
+        outputValue: true,
+        outputLabel: true,
+      },
     });
   }
 

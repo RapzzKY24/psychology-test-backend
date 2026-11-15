@@ -15,6 +15,8 @@ export interface AttemptAccessDetail {
     birthDate: Date | null;
     /** Declared sex, recorded the first time a gendered test is opened. */
     gender: string | null;
+    /** Declared schooling, recorded the first time an education-banded test is opened. */
+    education: string | null;
   };
   test: {
     id: string;
@@ -32,6 +34,8 @@ export interface AttemptAccessDetail {
     ageMaxMonths: number | null;
     /** The item list differs by sex, so the attempt must record one first. */
     requiresGender: boolean;
+    /** The norm differs by schooling, so the attempt must record one first. */
+    requiresEducation: boolean;
   };
   session: { id: string; status: string; expiresAt: Date };
   items: { id: string; order: number; content: unknown }[];
@@ -42,6 +46,16 @@ export interface CompleteAttemptParams {
   attemptId: string;
   scores: Record<string, unknown>;
   patternCode: string;
+}
+
+/** One lookup segment of the test's norm table (ADR-011). */
+export interface NormRow {
+  group: string;
+  scale: string | null;
+  rawMin: number;
+  rawMax: number;
+  outputValue: number;
+  outputLabel: string | null;
 }
 
 /** Flattened row for the participant attempts dashboard (userId-owned only). */
@@ -69,6 +83,10 @@ export interface AttemptsRepository {
   setBirthDate(attemptId: string, birthDate: Date): Promise<void>;
   /** Records the declared sex once; later calls are a no-op. */
   setGender(attemptId: string, gender: string): Promise<void>;
+  /** Records the declared schooling once; later calls are a no-op. */
+  setEducation(attemptId: string, education: string): Promise<void>;
+  /** Every norm segment of one test; empty for families that read no table. */
+  findNormRows(testId: string): Promise<NormRow[]>;
   upsertResponse(
     attemptId: string,
     itemId: string,

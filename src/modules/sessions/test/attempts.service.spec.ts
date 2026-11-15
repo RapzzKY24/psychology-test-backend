@@ -23,6 +23,7 @@ function makeDetail(
       participantId: 'p-1',
       birthDate: null,
       gender: null,
+      education: null,
     },
     test: {
       id: 't-1',
@@ -35,6 +36,7 @@ function makeDetail(
       ageMinMonths: null,
       ageMaxMonths: null,
       requiresGender: false,
+      requiresEducation: false,
     },
     session: {
       id: 'sess-1',
@@ -75,7 +77,9 @@ describe('AttemptsService', () => {
       findAccessDetail: jest.fn(),
       setBirthDate: jest.fn(),
       setGender: jest.fn(),
+      setEducation: jest.fn(),
       upsertResponse: jest.fn(),
+      findNormRows: jest.fn(),
       findResultByAttemptId: jest.fn(),
       completeAndCreateResult: jest.fn(),
       listByUser: jest.fn(),
@@ -374,6 +378,7 @@ describe('AttemptsService', () => {
       ageMinMonths: null,
       ageMaxMonths: null,
       requiresGender: false,
+      requiresEducation: false,
     };
     const rawItems = [
       {
@@ -554,6 +559,7 @@ describe('AttemptsService', () => {
       ageMinMonths: 168,
       ageMaxMonths: 179,
       requiresGender: false,
+      requiresEducation: false,
     };
 
     function birthDateYearsAgo(years: number, extraMonths = 0): string {
@@ -708,6 +714,7 @@ describe('AttemptsService', () => {
       ageMinMonths: null,
       ageMaxMonths: null,
       requiresGender: true,
+      requiresEducation: false,
     };
     const genderedItems = [
       {

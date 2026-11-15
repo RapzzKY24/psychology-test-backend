@@ -39,6 +39,12 @@ import {
   markGroupResponseSchema,
 } from './schemas/mark-group';
 import {
+  OptionScaleItemContentSchema,
+  OptionScaleResponseSchema,
+  optionScalePatternCodes,
+  optionScaleResponseSchema,
+} from './schemas/option-scale';
+import {
   RankGroupItemContentSchema,
   RankGroupResponseSchema,
   rankGroupPatternCodes,
@@ -67,6 +73,7 @@ import { scorePairTally } from './pair-tally';
 import { scorePairNorm } from './pair-norm';
 import { scoreLikert } from './likert';
 import { scoreMarkGroup } from './mark-group';
+import { scoreOptionScale } from './option-scale';
 import { scoreRankGroup } from './rank-group';
 import { scoreRightWrongNorm } from './right-wrong-norm';
 import { scoreScaleTally } from './scale-tally';
@@ -76,6 +83,7 @@ import { sanitizePairItem } from './sanitize-pair-item';
 import { sanitizePairNormItem } from './sanitize-pair-norm-item';
 import { sanitizeLikertItem } from './sanitize-likert-item';
 import { sanitizeMarkGroupItem } from './sanitize-mark-group-item';
+import { sanitizeOptionScaleItem } from './sanitize-option-scale-item';
 import { sanitizeRankGroupItem } from './sanitize-rank-group-item';
 import { sanitizeRightWrongItem } from './sanitize-right-wrong-item';
 import { sanitizeScaleTallyItem } from './sanitize-scale-tally-item';
@@ -147,15 +155,35 @@ export interface Scorer {
     items: { content: unknown }[],
     scoringConfig?: unknown,
   ): boolean;
+  /**
+   * Whether this item set needs the participant's schooling before it can be
+   * scored. Only families whose norm table is banded by education say yes;
+   * `putItems` mirrors it into `Test.requiresEducation`.
+   */
+  requiresEducationFor?(
+    items: { content: unknown }[],
+    scoringConfig?: unknown,
+  ): boolean;
   score(input: {
     items: { id: string; content: unknown }[];
     responses: { itemId: string; value: unknown }[];
     /** Optional conversion table carried by the test (raw -> IQ). */
     normTable?: unknown;
+    /** ADR-011 norm rows of this test, empty when the family reads none. */
+    normRows?: {
+      group: string;
+      scale: string | null;
+      rawMin: number;
+      rawMax: number;
+      outputValue: number;
+      outputLabel: string | null;
+    }[];
     /** Family settings the items do not carry (e.g. a tally tie-break). */
     scoringConfig?: unknown;
     /** Declared sex, for a family whose norm table is split (KUDER). */
     gender?: string | null;
+    /** Declared schooling, for a family whose norm table is banded (16PF). */
+    education?: string | null;
   }): Promise<ScorerOutput>;
 }
 
@@ -236,6 +264,23 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     },
     score: (input) =>
       Promise.resolve(scoreMarkGroup(input) as unknown as ScorerOutput),
+  },
+  OPTION_SCALE: {
+    type: 'OPTION_SCALE',
+    itemSchema: OptionScaleItemContentSchema,
+    responseSchema: OptionScaleResponseSchema,
+    responseSchemaFor: (_scoringConfig, itemContent) =>
+      optionScaleResponseSchema(itemContent),
+    sanitize: sanitizeOptionScaleItem,
+    patternCatalog: [],
+    patternCodesFor: optionScalePatternCodes,
+    // 16PF is the only instrument on this family and its sten table is split
+    // nine ways by sex and schooling, so both gates always apply. The items
+    // themselves never differ, which is why the family has to say so.
+    requiresGenderFor: () => true,
+    requiresEducationFor: () => true,
+    score: (input) =>
+      Promise.resolve(scoreOptionScale(input) as unknown as ScorerOutput),
   },
   PAIR_NORM: {
     type: 'PAIR_NORM',

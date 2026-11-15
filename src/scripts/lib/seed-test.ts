@@ -31,6 +31,8 @@ export interface SeedTestMeta {
   ageMaxMonths?: number | null;
   /** Items differ by sex, so the attempt must declare one before starting. */
   requiresGender?: boolean;
+  /** Norm is banded by schooling, so the attempt must declare one before starting. */
+  requiresEducation?: boolean;
 }
 
 export interface SeedData {
@@ -59,6 +61,7 @@ function contentFields(meta: SeedTestMeta) {
     ageMinMonths: meta.ageMinMonths ?? null,
     ageMaxMonths: meta.ageMaxMonths ?? null,
     requiresGender: meta.requiresGender ?? false,
+    requiresEducation: meta.requiresEducation ?? false,
   };
 }
 

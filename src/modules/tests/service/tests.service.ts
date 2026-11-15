@@ -290,7 +290,14 @@ export class TestsService {
           ?.femaleOptions;
         return Array.isArray(female) && female.length > 0;
       });
-    await this.repo.replaceItems(testId, items, { requiresGender });
+    // 16PF's sten table is banded by schooling, so the same rule applies to
+    // education: the family that needs it says so, the items never do.
+    const requiresEducation =
+      scorer?.requiresEducationFor?.(items, test.scoringConfig) ?? false;
+    await this.repo.replaceItems(testId, items, {
+      requiresGender,
+      requiresEducation,
+    });
 
     return { count: items.length };
   }

@@ -29,7 +29,7 @@ export interface TestsRepository {
   replaceItems(
     testId: string,
     items: { content: unknown }[],
-    options?: { requiresGender?: boolean },
+    options?: { requiresGender?: boolean; requiresEducation?: boolean },
   ): Promise<void>;
   replaceInterpretations(
     testId: string,

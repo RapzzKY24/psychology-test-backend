@@ -6,7 +6,7 @@ import { z } from 'zod';
  * (E/A/C/N/O), Enneagram numbers its types (T1..T9), a later inventory may use
  * a longer code. A code starts with a letter so it can never read as a number.
  */
-const ScaleSchema = z
+export const ScaleSchema = z
   .string()
   .trim()
   .toUpperCase()
