@@ -23,6 +23,7 @@ import { EventLogModule } from './modules/event-log/event-log.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { CertificatesModule } from './modules/certificates/certificates.module';
+import { PublicStatsModule } from './modules/public-stats/public-stats.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { CertificatesModule } from './modules/certificates/certificates.module';
     PaymentsModule,
     ReportsModule,
     CertificatesModule,
+    PublicStatsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

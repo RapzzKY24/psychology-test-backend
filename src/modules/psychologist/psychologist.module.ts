@@ -29,5 +29,8 @@ import { PrismaPsychologistStatsRepository } from './repository/psychologist-sta
       useClass: PrismaPsychologistStatsRepository,
     },
   ],
+  // The public stats endpoint counts signers through this service, so the
+  // landing page and the test page can never disagree.
+  exports: [PsychologistService],
 })
 export class PsychologistModule {}
