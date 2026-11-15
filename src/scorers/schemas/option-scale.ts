@@ -5,16 +5,32 @@ import { ScaleSchema } from './likert';
 export const OPTION_SCALE_CHOICES = 3;
 
 /**
+ * What a pick is worth when the item does not say: option 0 is the high pole,
+ * so `a` = 2, `b` = 1, `c` = 0. That is the shape of 97 of 16PF's 105 items.
+ */
+export const OPTION_SCALE_DEFAULT_POINTS = [2, 1, 0];
+
+/**
  * A statement answered by picking one of three printed options. `scale` is the
  * hidden key: every item in one row of the answer sheet feeds the same factor.
- * `reverse` says the option order runs low-to-high for this item, which 16PF
- * needs because its `a` option is not always the high pole.
+ *
+ * `points` is the other half of the key — what each option is worth. It has to
+ * live on the item because 16PF mixes two kinds: most items score 2/1/0 with
+ * the high pole printed first or last, while the eight factor-B items are
+ * right/wrong and give a single point (`[0, 1, 0]`). Without it, B's raw score
+ * would run to 16 where the norm table stops at 8.
  */
 export const OptionScaleItemContentSchema = z.object({
   text: z.string().trim().min(1).max(2000),
   options: z.array(z.string().trim().min(1).max(500)).length(OPTION_SCALE_CHOICES),
   scale: ScaleSchema,
-  reverse: z.boolean().optional(),
+  points: z
+    .array(z.number().int().min(0).max(2))
+    .length(OPTION_SCALE_CHOICES)
+    .refine((points) => Math.max(...points) > 0, {
+      message: 'Minimal satu opsi harus bernilai lebih dari 0.',
+    })
+    .optional(),
 });
 
 export type OptionScaleItemContent = z.infer<typeof OptionScaleItemContentSchema>;
@@ -24,6 +40,11 @@ export function parseOptionScaleItem(
 ): OptionScaleItemContent | null {
   const parsed = OptionScaleItemContentSchema.safeParse(content);
   return parsed.success ? parsed.data : null;
+}
+
+/** The item's own weights, or the 2/1/0 default. */
+export function optionScalePoints(item: OptionScaleItemContent): number[] {
+  return item.points ?? OPTION_SCALE_DEFAULT_POINTS;
 }
 
 /**

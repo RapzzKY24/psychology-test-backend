@@ -11,6 +11,10 @@ import {
   StyleGridConfigSchema,
   StyleGridItemContentSchema,
 } from '../../scorers/schemas/style-grid';
+import {
+  OPTION_SCALE_DEFAULT_POINTS,
+  OptionScaleItemContentSchema,
+} from '../../scorers/schemas/option-scale';
 
 /**
  * Seeds bypass the Test Builder, so nothing else validates their shape before
@@ -30,6 +34,14 @@ interface SeedFile {
     scoringConfig?: unknown;
     ageMinMonths?: number | null;
     ageMaxMonths?: number | null;
+    /** Per-scale norm rows (OPTION_SCALE reads these instead of `normTable`). */
+    norms?: {
+      group: string;
+      scale: string | null;
+      rawMin: number;
+      rawMax: number;
+      outputValue: number;
+    }[];
   };
   items: { order: number; content: Record<string, unknown> }[];
   interpretations: { patternCode: string }[];
@@ -231,6 +243,63 @@ describe.each(FILES)('seed %s', (file) => {
       expect({ pair: [a, b], both: orders.has(a) && orders.has(b) }).toEqual({
         pair: [a, b],
         both: true,
+      });
+    }
+  });
+
+  // OPTION_SCALE reads one sten per factor from `norms`, so a group that stops
+  // short of a factor's ceiling leaves every high raw score with a null sten —
+  // and a factor no group covers can never become the pattern code.
+  it('covers every factor ceiling in every norm group', () => {
+    if (seed.test.scorerType !== 'OPTION_SCALE') return;
+    const rows = seed.test.norms ?? [];
+    const ceiling = new Map<string, number>();
+    for (const item of seed.items) {
+      const parsed = OptionScaleItemContentSchema.parse(item.content);
+      const points = parsed.points ?? OPTION_SCALE_DEFAULT_POINTS;
+      ceiling.set(
+        parsed.scale,
+        (ceiling.get(parsed.scale) ?? 0) + Math.max(...points),
+      );
+    }
+    const groups = new Set(rows.map((row) => row.group));
+    expect(groups.size).toBeGreaterThan(0);
+    // A factor the tables never mention is a deliberate "raw only" score, and a
+    // factor only some groups read is the sex-only case checked below. What
+    // this loop guards is the range: a table that stops before the factor's
+    // own ceiling leaves every high raw score with a null sten.
+    for (const group of groups) {
+      const inGroup = new Set(
+        rows.filter((row) => row.group === group).map((row) => row.scale),
+      );
+      for (const [scale, top] of ceiling) {
+        if (!inGroup.has(scale)) continue;
+        const covered = rows
+          .filter((row) => row.group === group && row.scale === scale)
+          .some((row) => row.rawMax >= top);
+        expect({ group, scale, top, covered }).toEqual({
+          group,
+          scale,
+          top,
+          covered: true,
+        });
+      }
+    }
+    const scaled = new Set(rows.map((row) => row.scale));
+    for (const scale of scaled) {
+      const present = [...groups].filter((group) =>
+        rows.some((row) => row.group === group && row.scale === scale),
+      );
+      // Either every group reads this factor, or it is split by sex only —
+      // 16PF's MD norm has a P and an L column and no combined one, so the
+      // `_LP` groups legitimately have no row for it.
+      const sexOnly = [...groups].filter((group) => !group.endsWith('_LP'));
+      const inEveryGroup = present.length === groups.size;
+      const inSexGroups =
+        present.slice().sort().join() === sexOnly.slice().sort().join();
+      expect({ scale, covered: inEveryGroup || inSexGroups }).toEqual({
+        scale,
+        covered: true,
       });
     }
   });

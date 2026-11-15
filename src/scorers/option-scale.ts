@@ -1,12 +1,13 @@
 import {
   OptionScaleItemContentSchema,
   OptionScaleResponseSchema,
+  optionScalePoints,
 } from './schemas/option-scale';
 
 export interface OptionScaleScore {
-  /** Raw sum of the picked options, highest option = 2. */
+  /** Raw sum of the weights of the picked options. */
   score: number;
-  /** 2 x the number of items feeding the scale. */
+  /** Sum of the best option of every item feeding the scale. */
   max: number;
   /** Standard ten from the test's norm table; null when no row covers the raw. */
   sten: number | null;
@@ -74,11 +75,11 @@ function stenOf(
 }
 
 /**
- * Scores a three-option inventory: option 0 is the high pole, so it is worth 2,
- * option 1 worth 1 and option 2 worth 0 — `reverse` flips that for the items
- * whose printed order runs the other way. The raw sum per factor is then read
- * against the test's `NormTable` rows (ADR-011), which is what turns 16PF's
- * scores into stens.
+ * Scores a three-option inventory: every item carries the weight of each option
+ * (`[2, 1, 0]` when it does not say, `[0, 1, 0]` for 16PF's right/wrong factor
+ * B), so a pick is worth exactly what the workbook's formula gives it. The raw
+ * sum per factor is then read against the test's `NormTable` rows (ADR-011),
+ * which is what turns 16PF's scores into stens.
  */
 export function scoreOptionScale(input: {
   items: { id: string; content: unknown }[];
@@ -90,10 +91,10 @@ export function scoreOptionScale(input: {
   const rows = input.normRows ?? [];
   const normGroup = normGroupOf(input.education, input.gender);
 
-  /** itemId -> factor, option count and direction. */
+  /** itemId -> factor, weights and the last pickable option. */
   const itemKey = new Map<
     string,
-    { scale: string; last: number; reverse: boolean }
+    { scale: string; points: number[]; last: number }
   >();
   const order: string[] = [];
   const buckets = new Map<string, { sum: number; max: number }>();
@@ -101,18 +102,15 @@ export function scoreOptionScale(input: {
   for (const item of input.items) {
     const parsed = OptionScaleItemContentSchema.safeParse(item.content);
     if (!parsed.success) continue;
+    const points = optionScalePoints(parsed.data);
     const last = parsed.data.options.length - 1;
-    itemKey.set(item.id, {
-      scale: parsed.data.scale,
-      last,
-      reverse: parsed.data.reverse === true,
-    });
+    itemKey.set(item.id, { scale: parsed.data.scale, points, last });
     if (!buckets.has(parsed.data.scale)) {
       buckets.set(parsed.data.scale, { sum: 0, max: 0 });
       order.push(parsed.data.scale);
     }
     const bucket = buckets.get(parsed.data.scale)!;
-    bucket.max += last;
+    bucket.max += Math.max(...points);
   }
 
   let answered = 0;
@@ -123,11 +121,9 @@ export function scoreOptionScale(input: {
     if (!parsed.success) continue;
     const chosen = parsed.data.chosen;
     if (chosen > key.last) continue;
-    // Option 0 is the high pole: picking it adds the full weight.
-    const value = key.reverse ? chosen : key.last - chosen;
     const bucket = buckets.get(key.scale);
     if (!bucket) continue;
-    bucket.sum += value;
+    bucket.sum += key.points[chosen] ?? 0;
     answered += 1;
   }
 

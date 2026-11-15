@@ -33,6 +33,21 @@ export interface SeedTestMeta {
   requiresGender?: boolean;
   /** Norm is banded by schooling, so the attempt must declare one before starting. */
   requiresEducation?: boolean;
+  /**
+   * Per-scale norm rows (ADR-011). Only families that read `NormTable` use
+   * them — 16PF's nine schooling x sex sten tables live here.
+   */
+  norms?: SeedNormRow[];
+}
+
+/** One raw-range lookup row, as stored in `norm_tables`. */
+export interface SeedNormRow {
+  group: string;
+  scale: string | null;
+  rawMin: number;
+  rawMax: number;
+  outputValue: number;
+  outputLabel?: string | null;
 }
 
 export interface SeedData {
@@ -176,4 +191,31 @@ export async function syncInterpretations(
 /** One line per run so the operator can see what actually changed. */
 export function describeSync(count: SyncCount): string {
   return `${count.created} created, ${count.updated} updated, ${count.deleted} removed`;
+}
+
+/**
+ * Replaces every norm row of one test. Rows have no natural key the operator
+ * would edit (a seed owns the whole table), and nothing points at a row id, so
+ * a swap is simpler than a diff and lands on the same state either way.
+ */
+export async function syncNormRows(
+  prisma: PrismaClient,
+  testId: string,
+  rows: SeedNormRow[],
+): Promise<SyncCount> {
+  const removed = await prisma.normTable.deleteMany({ where: { testId } });
+  if (rows.length > 0) {
+    await prisma.normTable.createMany({
+      data: rows.map((row) => ({
+        testId,
+        group: row.group,
+        scale: row.scale,
+        rawMin: row.rawMin,
+        rawMax: row.rawMax,
+        outputValue: row.outputValue,
+        outputLabel: row.outputLabel ?? null,
+      })),
+    });
+  }
+  return { created: rows.length, updated: 0, deleted: removed.count };
 }

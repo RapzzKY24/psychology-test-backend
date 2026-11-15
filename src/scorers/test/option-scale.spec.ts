@@ -17,7 +17,8 @@ const ITEMS = [
       text: 'Dengan hidup menyendiri, saya merasa bahagia.',
       options: ['Ya', 'Kadang-kadang', 'Tidak'],
       scale: 'A',
-      reverse: true,
+      // The high pole is printed last, so the weights run the other way.
+      points: [0, 1, 2],
     },
   },
   {
@@ -26,6 +27,16 @@ const ITEMS = [
       text: 'Saya suka bekerja dalam kelompok.',
       options: ['Ya', 'Kadang-kadang', 'Tidak'],
       scale: 'A',
+    },
+  },
+  {
+    id: 'i4',
+    content: {
+      // 16PF's factor B is right/wrong: one point for `b`, nothing otherwise.
+      text: 'Bila dikatakan langit itu "dibawah" dan salju itu "panas", maka kriminal itu:',
+      options: ['Penjahat', 'Malaikat', 'Awan'],
+      scale: 'B',
+      points: [0, 1, 0],
     },
   },
 ];
@@ -79,18 +90,34 @@ describe('scoreOptionScale', () => {
       responses: answers(0, 2, 0),
     });
     expect(scores.scales.MD.score).toBe(2);
-    // i2 is reversed, so its last option is the high pole.
+    // i2 carries [0,1,2], so its last option is the high pole.
     expect(scores.scales.A.score).toBe(2 + 2);
     expect(scores.scales.A.max).toBe(4);
     expect(scores.answered).toBe(3);
   });
 
-  it('flips a reversed item', () => {
+  it('flips an item whose high pole is printed last', () => {
     const { scores } = scoreOptionScale({
       items: ITEMS,
       responses: [{ itemId: 'i2', value: { chosen: 0 } }],
     });
     expect(scores.scales.A.score).toBe(0);
+  });
+
+  it('gives a right/wrong item one point for the keyed option only', () => {
+    const right = scoreOptionScale({
+      items: ITEMS,
+      responses: [{ itemId: 'i4', value: { chosen: 1 } }],
+    });
+    expect(right.scores.scales.B.score).toBe(1);
+    // The ceiling follows the weights, not the option count: 1, not 2.
+    expect(right.scores.scales.B.max).toBe(1);
+
+    const wrong = scoreOptionScale({
+      items: ITEMS,
+      responses: [{ itemId: 'i4', value: { chosen: 2 } }],
+    });
+    expect(wrong.scores.scales.B.score).toBe(0);
   });
 
   it('reads the sten of the declared norm group', () => {
