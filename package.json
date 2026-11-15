@@ -46,6 +46,7 @@
     "seed:16pf": "tsx src/scripts/seed-16pf.ts",
     "seed:msai": "tsx src/scripts/seed-msai.ts",
     "seed:rmib": "tsx src/scripts/seed-rmib.ts",
+    "seed:kraepelin": "tsx src/scripts/seed-kraepelin.ts",
     "seed:instansi": "tsx src/scripts/seed-instansi.ts",
     "seed:articles": "tsx src/scripts/seed-articles.ts",
     "seed:report-settings": "tsx src/scripts/seed-report-settings.ts"

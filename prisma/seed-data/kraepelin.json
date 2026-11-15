@@ -1,0 +1,2613 @@
+{
+  "test": {
+    "slug": "kraepelin",
+    "name": "Kraepelin",
+    "description": "Tes kecepatan dan ketelitian kerja berbentuk deret angka. Pada setiap lajur Anda menjumlahkan dua angka yang berurutan dan menuliskan angka terakhir dari hasilnya, secepat dan seteliti mungkin sampai waktu habis. Hasilnya dibaca sebagai empat faktor: kecepatan, ketelitian, ketahanan, dan keajegan kerja.",
+    "category": "COGNITIVE",
+    "scorerType": "TIMED_GRID",
+    "price": 50000,
+    "estimatedDurationMin": 20,
+    "timeLimitMin": 20,
+    "requiresEducation": true,
+    "scoringConfig": {
+      "educationGroups": {},
+      "factors": [
+        {
+          "code": "PAN",
+          "label": "Kecepatan kerja",
+          "formula": "MEAN_CORRECT",
+          "decimals": 2,
+          "defaultGroup": "ELSE",
+          "groups": {
+            "1": [
+              {
+                "op": "lte",
+                "value": 7.56,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "lte",
+                "value": 9.52,
+                "label": "Kurang"
+              },
+              {
+                "op": "lte",
+                "value": 12.91,
+                "label": "Sedang"
+              },
+              {
+                "op": "lte",
+                "value": 16.1,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ],
+            "2": [
+              {
+                "op": "lte",
+                "value": 7.4,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "lte",
+                "value": 9.71,
+                "label": "Kurang"
+              },
+              {
+                "op": "lte",
+                "value": 14.73,
+                "label": "Sedang"
+              },
+              {
+                "op": "lte",
+                "value": 16.63,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ],
+            "3": [
+              {
+                "op": "lte",
+                "value": 8.257,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "lte",
+                "value": 10.367,
+                "label": "Kurang"
+              },
+              {
+                "op": "lte",
+                "value": 12.483,
+                "label": "Sedang"
+              },
+              {
+                "op": "lte",
+                "value": 14.598,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ],
+            "4": [
+              {
+                "op": "lte",
+                "value": 6.708,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "lte",
+                "value": 9.975,
+                "label": "Kurang"
+              },
+              {
+                "op": "lte",
+                "value": 12.723,
+                "label": "Sedang"
+              },
+              {
+                "op": "lte",
+                "value": 15.808,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ],
+            "5": [
+              {
+                "op": "lte",
+                "value": 8.115,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "lte",
+                "value": 10.962,
+                "label": "Kurang"
+              },
+              {
+                "op": "lte",
+                "value": 13.361,
+                "label": "Sedang"
+              },
+              {
+                "op": "lte",
+                "value": 16.043,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ],
+            "6": [
+              {
+                "op": "lte",
+                "value": 8.945,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "lte",
+                "value": 11.404,
+                "label": "Kurang"
+              },
+              {
+                "op": "lte",
+                "value": 14.296,
+                "label": "Sedang"
+              },
+              {
+                "op": "lte",
+                "value": 16.495,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ],
+            "7": [
+              {
+                "op": "lte",
+                "value": 9.592,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "lte",
+                "value": 11.976,
+                "label": "Kurang"
+              },
+              {
+                "op": "lte",
+                "value": 14.361,
+                "label": "Sedang"
+              },
+              {
+                "op": "lte",
+                "value": 16.746,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ],
+            "ELSE": [
+              {
+                "op": "lte",
+                "value": 10.499,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "lte",
+                "value": 12.735,
+                "label": "Kurang"
+              },
+              {
+                "op": "lte",
+                "value": 14.972,
+                "label": "Sedang"
+              },
+              {
+                "op": "lte",
+                "value": 17.209,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ]
+          }
+        },
+        {
+          "code": "JAN",
+          "label": "Ketelitian kerja",
+          "formula": "MEAN_DEVIATION",
+          "decimals": 4,
+          "defaultGroup": "ELSE",
+          "groups": {
+            "1": [
+              {
+                "op": "lte",
+                "value": 0.47,
+                "label": "Baik sekali"
+              },
+              {
+                "op": "lte",
+                "value": 0.907,
+                "label": "Baik"
+              },
+              {
+                "op": "lte",
+                "value": 1.781,
+                "label": "Sedang"
+              },
+              {
+                "op": "lte",
+                "value": 2.218,
+                "label": "Kurang"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Kurang sekali"
+              }
+            ],
+            "2": [
+              {
+                "op": "lte",
+                "value": 0.565,
+                "label": "Baik sekali"
+              },
+              {
+                "op": "lte",
+                "value": 0.902,
+                "label": "Baik"
+              },
+              {
+                "op": "lte",
+                "value": 1.576,
+                "label": "Sedang"
+              },
+              {
+                "op": "lte",
+                "value": 1.913,
+                "label": "Kurang"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Kurang sekali"
+              }
+            ],
+            "3": [
+              {
+                "op": "lte",
+                "value": 0.294,
+                "label": "Baik sekali"
+              },
+              {
+                "op": "lte",
+                "value": 0.966,
+                "label": "Baik"
+              },
+              {
+                "op": "lte",
+                "value": 1.638,
+                "label": "Sedang"
+              },
+              {
+                "op": "lte",
+                "value": 2.31,
+                "label": "Kurang"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Kurang sekali"
+              }
+            ],
+            "4": [
+              {
+                "op": "lte",
+                "value": 0.794,
+                "label": "Baik sekali"
+              },
+              {
+                "op": "lte",
+                "value": 1.039,
+                "label": "Baik"
+              },
+              {
+                "op": "lte",
+                "value": 1.347,
+                "label": "Sedang"
+              },
+              {
+                "op": "lte",
+                "value": 1.783,
+                "label": "Kurang"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Kurang sekali"
+              }
+            ],
+            "ELSE": [
+              {
+                "op": "lte",
+                "value": 0.695,
+                "label": "Baik sekali"
+              },
+              {
+                "op": "lte",
+                "value": 1.055,
+                "label": "Baik"
+              },
+              {
+                "op": "lte",
+                "value": 1.417,
+                "label": "Sedang"
+              },
+              {
+                "op": "lte",
+                "value": 1.778,
+                "label": "Kurang"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Kurang sekali"
+              }
+            ]
+          }
+        },
+        {
+          "code": "HAN",
+          "label": "Ketahanan kerja",
+          "formula": "SLOPE",
+          "decimals": 2,
+          "defaultGroup": "ELSE",
+          "groups": {
+            "1": [
+              {
+                "op": "lte",
+                "value": -3.316,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "lte",
+                "value": -1.476,
+                "label": "Kurang"
+              },
+              {
+                "op": "lte",
+                "value": 1.406,
+                "label": "Sedang"
+              },
+              {
+                "op": "lte",
+                "value": 2.664,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ],
+            "2": [
+              {
+                "op": "lte",
+                "value": -3.526,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "lte",
+                "value": -1.176,
+                "label": "Kurang"
+              },
+              {
+                "op": "lte",
+                "value": 0.654,
+                "label": "Sedang"
+              },
+              {
+                "op": "lte",
+                "value": 1.656,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ],
+            "3": [
+              {
+                "op": "lte",
+                "value": -2.094,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "lte",
+                "value": -0.698,
+                "label": "Kurang"
+              },
+              {
+                "op": "lte",
+                "value": 3.491,
+                "label": "Sedang"
+              },
+              {
+                "op": "lte",
+                "value": 6.283,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ],
+            "4": [
+              {
+                "op": "lte",
+                "value": -2.955,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "lte",
+                "value": -1.064,
+                "label": "Kurang"
+              },
+              {
+                "op": "lte",
+                "value": 0.681,
+                "label": "Sedang"
+              },
+              {
+                "op": "lte",
+                "value": 2.689,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ],
+            "5": [
+              {
+                "op": "lte",
+                "value": -3.439,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "lte",
+                "value": -1.948,
+                "label": "Kurang"
+              },
+              {
+                "op": "lte",
+                "value": 0.223,
+                "label": "Sedang"
+              },
+              {
+                "op": "lte",
+                "value": 2.029,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ],
+            "6": [
+              {
+                "op": "lte",
+                "value": -3.412,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "lte",
+                "value": -1.473,
+                "label": "Kurang"
+              },
+              {
+                "op": "lte",
+                "value": 0.279,
+                "label": "Sedang"
+              },
+              {
+                "op": "lte",
+                "value": 2.129,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ],
+            "ELSE": [
+              {
+                "op": "lte",
+                "value": -1.951,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "lte",
+                "value": -0.469,
+                "label": "Kurang"
+              },
+              {
+                "op": "lte",
+                "value": 1.014,
+                "label": "Sedang"
+              },
+              {
+                "op": "lte",
+                "value": 2.496,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ]
+          }
+        },
+        {
+          "code": "TIA",
+          "label": "Keajegan kerja",
+          "formula": "ERRORS",
+          "decimals": 0,
+          "defaultGroup": "ELSE",
+          "groups": {
+            "1": [
+              {
+                "op": "gte",
+                "value": 34.0,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "gte",
+                "value": 15.0,
+                "label": "Kurang"
+              },
+              {
+                "op": "gte",
+                "value": 5.0,
+                "label": "Sedang"
+              },
+              {
+                "op": "gte",
+                "value": 2.0,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ],
+            "2": [
+              {
+                "op": "gte",
+                "value": 28.0,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "gte",
+                "value": 11.0,
+                "label": "Kurang"
+              },
+              {
+                "op": "gte",
+                "value": 3.0,
+                "label": "Sedang"
+              },
+              {
+                "op": "gte",
+                "value": 1.0,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ],
+            "3": [
+              {
+                "op": "gte",
+                "value": 25.0,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "gte",
+                "value": 15.0,
+                "label": "Kurang"
+              },
+              {
+                "op": "gte",
+                "value": 10.0,
+                "label": "Sedang"
+              },
+              {
+                "op": "gte",
+                "value": 5.0,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ],
+            "4": [
+              {
+                "op": "gte",
+                "value": 23.0,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "gte",
+                "value": 13.0,
+                "label": "Kurang"
+              },
+              {
+                "op": "gte",
+                "value": 8.0,
+                "label": "Sedang"
+              },
+              {
+                "op": "gte",
+                "value": 3.0,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ],
+            "5": [
+              {
+                "op": "gte",
+                "value": 22.0,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "gte",
+                "value": 13.0,
+                "label": "Kurang"
+              },
+              {
+                "op": "gte",
+                "value": 7.0,
+                "label": "Sedang"
+              },
+              {
+                "op": "gte",
+                "value": 3.0,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ],
+            "6": [
+              {
+                "op": "gte",
+                "value": 28.0,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "gte",
+                "value": 16.0,
+                "label": "Kurang"
+              },
+              {
+                "op": "gte",
+                "value": 10.0,
+                "label": "Sedang"
+              },
+              {
+                "op": "gte",
+                "value": 4.0,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ],
+            "7": [
+              {
+                "op": "gte",
+                "value": 22.0,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "gte",
+                "value": 15.0,
+                "label": "Kurang"
+              },
+              {
+                "op": "gte",
+                "value": 3.0,
+                "label": "Sedang"
+              },
+              {
+                "op": "gte",
+                "value": 1.0,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ],
+            "ELSE": [
+              {
+                "op": "gte",
+                "value": 23.0,
+                "label": "Kurang sekali"
+              },
+              {
+                "op": "gte",
+                "value": 14.0,
+                "label": "Kurang"
+              },
+              {
+                "op": "gte",
+                "value": 3.0,
+                "label": "Sedang"
+              },
+              {
+                "op": "gte",
+                "value": 1.0,
+                "label": "Baik"
+              },
+              {
+                "op": "else",
+                "value": null,
+                "label": "Baik sekali"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "items": [
+    {
+      "order": 1,
+      "content": {
+        "column": 1,
+        "digits": [
+          2,
+          7,
+          7,
+          9,
+          7,
+          4,
+          6,
+          6,
+          9,
+          2,
+          2,
+          1,
+          1,
+          8,
+          2,
+          2,
+          6,
+          5,
+          9,
+          2,
+          9,
+          8,
+          6,
+          4,
+          7,
+          2,
+          9,
+          4
+        ]
+      }
+    },
+    {
+      "order": 2,
+      "content": {
+        "column": 2,
+        "digits": [
+          7,
+          5,
+          6,
+          9,
+          6,
+          7,
+          1,
+          9,
+          5,
+          3,
+          6,
+          3,
+          5,
+          2,
+          9,
+          5,
+          6,
+          4,
+          2,
+          6,
+          8,
+          5,
+          7,
+          1,
+          6,
+          1,
+          8,
+          3
+        ]
+      }
+    },
+    {
+      "order": 3,
+      "content": {
+        "column": 3,
+        "digits": [
+          1,
+          5,
+          1,
+          9,
+          3,
+          2,
+          3,
+          6,
+          9,
+          8,
+          9,
+          1,
+          1,
+          2,
+          4,
+          8,
+          5,
+          7,
+          5,
+          9,
+          1,
+          8,
+          6,
+          5,
+          7,
+          5,
+          5,
+          5
+        ]
+      }
+    },
+    {
+      "order": 4,
+      "content": {
+        "column": 4,
+        "digits": [
+          2,
+          3,
+          4,
+          2,
+          5,
+          6,
+          7,
+          7,
+          3,
+          2,
+          6,
+          7,
+          8,
+          8,
+          4,
+          7,
+          8,
+          7,
+          5,
+          3,
+          5,
+          7,
+          8,
+          8,
+          2,
+          4,
+          6,
+          5
+        ]
+      }
+    },
+    {
+      "order": 5,
+      "content": {
+        "column": 5,
+        "digits": [
+          3,
+          6,
+          1,
+          2,
+          7,
+          9,
+          2,
+          8,
+          7,
+          4,
+          3,
+          3,
+          7,
+          6,
+          2,
+          9,
+          3,
+          9,
+          5,
+          7,
+          3,
+          3,
+          9,
+          9,
+          6,
+          1,
+          3,
+          1
+        ]
+      }
+    },
+    {
+      "order": 6,
+      "content": {
+        "column": 6,
+        "digits": [
+          6,
+          8,
+          2,
+          9,
+          6,
+          7,
+          1,
+          8,
+          9,
+          6,
+          4,
+          1,
+          7,
+          9,
+          7,
+          8,
+          8,
+          6,
+          6,
+          5,
+          2,
+          5,
+          8,
+          7,
+          3,
+          7,
+          1,
+          7
+        ]
+      }
+    },
+    {
+      "order": 7,
+      "content": {
+        "column": 7,
+        "digits": [
+          5,
+          4,
+          3,
+          8,
+          4,
+          2,
+          2,
+          7,
+          4,
+          9,
+          5,
+          2,
+          7,
+          2,
+          4,
+          2,
+          3,
+          5,
+          6,
+          9,
+          4,
+          6,
+          5,
+          6,
+          6,
+          1,
+          7,
+          5
+        ]
+      }
+    },
+    {
+      "order": 8,
+      "content": {
+        "column": 8,
+        "digits": [
+          5,
+          5,
+          8,
+          8,
+          1,
+          5,
+          1,
+          5,
+          4,
+          9,
+          7,
+          8,
+          8,
+          6,
+          6,
+          2,
+          6,
+          3,
+          3,
+          5,
+          2,
+          4,
+          4,
+          7,
+          7,
+          9,
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "order": 9,
+      "content": {
+        "column": 9,
+        "digits": [
+          7,
+          7,
+          5,
+          6,
+          2,
+          5,
+          2,
+          5,
+          4,
+          1,
+          1,
+          9,
+          7,
+          6,
+          2,
+          8,
+          5,
+          7,
+          7,
+          1,
+          9,
+          6,
+          1,
+          5,
+          4,
+          4,
+          1,
+          6
+        ]
+      }
+    },
+    {
+      "order": 10,
+      "content": {
+        "column": 10,
+        "digits": [
+          9,
+          1,
+          9,
+          9,
+          4,
+          6,
+          5,
+          4,
+          5,
+          2,
+          3,
+          4,
+          7,
+          2,
+          3,
+          6,
+          3,
+          1,
+          4,
+          9,
+          6,
+          8,
+          7,
+          4,
+          1,
+          9,
+          3,
+          5
+        ]
+      }
+    },
+    {
+      "order": 11,
+      "content": {
+        "column": 11,
+        "digits": [
+          9,
+          9,
+          7,
+          3,
+          8,
+          4,
+          3,
+          4,
+          5,
+          9,
+          3,
+          4,
+          5,
+          1,
+          7,
+          4,
+          8,
+          8,
+          5,
+          8,
+          4,
+          9,
+          8,
+          3,
+          5,
+          5,
+          5,
+          4
+        ]
+      }
+    },
+    {
+      "order": 12,
+      "content": {
+        "column": 12,
+        "digits": [
+          4,
+          9,
+          6,
+          7,
+          3,
+          9,
+          1,
+          2,
+          5,
+          5,
+          8,
+          7,
+          2,
+          3,
+          3,
+          9,
+          9,
+          7,
+          7,
+          2,
+          3,
+          6,
+          2,
+          6,
+          6,
+          8,
+          9,
+          7
+        ]
+      }
+    },
+    {
+      "order": 13,
+      "content": {
+        "column": 13,
+        "digits": [
+          4,
+          2,
+          3,
+          6,
+          8,
+          3,
+          5,
+          9,
+          8,
+          6,
+          8,
+          3,
+          6,
+          3,
+          2,
+          6,
+          4,
+          5,
+          3,
+          7,
+          5,
+          2,
+          4,
+          9,
+          8,
+          7,
+          1,
+          3
+        ]
+      }
+    },
+    {
+      "order": 14,
+      "content": {
+        "column": 14,
+        "digits": [
+          3,
+          3,
+          2,
+          9,
+          9,
+          8,
+          5,
+          9,
+          5,
+          5,
+          2,
+          9,
+          6,
+          4,
+          1,
+          1,
+          9,
+          9,
+          3,
+          3,
+          8,
+          4,
+          2,
+          2,
+          7,
+          2,
+          5,
+          3
+        ]
+      }
+    },
+    {
+      "order": 15,
+      "content": {
+        "column": 15,
+        "digits": [
+          4,
+          7,
+          9,
+          5,
+          3,
+          9,
+          8,
+          3,
+          5,
+          4,
+          5,
+          9,
+          5,
+          8,
+          8,
+          8,
+          9,
+          4,
+          1,
+          2,
+          6,
+          8,
+          4,
+          5,
+          5,
+          5,
+          2,
+          1
+        ]
+      }
+    },
+    {
+      "order": 16,
+      "content": {
+        "column": 16,
+        "digits": [
+          5,
+          9,
+          1,
+          8,
+          3,
+          9,
+          9,
+          3,
+          6,
+          6,
+          2,
+          5,
+          9,
+          3,
+          7,
+          8,
+          4,
+          1,
+          8,
+          4,
+          6,
+          7,
+          3,
+          6,
+          2,
+          4,
+          7,
+          2
+        ]
+      }
+    },
+    {
+      "order": 17,
+      "content": {
+        "column": 17,
+        "digits": [
+          7,
+          4,
+          6,
+          8,
+          2,
+          3,
+          5,
+          5,
+          6,
+          7,
+          6,
+          7,
+          7,
+          6,
+          5,
+          4,
+          9,
+          7,
+          2,
+          9,
+          4,
+          9,
+          1,
+          7,
+          3,
+          1,
+          8,
+          2
+        ]
+      }
+    },
+    {
+      "order": 18,
+      "content": {
+        "column": 18,
+        "digits": [
+          8,
+          6,
+          1,
+          3,
+          9,
+          3,
+          8,
+          3,
+          3,
+          7,
+          5,
+          7,
+          5,
+          3,
+          3,
+          2,
+          4,
+          5,
+          6,
+          9,
+          5,
+          4,
+          7,
+          1,
+          3,
+          8,
+          4,
+          3
+        ]
+      }
+    },
+    {
+      "order": 19,
+      "content": {
+        "column": 19,
+        "digits": [
+          2,
+          1,
+          1,
+          7,
+          2,
+          4,
+          9,
+          7,
+          1,
+          9,
+          1,
+          9,
+          4,
+          8,
+          2,
+          5,
+          3,
+          6,
+          6,
+          4,
+          9,
+          2,
+          4,
+          6,
+          7,
+          1,
+          7,
+          6
+        ]
+      }
+    },
+    {
+      "order": 20,
+      "content": {
+        "column": 20,
+        "digits": [
+          6,
+          8,
+          4,
+          7,
+          1,
+          8,
+          8,
+          7,
+          5,
+          4,
+          7,
+          7,
+          8,
+          5,
+          1,
+          4,
+          6,
+          1,
+          9,
+          5,
+          5,
+          5,
+          4,
+          3,
+          5,
+          9,
+          7,
+          2
+        ]
+      }
+    },
+    {
+      "order": 21,
+      "content": {
+        "column": 21,
+        "digits": [
+          4,
+          2,
+          2,
+          6,
+          6,
+          2,
+          3,
+          2,
+          8,
+          8,
+          1,
+          8,
+          5,
+          9,
+          8,
+          9,
+          3,
+          2,
+          7,
+          7,
+          1,
+          4,
+          6,
+          7,
+          3,
+          8,
+          1,
+          6
+        ]
+      }
+    },
+    {
+      "order": 22,
+      "content": {
+        "column": 22,
+        "digits": [
+          9,
+          1,
+          2,
+          1,
+          6,
+          5,
+          7,
+          4,
+          7,
+          1,
+          9,
+          6,
+          3,
+          9,
+          7,
+          2,
+          4,
+          9,
+          1,
+          7,
+          1,
+          2,
+          2,
+          8,
+          9,
+          2,
+          4,
+          9
+        ]
+      }
+    },
+    {
+      "order": 23,
+      "content": {
+        "column": 23,
+        "digits": [
+          5,
+          2,
+          9,
+          9,
+          2,
+          2,
+          2,
+          6,
+          8,
+          3,
+          6,
+          9,
+          2,
+          3,
+          4,
+          4,
+          1,
+          2,
+          2,
+          6,
+          8,
+          6,
+          1,
+          9,
+          1,
+          9,
+          4,
+          4
+        ]
+      }
+    },
+    {
+      "order": 24,
+      "content": {
+        "column": 24,
+        "digits": [
+          9,
+          5,
+          4,
+          7,
+          8,
+          4,
+          1,
+          9,
+          1,
+          4,
+          2,
+          4,
+          7,
+          9,
+          7,
+          5,
+          6,
+          7,
+          8,
+          3,
+          1,
+          5,
+          9,
+          6,
+          7,
+          4,
+          2,
+          1
+        ]
+      }
+    },
+    {
+      "order": 25,
+      "content": {
+        "column": 25,
+        "digits": [
+          3,
+          3,
+          5,
+          6,
+          2,
+          2,
+          5,
+          1,
+          7,
+          7,
+          8,
+          2,
+          9,
+          9,
+          3,
+          7,
+          2,
+          3,
+          7,
+          6,
+          5,
+          4,
+          1,
+          6,
+          7,
+          3,
+          7,
+          2
+        ]
+      }
+    },
+    {
+      "order": 26,
+      "content": {
+        "column": 26,
+        "digits": [
+          2,
+          7,
+          4,
+          1,
+          2,
+          1,
+          3,
+          2,
+          6,
+          2,
+          6,
+          5,
+          5,
+          9,
+          3,
+          5,
+          9,
+          5,
+          9,
+          5,
+          9,
+          6,
+          3,
+          1,
+          4,
+          1,
+          8,
+          1
+        ]
+      }
+    },
+    {
+      "order": 27,
+      "content": {
+        "column": 27,
+        "digits": [
+          1,
+          6,
+          5,
+          1,
+          2,
+          9,
+          5,
+          8,
+          7,
+          1,
+          9,
+          7,
+          7,
+          8,
+          2,
+          6,
+          9,
+          7,
+          3,
+          1,
+          7,
+          4,
+          9,
+          4,
+          8,
+          3,
+          7,
+          6
+        ]
+      }
+    },
+    {
+      "order": 28,
+      "content": {
+        "column": 28,
+        "digits": [
+          3,
+          2,
+          7,
+          4,
+          2,
+          7,
+          3,
+          1,
+          5,
+          6,
+          4,
+          9,
+          2,
+          4,
+          9,
+          5,
+          2,
+          1,
+          7,
+          4,
+          5,
+          9,
+          4,
+          8,
+          5,
+          6,
+          5,
+          7
+        ]
+      }
+    },
+    {
+      "order": 29,
+      "content": {
+        "column": 29,
+        "digits": [
+          8,
+          1,
+          3,
+          7,
+          1,
+          7,
+          7,
+          2,
+          3,
+          2,
+          5,
+          6,
+          3,
+          7,
+          7,
+          4,
+          9,
+          7,
+          5,
+          4,
+          8,
+          4,
+          3,
+          7,
+          5,
+          2,
+          3,
+          3
+        ]
+      }
+    },
+    {
+      "order": 30,
+      "content": {
+        "column": 30,
+        "digits": [
+          5,
+          9,
+          3,
+          4,
+          6,
+          8,
+          6,
+          4,
+          6,
+          3,
+          1,
+          5,
+          6,
+          5,
+          6,
+          9,
+          4,
+          3,
+          5,
+          9,
+          4,
+          2,
+          8,
+          7,
+          3,
+          2,
+          9,
+          2
+        ]
+      }
+    },
+    {
+      "order": 31,
+      "content": {
+        "column": 31,
+        "digits": [
+          6,
+          6,
+          6,
+          2,
+          6,
+          7,
+          1,
+          5,
+          6,
+          4,
+          7,
+          8,
+          8,
+          9,
+          7,
+          1,
+          7,
+          5,
+          6,
+          2,
+          5,
+          1,
+          2,
+          3,
+          1,
+          2,
+          8,
+          3
+        ]
+      }
+    },
+    {
+      "order": 32,
+      "content": {
+        "column": 32,
+        "digits": [
+          9,
+          3,
+          6,
+          7,
+          2,
+          8,
+          7,
+          3,
+          7,
+          9,
+          2,
+          4,
+          7,
+          4,
+          1,
+          3,
+          1,
+          3,
+          9,
+          9,
+          1,
+          6,
+          8,
+          6,
+          3,
+          9,
+          7,
+          3
+        ]
+      }
+    },
+    {
+      "order": 33,
+      "content": {
+        "column": 33,
+        "digits": [
+          3,
+          7,
+          5,
+          6,
+          1,
+          6,
+          9,
+          1,
+          4,
+          1,
+          8,
+          2,
+          2,
+          3,
+          1,
+          7,
+          8,
+          3,
+          9,
+          3,
+          7,
+          1,
+          4,
+          9,
+          9,
+          2,
+          4,
+          1
+        ]
+      }
+    },
+    {
+      "order": 34,
+      "content": {
+        "column": 34,
+        "digits": [
+          8,
+          4,
+          7,
+          7,
+          3,
+          3,
+          1,
+          4,
+          4,
+          1,
+          3,
+          9,
+          4,
+          3,
+          1,
+          5,
+          9,
+          9,
+          1,
+          7,
+          6,
+          6,
+          8,
+          5,
+          3,
+          3,
+          9,
+          6
+        ]
+      }
+    },
+    {
+      "order": 35,
+      "content": {
+        "column": 35,
+        "digits": [
+          3,
+          5,
+          1,
+          9,
+          7,
+          6,
+          7,
+          3,
+          6,
+          6,
+          2,
+          3,
+          8,
+          7,
+          4,
+          4,
+          4,
+          2,
+          5,
+          1,
+          2,
+          3,
+          7,
+          9,
+          4,
+          9,
+          6,
+          8
+        ]
+      }
+    },
+    {
+      "order": 36,
+      "content": {
+        "column": 36,
+        "digits": [
+          4,
+          5,
+          2,
+          3,
+          8,
+          7,
+          8,
+          2,
+          8,
+          4,
+          3,
+          2,
+          2,
+          3,
+          5,
+          8,
+          7,
+          5,
+          8,
+          2,
+          2,
+          4,
+          8,
+          8,
+          8,
+          4,
+          7,
+          9
+        ]
+      }
+    },
+    {
+      "order": 37,
+      "content": {
+        "column": 37,
+        "digits": [
+          4,
+          2,
+          1,
+          1,
+          1,
+          8,
+          6,
+          5,
+          8,
+          6,
+          7,
+          5,
+          2,
+          2,
+          5,
+          6,
+          9,
+          8,
+          6,
+          9,
+          2,
+          8,
+          3,
+          9,
+          6,
+          3,
+          2,
+          1
+        ]
+      }
+    },
+    {
+      "order": 38,
+      "content": {
+        "column": 38,
+        "digits": [
+          1,
+          9,
+          2,
+          3,
+          8,
+          5,
+          1,
+          7,
+          1,
+          5,
+          1,
+          9,
+          1,
+          3,
+          6,
+          7,
+          1,
+          4,
+          7,
+          2,
+          5,
+          3,
+          4,
+          5,
+          4,
+          3,
+          1,
+          4
+        ]
+      }
+    },
+    {
+      "order": 39,
+      "content": {
+        "column": 39,
+        "digits": [
+          7,
+          9,
+          3,
+          7,
+          3,
+          7,
+          6,
+          7,
+          1,
+          2,
+          5,
+          6,
+          2,
+          4,
+          7,
+          4,
+          2,
+          2,
+          4,
+          3,
+          6,
+          4,
+          6,
+          6,
+          6,
+          2,
+          9,
+          9
+        ]
+      }
+    },
+    {
+      "order": 40,
+      "content": {
+        "column": 40,
+        "digits": [
+          3,
+          4,
+          7,
+          3,
+          4,
+          4,
+          8,
+          2,
+          2,
+          4,
+          2,
+          5,
+          1,
+          1,
+          8,
+          7,
+          8,
+          5,
+          5,
+          7,
+          1,
+          9,
+          2,
+          4,
+          7,
+          3,
+          4,
+          7
+        ]
+      }
+    },
+    {
+      "order": 41,
+      "content": {
+        "column": 41,
+        "digits": [
+          4,
+          2,
+          4,
+          7,
+          9,
+          5,
+          8,
+          9,
+          3,
+          5,
+          7,
+          5,
+          5,
+          9,
+          1,
+          9,
+          4,
+          3,
+          3,
+          9,
+          3,
+          8,
+          4,
+          5,
+          6,
+          7,
+          5,
+          2
+        ]
+      }
+    },
+    {
+      "order": 42,
+      "content": {
+        "column": 42,
+        "digits": [
+          1,
+          2,
+          6,
+          4,
+          8,
+          2,
+          2,
+          6,
+          3,
+          3,
+          3,
+          2,
+          5,
+          3,
+          6,
+          5,
+          5,
+          7,
+          2,
+          1,
+          2,
+          3,
+          8,
+          3,
+          4,
+          8,
+          6,
+          1
+        ]
+      }
+    },
+    {
+      "order": 43,
+      "content": {
+        "column": 43,
+        "digits": [
+          2,
+          1,
+          5,
+          4,
+          1,
+          9,
+          8,
+          7,
+          1,
+          3,
+          3,
+          1,
+          4,
+          2,
+          3,
+          7,
+          8,
+          5,
+          3,
+          9,
+          3,
+          2,
+          1,
+          6,
+          4,
+          1,
+          9,
+          6
+        ]
+      }
+    },
+    {
+      "order": 44,
+      "content": {
+        "column": 44,
+        "digits": [
+          7,
+          4,
+          2,
+          1,
+          8,
+          1,
+          7,
+          7,
+          2,
+          9,
+          5,
+          2,
+          2,
+          2,
+          4,
+          1,
+          5,
+          8,
+          5,
+          4,
+          3,
+          6,
+          6,
+          8,
+          4,
+          3,
+          3,
+          4
+        ]
+      }
+    },
+    {
+      "order": 45,
+      "content": {
+        "column": 45,
+        "digits": [
+          7,
+          4,
+          8,
+          7,
+          6,
+          6,
+          8,
+          2,
+          5,
+          1,
+          3,
+          4,
+          3,
+          2,
+          2,
+          6,
+          8,
+          8,
+          9,
+          2,
+          5,
+          7,
+          7,
+          8,
+          3,
+          2,
+          7,
+          4
+        ]
+      }
+    },
+    {
+      "order": 46,
+      "content": {
+        "column": 46,
+        "digits": [
+          1,
+          3,
+          9,
+          5,
+          5,
+          1,
+          7,
+          8,
+          5,
+          8,
+          1,
+          6,
+          3,
+          6,
+          2,
+          4,
+          5,
+          2,
+          3,
+          5,
+          9,
+          4,
+          3,
+          2,
+          4,
+          4,
+          8,
+          1
+        ]
+      }
+    },
+    {
+      "order": 47,
+      "content": {
+        "column": 47,
+        "digits": [
+          8,
+          4,
+          2,
+          4,
+          7,
+          6,
+          7,
+          8,
+          4,
+          2,
+          6,
+          8,
+          3,
+          7,
+          3,
+          8,
+          7,
+          3,
+          7,
+          3,
+          3,
+          6,
+          4,
+          9,
+          4,
+          2,
+          4,
+          7
+        ]
+      }
+    },
+    {
+      "order": 48,
+      "content": {
+        "column": 48,
+        "digits": [
+          7,
+          2,
+          3,
+          9,
+          9,
+          6,
+          6,
+          3,
+          5,
+          1,
+          6,
+          6,
+          9,
+          8,
+          9,
+          4,
+          6,
+          5,
+          9,
+          4,
+          5,
+          5,
+          2,
+          5,
+          4,
+          2,
+          4,
+          2
+        ]
+      }
+    },
+    {
+      "order": 49,
+      "content": {
+        "column": 49,
+        "digits": [
+          9,
+          5,
+          7,
+          4,
+          4,
+          5,
+          7,
+          4,
+          2,
+          2,
+          6,
+          8,
+          1,
+          6,
+          8,
+          9,
+          9,
+          3,
+          6,
+          8,
+          9,
+          1,
+          7,
+          5,
+          9,
+          2,
+          6,
+          1
+        ]
+      }
+    },
+    {
+      "order": 50,
+      "content": {
+        "column": 50,
+        "digits": [
+          5,
+          1,
+          9,
+          1,
+          3,
+          3,
+          5,
+          7,
+          2,
+          7,
+          5,
+          2,
+          3,
+          8,
+          4,
+          4,
+          9,
+          5,
+          4,
+          2,
+          6,
+          5,
+          6,
+          7,
+          8,
+          6,
+          6,
+          2
+        ]
+      }
+    }
+  ],
+  "interpretations": []
+}

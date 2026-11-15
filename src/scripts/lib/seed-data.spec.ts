@@ -15,6 +15,7 @@ import {
   OPTION_SCALE_DEFAULT_POINTS,
   OptionScaleItemContentSchema,
 } from '../../scorers/schemas/option-scale';
+import { TimedGridItemContentSchema } from '../../scorers/schemas/timed-grid';
 
 /**
  * Seeds bypass the Test Builder, so nothing else validates their shape before
@@ -302,6 +303,29 @@ describe.each(FILES)('seed %s', (file) => {
         covered: true,
       });
     }
+  });
+
+  // The work curve compares lajur against each other, so two things have to
+  // hold: the printed numbers run 1..n without gaps (the review table shows
+  // them, not the item order), and every lajur has the same number of gaps.
+  // A short lajur caps its own correct count, which drags the mean down and
+  // shows up as a dip in the curve that the participant never caused.
+  it('numbers its lajur in order and gives them all the same length', () => {
+    if (seed.test.scorerType !== 'TIMED_GRID') return;
+    const columns = seed.items.map((item) => {
+      const parsed = TimedGridItemContentSchema.parse(item.content);
+      return {
+        order: item.order,
+        column: parsed.column,
+        gaps: parsed.digits.length - 1,
+      };
+    });
+    expect(columns.length).toBeGreaterThan(0);
+    expect(columns.map((row) => row.column)).toEqual(
+      Array.from({ length: columns.length }, (_, i) => i + 1),
+    );
+    const gaps = [...new Set(columns.map((row) => row.gaps))];
+    expect(gaps).toHaveLength(1);
   });
 
   // The config is seed-owned and never edited in the admin UI, so nothing else
