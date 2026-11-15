@@ -66,6 +66,13 @@ import {
   StyleGridResponseSchema,
   styleGridPatternCodes,
 } from './schemas/style-grid';
+import {
+  TimedGridConfigSchema,
+  TimedGridItemContentSchema,
+  TimedGridResponseSchema,
+  timedGridPatternCodes,
+  timedGridResponseSchema,
+} from './schemas/timed-grid';
 import { scoreChoiceTally } from './choice-tally';
 import { scoreDisc } from './disc-scorer';
 import { scoreForcedChoicePair } from './forced-choice-pair';
@@ -78,6 +85,7 @@ import { scoreRankGroup } from './rank-group';
 import { scoreRightWrongNorm } from './right-wrong-norm';
 import { scoreScaleTally } from './scale-tally';
 import { scoreStyleGrid } from './style-grid';
+import { scoreTimedGrid } from './timed-grid';
 import { sanitizeChoiceTallyItem } from './sanitize-choice-tally-item';
 import { sanitizePairItem } from './sanitize-pair-item';
 import { sanitizePairNormItem } from './sanitize-pair-norm-item';
@@ -88,6 +96,7 @@ import { sanitizeRankGroupItem } from './sanitize-rank-group-item';
 import { sanitizeRightWrongItem } from './sanitize-right-wrong-item';
 import { sanitizeScaleTallyItem } from './sanitize-scale-tally-item';
 import { sanitizeStyleGridItem } from './sanitize-style-grid-item';
+import { sanitizeTimedGridItem } from './sanitize-timed-grid-item';
 
 export interface ScorerOutput {
   scores: Record<string, unknown>;
@@ -134,6 +143,20 @@ export interface Scorer {
   ): Record<string, unknown>;
   /** Fixed codes (DISC, raw scores). Empty when the codes depend on the items. */
   patternCatalog: string[];
+  /**
+   * Whether an item may be left unanswered at submit time. A timed test is
+   * submitted by the clock, not by the participant, so the attempt must not be
+   * rejected for the items the buzzer cut off.
+   */
+  allowsBlank?: boolean;
+  /**
+   * The part of `scores` a participant may see, as the object the result
+   * endpoint returns. Defaults to `{ graph }` when the family draws a graph and
+   * the whole record otherwise; a family whose scores are meant for the
+   * psychologist alone returns `{}` instead of relying on the shape of its
+   * keys.
+   */
+  publicScores?(scores: Record<string, unknown>): Record<string, unknown>;
   /**
    * Codes this particular item set can produce. Publish requires one
    * interpretation per code; a family whose pattern is assembled from the
@@ -340,6 +363,9 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     responseSchema: RightWrongResponseSchema,
     sanitize: sanitizeRightWrongItem,
     patternCatalog: [...RIGHT_WRONG_PATTERN_CATALOG],
+    // A raw-score test treats a blank as wrong, so a timed attempt can be
+    // submitted at the buzzer.
+    allowsBlank: true,
     score: (input) =>
       Promise.resolve(scoreRightWrongNorm(input) as unknown as ScorerOutput),
   },
@@ -366,6 +392,24 @@ export const SCORERS: Record<ScorerType, Scorer> = {
       styleGridPatternCodes(scoringConfig),
     score: (input) =>
       Promise.resolve(scoreStyleGrid(input) as unknown as ScorerOutput),
+  },
+  TIMED_GRID: {
+    type: 'TIMED_GRID',
+    itemSchema: TimedGridItemContentSchema,
+    responseSchema: TimedGridResponseSchema,
+    responseSchemaFor: (_scoringConfig, itemContent) =>
+      timedGridResponseSchema(itemContent),
+    configSchema: TimedGridConfigSchema,
+    sanitize: sanitizeTimedGridItem,
+    patternCatalog: [],
+    patternCodesFor: timedGridPatternCodes,
+    // The timer, not the participant, ends the test.
+    allowsBlank: true,
+    // The curve and the four factors are the psychologist's reading material;
+    // a participant seeing their own work curve would read it as a verdict.
+    publicScores: () => ({}),
+    score: (input) =>
+      Promise.resolve(scoreTimedGrid(input) as unknown as ScorerOutput),
   },
 };
 

@@ -19,6 +19,12 @@ export type MeResultListItemDto = z.infer<typeof MeResultListItemSchema>;
 
 export const MeResultViewSchema = z.object({
   patternCode: z.string(),
+  /**
+   * The family that scored it. `/hasil` reads it to show a neutral card for a
+   * test whose scores belong to the psychologist (Pauli, Kraepelin) instead of
+   * an empty score summary.
+   */
+  scorerType: z.string(),
   scores: z.unknown(),
   interpretation: z.object({ title: z.string(), body: z.string() }).nullable(),
   completedAt: z.date().nullable(),

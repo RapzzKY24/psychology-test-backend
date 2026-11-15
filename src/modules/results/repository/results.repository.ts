@@ -49,7 +49,7 @@ export interface ResultsRepository {
       status: string;
       completedAt: Date | null;
     };
-    test: { id: string };
+    test: { id: string; scorerType: string };
     result: TestResult | null;
   } | null>;
   findResultWithInterpretation(

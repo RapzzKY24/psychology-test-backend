@@ -300,8 +300,9 @@ export class AttemptsService {
       .filter((item) => !answered.has(item.id))
       .map((item) => item.id);
     // A raw-score test treats a blank as wrong, so a timed attempt can be
-    // submitted at the buzzer. DISC needs every word pair to form a pattern.
-    const allowsBlank = detail.test.scorerType === 'RIGHT_WRONG_NORM';
+    // submitted at the buzzer. The family says so itself: a hardcoded list of
+    // types is how a new timed family would start rejecting its own submits.
+    const allowsBlank = getScorer(detail.test.scorerType)?.allowsBlank === true;
     if (missing.length > 0 && !allowsBlank) {
       throw new UnprocessableEntityException({
         message: 'validation_failed',

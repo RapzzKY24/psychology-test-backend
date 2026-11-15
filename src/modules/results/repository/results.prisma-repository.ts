@@ -26,6 +26,7 @@ export class PrismaResultsRepository implements ResultsRepository {
         status: true,
         testId: true,
         completedAt: true,
+        test: { select: { id: true, scorerType: true } },
       },
     });
     if (!attempt) return null;
@@ -40,7 +41,7 @@ export class PrismaResultsRepository implements ResultsRepository {
         status: attempt.status,
         completedAt: attempt.completedAt,
       },
-      test: { id: attempt.testId },
+      test: { id: attempt.test.id, scorerType: attempt.test.scorerType },
       result,
     };
   }

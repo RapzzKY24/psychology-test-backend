@@ -10,6 +10,7 @@ import { RankGroupItemContentSchema } from './rank-group';
 import { RightWrongItemContentSchema } from './right-wrong-norm';
 import { ScaleTallyItemContentSchema } from './scale-tally';
 import { StyleGridItemContentSchema } from './style-grid';
+import { TimedGridItemContentSchema } from './timed-grid';
 
 export const ScorerSchemas = {
   CHOICE_TALLY: ChoiceTallyItemContentSchema,
@@ -24,6 +25,7 @@ export const ScorerSchemas = {
   RIGHT_WRONG_NORM: RightWrongItemContentSchema,
   SCALE_TALLY: ScaleTallyItemContentSchema,
   STYLE_GRID: StyleGridItemContentSchema,
+  TIMED_GRID: TimedGridItemContentSchema,
 } as const;
 
 export type ScorerType = keyof typeof ScorerSchemas;

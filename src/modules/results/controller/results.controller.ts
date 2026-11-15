@@ -26,6 +26,7 @@ export class ResultsController {
   ): Promise<
     ApiResponse<{
       patternCode: string;
+      scorerType: string;
       scores: unknown;
       interpretation: unknown;
       completedAt: Date | null;

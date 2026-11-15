@@ -48,6 +48,7 @@ enum ScorerType {
   RIGHT_WRONG_NORM
   SCALE_TALLY
   STYLE_GRID
+  TIMED_GRID
 }
 
 /**

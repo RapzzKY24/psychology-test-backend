@@ -14,6 +14,7 @@ import type { Prisma } from '../../../generated/prisma/client';
 import { SESSIONS_REPOSITORY } from '../../sessions/repository/sessions.repository';
 import type { SessionsRepository } from '../../sessions/repository/sessions.repository';
 import { hashParticipantToken } from '../../sessions/utils/hash-participant-token';
+import { getScorer } from '../../../scorers/registry';
 
 @Injectable()
 export class ResultsService {
@@ -30,6 +31,7 @@ export class ResultsService {
     owner: { userId?: string; participantToken?: string },
   ): Promise<{
     patternCode: string;
+    scorerType: string;
     scores: unknown;
     interpretation: { title: string; body: string } | null;
     completedAt: Date | null;
@@ -60,8 +62,16 @@ export class ResultsService {
     const patternCode =
       detail.result.correctedPatternCode ?? detail.result.patternCode;
     const scoresRaw = detail.result.correctedScores ?? detail.result.scores;
-    const graph =
-      (scoresRaw as unknown as { graph?: unknown })?.graph ?? scoresRaw;
+    // The family decides what a participant may read: a graph, everything, or
+    // nothing. `graph ?? scores` was a shape guess that leaked a whole score
+    // record the moment a family arrived without a `graph` key.
+    const scorer = getScorer(detail.test.scorerType);
+    const scores = scorer?.publicScores
+      ? scorer.publicScores(scoresRaw as Record<string, unknown>)
+      : {
+          graph:
+            (scoresRaw as unknown as { graph?: unknown })?.graph ?? scoresRaw,
+        };
 
     const interp = await this.repo.findInterpretationByPattern(
       detail.test.id,
@@ -70,7 +80,8 @@ export class ResultsService {
 
     return {
       patternCode,
-      scores: { graph },
+      scorerType: detail.test.scorerType,
+      scores,
       interpretation: interp,
       completedAt: detail.attempt.completedAt ?? null,
     };
