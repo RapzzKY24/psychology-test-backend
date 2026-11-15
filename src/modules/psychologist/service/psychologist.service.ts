@@ -10,6 +10,7 @@ import type { PsychologistProfileRepository } from '../repository/psychologist-p
 import type { PsychologistProfile } from '../../../generated/prisma/client';
 import { Prisma } from '../../../generated/prisma/client';
 import type { UpdateProfileDto } from '../dto/update-profile.dto';
+import type { PublicPsychologistDto } from '../dto/public-psychologist.dto';
 import { validateImageFile } from '../../../lib/upload/validate-image-file';
 import { isProfileComplete } from '../utils/is-profile-complete';
 import { generateSignatureFilename } from '../utils/generate-signature-filename';
@@ -32,6 +33,24 @@ export class PsychologistService {
     const profile = await this.repo.findByUserId(userId);
     const complete = !!profile && isProfileComplete(profile);
     return { profile, complete };
+  }
+
+  /**
+   * The credentials shown on the public site. A profile without a name or a
+   * registration number is not a credential anyone can check, so it is left
+   * out rather than rendered half-empty.
+   */
+  async listPublic(): Promise<PublicPsychologistDto[]> {
+    const profiles = await this.repo.findSigners();
+    return profiles
+      .filter((profile) => !!profile.fullName && !!profile.licenseNumber)
+      .map((profile) => ({
+        fullName: profile.fullName,
+        degree: profile.degree,
+        licenseNumber: profile.licenseNumber,
+        sippNumber: profile.sippNumber,
+        institutionName: profile.institutionName,
+      }));
   }
 
   async updateProfile(
