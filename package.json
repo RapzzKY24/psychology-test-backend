@@ -42,6 +42,7 @@
     "seed:enneagram": "tsx src/scripts/seed-enneagram.ts",
     "seed:kuder": "tsx src/scripts/seed-kuder.ts",
     "seed:msdt": "tsx src/scripts/seed-msdt.ts",
+    "seed:epps": "tsx src/scripts/seed-epps.ts",
     "seed:msai": "tsx src/scripts/seed-msai.ts",
     "seed:rmib": "tsx src/scripts/seed-rmib.ts",
     "seed:instansi": "tsx src/scripts/seed-instansi.ts",

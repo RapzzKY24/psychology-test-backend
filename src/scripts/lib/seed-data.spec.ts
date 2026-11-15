@@ -4,6 +4,10 @@ import { getItemSchema } from '../../scorers/schemas';
 import { getScorer, scoringConfigIssues } from '../../scorers/registry';
 import { NormTableSchema } from '../../scorers/schemas/right-wrong-norm';
 import {
+  PairNormConfigSchema,
+  PairNormItemContentSchema,
+} from '../../scorers/schemas/pair-norm';
+import {
   StyleGridConfigSchema,
   StyleGridItemContentSchema,
 } from '../../scorers/schemas/style-grid';
@@ -177,6 +181,57 @@ describe.each(FILES)('seed %s', (file) => {
           declared: true,
         });
       }
+    }
+  });
+
+  // PAIR_NORM reads one percentile per need, so two things have to line up: a
+  // mapping to an undeclared need scores nothing, and a column shorter than
+  // that need's own ceiling would read the wrong row for a high raw score.
+  it('reads a percentile column that covers every need’s ceiling', () => {
+    if (seed.test.scorerType !== 'PAIR_NORM') return;
+    const config = PairNormConfigSchema.parse(seed.test.scoringConfig);
+    const codes = new Set(config.scales.map((scale) => scale.code));
+    const ceiling = new Map<string, number>(
+      config.scales.map((scale) => [scale.code, 0]),
+    );
+
+    for (const item of seed.items) {
+      const parsed = PairNormItemContentSchema.parse(item.content);
+      for (const code of parsed.mapping) {
+        expect({ order: item.order, code, declared: codes.has(code) }).toEqual({
+          order: item.order,
+          code,
+          declared: true,
+        });
+      }
+      const [left, right] = parsed.mapping;
+      // An item that names one need twice cannot separate its statements.
+      if (left === right) continue;
+      ceiling.set(left, (ceiling.get(left) ?? 0) + 1);
+      ceiling.set(right, (ceiling.get(right) ?? 0) + 1);
+    }
+
+    for (const [set, table] of Object.entries(config.norms ?? {})) {
+      for (const [sex, columns] of Object.entries(table)) {
+        if (!columns) continue;
+        for (const scale of config.scales) {
+          const needed = (ceiling.get(scale.code) ?? 0) + 1;
+          expect({
+            set,
+            sex,
+            code: scale.code,
+            rows: columns[scale.code]?.length,
+          }).toEqual({ set, sex, code: scale.code, rows: needed });
+        }
+      }
+    }
+
+    const orders = new Set(seed.items.map((item) => item.order));
+    for (const [a, b] of config.consistency?.pairs ?? []) {
+      expect({ pair: [a, b], both: orders.has(a) && orders.has(b) }).toEqual({
+        pair: [a, b],
+        both: true,
+      });
     }
   });
 

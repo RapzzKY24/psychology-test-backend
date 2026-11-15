@@ -19,6 +19,12 @@ import {
 import { pairTallyPatternCodes } from './schemas/pair-tally';
 import { PairTallyConfigSchema } from './schemas/pair-tally';
 import {
+  PairNormConfigSchema,
+  PairNormItemContentSchema,
+  PairNormResponseSchema,
+  pairNormPatternCodes,
+} from './schemas/pair-norm';
+import {
   LikertConfigSchema,
   LikertItemContentSchema,
   LikertResponseSchema,
@@ -58,6 +64,7 @@ import { scoreChoiceTally } from './choice-tally';
 import { scoreDisc } from './disc-scorer';
 import { scoreForcedChoicePair } from './forced-choice-pair';
 import { scorePairTally } from './pair-tally';
+import { scorePairNorm } from './pair-norm';
 import { scoreLikert } from './likert';
 import { scoreMarkGroup } from './mark-group';
 import { scoreRankGroup } from './rank-group';
@@ -66,6 +73,7 @@ import { scoreScaleTally } from './scale-tally';
 import { scoreStyleGrid } from './style-grid';
 import { sanitizeChoiceTallyItem } from './sanitize-choice-tally-item';
 import { sanitizePairItem } from './sanitize-pair-item';
+import { sanitizePairNormItem } from './sanitize-pair-norm-item';
 import { sanitizeLikertItem } from './sanitize-likert-item';
 import { sanitizeMarkGroupItem } from './sanitize-mark-group-item';
 import { sanitizeRankGroupItem } from './sanitize-rank-group-item';
@@ -228,6 +236,29 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     },
     score: (input) =>
       Promise.resolve(scoreMarkGroup(input) as unknown as ScorerOutput),
+  },
+  PAIR_NORM: {
+    type: 'PAIR_NORM',
+    itemSchema: PairNormItemContentSchema,
+    responseSchema: PairNormResponseSchema,
+    configSchema: PairNormConfigSchema,
+    sanitize: sanitizePairNormItem,
+    patternCatalog: [],
+    // The dominant need is the pattern, so every declared scale needs an
+    // interpretation — not a code derived from the items.
+    patternCodesFor: (_items, scoringConfig) =>
+      pairNormPatternCodes(scoringConfig),
+    // Both sexes answer the same pairs, but the percentiles come from two
+    // tables, so the attempt still has to declare one before it is scored.
+    requiresGenderFor: (_items, scoringConfig) => {
+      const parsed = PairNormConfigSchema.safeParse(scoringConfig ?? {});
+      if (!parsed.success || !parsed.data.norms) return false;
+      return Object.values(parsed.data.norms).some(
+        (table) => Boolean(table.MALE) && Boolean(table.FEMALE),
+      );
+    },
+    score: (input) =>
+      Promise.resolve(scorePairNorm(input) as unknown as ScorerOutput),
   },
   PAIR_TALLY: {
     type: 'PAIR_TALLY',
