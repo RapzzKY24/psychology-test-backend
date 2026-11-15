@@ -25,6 +25,7 @@ import { ReportsModule } from './modules/reports/reports.module';
 import { CertificatesModule } from './modules/certificates/certificates.module';
 import { OverviewModule } from './modules/overview/overview.module';
 import { ProfileModule } from './modules/profile/profile.module';
+import { PublicStatsModule } from './modules/public-stats/public-stats.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { ProfileModule } from './modules/profile/profile.module';
     CertificatesModule,
     OverviewModule,
     ProfileModule,
+    PublicStatsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
