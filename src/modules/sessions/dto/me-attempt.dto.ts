@@ -1,4 +1,6 @@
 import { z } from 'zod';
+import { PaginationSchema } from '../../../common/dto/pagination.dto';
+import { ATTEMPT_STAGES } from '../repository/attempts.repository';
 
 /**
  * Contract shape for the participant attempts dashboard:
@@ -21,3 +23,14 @@ export const MeAttemptListItemSchema = z.object({
 });
 
 export type MeAttemptListItemDto = z.infer<typeof MeAttemptListItemSchema>;
+
+/**
+ * `stage` narrows the history tab. It is a participant-facing stage rather
+ * than a raw status, because "menunggu review" is COMPLETED plus a result
+ * status and the client should not have to know that.
+ */
+export const QueryMeAttemptsSchema = PaginationSchema.extend({
+  stage: z.enum(ATTEMPT_STAGES).optional(),
+});
+
+export type QueryMeAttemptsDto = z.infer<typeof QueryMeAttemptsSchema>;

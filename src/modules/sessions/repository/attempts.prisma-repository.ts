@@ -15,6 +15,7 @@ import type {
   AttemptAccessDetail,
   AttemptListItemRow,
   CompleteAttemptParams,
+  ListAttemptsByUserParams,
   NormRow,
 } from './attempts.repository';
 
@@ -225,15 +226,34 @@ export class PrismaAttemptsRepository implements AttemptsRepository {
     });
   }
 
-  async listByUser(params: {
-    userId: string;
-    skip: number;
-    take: number;
-  }): Promise<{ data: AttemptListItemRow[]; total: number }> {
+  async listByUser(
+    params: ListAttemptsByUserParams,
+  ): Promise<{ data: AttemptListItemRow[]; total: number }> {
     const where: Prisma.AttemptWhereInput = {
       userId: params.userId,
       status: { not: 'ABANDONED' },
     };
+    // A stage is what the participant sees; the two columns behind
+    // "menunggu review" stay here, so the client never joins them.
+    switch (params.stage) {
+      case 'IN_PROGRESS':
+        where.status = 'IN_PROGRESS';
+        break;
+      case 'AWAITING_REVIEW':
+        where.status = 'COMPLETED';
+        where.result = { status: 'PENDING_REVIEW' };
+        break;
+      case 'APPROVED':
+        where.status = 'COMPLETED';
+        where.result = { status: 'APPROVED' };
+        break;
+      case 'RETURNED':
+        where.status = 'COMPLETED';
+        where.result = { status: 'RETURNED' };
+        break;
+      default:
+        break;
+    }
     const [rows, total] = await Promise.all([
       this.prisma.attempt.findMany({
         where,

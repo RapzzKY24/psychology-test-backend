@@ -13,10 +13,10 @@ import { Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
-import { PaginationSchema } from '../../../common/dto/pagination.dto';
-import type { PaginationDto } from '../../../common/dto/pagination.dto';
 import { MeAttemptsService } from '../service/me-attempts.service';
 import { AttemptsService } from '../service/attempts.service';
+import { QueryMeAttemptsSchema } from '../dto/me-attempt.dto';
+import type { QueryMeAttemptsDto } from '../dto/me-attempt.dto';
 import {
   ReadAttemptQuerySchema,
   type ReadAttemptQueryDto,
@@ -47,7 +47,8 @@ export class MeAttemptsController {
   @Get()
   async list(
     @Session() session: UserSession,
-    @Query(new ZodValidationPipe(PaginationSchema)) query: PaginationDto,
+    @Query(new ZodValidationPipe(QueryMeAttemptsSchema))
+    query: QueryMeAttemptsDto,
   ): Promise<PaginatedResponse<MeAttemptListItemDto>> {
     return this.meAttemptsService.list(session.user.id, query);
   }

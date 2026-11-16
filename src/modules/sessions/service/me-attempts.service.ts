@@ -1,8 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ATTEMPTS_REPOSITORY } from '../repository/attempts.repository';
 import type { AttemptsRepository } from '../repository/attempts.repository';
-import type { MeAttemptListItemDto } from '../dto/me-attempt.dto';
-import type { PaginationDto } from '../../../common/dto/pagination.dto';
+import type {
+  MeAttemptListItemDto,
+  QueryMeAttemptsDto,
+} from '../dto/me-attempt.dto';
 import type { PaginatedResponse } from '../../../common/interfaces/api-response.interface';
 
 /**
@@ -20,13 +22,14 @@ export class MeAttemptsService {
   /** Caller's own attempts, newest first (startedAt desc). */
   async list(
     userId: string,
-    query: PaginationDto,
+    query: QueryMeAttemptsDto,
   ): Promise<PaginatedResponse<MeAttemptListItemDto>> {
     const skip = (query.page - 1) * query.limit;
     const { data, total } = await this.repo.listByUser({
       userId,
       skip,
       take: query.limit,
+      stage: query.stage,
     });
     return {
       data,

@@ -74,10 +74,25 @@ export interface AttemptListItemRow {
   resultStatus: string | null;
 }
 
+/**
+ * A participant-facing stage, not a database status: "menunggu review" is an
+ * attempt status plus a result status, and the history filter must not make
+ * the UI join two tables to name it.
+ */
+export const ATTEMPT_STAGES = [
+  'IN_PROGRESS',
+  'AWAITING_REVIEW',
+  'APPROVED',
+  'RETURNED',
+] as const;
+
+export type AttemptStage = (typeof ATTEMPT_STAGES)[number];
+
 export interface ListAttemptsByUserParams {
   userId: string;
   skip: number;
   take: number;
+  stage?: AttemptStage;
 }
 
 export interface AttemptsRepository {

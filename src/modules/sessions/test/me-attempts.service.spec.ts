@@ -45,6 +45,7 @@ describe('MeAttemptsService', () => {
       userId: 'user-1',
       skip: 10,
       take: 10,
+      stage: undefined,
     });
     expect(result.data).toHaveLength(2);
     expect(result.data[0]?.resultStatus).toBe('PENDING_REVIEW');
@@ -66,6 +67,7 @@ describe('MeAttemptsService', () => {
       userId: 'user-1',
       skip: 0,
       take: 10,
+      stage: undefined,
     });
     expect(result.data).toEqual([]);
     expect(result.meta).toEqual({
@@ -73,6 +75,23 @@ describe('MeAttemptsService', () => {
       limit: 10,
       total: 0,
       totalPages: 0,
+    });
+  });
+
+  it('forwards the stage filter the history tab selected', async () => {
+    mockRepo.listByUser.mockResolvedValue({ data: [], total: 0 });
+
+    await service.list('user-1', {
+      page: 1,
+      limit: 10,
+      stage: 'AWAITING_REVIEW',
+    });
+
+    expect(mockRepo.listByUser).toHaveBeenCalledWith({
+      userId: 'user-1',
+      skip: 0,
+      take: 10,
+      stage: 'AWAITING_REVIEW',
     });
   });
 });
