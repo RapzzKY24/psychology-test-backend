@@ -53,7 +53,8 @@
     "seed:ist": "tsx src/scripts/seed-ist.ts",
     "seed:instansi": "tsx src/scripts/seed-instansi.ts",
     "seed:articles": "tsx src/scripts/seed-articles.ts",
-    "seed:report-settings": "tsx src/scripts/seed-report-settings.ts"
+    "seed:report-settings": "tsx src/scripts/seed-report-settings.ts",
+    "backfill:order-sessions": "tsx src/scripts/backfill-order-sessions.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
