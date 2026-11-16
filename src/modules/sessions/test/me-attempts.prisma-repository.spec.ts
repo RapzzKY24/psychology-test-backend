@@ -113,4 +113,45 @@ describe('PrismaAttemptsRepository — listByUser stage filter', () => {
       }),
     );
   });
+
+  it('carries the review note into the row', async () => {
+    prisma.attempt.findMany.mockResolvedValue([
+      {
+        id: 'a1',
+        testId: 't1',
+        status: 'COMPLETED',
+        startedAt: new Date('2026-11-16T08:00:00Z'),
+        completedAt: new Date('2026-11-16T09:00:00Z'),
+        sessionId: 's1',
+        test: { name: 'DISC Form A' },
+        session: { title: 'Order abc' },
+        result: {
+          status: 'RETURNED',
+          reviewNote: 'Ulangi bagian 2',
+        },
+      },
+      {
+        id: 'a2',
+        testId: 't2',
+        status: 'IN_PROGRESS',
+        startedAt: new Date('2026-11-15T08:00:00Z'),
+        completedAt: null,
+        sessionId: 's2',
+        test: { name: 'IST' },
+        session: { title: 'Order def' },
+        result: null,
+      },
+    ]);
+
+    const { data } = await repo.listByUser({ userId: 'u1', skip: 0, take: 10 });
+
+    expect(data[0]).toMatchObject({
+      resultStatus: 'RETURNED',
+      reviewNote: 'Ulangi bagian 2',
+    });
+    expect(data[1]).toMatchObject({
+      resultStatus: null,
+      reviewNote: null,
+    });
+  });
 });

@@ -23,6 +23,7 @@ describe('MeAttemptsService', () => {
           sessionId: 's1',
           sessionTitle: 'Sesi Individual',
           resultStatus: 'PENDING_REVIEW',
+          reviewNote: null,
         },
         {
           id: 'a2',
@@ -34,6 +35,7 @@ describe('MeAttemptsService', () => {
           sessionId: 's1',
           sessionTitle: 'Sesi Individual',
           resultStatus: null,
+          reviewNote: null,
         },
       ],
       total: 12,

@@ -20,6 +20,7 @@ export const MeAttemptListItemSchema = z.object({
   sessionId: z.string(),
   sessionTitle: z.string(),
   resultStatus: z.string().nullable(),
+  reviewNote: z.string().nullable(),
 });
 
 export type MeAttemptListItemDto = z.infer<typeof MeAttemptListItemSchema>;

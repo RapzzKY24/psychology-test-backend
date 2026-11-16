@@ -269,7 +269,7 @@ export class PrismaAttemptsRepository implements AttemptsRepository {
           sessionId: true,
           test: { select: { name: true } },
           session: { select: { title: true } },
-          result: { select: { status: true } },
+          result: { select: { status: true, reviewNote: true } },
         },
       }),
       this.prisma.attempt.count({ where }),
@@ -285,6 +285,7 @@ export class PrismaAttemptsRepository implements AttemptsRepository {
         sessionId: row.sessionId,
         sessionTitle: row.session.title,
         resultStatus: row.result?.status ?? null,
+        reviewNote: row.result?.reviewNote ?? null,
       })),
       total,
     };

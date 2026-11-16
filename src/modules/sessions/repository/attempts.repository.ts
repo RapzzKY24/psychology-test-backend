@@ -72,6 +72,8 @@ export interface AttemptListItemRow {
   sessionId: string;
   sessionTitle: string;
   resultStatus: string | null;
+  /** The psychologist's note when the result was returned for reprocessing. */
+  reviewNote: string | null;
 }
 
 /**
