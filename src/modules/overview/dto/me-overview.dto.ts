@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 /**
- * The participant dashboard's first screen: four counts plus the three newest
+ * The participant dashboard's first screen: five counts plus the three newest
  * rows of each kind. One request instead of four, because every number on that
  * screen is read together.
  */
@@ -11,6 +11,7 @@ export const MeOverviewSchema = z.object({
     awaitingReview: z.number().int(),
     resultsReady: z.number().int(),
     certificatesReady: z.number().int(),
+    pendingOrders: z.number().int(),
   }),
   activeAttempts: z.array(
     z.object({
@@ -41,6 +42,15 @@ export const MeOverviewSchema = z.object({
       testName: z.string(),
       amount: z.number().int(),
       paidAt: z.date(),
+    }),
+  ),
+  latestUnpaidOrders: z.array(
+    z.object({
+      orderId: z.string(),
+      testName: z.string(),
+      amount: z.number().int(),
+      createdAt: z.date(),
+      expiresAt: z.date(),
     }),
   ),
   latestCompletedAttempts: z.array(

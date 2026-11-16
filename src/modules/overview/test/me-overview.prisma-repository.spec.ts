@@ -7,7 +7,7 @@ describe('PrismaMeOverviewRepository', () => {
     attempt: { count: jest.Mock; findMany: jest.Mock };
     testResult: { count: jest.Mock; findMany: jest.Mock };
     certificate: { count: jest.Mock; findMany: jest.Mock };
-    order: { findMany: jest.Mock };
+    order: { count: jest.Mock; findMany: jest.Mock };
   };
 
   beforeEach(() => {
@@ -15,7 +15,7 @@ describe('PrismaMeOverviewRepository', () => {
       attempt: { count: jest.fn(), findMany: jest.fn() },
       testResult: { count: jest.fn(), findMany: jest.fn() },
       certificate: { count: jest.fn(), findMany: jest.fn() },
-      order: { findMany: jest.fn() },
+      order: { count: jest.fn(), findMany: jest.fn() },
     };
     repo = new PrismaMeOverviewRepository(prisma as unknown as PrismaService);
   });
@@ -24,6 +24,7 @@ describe('PrismaMeOverviewRepository', () => {
     prisma.attempt.count.mockResolvedValue(2);
     prisma.testResult.count.mockResolvedValue(1);
     prisma.certificate.count.mockResolvedValue(3);
+    prisma.order.count.mockResolvedValue(2);
     prisma.attempt.findMany.mockResolvedValue([]);
     prisma.testResult.findMany.mockResolvedValue([]);
     prisma.certificate.findMany.mockResolvedValue([]);
@@ -48,11 +49,19 @@ describe('PrismaMeOverviewRepository', () => {
         result: { attempt: { userId: 'u1' } },
       },
     });
+    expect(prisma.order.count).toHaveBeenCalledWith({
+      where: {
+        userId: 'u1',
+        status: 'PENDING',
+        expiresAt: { gt: expect.any(Date) },
+      },
+    });
     expect(data.counts).toEqual({
       inProgress: 2,
       awaitingReview: 1,
       resultsReady: 1,
       certificatesReady: 3,
+      pendingOrders: 2,
     });
   });
 
@@ -88,6 +97,17 @@ describe('PrismaMeOverviewRepository', () => {
       expect.objectContaining({
         where: { userId: 'u1', status: 'PAID', verifiedAt: { not: null } },
         orderBy: [{ verifiedAt: 'desc' }, { id: 'desc' }],
+        take: 3,
+      }),
+    );
+    expect(prisma.order.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          userId: 'u1',
+          status: 'PENDING',
+          expiresAt: { gt: expect.any(Date) },
+        },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
         take: 3,
       }),
     );
@@ -139,14 +159,24 @@ describe('PrismaMeOverviewRepository', () => {
         result: { attempt: { test: { name: 'DISC Form A' } } },
       },
     ]);
-    prisma.order.findMany.mockResolvedValue([
-      {
-        id: 'ord-1',
-        amount: 75000,
-        verifiedAt: new Date('2026-11-16T07:00:00Z'),
-        test: { name: 'IST' },
-      },
-    ]);
+    prisma.order.findMany
+      .mockResolvedValueOnce([
+        {
+          id: 'ord-1',
+          amount: 75000,
+          verifiedAt: new Date('2026-11-16T07:00:00Z'),
+          test: { name: 'IST' },
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          id: 'ord-2',
+          amount: 50000,
+          createdAt: new Date('2026-11-16T10:00:00Z'),
+          expiresAt: new Date('2026-11-16T11:00:00Z'),
+          test: { name: 'DISC Form A' },
+        },
+      ]);
 
     const data = await repo.forUser('u1');
 
@@ -179,6 +209,15 @@ describe('PrismaMeOverviewRepository', () => {
         testName: 'IST',
         amount: 75000,
         paidAt: new Date('2026-11-16T07:00:00Z'),
+      },
+    ]);
+    expect(data.latestUnpaidOrders).toEqual([
+      {
+        orderId: 'ord-2',
+        testName: 'DISC Form A',
+        amount: 50000,
+        createdAt: new Date('2026-11-16T10:00:00Z'),
+        expiresAt: new Date('2026-11-16T11:00:00Z'),
       },
     ]);
     expect(data.latestCompletedAttempts).toEqual([

@@ -28,6 +28,8 @@ export interface MeOverviewCounts {
   awaitingReview: number;
   resultsReady: number;
   certificatesReady: number;
+  /** Unpaid orders that have not expired yet — the dashboard's "Bayar" shortcut. */
+  pendingOrders: number;
 }
 
 /** A paid order, for the "pembayaran diterima" line in the activity list. */
@@ -36,6 +38,15 @@ export interface LatestOrderSummary {
   testName: string;
   amount: number;
   paidAt: Date;
+}
+
+/** An unpaid order the participant can still settle from the dashboard. */
+export interface UnpaidOrderSummary {
+  orderId: string;
+  testName: string;
+  amount: number;
+  createdAt: Date;
+  expiresAt: Date;
 }
 
 /** A finished attempt whose result has not been approved yet. */
@@ -51,6 +62,7 @@ export interface MeOverviewData {
   latestResults: LatestResultSummary[];
   latestCertificates: LatestCertificateSummary[];
   latestOrders: LatestOrderSummary[];
+  latestUnpaidOrders: UnpaidOrderSummary[];
   latestCompletedAttempts: CompletedAttemptSummary[];
 }
 

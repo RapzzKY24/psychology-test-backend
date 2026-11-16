@@ -18,10 +18,12 @@ export class PrismaMeOverviewRepository implements MeOverviewRepository {
       awaitingReview,
       resultsReady,
       certificatesReady,
+      pendingOrders,
       activeAttempts,
       latestResults,
       latestCertificates,
       latestOrders,
+      latestUnpaidOrders,
       latestCompletedAttempts,
     ] = await Promise.all([
       this.prisma.attempt.count({ where: { userId, status: 'IN_PROGRESS' } }),
@@ -38,6 +40,15 @@ export class PrismaMeOverviewRepository implements MeOverviewRepository {
           number: { not: null },
           issuedAt: { not: null },
           result: { attempt: { userId } },
+        },
+      }),
+      // Expired rows stay PENDING until a sweep closes them, but they cannot
+      // be paid, so the shortcut must not count them.
+      this.prisma.order.count({
+        where: {
+          userId,
+          status: 'PENDING',
+          expiresAt: { gt: new Date() },
         },
       }),
       this.prisma.attempt.findMany({
@@ -95,6 +106,24 @@ export class PrismaMeOverviewRepository implements MeOverviewRepository {
           test: { select: { name: true } },
         },
       }),
+      // Unpaid rows are not events, but the dashboard lists them so the
+      // participant can settle one without hunting through the purchase tab.
+      this.prisma.order.findMany({
+        where: {
+          userId,
+          status: 'PENDING',
+          expiresAt: { gt: new Date() },
+        },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: PREVIEW_LIMIT,
+        select: {
+          id: true,
+          amount: true,
+          createdAt: true,
+          expiresAt: true,
+          test: { select: { name: true } },
+        },
+      }),
       this.prisma.attempt.findMany({
         where: { userId, status: 'COMPLETED', completedAt: { not: null } },
         orderBy: [{ completedAt: 'desc' }, { id: 'desc' }],
@@ -108,7 +137,13 @@ export class PrismaMeOverviewRepository implements MeOverviewRepository {
     ]);
 
     return {
-      counts: { inProgress, awaitingReview, resultsReady, certificatesReady },
+      counts: {
+        inProgress,
+        awaitingReview,
+        resultsReady,
+        certificatesReady,
+        pendingOrders,
+      },
       activeAttempts: activeAttempts.map((row) => ({
         attemptId: row.id,
         testName: row.test.name,
@@ -132,6 +167,13 @@ export class PrismaMeOverviewRepository implements MeOverviewRepository {
         testName: row.test.name,
         amount: row.amount,
         paidAt: row.verifiedAt as Date,
+      })),
+      latestUnpaidOrders: latestUnpaidOrders.map((row) => ({
+        orderId: row.id,
+        testName: row.test.name,
+        amount: row.amount,
+        createdAt: row.createdAt,
+        expiresAt: row.expiresAt,
       })),
       latestCompletedAttempts: latestCompletedAttempts.map((row) => ({
         attemptId: row.id,
