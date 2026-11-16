@@ -11,6 +11,7 @@ import type {
   CertificateRevokePatch,
   CertificateVerification,
   CertificatesRepository,
+  IssuedCertificateForUser,
   PendingResult,
 } from './certificates.repository';
 import { EMPTY_IDENTITY } from './certificates.repository';
@@ -370,6 +371,86 @@ export class PrismaCertificatesRepository implements CertificatesRepository {
         holderName: toIdentity(row.identity).fullName,
         issuedAt: row.issuedAt,
         updatedAt: row.updatedAt,
+      })),
+    };
+  }
+
+  async findForPdfForUser(
+    id: string,
+    userId: string,
+  ): Promise<CertificateDocument | null> {
+    const row = await this.prisma.certificate.findFirst({
+      where: { id, result: { attempt: { userId } } },
+      select: {
+        id: true,
+        number: true,
+        revision: true,
+        status: true,
+        snapshot: true,
+        verifyCode: true,
+      },
+    });
+    if (!row || !row.number || row.revision === null) return null;
+    return {
+      id: row.id,
+      number: row.number,
+      revision: row.revision,
+      status: row.status,
+      snapshot: row.snapshot,
+      verifyCode: row.verifyCode,
+    };
+  }
+
+  async listIssuedByUser(params: {
+    userId: string;
+    skip: number;
+    take: number;
+  }): Promise<{ data: IssuedCertificateForUser[]; total: number }> {
+    const where: Prisma.CertificateWhereInput = {
+      // A DRAFT has no number to show and a SUPERSEDED row is already
+      // represented by the revision that replaced it.
+      status: { in: ['ACTIVE', 'REVOKED'] },
+      number: { not: null },
+      issuedAt: { not: null },
+      result: { attempt: { userId: params.userId } },
+    };
+
+    const [rows, total] = await Promise.all([
+      this.prisma.certificate.findMany({
+        where,
+        skip: params.skip,
+        take: params.take,
+        // `id` breaks ties: two rows issued in the same millisecond must not
+        // swap places between pages.
+        orderBy: [{ issuedAt: 'desc' }, { id: 'desc' }],
+        select: {
+          id: true,
+          number: true,
+          status: true,
+          issuedAt: true,
+          validUntil: true,
+          verifyCode: true,
+          result: {
+            select: {
+              attempt: { select: { test: { select: { name: true } } } },
+            },
+          },
+        },
+      }),
+      this.prisma.certificate.count({ where }),
+    ]);
+
+    return {
+      total,
+      data: rows.map((row) => ({
+        id: row.id,
+        // The where clause excludes nulls; the cast keeps the DTO honest.
+        number: row.number as string,
+        status: row.status as 'ACTIVE' | 'REVOKED',
+        testName: row.result.attempt.test.name,
+        issuedAt: row.issuedAt as Date,
+        validUntil: row.validUntil,
+        verifyCode: row.verifyCode,
       })),
     };
   }

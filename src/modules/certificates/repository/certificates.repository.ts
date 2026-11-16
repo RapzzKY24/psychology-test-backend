@@ -140,6 +140,20 @@ export interface CertificateListItem {
   updatedAt: Date;
 }
 
+/**
+ * One row of the buyer's own certificate list. `number` and `issuedAt` are
+ * non-null here because the query only selects issued rows.
+ */
+export interface IssuedCertificateForUser {
+  id: string;
+  number: string;
+  status: Extract<CertificateStatus, 'ACTIVE' | 'REVOKED'>;
+  testName: string;
+  issuedAt: Date;
+  validUntil: Date | null;
+  verifyCode: string | null;
+}
+
 /** Public QR lookup. */
 export interface CertificateVerification {
   number: string;
@@ -203,6 +217,23 @@ export interface CertificatesRepository {
     id: string,
     institutionId: string,
   ): Promise<CertificateDocument | null>;
+
+  /** Same row, but only when the attempt was bought by this user. */
+  findForPdfForUser(
+    id: string,
+    userId: string,
+  ): Promise<CertificateDocument | null>;
+
+  /**
+   * The buyer's own issued documents, newest first. Only ACTIVE and REVOKED
+   * rows qualify: a draft has no number to print, and a superseded revision
+   * would contradict the one that replaced it.
+   */
+  listIssuedByUser(params: {
+    userId: string;
+    skip: number;
+    take: number;
+  }): Promise<{ data: IssuedCertificateForUser[]; total: number }>;
 
   /**
    * Approved, non-WPT results with no DRAFT or ACTIVE certificate. Oldest

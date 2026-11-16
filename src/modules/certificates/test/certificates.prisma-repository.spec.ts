@@ -34,11 +34,25 @@ const REVOKED_ROW = {
 describe('PrismaCertificatesRepository', () => {
   let repo: PrismaCertificatesRepository;
   let prisma: {
-    certificate: { aggregate: jest.Mock; update: jest.Mock };
+    certificate: {
+      aggregate: jest.Mock;
+      update: jest.Mock;
+      findMany: jest.Mock;
+      count: jest.Mock;
+      findFirst: jest.Mock;
+    };
   };
 
   beforeEach(() => {
-    prisma = { certificate: { aggregate: jest.fn(), update: jest.fn() } };
+    prisma = {
+      certificate: {
+        aggregate: jest.fn(),
+        update: jest.fn(),
+        findMany: jest.fn(),
+        count: jest.fn(),
+        findFirst: jest.fn(),
+      },
+    };
     repo = new PrismaCertificatesRepository(prisma as unknown as PrismaService);
   });
 
@@ -106,6 +120,112 @@ describe('PrismaCertificatesRepository', () => {
 
       expect(revoked.verifyCode).toBe('XMRBDYN7MU');
       expect(revoked.status).toBe('REVOKED');
+    });
+  });
+
+  describe('listIssuedByUser', () => {
+    const row = {
+      id: 'cert-1',
+      number: '060/CPMI/YM/XI/2026',
+      status: 'ACTIVE',
+      issuedAt: new Date('2026-11-04T01:31:45Z'),
+      validUntil: new Date('2027-12-31T00:00:00Z'),
+      verifyCode: 'XMRBDYN7MU',
+      result: { attempt: { test: { name: 'CPMI' } } },
+    };
+
+    it('only selects issued rows that belong to the caller', async () => {
+      prisma.certificate.findMany.mockResolvedValue([row]);
+      prisma.certificate.count.mockResolvedValue(1);
+
+      await repo.listIssuedByUser({ userId: 'u1', skip: 0, take: 10 });
+
+      expect(prisma.certificate.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            status: { in: ['ACTIVE', 'REVOKED'] },
+            number: { not: null },
+            issuedAt: { not: null },
+            result: { attempt: { userId: 'u1' } },
+          },
+        }),
+      );
+      expect(prisma.certificate.count).toHaveBeenCalledWith({
+        where: expect.objectContaining({
+          result: { attempt: { userId: 'u1' } },
+        }) as unknown,
+      });
+    });
+
+    it('maps the test name and keeps the printed number', async () => {
+      prisma.certificate.findMany.mockResolvedValue([row]);
+      prisma.certificate.count.mockResolvedValue(1);
+
+      const { data, total } = await repo.listIssuedByUser({
+        userId: 'u1',
+        skip: 0,
+        take: 10,
+      });
+
+      expect(total).toBe(1);
+      expect(data).toEqual([
+        {
+          id: 'cert-1',
+          number: '060/CPMI/YM/XI/2026',
+          status: 'ACTIVE',
+          testName: 'CPMI',
+          issuedAt: new Date('2026-11-04T01:31:45Z'),
+          validUntil: new Date('2027-12-31T00:00:00Z'),
+          verifyCode: 'XMRBDYN7MU',
+        },
+      ]);
+    });
+
+    it('orders newest first with the id as the tie-breaker', async () => {
+      prisma.certificate.findMany.mockResolvedValue([]);
+      prisma.certificate.count.mockResolvedValue(0);
+
+      await repo.listIssuedByUser({ userId: 'u1', skip: 0, take: 10 });
+
+      expect(prisma.certificate.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          orderBy: [{ issuedAt: 'desc' }, { id: 'desc' }],
+        }),
+      );
+    });
+  });
+
+  describe('findForPdfForUser', () => {
+    it('scopes the lookup to the caller, so another buyer reads as missing', async () => {
+      prisma.certificate.findFirst.mockResolvedValue(null);
+
+      const document = await repo.findForPdfForUser('cert-1', 'u1');
+
+      expect(document).toBeNull();
+      expect(prisma.certificate.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'cert-1', result: { attempt: { userId: 'u1' } } },
+        }),
+      );
+    });
+
+    it('returns the printable document for the owner', async () => {
+      prisma.certificate.findFirst.mockResolvedValue({
+        id: 'cert-1',
+        number: '060/CPMI/YM/XI/2026',
+        revision: 1,
+        status: 'ACTIVE',
+        snapshot: { holder: 'Budi' },
+        verifyCode: 'XMRBDYN7MU',
+      });
+
+      const document = await repo.findForPdfForUser('cert-1', 'u1');
+
+      expect(document).toMatchObject({
+        id: 'cert-1',
+        number: '060/CPMI/YM/XI/2026',
+        status: 'ACTIVE',
+      });
     });
   });
 });

@@ -13,7 +13,10 @@ import {
 import { renderCertificateHtml } from '../pdf/certificate-html';
 import type { CertificateAssets } from '../pdf/certificate-html';
 import { CERTIFICATES_REPOSITORY } from '../repository/certificates.repository';
-import type { CertificatesRepository } from '../repository/certificates.repository';
+import type {
+  CertificateDocument,
+  CertificatesRepository,
+} from '../repository/certificates.repository';
 import { certificateFileName } from '../utils/certificate-filename';
 import type {
   CertificateSnapshot,
@@ -40,20 +43,7 @@ export class CertificateDocumentService {
    * one that replaced it.
    */
   async renderIssued(id: string): Promise<RenderedCertificate> {
-    const document = await this.repo.findForPdf(id);
-    if (!document) throw new NotFoundException('certificate_not_found');
-    if (document.status !== 'ACTIVE') {
-      throw new ConflictException(
-        `certificate_${document.status.toLowerCase()}`,
-      );
-    }
-
-    const snapshot = document.snapshot as CertificateSnapshot;
-    const buffer = await this.renderDocument(snapshot, {
-      verifyCode: document.verifyCode,
-      draft: false,
-    });
-    return { buffer, filename: certificateFileName(document.number) };
+    return this.renderIssuedRow(await this.repo.findForPdf(id));
   }
 
   /**
@@ -64,7 +54,27 @@ export class CertificateDocumentService {
     id: string,
     institutionId: string,
   ): Promise<RenderedCertificate> {
-    const document = await this.repo.findForPdfInInstitution(id, institutionId);
+    return this.renderIssuedRow(
+      await this.repo.findForPdfInInstitution(id, institutionId),
+    );
+  }
+
+  /**
+   * The buyer's own copy. The query is scoped by `userId`, so a certificate
+   * belonging to someone else is reported as missing rather than forbidden —
+   * the same anti-enumeration rule the other reads follow.
+   */
+  async renderIssuedForUser(
+    id: string,
+    userId: string,
+  ): Promise<RenderedCertificate> {
+    return this.renderIssuedRow(await this.repo.findForPdfForUser(id, userId));
+  }
+
+  /** One rule for all three readers: missing, not active, or a printed page. */
+  private async renderIssuedRow(
+    document: CertificateDocument | null,
+  ): Promise<RenderedCertificate> {
     if (!document) throw new NotFoundException('certificate_not_found');
     if (document.status !== 'ACTIVE') {
       throw new ConflictException(

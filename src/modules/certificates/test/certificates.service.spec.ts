@@ -87,6 +87,8 @@ describe('CertificatesService', () => {
       revoke: jest.fn(),
       findForPdf: jest.fn(),
       findForPdfInInstitution: jest.fn(),
+      findForPdfForUser: jest.fn(),
+      listIssuedByUser: jest.fn(),
       listCertificates: jest.fn(),
       findPendingResults: jest.fn(),
       findByVerifyCode: jest.fn(),
