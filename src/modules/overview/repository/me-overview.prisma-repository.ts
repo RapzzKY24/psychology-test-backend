@@ -21,6 +21,8 @@ export class PrismaMeOverviewRepository implements MeOverviewRepository {
       activeAttempts,
       latestResults,
       latestCertificates,
+      latestOrders,
+      latestCompletedAttempts,
     ] = await Promise.all([
       this.prisma.attempt.count({ where: { userId, status: 'IN_PROGRESS' } }),
       this.prisma.testResult.count({
@@ -81,6 +83,28 @@ export class PrismaMeOverviewRepository implements MeOverviewRepository {
           },
         },
       }),
+      // Only settled payments are events; a pending order has not happened yet.
+      this.prisma.order.findMany({
+        where: { userId, status: 'PAID', verifiedAt: { not: null } },
+        orderBy: [{ verifiedAt: 'desc' }, { id: 'desc' }],
+        take: PREVIEW_LIMIT,
+        select: {
+          id: true,
+          amount: true,
+          verifiedAt: true,
+          test: { select: { name: true } },
+        },
+      }),
+      this.prisma.attempt.findMany({
+        where: { userId, status: 'COMPLETED', completedAt: { not: null } },
+        orderBy: [{ completedAt: 'desc' }, { id: 'desc' }],
+        take: PREVIEW_LIMIT,
+        select: {
+          id: true,
+          completedAt: true,
+          test: { select: { name: true } },
+        },
+      }),
     ]);
 
     return {
@@ -102,6 +126,17 @@ export class PrismaMeOverviewRepository implements MeOverviewRepository {
         number: row.number as string,
         testName: row.result.attempt.test.name,
         issuedAt: row.issuedAt as Date,
+      })),
+      latestOrders: latestOrders.map((row) => ({
+        orderId: row.id,
+        testName: row.test.name,
+        amount: row.amount,
+        paidAt: row.verifiedAt as Date,
+      })),
+      latestCompletedAttempts: latestCompletedAttempts.map((row) => ({
+        attemptId: row.id,
+        testName: row.test.name,
+        completedAt: row.completedAt as Date,
       })),
     };
   }

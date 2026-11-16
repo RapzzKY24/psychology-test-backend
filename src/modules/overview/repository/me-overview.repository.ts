@@ -30,17 +30,34 @@ export interface MeOverviewCounts {
   certificatesReady: number;
 }
 
+/** A paid order, for the "pembayaran diterima" line in the activity list. */
+export interface LatestOrderSummary {
+  orderId: string;
+  testName: string;
+  amount: number;
+  paidAt: Date;
+}
+
+/** A finished attempt whose result has not been approved yet. */
+export interface CompletedAttemptSummary {
+  attemptId: string;
+  testName: string;
+  completedAt: Date;
+}
+
 export interface MeOverviewData {
   counts: MeOverviewCounts;
   activeAttempts: ActiveAttemptSummary[];
   latestResults: LatestResultSummary[];
   latestCertificates: LatestCertificateSummary[];
+  latestOrders: LatestOrderSummary[];
+  latestCompletedAttempts: CompletedAttemptSummary[];
 }
 
 /**
- * A read model that spans attempts, results and certificates. It is one
- * repository on purpose: splitting it across the three domain repositories
- * would make the dashboard call six methods to build one screen.
+ * A read model that spans attempts, orders, results and certificates. It is
+ * one repository on purpose: splitting it across the domain repositories
+ * would make the dashboard call eight methods to build one screen.
  */
 export interface MeOverviewRepository {
   forUser(userId: string): Promise<MeOverviewData>;

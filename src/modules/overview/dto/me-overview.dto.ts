@@ -35,6 +35,21 @@ export const MeOverviewSchema = z.object({
       issuedAt: z.date(),
     }),
   ),
+  latestOrders: z.array(
+    z.object({
+      orderId: z.string(),
+      testName: z.string(),
+      amount: z.number().int(),
+      paidAt: z.date(),
+    }),
+  ),
+  latestCompletedAttempts: z.array(
+    z.object({
+      attemptId: z.string(),
+      testName: z.string(),
+      completedAt: z.date(),
+    }),
+  ),
 });
 
 export type MeOverviewDto = z.infer<typeof MeOverviewSchema>;

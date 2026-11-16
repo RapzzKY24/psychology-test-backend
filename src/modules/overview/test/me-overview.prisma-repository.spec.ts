@@ -7,6 +7,7 @@ describe('PrismaMeOverviewRepository', () => {
     attempt: { count: jest.Mock; findMany: jest.Mock };
     testResult: { count: jest.Mock; findMany: jest.Mock };
     certificate: { count: jest.Mock; findMany: jest.Mock };
+    order: { findMany: jest.Mock };
   };
 
   beforeEach(() => {
@@ -14,6 +15,7 @@ describe('PrismaMeOverviewRepository', () => {
       attempt: { count: jest.fn(), findMany: jest.fn() },
       testResult: { count: jest.fn(), findMany: jest.fn() },
       certificate: { count: jest.fn(), findMany: jest.fn() },
+      order: { findMany: jest.fn() },
     };
     repo = new PrismaMeOverviewRepository(prisma as unknown as PrismaService);
   });
@@ -25,6 +27,7 @@ describe('PrismaMeOverviewRepository', () => {
     prisma.attempt.findMany.mockResolvedValue([]);
     prisma.testResult.findMany.mockResolvedValue([]);
     prisma.certificate.findMany.mockResolvedValue([]);
+    prisma.order.findMany.mockResolvedValue([]);
 
     const data = await repo.forUser('u1');
 
@@ -57,6 +60,7 @@ describe('PrismaMeOverviewRepository', () => {
     prisma.attempt.findMany.mockResolvedValue([]);
     prisma.testResult.findMany.mockResolvedValue([]);
     prisma.certificate.findMany.mockResolvedValue([]);
+    prisma.order.findMany.mockResolvedValue([]);
 
     await repo.forUser('u1');
 
@@ -80,19 +84,45 @@ describe('PrismaMeOverviewRepository', () => {
         take: 3,
       }),
     );
+    expect(prisma.order.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { userId: 'u1', status: 'PAID', verifiedAt: { not: null } },
+        orderBy: [{ verifiedAt: 'desc' }, { id: 'desc' }],
+        take: 3,
+      }),
+    );
+    expect(prisma.attempt.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          userId: 'u1',
+          status: 'COMPLETED',
+          completedAt: { not: null },
+        },
+        orderBy: [{ completedAt: 'desc' }, { id: 'desc' }],
+        take: 3,
+      }),
+    );
   });
 
   it('flattens the test name out of the nested rows', async () => {
     prisma.attempt.count.mockResolvedValue(1);
     prisma.testResult.count.mockResolvedValue(1);
     prisma.certificate.count.mockResolvedValue(1);
-    prisma.attempt.findMany.mockResolvedValue([
-      {
-        id: 'att-1',
-        startedAt: new Date('2026-11-14T09:00:00Z'),
-        test: { name: 'DISC Form A' },
-      },
-    ]);
+    prisma.attempt.findMany
+      .mockResolvedValueOnce([
+        {
+          id: 'att-1',
+          startedAt: new Date('2026-11-14T09:00:00Z'),
+          test: { name: 'DISC Form A' },
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          id: 'att-3',
+          completedAt: new Date('2026-11-15T10:00:00Z'),
+          test: { name: 'Wartegg (WZT)' },
+        },
+      ]);
     prisma.testResult.findMany.mockResolvedValue([
       {
         attemptId: 'att-2',
@@ -107,6 +137,14 @@ describe('PrismaMeOverviewRepository', () => {
         number: '012/DISC/XI/2026',
         issuedAt: new Date('2026-11-16T09:00:00Z'),
         result: { attempt: { test: { name: 'DISC Form A' } } },
+      },
+    ]);
+    prisma.order.findMany.mockResolvedValue([
+      {
+        id: 'ord-1',
+        amount: 75000,
+        verifiedAt: new Date('2026-11-16T07:00:00Z'),
+        test: { name: 'IST' },
       },
     ]);
 
@@ -133,6 +171,21 @@ describe('PrismaMeOverviewRepository', () => {
         number: '012/DISC/XI/2026',
         testName: 'DISC Form A',
         issuedAt: new Date('2026-11-16T09:00:00Z'),
+      },
+    ]);
+    expect(data.latestOrders).toEqual([
+      {
+        orderId: 'ord-1',
+        testName: 'IST',
+        amount: 75000,
+        paidAt: new Date('2026-11-16T07:00:00Z'),
+      },
+    ]);
+    expect(data.latestCompletedAttempts).toEqual([
+      {
+        attemptId: 'att-3',
+        testName: 'Wartegg (WZT)',
+        completedAt: new Date('2026-11-15T10:00:00Z'),
       },
     ]);
   });
