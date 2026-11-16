@@ -3,6 +3,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { isUuid } from '../../../common/utils/is-uuid';
 import type {
   Order,
+  OrderStatus,
   PaymentProvider,
   PaymentVerifiedBySource,
   Prisma,
@@ -371,5 +372,27 @@ export class PrismaOrdersRepository implements OrdersRepository {
         : null,
     }));
     return { data: enriched, total };
+  }
+
+  async listByUser(params: {
+    userId: string;
+    skip: number;
+    take: number;
+    status?: OrderStatus;
+  }): Promise<{ data: (Order & { test: { name: string } })[]; total: number }> {
+    const where: Prisma.OrderWhereInput = { userId: params.userId };
+    if (params.status) where.status = params.status;
+
+    const [data, total] = await Promise.all([
+      this.prisma.order.findMany({
+        where,
+        skip: params.skip,
+        take: params.take,
+        orderBy: { createdAt: 'desc' },
+        include: { test: { select: { name: true } } },
+      }),
+      this.prisma.order.count({ where }),
+    ]);
+    return { data, total };
   }
 }

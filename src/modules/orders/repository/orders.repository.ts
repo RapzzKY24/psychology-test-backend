@@ -1,5 +1,6 @@
 import type {
   Order,
+  OrderStatus,
   PaymentProvider,
   PaymentVerifiedBySource,
   Prisma,
@@ -99,4 +100,11 @@ export interface OrdersRepository {
     })[];
     total: number;
   }>;
+  /** One buyer's own orders, newest first; the test name comes along for the list. */
+  listByUser(params: {
+    userId: string;
+    skip: number;
+    take: number;
+    status?: OrderStatus;
+  }): Promise<{ data: (Order & { test: { name: string } })[]; total: number }>;
 }

@@ -35,6 +35,7 @@ describe('OrdersService', () => {
       updateManyToExpired: jest.fn(),
       findMany: jest.fn(),
       findManyEnriched: jest.fn(),
+      listByUser: jest.fn(),
     };
     mockConfig = { get: jest.fn().mockReturnValue(60) };
     mockOrderPayment = {
