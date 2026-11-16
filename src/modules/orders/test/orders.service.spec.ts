@@ -194,6 +194,7 @@ describe('OrdersService', () => {
         basePrice: 200000,
         uniqueCode: 123,
         userClaimedAt: null,
+        paymentProvider: 'MANUAL_QRIS',
       } as never);
       mockRepo.update.mockResolvedValue({
         id: 'o1',
@@ -204,6 +205,7 @@ describe('OrdersService', () => {
         basePrice: 200000,
         uniqueCode: 123,
         userClaimedAt: null,
+        paymentProvider: 'MANUAL_QRIS',
       } as never);
 
       const result = await service.findById('o1', 'u1');
@@ -221,6 +223,7 @@ describe('OrdersService', () => {
         basePrice: 200000,
         uniqueCode: 0,
         userClaimedAt: null,
+        paymentProvider: 'MIDTRANS_SNAP',
         paymentUrl: 'https://app.sandbox.midtrans.com/snap/v4/redirection/tok',
         paymentToken: 'tok',
       } as never);
@@ -231,6 +234,69 @@ describe('OrdersService', () => {
         'https://app.sandbox.midtrans.com/snap/v4/redirection/tok',
       );
       expect(result.paymentToken).toBe('tok');
+      expect(result.paymentProvider).toBe('MIDTRANS_SNAP');
+      // Only the manual QRIS flow has a merchant image to resolve.
+      expect(mockRepo.getQrisImageUrl).not.toHaveBeenCalled();
+      expect(result.qrisImageUrl).toBeNull();
+    });
+
+    it('should carry the VA instructions of a VA order', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: 'o1',
+        userId: 'u1',
+        status: 'PENDING',
+        expiresAt: new Date(Date.now() + 60_000),
+        amount: 200000,
+        basePrice: 200000,
+        uniqueCode: 0,
+        userClaimedAt: null,
+        paymentProvider: 'MIDTRANS_VA',
+        vaNumber: '7001234567890',
+        vaBankCode: 'bca',
+      } as never);
+
+      const result = await service.findById('o1', 'u1');
+
+      expect(result.vaNumber).toBe('7001234567890');
+      expect(result.vaBankCode).toBe('bca');
+    });
+
+    it('should resolve the merchant QRIS image for a payable manual order', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: 'o1',
+        userId: 'u1',
+        status: 'PENDING',
+        expiresAt: new Date(Date.now() + 60_000),
+        amount: 200123,
+        basePrice: 200000,
+        uniqueCode: 123,
+        userClaimedAt: null,
+        paymentProvider: 'MANUAL_QRIS',
+      } as never);
+      mockRepo.getQrisImageUrl.mockResolvedValue('/uploads/qris/merchant.png');
+
+      const result = await service.findById('o1', 'u1');
+
+      expect(result.qrisImageUrl).toBe('/uploads/qris/merchant.png');
+    });
+
+    it('should skip the QRIS image once the order is settled', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: 'o1',
+        userId: 'u1',
+        status: 'PAID',
+        expiresAt: new Date(Date.now() + 60_000),
+        amount: 200123,
+        basePrice: 200000,
+        uniqueCode: 123,
+        userClaimedAt: null,
+        paymentProvider: 'MANUAL_QRIS',
+      } as never);
+
+      const result = await service.findById('o1', 'u1');
+
+      expect(result.qrisImageUrl).toBeNull();
+      expect(mockRepo.getQrisImageUrl).not.toHaveBeenCalled();
     });
 
     it('should return secondsRemaining for PENDING', async () => {
@@ -244,6 +310,7 @@ describe('OrdersService', () => {
         basePrice: 200000,
         uniqueCode: 123,
         userClaimedAt: null,
+        paymentProvider: 'MIDTRANS_SNAP',
       } as never);
 
       const result = await service.findById('o1', 'u1');

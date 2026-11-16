@@ -38,6 +38,29 @@ export interface CreateOrderResult {
   paymentToken: string | null;
 }
 
+/**
+ * One order as its buyer sees it. Same fields as the create result plus the
+ * server-computed countdown, so the payment dialog never trusts a client clock.
+ */
+export interface OrderDetailResult {
+  id: string;
+  status: string;
+  amount: number;
+  basePrice: number;
+  uniqueCode: number;
+  expiresAt: Date;
+  secondsRemaining: number | null;
+  userClaimedAt: Date | null;
+  /** Null on rows created before the provider was recorded. */
+  paymentProvider: PaymentProvider | null;
+  /** Merchant QRIS image; only for a manual-QRIS order that can still be paid. */
+  qrisImageUrl: string | null;
+  vaNumber: string | null;
+  vaBankCode: string | null;
+  paymentUrl: string | null;
+  paymentToken: string | null;
+}
+
 @Injectable()
 export class OrdersService {
   constructor(
@@ -138,32 +161,21 @@ export class OrdersService {
     return this.repo.findOwnedByRef(ref, userId);
   }
 
-  async findById(
-    orderId: string,
-    userId: string,
-  ): Promise<{
-    id: string;
-    status: string;
-    amount: number;
-    basePrice: number;
-    uniqueCode: number;
-    expiresAt: Date;
-    secondsRemaining: number | null;
-    userClaimedAt: Date | null;
-    paymentUrl: string | null;
-    paymentToken: string | null;
-  }> {
+  async findById(orderId: string, userId: string): Promise<OrderDetailResult> {
     const order = await this.repo.findById(orderId);
     if (!order || order.userId !== userId) {
       throw new NotFoundException('Order not found');
     }
     const fresh = await this.lazyExpire(order);
-    const secondsRemaining =
-      fresh.status === 'PENDING'
-        ? Math.max(
-            0,
-            Math.floor((fresh.expiresAt.getTime() - Date.now()) / 1000),
-          )
+    const payable = fresh.status === 'PENDING';
+    const secondsRemaining = payable
+      ? Math.max(0, Math.floor((fresh.expiresAt.getTime() - Date.now()) / 1000))
+      : null;
+    // A settled order needs no instructions, and the lookup costs a settings
+    // read — only the manual QRIS flow has an image to show.
+    const qrisImageUrl =
+      payable && fresh.paymentProvider === 'MANUAL_QRIS'
+        ? await this.repo.getQrisImageUrl()
         : null;
     return {
       id: fresh.id,
@@ -174,6 +186,10 @@ export class OrdersService {
       expiresAt: fresh.expiresAt,
       secondsRemaining,
       userClaimedAt: fresh.userClaimedAt ?? null,
+      paymentProvider: fresh.paymentProvider,
+      qrisImageUrl,
+      vaNumber: fresh.vaNumber ?? null,
+      vaBankCode: fresh.vaBankCode ?? null,
       paymentUrl: fresh.paymentUrl ?? null,
       paymentToken: fresh.paymentToken ?? null,
     };

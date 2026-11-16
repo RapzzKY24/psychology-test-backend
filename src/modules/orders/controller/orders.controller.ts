@@ -5,7 +5,10 @@ import { ZodValidationPipe } from '../../../common/pipes/zod-validation.pipe';
 import { CreateOrderSchema } from '../dto/create-order.dto';
 import type { CreateOrderDto } from '../dto/create-order.dto';
 import { OrdersService } from '../service/orders.service';
-import type { CreateOrderResult } from '../service/orders.service';
+import type {
+  CreateOrderResult,
+  OrderDetailResult,
+} from '../service/orders.service';
 import type { ApiResponse } from '../../../common/interfaces/api-response.interface';
 
 @Controller('api/v1/orders')
@@ -25,20 +28,7 @@ export class OrdersController {
   async findOne(
     @Param('id') id: string,
     @Session() session: UserSession,
-  ): Promise<
-    ApiResponse<{
-      id: string;
-      status: string;
-      amount: number;
-      basePrice: number;
-      uniqueCode: number;
-      expiresAt: Date;
-      secondsRemaining: number | null;
-      userClaimedAt: Date | null;
-      paymentUrl: string | null;
-      paymentToken: string | null;
-    }>
-  > {
+  ): Promise<ApiResponse<OrderDetailResult>> {
     const data = await this.ordersService.findById(id, session.user.id);
     return { data };
   }
