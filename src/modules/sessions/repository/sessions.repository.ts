@@ -1,6 +1,7 @@
 import type {
   SessionParticipant,
   TestSession,
+  Invoice,
 } from '../../../generated/prisma/client';
 
 export const SESSIONS_REPOSITORY = 'SessionsRepository';
@@ -103,6 +104,11 @@ export interface SessionsRepository {
   findTestsByIds(ids: string[]): Promise<{ id: string; status: string }[]>;
   findInstitutionById(id: string): Promise<{ id: string } | null>;
   createWithTests(params: CreateSessionParams): Promise<TestSession>;
+  createInstitutionBatch(params: {
+    session: Omit<CreateSessionParams, 'token'>;
+    amount: number;
+    invoiceExpiresAt: Date;
+  }): Promise<{ session: TestSession; invoice: Invoice }>;
   updateStatus(id: string, status: 'ACTIVE' | 'CLOSED'): Promise<TestSession>;
   /** Partial admin edit of a session's title / expiry. */
   update(

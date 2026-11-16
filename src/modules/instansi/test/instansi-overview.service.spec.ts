@@ -21,6 +21,7 @@ describe('InstansiOverviewService', () => {
       findTestsByIds: jest.fn(),
       findInstitutionById: jest.fn(),
       createWithTests: jest.fn(),
+      createInstitutionBatch: jest.fn(),
       updateStatus: jest.fn(),
       update: jest.fn(),
       findSessionTestsBySessionId: jest.fn(),

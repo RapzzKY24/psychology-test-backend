@@ -3,6 +3,7 @@ import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { admin } from 'better-auth/plugins';
 import { PrismaClient } from '../../generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { trustedAuthOrigins } from './trusted-origins';
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
@@ -14,7 +15,7 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: 'postgresql',
   }),
-  trustedOrigins: ['http://localhost:4000', 'http://localhost:3000'],
+  trustedOrigins: trustedAuthOrigins(process.env),
   rateLimit: {
     enabled: true,
     window: 60,

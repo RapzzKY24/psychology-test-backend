@@ -97,6 +97,8 @@ export interface AttemptsRepository {
   ): Promise<void>;
   findResultByAttemptId(attemptId: string): Promise<TestResult | null>;
   completeAndCreateResult(params: CompleteAttemptParams): Promise<TestResult>;
+  /** Preserve an expired unfinished attempt and create one replacement atomically. */
+  resetExpiredAttempt(id: string): Promise<{ oldAttemptId: string; newAttemptId: string }>;
   listByUser(params: ListAttemptsByUserParams): Promise<{
     data: AttemptListItemRow[];
     total: number;

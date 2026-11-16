@@ -7,7 +7,10 @@ import { Prisma } from '../../../generated/prisma/client';
 import type {
   SessionParticipant,
   TestSession,
+  Invoice,
 } from '../../../generated/prisma/client';
+import { generateInviteToken } from '../utils/generate-invite-token';
+import { generateInvoiceNumber } from '../../invoices/utils/generate-invoice-number';
 import { PrismaService } from '../../../prisma/prisma.service';
 import type {
   SessionsRepository,
@@ -230,6 +233,71 @@ export class PrismaSessionsRepository implements SessionsRepository {
     });
   }
 
+  async createInstitutionBatch(params: {
+    session: Omit<CreateSessionParams, 'token'>;
+    amount: number;
+    invoiceExpiresAt: Date;
+  }): Promise<{ session: TestSession; invoice: Invoice }> {
+    const institutionId = params.session.institutionId;
+    if (!institutionId) throw new NotFoundException('Institution not found');
+    const year = new Date().getFullYear();
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        return await this.prisma.$transaction(async (tx) => {
+          const session = await tx.testSession.create({
+            data: {
+              title: params.session.title,
+              kind: 'GROUP',
+              institutionId,
+              createdById: params.session.createdById,
+              token: generateInviteToken(),
+              pinHash: params.session.pinHash,
+              slotLimit: params.session.slotLimit,
+              expiresAt: params.session.expiresAt,
+              joinMode: 'ROSTER',
+              status: 'PENDING_PAYMENT',
+              sessionTests: {
+                create: params.session.tests.map((test) => ({
+                  testId: test.testId,
+                  order: test.order,
+                })),
+              },
+              participants: {
+                create: params.session.roster.map((seat) => ({
+                  name: seat.name,
+                  candidateNumber: seat.candidateNumber,
+                  institutionParticipantId: seat.institutionParticipantId ?? null,
+                })),
+              },
+            },
+          });
+          await tx.$queryRaw`WITH "lock" AS (SELECT pg_advisory_xact_lock(hashtext(${`INV-${year}`}))) SELECT count(*) FROM "lock"`;
+          const last = await tx.invoice.findFirst({
+            where: { number: { startsWith: `INV-${year}-` } },
+            orderBy: { number: 'desc' },
+            select: { number: true },
+          });
+          const sequence = last ? Number(last.number.split('-')[2]) + 1 : 1;
+          const invoice = await tx.invoice.create({
+            data: {
+              institutionId,
+              sessionId: session.id,
+              amount: params.amount,
+              number: generateInvoiceNumber(year, sequence),
+              expiresAt: params.invoiceExpiresAt,
+              status: 'UNPAID',
+            },
+          });
+          return { session, invoice };
+        });
+      } catch (error) {
+        if ((error as { code?: string }).code === 'P2002' && attempt < 4) continue;
+        throw error;
+      }
+    }
+    throw new ConflictException('batch_create_collision');
+  }
+
   updateStatus(id: string, status: 'ACTIVE' | 'CLOSED'): Promise<TestSession> {
     return this.prisma.testSession.update({
       where: { id },
@@ -335,7 +403,7 @@ export class PrismaSessionsRepository implements SessionsRepository {
     { id: string; testId: string; testName: string; startedAt: Date | null }[]
   > {
     const attempts = await this.prisma.attempt.findMany({
-      where: { participantId },
+      where: { participantId, status: { not: 'ABANDONED' } },
       include: { test: { select: { name: true } } },
     });
     if (attempts.length === 0) return [];

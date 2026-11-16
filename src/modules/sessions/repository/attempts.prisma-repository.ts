@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '../../../generated/prisma/client';
 import type {
   Education,
@@ -167,12 +167,67 @@ export class PrismaAttemptsRepository implements AttemptsRepository {
     }
   }
 
+  async resetExpiredAttempt(
+    id: string,
+  ): Promise<{ oldAttemptId: string; newAttemptId: string }> {
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT id FROM "attempts" WHERE id = ${id}::uuid FOR UPDATE`;
+      const old = await tx.attempt.findUnique({
+        where: { id },
+        include: {
+          test: { select: { timeLimitMin: true } },
+          session: { select: { expiresAt: true, joinMode: true, status: true } },
+          result: { select: { id: true } },
+        },
+      });
+      if (!old) throw new NotFoundException('Attempt not found');
+      if (old.status !== 'IN_PROGRESS' || old.result) {
+        throw new ConflictException('attempt_not_resettable');
+      }
+      if (
+        old.session.status !== 'ACTIVE' ||
+        old.session.expiresAt.getTime() + 24 * 60 * 60_000 < Date.now()
+      ) {
+        throw new ConflictException('session_not_resettable');
+      }
+      const deadline = old.test.timeLimitMin
+        ? old.startedAt.getTime() + old.test.timeLimitMin * 60_000
+        : old.session.expiresAt.getTime() + 24 * 60 * 60_000;
+      if (Date.now() <= deadline) {
+        throw new ConflictException('attempt_not_expired');
+      }
+      await tx.attempt.update({ where: { id }, data: { status: 'ABANDONED' } });
+      const replacement = await tx.attempt.create({
+        data: {
+          sessionId: old.sessionId,
+          testId: old.testId,
+          userId: old.userId,
+          participantId: old.participantId,
+          birthDate: old.birthDate,
+          gender: old.gender,
+          education: old.education,
+          status: 'IN_PROGRESS',
+        },
+      });
+      if (old.session.joinMode === 'ROSTER' && old.participantId) {
+        await tx.sessionParticipant.update({
+          where: { id: old.participantId },
+          data: { tokenHash: null },
+        });
+      }
+      return { oldAttemptId: id, newAttemptId: replacement.id };
+    });
+  }
+
   async listByUser(params: {
     userId: string;
     skip: number;
     take: number;
   }): Promise<{ data: AttemptListItemRow[]; total: number }> {
-    const where = { userId: params.userId };
+    const where: Prisma.AttemptWhereInput = {
+      userId: params.userId,
+      status: { not: 'ABANDONED' },
+    };
     const [rows, total] = await Promise.all([
       this.prisma.attempt.findMany({
         where,

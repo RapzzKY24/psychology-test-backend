@@ -34,6 +34,7 @@ const GRACE_MS = 24 * 60 * 60 * 1000; // decision D1: joins blocked, in-flight a
 
 /** Values of the Prisma `Education` enum, in the order the gate offers them. */
 const EDUCATION_LEVELS = ['SMP_SMA', 'S1', 'UMUM'];
+type AttemptOwner = string | { userId: string };
 
 @Injectable()
 export class AttemptsService {
@@ -44,10 +45,13 @@ export class AttemptsService {
   ) {}
 
   private assertOwnerOr404(
-    participantId: string | null,
-    ownerId: string,
+    attempt: { participantId: string | null; userId: string | null },
+    owner: AttemptOwner,
   ): void {
-    if (participantId !== ownerId) {
+    const allowed = typeof owner === 'string'
+      ? attempt.participantId === owner
+      : attempt.userId === owner.userId;
+    if (!allowed) {
       throw new NotFoundException('Attempt not found');
     }
   }
@@ -189,7 +193,7 @@ export class AttemptsService {
       throw new UnprocessableEntityException('birth_date_required');
     }
 
-    const ageMonths = ageInMonthsFromIsoDate(birthDate, new Date());
+    const ageMonths = ageInMonthsFromIsoDate(birthDate, detail.attempt.startedAt);
     if (ageMonths === null) {
       throw new UnprocessableEntityException('birth_date_invalid');
     }
@@ -256,14 +260,17 @@ export class AttemptsService {
 
   async read(
     attemptId: string,
-    participantId: string,
+    owner: AttemptOwner,
     declaredBirthDate?: string,
     declaredGender?: string,
     declaredEducation?: string,
   ): Promise<AttemptReadDto> {
     const detail = await this.repo.findAccessDetail(attemptId);
     if (!detail) throw new NotFoundException('Attempt not found');
-    this.assertOwnerOr404(detail.attempt.participantId, participantId);
+    this.assertOwnerOr404(detail.attempt, owner);
+    if (detail.attempt.status === 'ABANDONED') {
+      throw new GoneException('attempt_not_in_progress');
+    }
     await this.assertAgeWithinBand(detail, declaredBirthDate);
     const gender = await this.resolveGender(detail, declaredGender);
     const education = await this.resolveEducation(detail, declaredEducation);
@@ -299,11 +306,11 @@ export class AttemptsService {
   async respond(
     attemptId: string,
     dto: PutResponseDto,
-    participantId: string,
+    owner: AttemptOwner,
   ): Promise<void> {
     const detail = await this.repo.findAccessDetail(attemptId);
     if (!detail) throw new NotFoundException('Attempt not found');
-    this.assertOwnerOr404(detail.attempt.participantId, participantId);
+    this.assertOwnerOr404(detail.attempt, owner);
     await this.assertAcceptsAnswers(detail);
 
     const item = detail.items.find((it) => it.id === dto.itemId);
@@ -354,12 +361,12 @@ export class AttemptsService {
   async saveItemImage(
     attemptId: string,
     itemId: string,
-    participantId: string,
+    owner: AttemptOwner,
     file: Express.Multer.File,
   ): Promise<{ imageUrl: string }> {
     const detail = await this.repo.findAccessDetail(attemptId);
     if (!detail) throw new NotFoundException('Attempt not found');
-    this.assertOwnerOr404(detail.attempt.participantId, participantId);
+    this.assertOwnerOr404(detail.attempt, owner);
     await this.assertAcceptsAnswers(detail);
 
     const item = detail.items.find((it) => it.id === itemId);
@@ -390,11 +397,11 @@ export class AttemptsService {
 
   async complete(
     attemptId: string,
-    participantId: string,
+    owner: AttemptOwner,
   ): Promise<AttemptCompleteResponseDto> {
     const detail = await this.repo.findAccessDetail(attemptId);
     if (!detail) throw new NotFoundException('Attempt not found');
-    this.assertOwnerOr404(detail.attempt.participantId, participantId);
+    this.assertOwnerOr404(detail.attempt, owner);
 
     // D4 idempotency: COMPLETED with result → return existing; COMPLETED without result → recover by re-scoring
     if (detail.attempt.status === 'COMPLETED') {
@@ -465,7 +472,7 @@ export class AttemptsService {
       ageMonths: detail.attempt.birthDate
         ? ageInMonthsFromIsoDate(
             isoDateOf(detail.attempt.birthDate),
-            new Date(),
+            detail.attempt.startedAt,
           )
         : null,
     });

@@ -4,6 +4,7 @@ import { SessionsPublicController } from './controller/sessions-public.controlle
 import { AttemptsPublicController } from './controller/attempts.controller';
 import { MeAttemptsController } from './controller/me-attempts.controller';
 import { AttemptImageController } from './controller/attempt-image.controller';
+import { AdminAttemptsController } from './controller/admin-attempts.controller';
 import { SessionsService } from './service/sessions.service';
 import { AttemptsService } from './service/attempts.service';
 import { SessionsPublicService } from './service/sessions-public.service';
@@ -22,6 +23,7 @@ import { ATTEMPTS_REPOSITORY } from './repository/attempts.repository';
     AttemptsPublicController,
     MeAttemptsController,
     AttemptImageController,
+    AdminAttemptsController,
   ],
   providers: [
     SessionsService,

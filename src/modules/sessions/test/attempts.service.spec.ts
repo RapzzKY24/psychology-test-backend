@@ -89,6 +89,7 @@ describe('AttemptsService', () => {
       findNormRows: jest.fn(),
       findResultByAttemptId: jest.fn(),
       completeAndCreateResult: jest.fn(),
+      resetExpiredAttempt: jest.fn(),
       listByUser: jest.fn(),
     };
     service = new AttemptsService(mockRepo, {
@@ -101,6 +102,21 @@ describe('AttemptsService', () => {
   });
 
   describe('read', () => {
+    it('allows an account owner without a guest participant token', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(makeDetail({
+        attempt: { ...makeDetail().attempt, participantId: null, userId: 'user-1' },
+      }));
+      await expect(service.read('att-1', { userId: 'user-1' })).resolves.toMatchObject({ id: 'att-1' });
+      await expect(service.read('att-1', { userId: 'user-2' })).rejects.toThrow('Attempt not found');
+    });
+
+    it('does not reopen an abandoned attempt after an admin reset', async () => {
+      mockRepo.findAccessDetail.mockResolvedValue(makeDetail({
+        attempt: { ...makeDetail().attempt, status: 'ABANDONED' },
+      }));
+      await expect(service.read('att-1', 'p-1')).rejects.toThrow('attempt_not_in_progress');
+    });
+
     it('throws 404 when attempt not found', async () => {
       mockRepo.findAccessDetail.mockResolvedValue(null);
       await expect(service.read('att-x', 'p-1')).rejects.toThrow(
@@ -627,6 +643,19 @@ describe('AttemptsService', () => {
         'att-1',
         new Date(`${birthDate}T00:00:00.000Z`),
       );
+    });
+
+    it('uses the attempt start date when an age band changed later', async () => {
+      const startedAt = new Date('2025-01-31T03:00:00.000Z');
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({
+          test: bandedTest,
+          attempt: { ...makeDetail().attempt, startedAt },
+        }),
+      );
+      const out = await service.read('att-1', 'p-1', '2010-02-01');
+      expect(out.id).toBe('att-1');
+      expect(mockRepo.setBirthDate).toHaveBeenCalled();
     });
 
     it('keeps the stored date even when a fitting one is offered later', async () => {

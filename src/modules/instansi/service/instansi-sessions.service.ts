@@ -145,35 +145,37 @@ export class InstansiSessionsService {
       now,
     );
 
-    const session = await this.sessionsService.create(
-      {
+    const { session, invoice: createdInvoice } = await this.sessionsRepo.createInstitutionBatch({
+      session: {
+        kind: 'GROUP',
         title,
         institutionId,
-        testIds: dto.testIds,
+        createdById: userId,
         slotLimit: dto.slotLimit,
         expiresAt,
         status: 'PENDING_PAYMENT',
+        joinMode: 'ROSTER',
+        tests: dto.testIds.map((testId, index) => ({ testId, order: index + 1 })),
         roster: dto.employeeIds.map((id) => {
           const employee = byId.get(id);
           if (!employee) throw new NotFoundException('Employee not found');
           return {
             name: employee.name,
             institutionParticipantId: employee.id,
+            candidateNumber: null,
           };
         }),
       },
-      userId,
-    );
+      amount: pricePerSeat * dto.slotLimit,
+      invoiceExpiresAt: new Date(
+        now.getTime() + this.config.get<number>('app.invoicePaymentTtlMin', 1440) * 60_000,
+      ),
+    });
 
     // Prepaid slots: the batch is billed for every slot bought up front
     // (Σ test price × slotLimit), independent of how many names are filled.
-    // No expiry passed: the invoice owns its own payment window
-    // (INVOICE_PAYMENT_TTL_MIN), which is shorter than the session TTL.
-    let invoice = await this.invoicesService.createForSession({
-      institutionId,
-      amount: pricePerSeat * dto.slotLimit,
-      sessionId: session.id,
-    });
+    // The invoice's shorter payment window is set inside the transaction.
+    let invoice = createdInvoice;
 
     // Best-effort VA provisioning: on a gateway failure the invoice stays
     // UNPAID (no VA) and the recovery pass (T12) retries it.
