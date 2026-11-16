@@ -24,6 +24,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { CertificatesModule } from './modules/certificates/certificates.module';
 import { OverviewModule } from './modules/overview/overview.module';
+import { ProfileModule } from './modules/profile/profile.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { OverviewModule } from './modules/overview/overview.module';
     ReportsModule,
     CertificatesModule,
     OverviewModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService],
