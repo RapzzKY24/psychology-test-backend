@@ -180,6 +180,9 @@ body {
 .qr {
   position: absolute;
   object-fit: contain;
+  /* Crisp modules if the QR is a raster; no effect on an SVG data URI. */
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 /* A draft has no verify code yet, so this slot would print as empty paper and
    read as a missing element. A dashed frame names what will be there. */
@@ -220,24 +223,69 @@ body {
 }
 `;
 
+/**
+ * Every text slot is a fixed box with `overflow: hidden`, so a value longer
+ * than its box used to be cut off silently ("Muhammad Rizky Aulia Pu"). This
+ * shrinks the font in 0.25 px steps, down to 72 % of its size, until the text
+ * fits its width (one-line slots) or its max-height (wrapping slots). It runs
+ * after the font is ready so it measures Raleway, not the fallback. When
+ * printing with Puppeteer, wait for `document.fonts.ready` (or
+ * `networkidle0`) before `page.pdf()`.
+ */
+const FIT_SCRIPT = `
+(function () {
+  function fit() {
+    document.querySelectorAll('.slot').forEach(function (el) {
+      var size = parseFloat(getComputedStyle(el).fontSize);
+      var min = size * 0.72;
+      var wrap = el.classList.contains('wrap');
+      var guard = 0;
+      while (
+        guard++ < 60 && size > min &&
+        (wrap ? el.scrollHeight > el.clientHeight + 0.5
+              : el.scrollWidth > el.clientWidth + 0.5)
+      ) {
+        size -= 0.25;
+        el.style.fontSize = size + 'px';
+      }
+    });
+  }
+  var ready = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+  ready.then(fit);
+})();
+`;
+
 function renderIdentity(snapshot: CertificateView): string {
   return IDENTITY.rows
     .map((row) => {
       const value = identityValue(row.key, snapshot);
-      if (!value) return '';
       const size = printed(IDENTITY.size);
       const top = row.top + ASCENDER_TO_LINE_BOX * size;
+      // The colon belongs to the label, so it prints even when the value is
+      // empty (a draft); it sits on the label's own `top`.
+      const colonStyle = [
+        `left:${IDENTITY.colon.x}pt`,
+        `top:${top.toFixed(2)}pt`,
+        `width:${IDENTITY.colon.width}pt`,
+        `font-size:${size.toFixed(2)}pt`,
+        `font-weight:${IDENTITY.weight}`,
+        'text-align:center',
+      ].join(';');
+      const colon = `  <div class="slot" style="${colonStyle}">:</div>`;
+      if (!value) return colon;
       const style = [
         `left:${IDENTITY.valueX}pt`,
         `top:${top.toFixed(2)}pt`,
         `width:${IDENTITY.valueWidth}pt`,
         `font-size:${size.toFixed(2)}pt`,
         `font-weight:${IDENTITY.weight}`,
+        ...(row.key === 'address'
+          ? [`max-height:${IDENTITY.addressMaxHeight}pt`]
+          : []),
       ].join(';');
       const className = row.key === 'address' ? 'slot wrap' : 'slot';
-      return `  <div class="${className}" style="${style}">${escapeHtml(value)}</div>`;
+      return `${colon}\n  <div class="${className}" style="${style}">${escapeHtml(value)}</div>`;
     })
-    .filter(Boolean)
     .join('\n');
 }
 
@@ -255,7 +303,9 @@ function renderVerdict(snapshot: CertificateView): string {
     : '';
   const sentence = [verdict, purpose].filter(Boolean).join(' ');
   if (!sentence) return '';
-  return `  <div class="slot wrap" style="${slotStyle(TEXT.verdict)}">${sentence}.</div>`;
+  // Two lines at most: a third would run into the baked validity sentence
+  // 32 pt below, so the fit script shrinks the font instead.
+  return `  <div class="slot wrap" style="${slotStyle(TEXT.verdict)};max-height:30pt">${sentence}.</div>`;
 }
 
 export function renderCertificateHtml(params: RenderCertificateParams): string {
@@ -298,9 +348,10 @@ export function renderCertificateHtml(params: RenderCertificateParams): string {
     .join(', ');
   const cityDate = `  <div class="slot" style="${slotStyle(TEXT.cityDate)}">${escapeHtml(cityDateText)}</div>`;
 
-  const sipp = snapshot.issuer.sippNumber
-    ? `  <div class="slot" style="${slotStyle(TEXT.sippNumber)}">${escapeHtml(snapshot.issuer.sippNumber)}</div>`
-    : '';
+  // The `SIPP NO` label is baked into the template, so it prints whether or
+  // not the issuer has a number. A dash keeps it from dangling with nothing
+  // after it.
+  const sipp = `  <div class="slot" style="${slotStyle(TEXT.sippNumber)}">${escapeHtml(snapshot.issuer.sippNumber?.trim() || '-')}</div>`;
 
   return `<!doctype html>
 <html lang="id">
@@ -333,6 +384,7 @@ ${qr}
 ${photo}
 ${signature}
 </div>
+<script>${FIT_SCRIPT}</script>
 </body>
 </html>`;
 }

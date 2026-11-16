@@ -58,7 +58,9 @@ export const TEXT = {
     top: 176,
     size: 28,
     weight: 800,
-    maxWidth: 150,
+    // Runs to the orange rule's right end (554) so a long test name such as
+    // `TES KRAEPELIN` is not clipped by `.slot { overflow: hidden }`.
+    maxWidth: 200,
     align: 'left',
   },
   /**
@@ -83,7 +85,7 @@ export const TEXT = {
     top: 545.3,
     size: 18,
     weight: 700,
-    maxWidth: 150,
+    maxWidth: 190,
     align: 'left',
   },
   /**
@@ -92,71 +94,89 @@ export const TEXT = {
    * "untuk" between them is Regular — so `weight` is the base and the renderer
    * marks the two bold runs up.
    */
+  // Centred on the baked `Bahwa yang bersangkutan;` line above it, whose ink
+  // box spans 233.1-389.7 (centre 311.4). x = 311.4 - maxWidth / 2.
   verdict: {
-    x: 122.7,
+    x: 121.05,
     top: 513,
     size: 18,
     weight: 400,
     maxWidth: 380.7,
-    align: 'left',
+    align: 'center',
   },
   /**
-   * `<KOTA>, <tanggal>` above the sign-off block. The template prints the city
+   * `<KOTA>, <tanggal>` above the sign-off block, centred on the same axis as
+   * the baked `Psikolog` (SIGNOFF_CENTRE_X). The template prints the city
    * SemiBold and the date Bold; one weight for the line reads better than a
-   * seam in the middle of it, so both are SemiBold.
+   * seam in the middle of it, so both are SemiBold. 220 pt wide so a long city
+   * such as `Tangerang Selatan, 16 November 2026` is not clipped.
    */
   cityDate: {
-    x: 334,
+    x: 297.6,
     top: 587.5,
     size: 18,
     weight: 600,
-    maxWidth: 185,
-    align: 'left',
+    maxWidth: 240,
+    align: 'center',
   },
-  /** Centred on the baked `Psikolog` label at x 417.6. */
+  /**
+   * Centred on the baked `Psikolog` label (ink box 390.1-445.2, centre 417.6).
+   * The old box was 348.4 + 160 / 2 = 428.4, i.e. 10.8 pt right of the axis.
+   */
   psychologistName: {
-    x: 348.4,
+    x: 327.6,
     top: 702,
     size: 18,
     weight: 700,
-    maxWidth: 160,
+    maxWidth: 180,
     align: 'center',
   },
-  /** Continues the baked `SIPP NO ` prefix, one word space after it. */
+  /**
+   * Continues the baked `SIPP NO ` prefix, one word space after it. The label
+   * is baked left-anchored, so the line cannot be centred on the axis without
+   * regenerating the template; 135 pt keeps a full `SIPP-...` number inside
+   * the page margin instead of clipping it at 96 pt.
+   */
   sippNumber: {
     x: 414.5,
     top: 721.8,
     size: 18,
     weight: 700,
-    maxWidth: 96,
+    maxWidth: 139,
     align: 'left',
   },
 } as const satisfies Record<string, TextSlot>;
 
 /**
- * The six identity rows. The labels and the colons are baked into the
- * template; only the values are drawn, in the column to the right of the
- * colons (x 335.5-338.7).
+ * The six identity rows. The labels are baked into the template; the colons
+ * are NOT: the original template printed five colons at an 18.75 pt pitch
+ * against labels at a 14.2 pt pitch, so they drifted further from their rows
+ * with every line and the sixth row had none. They were erased from
+ * template.png and the renderer draws one per row at the label's own `top`,
+ * so label, colon and value share a baseline by construction.
  */
 export const IDENTITY = {
+  /** Colon column: a 7 pt box centred on x 337.1 (where the baked ones were). */
+  colon: { x: 333.6, width: 7 },
   /** Left edge of the value column, measured from the placeholder run. */
   valueX: 346.6,
-  /** Width available before the template's right margin. */
-  valueWidth: 157,
+  /** Width available before the template's right margin (554 - 346.6). */
+  valueWidth: 207,
+  /**
+   * Room for a wrapped address between its row (381.7) and the orange rule at
+   * y 451. The renderer shrinks the font to fit rather than running over it.
+   */
+  addressMaxHeight: 62,
   size: 18,
   weight: 600,
-  /** Row tops, in the order the template prints them. */
+  /** Row tops = the baked label tops, from `pdftotext -bbox` of the template. */
   rows: [
-    { key: 'fullName', top: 310 },
-    { key: 'idNumber', top: 324 },
-    { key: 'gender', top: 338.7 },
-    { key: 'birthPlaceDate', top: 352.7 },
-    { key: 'age', top: 367.3 },
-    // 382 is where the row *should* sit, but the template prints this row's
-    // colon and placeholder 3.9 pt lower than its "Alamat" label. The colon is
-    // baked into the background, so the value follows it; a value on the label
-    // line would leave a colon floating on its own below.
-    { key: 'address', top: 385.9 },
+    { key: 'fullName', top: 310.1 },
+    { key: 'idNumber', top: 324.0 },
+    { key: 'gender', top: 338.6 },
+    { key: 'birthPlaceDate', top: 352.5 },
+    { key: 'age', top: 367.1 },
+    { key: 'address', top: 381.7 },
   ],
 } as const;
 
@@ -171,18 +191,23 @@ export interface ImageSlot {
 
 export const IMAGE = {
   /**
-   * The bracket is drawn on three sides only — the bottom edge is open, so the
-   * photo is clipped to this box rather than fitted inside a frame.
+   * The bracket (68.5, 302.2, 101.8 x 115.3) is drawn on three sides only; the
+   * bottom edge is open. The photo is inset 4 pt from it on the left, top and
+   * right so the gold frame stays visible around the picture, as in the
+   * designer's mock-up, instead of being painted over.
    */
-  photo: { x: 68.5, y: 302.2, width: 101.8, height: 115.3 },
+  photo: { x: 72.5, y: 306.2, width: 93.8, height: 111.3 },
   /**
    * The band between `Psikolog` (ends 623.3) and the psychologist's name
-   * (starts 702.0). Only 78.7 pt tall, so the signature is scaled to fit and
-   * never placed at its natural size.
+   * (starts 702.0), centred on SIGNOFF_CENTRE_X (327.6 + 180 / 2 = 417.6).
+   * The scan is scaled to fit, never placed at its natural size.
    */
-  signature: { x: 345, y: 623.3, width: 145, height: 78.7 },
-  /** Between the validity line and the `VALIDASI SERTIFIKAT` caption. */
-  qr: { x: 102, y: 606.4, width: 58.1, height: 58.1 },
+  signature: { x: 327.6, y: 625.5, width: 180, height: 74 },
+  /**
+   * Centred on the baked `VALIDASI SERTIFIKAT` caption (ink box 97.9-168.3,
+   * centre 133.1, top 664.5) with a 5 pt gap above it.
+   */
+  qr: { x: 102.1, y: 597.5, width: 62, height: 62 },
 } as const satisfies Record<string, ImageSlot>;
 
 /** Centre of the sign-off column, i.e. the centre of the baked `Psikolog`. */

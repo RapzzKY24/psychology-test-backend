@@ -10,6 +10,10 @@ export interface ReportAssets {
   mypsikologLogo: string;
   tagline: string;
   signature: string;
+  /**
+   * QR verifikasi. Sebaiknya SVG data URI (vektor, tajam saat dicetak) atau
+   * PNG minimal 512px. Lihat catatan generator QR di bawah.
+   */
   qr: string;
 }
 
@@ -37,10 +41,36 @@ function dash(value: string | null | undefined): string {
   return trimmed ? escapeHtml(trimmed) : '-';
 }
 
+/**
+ * Narasi boleh memakai placeholder {{nama}} supaya nama di kesimpulan selalu
+ * sama dengan nama pemegang laporan (mencegah "Sdr. A" di narasi tapi
+ * "B" di sampul).
+ */
 function narrative(snapshot: ReportSnapshot, key: string): string {
-  const value = snapshot.narratives[key];
-  if (!value || value.trim().length === 0) return '';
-  return escapeHtml(value.trim()).replace(/\r?\n/g, '<br>');
+  const raw = snapshot.narratives[key];
+  if (!raw || raw.trim().length === 0) return '';
+  const name = snapshot.holder.name?.trim() || 'Kandidat';
+  const filled = raw.trim().replace(/\{\{\s*nama\s*\}\}/gi, `Sdr. ${name}`);
+  return escapeHtml(filled).replace(/\r?\n/g, '<br>');
+}
+
+/**
+ * Gabungkan nama + gelar tanpa menggandakan gelar yang sudah ada di nama.
+ * "Payme Risky M.Psi" + "M.Psi, Psikolog" -> "Payme Risky M.Psi, Psikolog"
+ */
+function formatAssessorName(fullName: string, degree: string | null): string {
+  const name = fullName.trim();
+  const lower = name.toLowerCase();
+  const extra = (degree ?? '')
+    .split(',')
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0 && !lower.includes(part.toLowerCase()));
+  return escapeHtml([name, ...extra].join(', '));
+}
+
+function formatAge(age: number | null | undefined): string {
+  // 0 / negatif = tanggal lahir belum diisi, bukan bayi 0 tahun.
+  return typeof age === 'number' && age > 0 ? `${age} tahun` : '-';
 }
 
 const CSS = `
@@ -95,20 +125,6 @@ body {
 .cover-identity .label { width: 26mm; }
 .cover-identity .sep { width: 4mm; }
 .cover-identity .line { border-bottom: 0.25mm dashed #666; padding-left: 2mm; }
-/* QR sits under the signature block on the last page — where a reader looks
-   for the psychologist's credentials, not on the cover. */
-.verify-block {
-  position: absolute;
-  right: 14mm;
-  bottom: 8mm;
-  display: flex;
-  align-items: center;
-  gap: 3mm;
-}
-.verify-qr { width: 17mm; height: 17mm; }
-.verify-meta { display: flex; flex-direction: column; align-items: flex-start; }
-.verify-logo { height: 6mm; }
-.verify-caption { font-size: 7pt; color: #555; margin-top: 1.5mm; line-height: 1.25; }
 
 .resume-head { text-align: center; margin-bottom: 6mm; }
 .resume-head h1 { font-size: 12pt; margin: 0; letter-spacing: 0.4mm; }
@@ -146,12 +162,13 @@ table.grid { width: 100%; border-collapse: collapse; table-layout: fixed; }
   padding: 1.2mm 1.5mm;
   font-size: 8pt;
 }
+/* min-height (bukan height tetap): kotak menyusut kalau narasi pendek
+   dan tidak memotong narasi panjang secara diam-diam. */
 .conclusion {
   border: 0.25mm solid #000;
   margin-top: 1.5mm;
-  height: 42mm;
+  min-height: 28mm;
   padding: 1.5mm 2mm;
-  overflow: hidden;
 }
 .conclusion .label { font-weight: bold; font-size: 8.5pt; }
 .conclusion .body {
@@ -174,13 +191,50 @@ table.grid { width: 100%; border-collapse: collapse; table-layout: fixed; }
   line-height: 3.6mm;
 }
 .reco-note { font-size: 8.5pt; margin-top: 2mm; }
-.signature { margin-top: 1.5mm; }
+
+/* Tanda tangan (kiri) dan QR (kanan) adalah DUA kolom flex yang bersebelahan,
+   bukan QR absolute di atas baris tanda tangan. Jadi tidak mungkin tumpang
+   tindih, berapa pun panjang teksnya. */
+.sign-area {
+  display: flex;
+  flex-direction: column;
+  margin-top: 3mm;
+}
+.signature { width: 100%; }
 .sig-row { display: flex; align-items: flex-end; font-size: 9pt; margin-bottom: 1mm; }
-.sig-label { width: 62mm; }
-.sig-sep { width: 4mm; }
-.sig-value { flex: 1; border-bottom: 0.25mm dotted #666; min-height: 5mm; }
+.sig-label { width: 62mm; flex: none; }
+.sig-sep { width: 4mm; flex: none; }
+.sig-value { flex: 1; min-width: 0; border-bottom: 0.25mm dotted #666; min-height: 5mm; }
 .sig-sign { min-height: 13mm; display: flex; align-items: flex-end; }
 .sig-img { height: 13mm; margin-bottom: 1mm; }
+
+.verify-block {
+  flex: none;
+  width: 32mm;
+  align-self: flex-end;
+  margin-top: 5mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5mm;
+}
+/* Quiet zone putih 3mm di sekeliling QR: garis titik-titik / teks tidak boleh
+   menempel ke modul QR, kalau tidak pemindai sulit mendeteksi pola sudutnya. */
+.verify-qr-wrap {
+  background: #fff;
+  padding: 3mm;
+  line-height: 0;
+}
+.verify-qr {
+  width: 26mm;
+  height: 26mm;
+  display: block;
+  /* tajam, tanpa smoothing (berlaku kalau QR berupa PNG) */
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.verify-logo { height: 5mm; display: block; }
+.verify-caption { font-size: 6.5pt; color: #555; text-align: center; line-height: 1.2; }
 `;
 
 function renderHeader(assets: ReportAssets): string {
@@ -197,18 +251,14 @@ function renderFooter(assets: ReportAssets): string {
 </footer>`;
 }
 
-/**
- * QR + wordmark in the bottom-right corner of the last page, directly under the
- * STR/SIK and SIPP lines — the reader checks authenticity where the signature
- * is, not on the cover.
- */
+/** QR + wordmark: kolom kanan di sebelah blok tanda tangan (halaman terakhir). */
 function renderVerification(assets: ReportAssets): string {
   return `<div class="verify-block">
-  <img class="verify-qr" src="${assets.qr}" alt="QR verifikasi">
-  <div class="verify-meta">
-    <img class="verify-logo" src="${assets.mypsikologLogo}" alt="mypsikolog.id">
-    <span class="verify-caption">Pindai untuk verifikasi</span>
+  <div class="verify-qr-wrap">
+    <img class="verify-qr" src="${assets.qr}" alt="QR verifikasi">
   </div>
+  <img class="verify-logo" src="${assets.mypsikologLogo}" alt="mypsikolog.id">
+  <span class="verify-caption">Pindai untuk verifikasi</span>
 </div>`;
 }
 
@@ -274,10 +324,7 @@ function renderCover(params: RenderReportParams): string {
   const { snapshot, number, assets } = params;
   const rows: [string, string][] = [
     ['Nama', dash(snapshot.holder.name)],
-    [
-      'Usia',
-      snapshot.holder.age === null ? '-' : `${snapshot.holder.age} tahun`,
-    ],
+    ['Usia', formatAge(snapshot.holder.age)],
     ['Pendidikan', dash(snapshot.holder.education)],
     ['Tujuan', dash(snapshot.holder.destination)],
   ];
@@ -317,7 +364,7 @@ function renderResume(params: RenderReportParams): string {
     <div class="en">Psychologist&rsquo;s Identity</div>
     <div class="psy-row">
       <span class="psy-label">Nama Psikolog<br><i>Psychologist&rsquo;s Name</i></span>
-      <span class="psy-value">: ${escapeHtml(snapshot.assessor.fullName)}, ${escapeHtml(snapshot.assessor.degree)}</span>
+      <span class="psy-value">: ${formatAssessorName(snapshot.assessor.fullName, snapshot.assessor.degree)}</span>
     </div>
     <div class="psy-row">
       <span class="psy-label">Nama Fasyankes/Lembaga Layanan Psikologi<br><i>Clinic/Hospital</i></span>
@@ -389,7 +436,7 @@ function renderSignature(
   <div class="sig-row">
     <span class="sig-label">Nama Psikolog / Psychologist Name</span>
     <span class="sig-sep">:</span>
-    <span class="sig-value">${escapeHtml(snapshot.assessor.fullName)}, ${escapeHtml(snapshot.assessor.degree)}</span>
+    <span class="sig-value">${formatAssessorName(snapshot.assessor.fullName, snapshot.assessor.degree)}</span>
   </div>
   <div class="sig-row">
     <span class="sig-label">Nomor STR/SIK / Registration Number</span>
@@ -416,8 +463,10 @@ function renderFinal(params: RenderReportParams): string {
     </div>
     ${renderRecommendation(snapshot)}
   </div>
-  ${renderSignature(snapshot, assets)}
-  ${renderVerification(assets)}
+  <div class="sign-area">
+    ${renderSignature(snapshot, assets)}
+    ${renderVerification(assets)}
+  </div>
 </section>`;
 }
 
