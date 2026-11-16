@@ -48,9 +48,10 @@ export class AttemptsService {
     attempt: { participantId: string | null; userId: string | null },
     owner: AttemptOwner,
   ): void {
-    const allowed = typeof owner === 'string'
-      ? attempt.participantId === owner
-      : attempt.userId === owner.userId;
+    const allowed =
+      typeof owner === 'string'
+        ? attempt.participantId === owner
+        : attempt.userId === owner.userId;
     if (!allowed) {
       throw new NotFoundException('Attempt not found');
     }
@@ -193,7 +194,10 @@ export class AttemptsService {
       throw new UnprocessableEntityException('birth_date_required');
     }
 
-    const ageMonths = ageInMonthsFromIsoDate(birthDate, detail.attempt.startedAt);
+    const ageMonths = ageInMonthsFromIsoDate(
+      birthDate,
+      detail.attempt.startedAt,
+    );
     if (ageMonths === null) {
       throw new UnprocessableEntityException('birth_date_invalid');
     }

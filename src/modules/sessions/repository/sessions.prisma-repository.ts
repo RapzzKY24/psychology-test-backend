@@ -266,7 +266,8 @@ export class PrismaSessionsRepository implements SessionsRepository {
                 create: params.session.roster.map((seat) => ({
                   name: seat.name,
                   candidateNumber: seat.candidateNumber,
-                  institutionParticipantId: seat.institutionParticipantId ?? null,
+                  institutionParticipantId:
+                    seat.institutionParticipantId ?? null,
                 })),
               },
             },
@@ -291,7 +292,8 @@ export class PrismaSessionsRepository implements SessionsRepository {
           return { session, invoice };
         });
       } catch (error) {
-        if ((error as { code?: string }).code === 'P2002' && attempt < 4) continue;
+        if ((error as { code?: string }).code === 'P2002' && attempt < 4)
+          continue;
         throw error;
       }
     }

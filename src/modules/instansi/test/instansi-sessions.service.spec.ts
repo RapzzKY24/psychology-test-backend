@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/unbound-method */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/unbound-method */
 import { NotFoundException } from '@nestjs/common';
 import { InstansiSessionsService } from '../service/instansi-sessions.service';
 import type { SessionsRepository } from '../../sessions/repository/sessions.repository';
@@ -52,7 +52,12 @@ describe('InstansiSessionsService', () => {
       createWithTests: jest.fn(),
       createInstitutionBatch: jest.fn().mockResolvedValue({
         session: { id: 's1' },
-        invoice: { id: 'inv1', number: 'INV-2026-0001', amount: 500000, status: 'UNPAID' },
+        invoice: {
+          id: 'inv1',
+          number: 'INV-2026-0001',
+          amount: 500000,
+          status: 'UNPAID',
+        },
       }),
       updateStatus: jest.fn(),
       update: jest.fn(),
@@ -133,15 +138,26 @@ describe('InstansiSessionsService', () => {
             joinMode: 'ROSTER',
             tests: [{ testId: 'test-1', order: 1 }],
             roster: [
-              { name: 'Budi Santoso', institutionParticipantId: 'emp-1', candidateNumber: null },
-              { name: 'Siti Rahayu', institutionParticipantId: 'emp-2', candidateNumber: null },
+              {
+                name: 'Budi Santoso',
+                institutionParticipantId: 'emp-1',
+                candidateNumber: null,
+              },
+              {
+                name: 'Siti Rahayu',
+                institutionParticipantId: 'emp-2',
+                candidateNumber: null,
+              },
             ],
           }),
           amount: 500000,
           invoiceExpiresAt: expect.any(Date),
         }),
       );
-      expect(mockInvoicePaymentService.provision).toHaveBeenCalledWith('inv1', expect.any(String));
+      expect(mockInvoicePaymentService.provision).toHaveBeenCalledWith(
+        'inv1',
+        expect.any(String),
+      );
     });
 
     it('allows an empty roster and computes the session expiry', async () => {
@@ -151,7 +167,9 @@ describe('InstansiSessionsService', () => {
       const args = mockSessionsRepo.createInstitutionBatch.mock.calls[0][0];
       expect(args.session.roster).toEqual([]);
       expect(args.session.title).toContain(INSTITUTION_NAME);
-      expect(args.session.expiresAt.getTime()).toBeGreaterThanOrEqual(before + 30 * 86400000 - 5000);
+      expect(args.session.expiresAt.getTime()).toBeGreaterThanOrEqual(
+        before + 30 * 86400000 - 5000,
+      );
     });
 
     it('bills the sum of test prices for every purchased seat', async () => {
@@ -171,30 +189,45 @@ describe('InstansiSessionsService', () => {
 
     it('does not create a batch when the gateway is unavailable', async () => {
       mockInvoicePaymentService.isEnabled.mockReturnValue(false);
-      await expect(service.create(USER_ID, dto)).rejects.toThrow('payment_gateway_unavailable');
+      await expect(service.create(USER_ID, dto)).rejects.toThrow(
+        'payment_gateway_unavailable',
+      );
       expect(mockSessionsRepo.createInstitutionBatch).not.toHaveBeenCalled();
     });
 
     it('does not create a batch for unpublished or free tests', async () => {
       mockTestsRepo.findMany.mockResolvedValueOnce({ data: [], total: 0 });
-      await expect(service.create(USER_ID, dto)).rejects.toThrow('validation_failed');
+      await expect(service.create(USER_ID, dto)).rejects.toThrow(
+        'validation_failed',
+      );
       mockTestsRepo.findMany.mockResolvedValueOnce({
-        data: [{ id: 'test-1', name: 'WPT', price: 0 }], total: 1,
+        data: [{ id: 'test-1', name: 'WPT', price: 0 }],
+        total: 1,
       });
-      await expect(service.create(USER_ID, dto)).rejects.toThrow('validation_failed');
+      await expect(service.create(USER_ID, dto)).rejects.toThrow(
+        'validation_failed',
+      );
       expect(mockSessionsRepo.createInstitutionBatch).not.toHaveBeenCalled();
     });
 
     it('rejects seats beyond the limit and foreign employees', async () => {
-      await expect(service.create(USER_ID, { ...dto, slotLimit: 1 })).rejects.toThrow('validation_failed');
-      mockParticipantsRepo.findManyByIds.mockResolvedValue([employees[0]] as never);
-      await expect(service.create(USER_ID, dto)).rejects.toThrow(NotFoundException);
+      await expect(
+        service.create(USER_ID, { ...dto, slotLimit: 1 }),
+      ).rejects.toThrow('validation_failed');
+      mockParticipantsRepo.findManyByIds.mockResolvedValue([
+        employees[0],
+      ] as never);
+      await expect(service.create(USER_ID, dto)).rejects.toThrow(
+        NotFoundException,
+      );
       expect(mockSessionsRepo.createInstitutionBatch).not.toHaveBeenCalled();
     });
 
     it('requires an institution owned by the caller', async () => {
       mockInstitutionsRepo.findByOwnerUserId.mockResolvedValue(null);
-      await expect(service.create(USER_ID, dto)).rejects.toThrow(NotFoundException);
+      await expect(service.create(USER_ID, dto)).rejects.toThrow(
+        NotFoundException,
+      );
       expect(mockSessionsRepo.createInstitutionBatch).not.toHaveBeenCalled();
     });
   });

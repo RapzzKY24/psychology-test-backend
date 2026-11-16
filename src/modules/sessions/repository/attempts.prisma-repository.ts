@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '../../../generated/prisma/client';
 import type {
   Education,
@@ -176,7 +180,9 @@ export class PrismaAttemptsRepository implements AttemptsRepository {
         where: { id },
         include: {
           test: { select: { timeLimitMin: true } },
-          session: { select: { expiresAt: true, joinMode: true, status: true } },
+          session: {
+            select: { expiresAt: true, joinMode: true, status: true },
+          },
           result: { select: { id: true } },
         },
       });

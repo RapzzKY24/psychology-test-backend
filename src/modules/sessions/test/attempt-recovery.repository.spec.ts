@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { ConflictException } from '@nestjs/common';
 import { PrismaAttemptsRepository } from '../repository/attempts.prisma-repository';
 
@@ -15,7 +16,11 @@ describe('expired attempt recovery', () => {
     gender: null,
     education: null,
     test: { timeLimitMin: 1 },
-    session: { status: 'ACTIVE', joinMode: 'ROSTER', expiresAt: new Date(now + 60_000) },
+    session: {
+      status: 'ACTIVE',
+      joinMode: 'ROSTER',
+      expiresAt: new Date(now + 60_000),
+    },
     result: null,
   };
 
@@ -30,7 +35,9 @@ describe('expired attempt recovery', () => {
       sessionParticipant: { update: jest.fn() },
     };
     const prisma = {
-      $transaction: jest.fn((callback: (client: typeof tx) => Promise<unknown>) => callback(tx)),
+      $transaction: jest.fn(
+        (callback: (client: typeof tx) => Promise<unknown>) => callback(tx),
+      ),
     };
     const repo = new PrismaAttemptsRepository(prisma as never);
 
@@ -40,25 +47,38 @@ describe('expired attempt recovery', () => {
     });
     expect(prisma.$transaction).toHaveBeenCalledTimes(1);
     expect(tx.attempt.update).toHaveBeenCalledWith({
-      where: { id: old.id }, data: { status: 'ABANDONED' },
+      where: { id: old.id },
+      data: { status: 'ABANDONED' },
     });
     expect(tx.attempt.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({ participantId: old.participantId, status: 'IN_PROGRESS' }),
+      data: expect.objectContaining({
+        participantId: old.participantId,
+        status: 'IN_PROGRESS',
+      }),
     });
     expect(tx.sessionParticipant.update).toHaveBeenCalledWith({
-      where: { id: old.participantId }, data: { tokenHash: null },
+      where: { id: old.participantId },
+      data: { tokenHash: null },
     });
   });
 
   it('refuses a second reset after the first marked the attempt abandoned', async () => {
     const tx = {
       $queryRaw: jest.fn(),
-      attempt: { findUnique: jest.fn().mockResolvedValue({ ...old, status: 'ABANDONED' }) },
+      attempt: {
+        findUnique: jest
+          .fn()
+          .mockResolvedValue({ ...old, status: 'ABANDONED' }),
+      },
     };
     const prisma = {
-      $transaction: jest.fn((callback: (client: typeof tx) => Promise<unknown>) => callback(tx)),
+      $transaction: jest.fn(
+        (callback: (client: typeof tx) => Promise<unknown>) => callback(tx),
+      ),
     };
     const repo = new PrismaAttemptsRepository(prisma as never);
-    await expect(repo.resetExpiredAttempt(old.id)).rejects.toThrow(ConflictException);
+    await expect(repo.resetExpiredAttempt(old.id)).rejects.toThrow(
+      ConflictException,
+    );
   });
 });

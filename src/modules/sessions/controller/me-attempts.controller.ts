@@ -1,6 +1,13 @@
 import {
-  Body, Controller, Get, Param, Post, Put, Query,
-  UploadedFile, UseInterceptors,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
@@ -14,7 +21,10 @@ import {
   ReadAttemptQuerySchema,
   type ReadAttemptQueryDto,
 } from '../dto/read-attempt-query.dto';
-import { PutResponseSchema, type PutResponseDto } from '../dto/put-response.dto';
+import {
+  PutResponseSchema,
+  type PutResponseDto,
+} from '../dto/put-response.dto';
 import { validateAttemptImage } from '../utils/validate-attempt-image';
 import type {
   AttemptReadDto,

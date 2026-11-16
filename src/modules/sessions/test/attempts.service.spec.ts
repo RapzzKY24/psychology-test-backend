@@ -103,18 +103,32 @@ describe('AttemptsService', () => {
 
   describe('read', () => {
     it('allows an account owner without a guest participant token', async () => {
-      mockRepo.findAccessDetail.mockResolvedValue(makeDetail({
-        attempt: { ...makeDetail().attempt, participantId: null, userId: 'user-1' },
-      }));
-      await expect(service.read('att-1', { userId: 'user-1' })).resolves.toMatchObject({ id: 'att-1' });
-      await expect(service.read('att-1', { userId: 'user-2' })).rejects.toThrow('Attempt not found');
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({
+          attempt: {
+            ...makeDetail().attempt,
+            participantId: null,
+            userId: 'user-1',
+          },
+        }),
+      );
+      await expect(
+        service.read('att-1', { userId: 'user-1' }),
+      ).resolves.toMatchObject({ id: 'att-1' });
+      await expect(service.read('att-1', { userId: 'user-2' })).rejects.toThrow(
+        'Attempt not found',
+      );
     });
 
     it('does not reopen an abandoned attempt after an admin reset', async () => {
-      mockRepo.findAccessDetail.mockResolvedValue(makeDetail({
-        attempt: { ...makeDetail().attempt, status: 'ABANDONED' },
-      }));
-      await expect(service.read('att-1', 'p-1')).rejects.toThrow('attempt_not_in_progress');
+      mockRepo.findAccessDetail.mockResolvedValue(
+        makeDetail({
+          attempt: { ...makeDetail().attempt, status: 'ABANDONED' },
+        }),
+      );
+      await expect(service.read('att-1', 'p-1')).rejects.toThrow(
+        'attempt_not_in_progress',
+      );
     });
 
     it('throws 404 when attempt not found', async () => {
