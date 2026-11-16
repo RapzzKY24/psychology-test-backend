@@ -12,6 +12,8 @@ export const MeOrderStatusSchema = z.enum([
 export const MeOrderItemSchema = z.object({
   id: z.string(),
   testName: z.string(),
+  /** Lets an expired row link back to the test page for a new purchase. */
+  testSlug: z.string(),
   amount: z.number().int(),
   status: MeOrderStatusSchema,
   createdAt: z.date(),

@@ -106,5 +106,8 @@ export interface OrdersRepository {
     skip: number;
     take: number;
     status?: OrderStatus;
-  }): Promise<{ data: (Order & { test: { name: string } })[]; total: number }>;
+  }): Promise<{
+    data: (Order & { test: { name: string; slug: string } })[];
+    total: number;
+  }>;
 }

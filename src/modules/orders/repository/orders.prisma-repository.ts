@@ -379,7 +379,10 @@ export class PrismaOrdersRepository implements OrdersRepository {
     skip: number;
     take: number;
     status?: OrderStatus;
-  }): Promise<{ data: (Order & { test: { name: string } })[]; total: number }> {
+  }): Promise<{
+    data: (Order & { test: { name: string; slug: string } })[];
+    total: number;
+  }> {
     const where: Prisma.OrderWhereInput = { userId: params.userId };
     if (params.status) where.status = params.status;
 
@@ -389,7 +392,7 @@ export class PrismaOrdersRepository implements OrdersRepository {
         skip: params.skip,
         take: params.take,
         orderBy: { createdAt: 'desc' },
-        include: { test: { select: { name: true } } },
+        include: { test: { select: { name: true, slug: true } } },
       }),
       this.prisma.order.count({ where }),
     ]);

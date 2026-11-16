@@ -5,7 +5,7 @@ import type { Order } from '../../../generated/prisma/client';
 const MINUTE = 60_000;
 
 function order(overrides: Partial<Order> & { testName?: string }): Order & {
-  test: { name: string };
+  test: { name: string; slug: string };
 } {
   const { testName = 'DISC Form A', ...rest } = overrides;
   return {
@@ -32,7 +32,7 @@ function order(overrides: Partial<Order> & { testName?: string }): Order & {
     createdAt: new Date('2026-11-16T07:00:00.000Z'),
     updatedAt: new Date('2026-11-16T07:00:00.000Z'),
     ...rest,
-    test: { name: testName },
+    test: { name: testName, slug: 'disc-form-a' },
   };
 }
 
@@ -91,6 +91,7 @@ describe('MeOrdersService', () => {
 
     expect(item).toMatchObject({
       testName: 'DISC Form A',
+      testSlug: 'disc-form-a',
       amount: 75_000,
       status: 'PENDING',
       canPay: true,

@@ -44,6 +44,7 @@ export class MeOrdersService {
         return {
           id: order.id,
           testName: order.test.name,
+          testSlug: order.test.slug,
           amount: order.amount,
           status: order.status,
           createdAt: order.createdAt,
