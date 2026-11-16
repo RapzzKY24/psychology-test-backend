@@ -9,6 +9,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { ORDERS_REPOSITORY } from '../repository/orders.repository';
 import type {
+  LinkedAttempt,
   OrdersRepository,
   VerifyPaymentResult,
 } from '../repository/orders.repository';
@@ -59,6 +60,8 @@ export interface OrderDetailResult {
   vaBankCode: string | null;
   paymentUrl: string | null;
   paymentToken: string | null;
+  /** The attempt this order paid for; null until it settles. */
+  attempt: LinkedAttempt | null;
 }
 
 @Injectable()
@@ -177,6 +180,11 @@ export class OrdersService {
       payable && fresh.paymentProvider === 'MANUAL_QRIS'
         ? await this.repo.getQrisImageUrl()
         : null;
+    // Only a settled order has work behind it, so a pending read skips the join.
+    const attempt =
+      fresh.status === 'PAID'
+        ? await this.repo.findLinkedAttempt(fresh.id, userId)
+        : null;
     return {
       id: fresh.id,
       status: fresh.status,
@@ -192,6 +200,7 @@ export class OrdersService {
       vaBankCode: fresh.vaBankCode ?? null,
       paymentUrl: fresh.paymentUrl ?? null,
       paymentToken: fresh.paymentToken ?? null,
+      attempt,
     };
   }
 

@@ -174,12 +174,15 @@ describe('Payments E2E (integ, real DB)', () => {
   afterAll(async () => {
     // Cleanup in FK-dependency order. Discover any sessions/attempts created
     // for the e2e orders (tracked or not) so cleanup never leaves orphans.
-    const sessionsFromOrders = await prisma.testSession.findMany({
-      where: { title: { in: orderIds.map((id) => `Order ${id}`) } },
-      select: { id: true },
+    const linkedSessions = await prisma.order.findMany({
+      where: { id: { in: orderIds }, sessionId: { not: null } },
+      select: { sessionId: true },
     });
     const allSessionIds = [
-      ...new Set([...sessionIds, ...sessionsFromOrders.map((s) => s.id)]),
+      ...new Set([
+        ...sessionIds,
+        ...linkedSessions.map((o) => o.sessionId as string),
+      ]),
     ];
     const attemptsForSessions = allSessionIds.length
       ? await prisma.attempt.findMany({
@@ -342,10 +345,11 @@ describe('Payments E2E (integ, real DB)', () => {
       expect(result.sessionId).toBeDefined();
       sessionIds.push(result.sessionId);
       attemptIds.push(result.attemptId);
-      const sessions = await prisma.testSession.count({
-        where: { title: `Order ${order.orderId}` },
+      const linked = await prisma.order.findUniqueOrThrow({
+        where: { id: order.orderId },
+        select: { sessionId: true },
       });
-      expect(sessions).toBe(1);
+      expect(linked.sessionId).toBe(result.sessionId);
     });
 
     it('double verify race → one 200, one 409 already_verified, exactly one session + attempt', async () => {
@@ -361,16 +365,14 @@ describe('Payments E2E (integ, real DB)', () => {
       const err = rejected[0].reason as Error;
       expect(err).toBeInstanceOf(Error);
       expect(err.message).toContain('already_verified');
-      const sessions = await prisma.testSession.count({
-        where: { title: `Order ${order.orderId}` },
+      const linked = await prisma.order.findUniqueOrThrow({
+        where: { id: order.orderId },
+        select: { sessionId: true },
       });
-      expect(sessions).toBe(1);
-      const session = await prisma.testSession.findFirstOrThrow({
-        where: { title: `Order ${order.orderId}` },
-      });
-      sessionIds.push(session.id);
+      expect(linked.sessionId).not.toBeNull();
+      sessionIds.push(linked.sessionId as string);
       const attempts = await prisma.attempt.findMany({
-        where: { sessionId: session.id },
+        where: { sessionId: linked.sessionId as string },
       });
       expect(attempts).toHaveLength(1);
       attemptIds.push(attempts[0].id);

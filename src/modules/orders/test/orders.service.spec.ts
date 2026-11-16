@@ -36,6 +36,7 @@ describe('OrdersService', () => {
       findMany: jest.fn(),
       findManyEnriched: jest.fn(),
       listByUser: jest.fn(),
+      findLinkedAttempt: jest.fn(),
     };
     mockConfig = { get: jest.fn().mockReturnValue(60) };
     mockOrderPayment = {
@@ -297,6 +298,53 @@ describe('OrdersService', () => {
 
       expect(result.qrisImageUrl).toBeNull();
       expect(mockRepo.getQrisImageUrl).not.toHaveBeenCalled();
+    });
+
+    it('should carry the attempt behind a settled order', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: 'o1',
+        userId: 'u1',
+        status: 'PAID',
+        expiresAt: new Date(Date.now() + 60_000),
+        amount: 200000,
+        basePrice: 200000,
+        uniqueCode: 0,
+        userClaimedAt: null,
+        paymentProvider: 'DOKU_CHECKOUT',
+      } as never);
+      mockRepo.findLinkedAttempt.mockResolvedValue({
+        id: 'a1',
+        status: 'IN_PROGRESS',
+        resultStatus: null,
+      });
+
+      const result = await service.findById('o1', 'u1');
+
+      expect(mockRepo.findLinkedAttempt).toHaveBeenCalledWith('o1', 'u1');
+      expect(result.attempt).toEqual({
+        id: 'a1',
+        status: 'IN_PROGRESS',
+        resultStatus: null,
+      });
+    });
+
+    it('should not look for an attempt on a pending order', async () => {
+      mockRepo.findById.mockResolvedValue({
+        id: 'o1',
+        userId: 'u1',
+        status: 'PENDING',
+        expiresAt: new Date(Date.now() + 60_000),
+        amount: 200000,
+        basePrice: 200000,
+        uniqueCode: 0,
+        userClaimedAt: null,
+        paymentProvider: 'DOKU_CHECKOUT',
+      } as never);
+
+      const result = await service.findById('o1', 'u1');
+
+      expect(result.attempt).toBeNull();
+      expect(mockRepo.findLinkedAttempt).not.toHaveBeenCalled();
     });
 
     it('should return secondsRemaining for PENDING', async () => {

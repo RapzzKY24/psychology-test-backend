@@ -9,6 +9,13 @@ export const MeOrderStatusSchema = z.enum([
   'CANCELLED',
 ]);
 
+/** The attempt an order paid for; the UI decides "Kerjakan" vs "Lihat hasil". */
+export const MeOrderAttemptSchema = z.object({
+  id: z.string(),
+  status: z.string(),
+  resultStatus: z.string().nullable(),
+});
+
 export const MeOrderItemSchema = z.object({
   id: z.string(),
   testName: z.string(),
@@ -26,6 +33,8 @@ export const MeOrderItemSchema = z.object({
   canPay: z.boolean(),
   /** Checkout link, present only when `canPay` — never on a settled order. */
   paymentUrl: z.string().nullable(),
+  /** Null on orders settled before settlement recorded the session. */
+  attempt: MeOrderAttemptSchema.nullable(),
 });
 
 export type MeOrderItemDto = z.infer<typeof MeOrderItemSchema>;

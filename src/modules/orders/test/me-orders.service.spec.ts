@@ -4,10 +4,20 @@ import type { Order } from '../../../generated/prisma/client';
 
 const MINUTE = 60_000;
 
-function order(overrides: Partial<Order> & { testName?: string }): Order & {
+function order(
+  overrides: Partial<Order> & {
+    testName?: string;
+    attempt?: {
+      id: string;
+      status: string;
+      resultStatus: string | null;
+    } | null;
+  },
+): Order & {
   test: { name: string; slug: string };
+  attempt: { id: string; status: string; resultStatus: string | null } | null;
 } {
-  const { testName = 'DISC Form A', ...rest } = overrides;
+  const { testName = 'DISC Form A', attempt = null, ...rest } = overrides;
   return {
     id: 'order-1',
     userId: 'u1',
@@ -18,6 +28,7 @@ function order(overrides: Partial<Order> & { testName?: string }): Order & {
     status: 'PENDING',
     expiresAt: new Date(Date.now() + 30 * MINUTE),
     userClaimedAt: null,
+    sessionId: null,
     verifiedById: null,
     verifiedBySource: null,
     verifiedAt: null,
@@ -33,6 +44,7 @@ function order(overrides: Partial<Order> & { testName?: string }): Order & {
     updatedAt: new Date('2026-11-16T07:00:00.000Z'),
     ...rest,
     test: { name: testName, slug: 'disc-form-a' },
+    attempt,
   };
 }
 
@@ -141,5 +153,41 @@ describe('MeOrdersService', () => {
 
     expect(item.canPay).toBe(true);
     expect(item.paymentUrl).toBeNull();
+  });
+
+  it('carries the attempt the paid order opened', async () => {
+    repo.listByUser.mockResolvedValue({
+      data: [
+        order({
+          status: 'PAID',
+          verifiedAt: new Date('2026-11-16T08:00:00.000Z'),
+          attempt: {
+            id: 'a1',
+            status: 'COMPLETED',
+            resultStatus: 'APPROVED',
+          },
+        }),
+      ],
+      total: 1,
+    });
+
+    const [item] = (await service.list('u1', { page: 1, limit: 10 })).data;
+
+    expect(item.attempt).toEqual({
+      id: 'a1',
+      status: 'COMPLETED',
+      resultStatus: 'APPROVED',
+    });
+  });
+
+  it('reports no attempt for an order settled before the session was linked', async () => {
+    repo.listByUser.mockResolvedValue({
+      data: [order({ status: 'PAID', verifiedAt: new Date(), attempt: null })],
+      total: 1,
+    });
+
+    const [item] = (await service.list('u1', { page: 1, limit: 10 })).data;
+
+    expect(item.attempt).toBeNull();
   });
 });

@@ -451,6 +451,7 @@ model TestSession {
   participants  SessionParticipant[]
   attempts      Attempt[]
   invoice       Invoice?
+  order         Order?
 
   @@map("test_sessions")
 }
@@ -705,6 +706,11 @@ model Order {
   status           OrderStatus              @default(PENDING)
   expiresAt        DateTime
   userClaimedAt    DateTime?
+  /**
+   * The session settlement opened for this order. It is the only stable link
+   * back to the attempt, so the purchase tab can jump straight to the work.
+   */
+  sessionId        String?                  @unique @db.Uuid
   verifiedById     String?
   verifiedBySource PaymentVerifiedBySource?
   verifiedAt       DateTime?
@@ -719,6 +725,7 @@ model Order {
   createdAt        DateTime                 @default(now())
   updatedAt        DateTime                 @updatedAt
   test             Test                     @relation(fields: [testId], references: [id])
+  session          TestSession?             @relation(fields: [sessionId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([status, amount])

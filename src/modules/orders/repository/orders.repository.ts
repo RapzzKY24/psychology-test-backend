@@ -20,6 +20,16 @@ export type VerifyPaymentResult =
       attemptId: string;
     };
 
+/**
+ * The attempt an order paid for. Null on orders settled before the session was
+ * linked (their session is gone), so every consumer must handle the gap.
+ */
+export interface LinkedAttempt {
+  id: string;
+  status: string;
+  resultStatus: string | null;
+}
+
 export interface OrdersRepository {
   findById(id: string): Promise<Order | null>;
   /**
@@ -107,7 +117,16 @@ export interface OrdersRepository {
     take: number;
     status?: OrderStatus;
   }): Promise<{
-    data: (Order & { test: { name: string; slug: string } })[];
+    data: (Order & {
+      test: { name: string; slug: string };
+      attempt: LinkedAttempt | null;
+    })[];
     total: number;
   }>;
+
+  /** The attempt opened by this order's session, if settlement recorded one. */
+  findLinkedAttempt(
+    orderId: string,
+    userId: string,
+  ): Promise<LinkedAttempt | null>;
 }

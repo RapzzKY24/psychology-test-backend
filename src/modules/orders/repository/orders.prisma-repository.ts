@@ -10,6 +10,7 @@ import type {
   Test,
 } from '../../../generated/prisma/client';
 import type {
+  LinkedAttempt,
   OrdersRepository,
   VerifyPaymentResult,
 } from './orders.repository';
@@ -256,15 +257,25 @@ export class PrismaOrdersRepository implements OrdersRepository {
       if (updated.count === 0) {
         return { outcome: 'conflict', reason: 'already_verified' };
       }
+      const test = await tx.test.findUnique({
+        where: { id: current.testId },
+        select: { name: true },
+      });
       const session = await tx.testSession.create({
         data: {
           kind: 'INDIVIDUAL',
-          title: `Order ${orderId}`,
+          title: `Personal · ${test?.name ?? 'Tes'}`,
           token: generateInviteToken(),
           slotLimit: 1,
           expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
           status: 'ACTIVE',
         },
+      });
+      // The order keeps the only stable pointer to the work it bought; the
+      // session title is a label, not a join key.
+      await tx.order.update({
+        where: { id: orderId },
+        data: { sessionId: session.id },
       });
       const attempt = await tx.attempt.create({
         data: {
@@ -380,22 +391,88 @@ export class PrismaOrdersRepository implements OrdersRepository {
     take: number;
     status?: OrderStatus;
   }): Promise<{
-    data: (Order & { test: { name: string; slug: string } })[];
+    data: (Order & {
+      test: { name: string; slug: string };
+      attempt: LinkedAttempt | null;
+    })[];
     total: number;
   }> {
     const where: Prisma.OrderWhereInput = { userId: params.userId };
     if (params.status) where.status = params.status;
 
-    const [data, total] = await Promise.all([
+    const [rows, total] = await Promise.all([
       this.prisma.order.findMany({
         where,
         skip: params.skip,
         take: params.take,
         orderBy: { createdAt: 'desc' },
-        include: { test: { select: { name: true, slug: true } } },
+        include: {
+          test: { select: { name: true, slug: true } },
+          // One slot per personal session, so the first attempt is the attempt.
+          session: {
+            select: {
+              attempts: {
+                where: { userId: params.userId },
+                orderBy: { startedAt: 'asc' },
+                take: 1,
+                select: {
+                  id: true,
+                  status: true,
+                  result: { select: { status: true } },
+                },
+              },
+            },
+          },
+        },
       }),
       this.prisma.order.count({ where }),
     ]);
+
+    const data = rows.map(({ session, ...order }) => {
+      const attempt = session?.attempts[0];
+      return {
+        ...order,
+        attempt: attempt
+          ? {
+              id: attempt.id,
+              status: attempt.status,
+              resultStatus: attempt.result?.status ?? null,
+            }
+          : null,
+      };
+    });
     return { data, total };
+  }
+
+  async findLinkedAttempt(
+    orderId: string,
+    userId: string,
+  ): Promise<LinkedAttempt | null> {
+    const row = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      select: {
+        session: {
+          select: {
+            attempts: {
+              where: { userId },
+              orderBy: { startedAt: 'asc' },
+              take: 1,
+              select: {
+                id: true,
+                status: true,
+                result: { select: { status: true } },
+              },
+            },
+          },
+        },
+      },
+    });
+    const attempt = row?.session?.attempts[0];
+    if (!attempt) return null;
+    return {
+      id: attempt.id,
+      status: attempt.status,
+      resultStatus: attempt.result?.status ?? null,
+    };
   }
 }

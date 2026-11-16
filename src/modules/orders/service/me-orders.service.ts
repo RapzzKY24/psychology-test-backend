@@ -54,6 +54,7 @@ export class MeOrdersService {
           // A manual-QRIS order has no hosted page; the dialog renders the
           // merchant QR from settings instead, so null is not "cannot pay".
           paymentUrl: canPay ? (order.paymentUrl ?? null) : null,
+          attempt: order.attempt,
         };
       }),
       meta: {
