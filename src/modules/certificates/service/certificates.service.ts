@@ -125,7 +125,12 @@ export class CertificatesService {
     const existing = await this.repo.findDraftForResult(dto.resultId);
     if (existing) return existing;
 
-    return this.repo.createDraft(dto.resultId, userId, new Date());
+    return this.repo.createDraft(
+      dto.resultId,
+      userId,
+      new Date(),
+      context.holderName,
+    );
   }
 
   /** The psychologist's own certificates; an admin sees every row. */
@@ -187,7 +192,7 @@ export class CertificatesService {
         resultId: result.resultId,
         testName: result.testName,
         testSlug: result.testSlug,
-        participantName: result.participantName,
+        participantName: result.holderName ?? result.participantName,
         sessionTitle: result.sessionTitle,
       },
       readiness: {

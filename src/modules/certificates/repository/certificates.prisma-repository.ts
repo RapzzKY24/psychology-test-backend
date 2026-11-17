@@ -117,9 +117,25 @@ export class PrismaCertificatesRepository implements CertificatesRepository {
     resultId: string,
     ownerId: string,
     at: Date,
+    seedFullName?: string | null,
   ): Promise<CertificateRecord> {
     const row = await this.prisma.certificate.create({
-      data: { resultId, filledById: ownerId, filledAt: at },
+      data: {
+        resultId,
+        filledById: ownerId,
+        filledAt: at,
+        // A seed, not a final value: the psychologist edits the document before
+        // issuing. `toRecord` merges EMPTY_IDENTITY, so an unset seed is still
+        // a complete block.
+        ...(seedFullName
+          ? {
+              identity: {
+                ...EMPTY_IDENTITY,
+                fullName: seedFullName,
+              } as unknown as Prisma.InputJsonValue,
+            }
+          : {}),
+      },
       select: RECORD_SELECT,
     });
     return toRecord(row);
@@ -162,6 +178,9 @@ export class PrismaCertificatesRepository implements CertificatesRepository {
         status: true,
         attempt: {
           select: {
+            // `Attempt.userId` has no relation in the schema, so the account
+            // name is read separately below — only when there is no roster row.
+            userId: true,
             test: { select: { name: true, slug: true } },
             participant: { select: { name: true } },
             session: { select: { title: true } },
@@ -170,12 +189,24 @@ export class PrismaCertificatesRepository implements CertificatesRepository {
       },
     });
     if (!row) return null;
+
+    const participantName = row.attempt.participant?.name ?? null;
+    let holderName = participantName;
+    if (!holderName && row.attempt.userId) {
+      const owner = await this.prisma.user.findUnique({
+        where: { id: row.attempt.userId },
+        select: { name: true },
+      });
+      holderName = owner?.name ?? null;
+    }
+
     return {
       resultId: row.id,
       status: row.status,
       testName: row.attempt.test.name,
       testSlug: row.attempt.test.slug,
-      participantName: row.attempt.participant?.name ?? null,
+      participantName,
+      holderName,
       sessionTitle: row.attempt.session?.title ?? null,
     };
   }

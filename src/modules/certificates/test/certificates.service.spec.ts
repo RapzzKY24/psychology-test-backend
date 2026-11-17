@@ -59,6 +59,7 @@ function context(
     testName: 'Tes Kraepelin',
     testSlug: 'kraepelin',
     participantName: 'Budi',
+    holderName: 'Budi',
     sessionTitle: 'Batch 1',
     ...over,
   };
@@ -159,6 +160,45 @@ describe('CertificatesService', () => {
         'res-1',
         OWNER.id,
         expect.any(Date),
+        'Budi',
+      );
+    });
+
+    /**
+     * The seed is what makes the sign-up copy true: the account (or roster)
+     * name pre-fills the document the psychologist edits.
+     */
+    it('seeds the draft with the holder name', async () => {
+      repo.findResultContext.mockResolvedValue(
+        context({ participantName: null, holderName: 'Siti' }),
+      );
+      repo.findDraftForResult.mockResolvedValue(null);
+      repo.createDraft.mockResolvedValue(record());
+
+      await service.createDraft(OWNER.id, { resultId: 'res-1' });
+
+      expect(repo.createDraft).toHaveBeenCalledWith(
+        'res-1',
+        OWNER.id,
+        expect.any(Date),
+        'Siti',
+      );
+    });
+
+    it('seeds nothing when neither a roster row nor an account has a name', async () => {
+      repo.findResultContext.mockResolvedValue(
+        context({ participantName: null, holderName: null }),
+      );
+      repo.findDraftForResult.mockResolvedValue(null);
+      repo.createDraft.mockResolvedValue(record());
+
+      await service.createDraft(OWNER.id, { resultId: 'res-1' });
+
+      expect(repo.createDraft).toHaveBeenCalledWith(
+        'res-1',
+        OWNER.id,
+        expect.any(Date),
+        null,
       );
     });
   });

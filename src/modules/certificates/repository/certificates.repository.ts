@@ -113,6 +113,12 @@ export interface CertificateResultContext {
   testName: string;
   testSlug: string;
   participantName: string | null;
+  /**
+   * The name the certificate should start with: the roster participant when the
+   * attempt came from a session, otherwise the account that bought it. Only a
+   * seed — the psychologist can still correct it before issuing.
+   */
+  holderName: string | null;
   sessionTitle: string | null;
 }
 
@@ -181,6 +187,7 @@ export interface CertificatesRepository {
     resultId: string,
     ownerId: string,
     at: Date,
+    seedFullName?: string | null,
   ): Promise<CertificateRecord>;
 
   /**
