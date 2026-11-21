@@ -21,6 +21,7 @@ function context(
     participantName: 'Budi Santoso',
     sessionId: 's1',
     sessionTitle: 'Psikotes Batch November',
+    sessionTestNames: ['DISC'],
     institutionId: 'i1',
     birthDate: new Date(1999, 0, 11),
     education: 'SMA/SMK',
@@ -486,14 +487,26 @@ describe('ReportsService', () => {
       });
     });
 
-    it('numbers the first report of the year 050', async () => {
+    it('numbers the first report of the year 050 with the single test label', async () => {
       const issued = await service.issue('u1', 'p1');
       expect(issued.number).toMatch(
-        // "PSIKOTES-BATCH-NOVEMBER" is 22 characters, so it is cut to 20.
-        /^050\/PSIKOTES-BATCH-NOVEM\/YM\/(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)\/\d{4}$/,
+        /^050\/DISC\/YM\/(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)\/\d{4}$/,
       );
       expect(issued.status).toBe('ACTIVE');
       expect(issued.verifyCode).toHaveLength(10);
+    });
+
+    it('keeps the session title when the session carries several tests', async () => {
+      repo.findParticipantContext.mockResolvedValue(
+        context({ sessionTestNames: ['DISC', 'CPMI'] }),
+      );
+
+      const issued = await service.issue('u1', 'p1');
+
+      // "PSIKOTES-BATCH-NOVEMBER" is 22 characters, so it is cut to 20.
+      expect(issued.number).toMatch(
+        /^050\/PSIKOTES-BATCH-NOVEM\/YM\/(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)\/\d{4}$/,
+      );
     });
 
     it('uses the institution name and code from settings when present', async () => {

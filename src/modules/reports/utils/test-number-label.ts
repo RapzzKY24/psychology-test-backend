@@ -11,7 +11,9 @@ import { sanitizeNumberSegment } from '../../reports/utils/sanitize-number-segme
 export function testNumberLabel(name: string): string {
   const trimmed = name.trim().replace(/^tes\s+/i, '');
 
-  const short = trimmed.match(/\(([a-z0-9]{2,8})\)/i);
+  // A short uppercase token in parentheses is the instrument's own
+  // abbreviation. Lowercase parentheses are explanations, e.g. "CPMI (arsip)".
+  const short = trimmed.match(/\(([A-Z0-9]{2,8})\)/);
   if (short) return sanitizeNumberSegment(short[1]);
 
   const paren = trimmed.indexOf('(');

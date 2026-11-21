@@ -103,7 +103,12 @@ export class PrismaReportsRepository implements ReportsRepository {
         id: true,
         name: true,
         session: {
-          select: { id: true, title: true, institutionId: true },
+          select: {
+            id: true,
+            title: true,
+            institutionId: true,
+            sessionTests: { select: { test: { select: { name: true } } } },
+          },
         },
         institutionParticipant: {
           select: {
@@ -135,6 +140,7 @@ export class PrismaReportsRepository implements ReportsRepository {
       participantName: row.name,
       sessionId: row.session.id,
       sessionTitle: row.session.title,
+      sessionTestNames: row.session.sessionTests.map((row) => row.test.name),
       institutionId: row.session.institutionId,
       birthDate: row.institutionParticipant?.birthDate ?? null,
       education: row.institutionParticipant?.education ?? null,

@@ -20,6 +20,7 @@ describe('testNumberLabel', () => {
     ['16 PF (Sixteen Personality Factors Questionnaire)', '16-PF'],
     ['Wartegg (WZT)', 'WZT'],
     ['Holland Test (RIASEC)', 'RIASEC'],
+    ['CPMI (arsip)', 'CPMI'],
     ['MSAI — Managerial Skills and Abilities Inventory', 'MSAI'],
     ['CFIT Skala 2 Form A (Culture Fair Intelligence Test)', 'CFIT-SKALA-2-FORM-A'],
   ])('turns %s into %s', (name, label) => {

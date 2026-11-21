@@ -10,6 +10,7 @@ const context: ReportParticipantContext = {
   participantName: 'Budi Santoso',
   sessionId: 's1',
   sessionTitle: 'Psikotes Batch November',
+  sessionTestNames: ['DISC', 'IST'],
   institutionId: 'i1',
   birthDate: new Date(1999, 0, 11),
   education: 'SMA/SMK',

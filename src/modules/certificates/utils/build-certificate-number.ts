@@ -1,6 +1,6 @@
 import { romanMonth } from '../../reports/utils/roman-month';
 import { sanitizeNumberSegment } from '../../reports/utils/sanitize-number-segment';
-import { testNumberLabel } from './test-number-label';
+import { testNumberLabel } from '../../reports/utils/test-number-label';
 
 export interface CertificateNumberParts {
   seq: number;

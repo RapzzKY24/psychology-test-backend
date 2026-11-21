@@ -20,6 +20,12 @@ export interface ReportParticipantContext {
   participantName: string;
   sessionId: string;
   sessionTitle: string;
+  /**
+   * Every test attached to the session, not just the ones this participant
+   * attempted. A one-test session lets the report number carry that test's
+   * short label instead of the session title.
+   */
+  sessionTestNames: string[];
   /** Null for individual sessions — reports only exist for institutions. */
   institutionId: string | null;
   birthDate: Date | null;

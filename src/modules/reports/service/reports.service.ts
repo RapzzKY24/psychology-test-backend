@@ -24,6 +24,7 @@ import type { PaginationDto } from '../../../common/dto/pagination.dto';
 import type { PaginatedResponse } from '../../../common/interfaces/api-response.interface';
 import { calculateAge } from '../utils/calculate-age';
 import { buildReportNumber } from '../utils/build-report-number';
+import { testNumberLabel } from '../utils/test-number-label';
 import { buildReportSnapshot } from '../utils/report-snapshot';
 import { jakartaDateParts } from '../utils/jakarta-date';
 import { generateVerifyCode } from '../../reviews/utils/generate-verify-code';
@@ -235,13 +236,20 @@ export class ReportsService {
     const issuedAt = new Date();
     const { year, month } = jakartaDateParts(issuedAt);
     const revision = await this.repo.nextRevision(participantId);
+    // One test in the session means the number can name that test, the same
+    // way a certificate does. A multi-test session has no single name, so the
+    // session title stays the segment.
+    const name =
+      context.sessionTestNames.length === 1
+        ? testNumberLabel(context.sessionTestNames[0])
+        : context.sessionTitle;
 
     for (let attempt = 0; attempt < 5; attempt++) {
       try {
         const seq = await this.repo.nextSeq(year);
         const number = buildReportNumber({
           seq,
-          sessionTitle: context.sessionTitle,
+          name,
           institutionCode: settings.institutionCode,
           month,
           year,
