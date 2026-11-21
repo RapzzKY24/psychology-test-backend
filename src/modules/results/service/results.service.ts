@@ -63,15 +63,19 @@ export class ResultsService {
       detail.result.correctedPatternCode ?? detail.result.patternCode;
     const scoresRaw = detail.result.correctedScores ?? detail.result.scores;
     // The family decides what a participant may read: a graph, everything, or
-    // nothing. `graph ?? scores` was a shape guess that leaked a whole score
-    // record the moment a family arrived without a `graph` key.
+    // nothing. Without a hook, a record that carries `graph` is reduced to it
+    // (DISC's D/I/S/C), and one that does not is handed over whole — wrapping
+    // it in `graph` hides the keys the result page reads (`raw`, `total`,
+    // `type`, `scales`).
     const scorer = getScorer(detail.test.scorerType);
     const scores = scorer?.publicScores
       ? scorer.publicScores(scoresRaw as Record<string, unknown>)
-      : {
-          graph:
-            (scoresRaw as unknown as { graph?: unknown })?.graph ?? scoresRaw,
-        };
+      : scoresRaw &&
+          typeof scoresRaw === 'object' &&
+          !Array.isArray(scoresRaw) &&
+          'graph' in scoresRaw
+        ? { graph: (scoresRaw as { graph: unknown }).graph }
+        : scoresRaw;
 
     const interp = await this.repo.findInterpretationByPattern(
       detail.test.id,

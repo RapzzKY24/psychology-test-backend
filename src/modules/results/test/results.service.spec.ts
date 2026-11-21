@@ -180,4 +180,48 @@ describe('ResultsService — getPublicResult', () => {
       'DI',
     );
   });
+
+  it('hands a raw-score family the record the result page reads', async () => {
+    // Wrapping `{ raw, total, iq }` in `graph` hid every key the participant
+    // summary looks for, so the page fell back to drawing bare number bars.
+    mockRepo.findAttemptWithResult.mockResolvedValue({
+      ...attemptDetail({ userId: 'user-1' }),
+      test: { id: 'test-1', scorerType: 'RIGHT_WRONG_NORM' },
+      result: {
+        patternCode: 'RAW_6',
+        correctedPatternCode: null,
+        scores: { raw: 6, total: 50, perItem: [false], iq: 71 },
+        correctedScores: null,
+        status: 'APPROVED',
+      },
+    } as never);
+    mockRepo.findInterpretationByPattern.mockResolvedValue(null);
+
+    const data = await service.getPublicResult('attempt-1', {
+      userId: 'user-1',
+    });
+
+    expect(data.scores).toEqual({ raw: 6, total: 50, iq: 71 });
+  });
+
+  it('keeps a graph-only family reduced to its graph', async () => {
+    mockRepo.findAttemptWithResult.mockResolvedValue({
+      ...attemptDetail({ userId: 'user-1' }),
+      test: { id: 'test-1', scorerType: 'FORCED_CHOICE_DISC' },
+      result: {
+        patternCode: 'SC',
+        correctedPatternCode: null,
+        scores: { graph: { D: 2, I: 3, S: 8, C: 5 }, most: 12, least: 4 },
+        correctedScores: null,
+        status: 'APPROVED',
+      },
+    } as never);
+    mockRepo.findInterpretationByPattern.mockResolvedValue(null);
+
+    const data = await service.getPublicResult('attempt-1', {
+      userId: 'user-1',
+    });
+
+    expect(data.scores).toEqual({ graph: { D: 2, I: 3, S: 8, C: 5 } });
+  });
 });

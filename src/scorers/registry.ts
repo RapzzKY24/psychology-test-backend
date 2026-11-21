@@ -412,6 +412,13 @@ export const SCORERS: Record<ScorerType, Scorer> = {
     responseSchema: RightWrongResponseSchema,
     sanitize: sanitizeRightWrongItem,
     patternCatalog: [...RIGHT_WRONG_PATTERN_CATALOG],
+    // `perItem` says which questions were right; that belongs to the review,
+    // not to the participant's summary.
+    publicScores: ({ raw, total, iq }) => ({
+      raw,
+      total,
+      ...(typeof iq === 'number' ? { iq } : {}),
+    }),
     // A raw-score test treats a blank as wrong, so a timed attempt can be
     // submitted at the buzzer.
     allowsBlank: true,
