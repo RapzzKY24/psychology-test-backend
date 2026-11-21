@@ -27,6 +27,7 @@
     "seed:disc": "tsx src/scripts/seed-disc.ts",
     "seed:mbti": "tsx src/scripts/seed-mbti.ts",
     "seed:wpt": "tsx src/scripts/seed-wpt.ts",
+    "seed:cpmi": "tsx src/scripts/seed-cpmi.ts",
     "seed:aptitude": "tsx src/scripts/seed-aptitude.ts",
     "seed:tiu5": "tsx src/scripts/seed-tiu5.ts",
     "seed:tiu6": "tsx src/scripts/seed-tiu6.ts",

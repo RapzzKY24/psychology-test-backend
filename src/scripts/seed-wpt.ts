@@ -36,17 +36,8 @@ async function main(): Promise<void> {
     data.interpretations,
   );
 
-  // CPMI is another name for WPT: archive the legacy instrument instead of
-  // deleting it, so old sessions and attempts keep resolving. Public links
-  // (`/tes/cpmi`) redirect to `/tes/wpt`.
-  const archived = await prisma.test.updateMany({
-    where: { slug: 'cpmi', status: { not: 'ARCHIVED' } },
-    data: {
-      status: 'ARCHIVED',
-      description:
-        'Digabung ke WPT — CPMI adalah nama lain dari Wonderlic Personnel Test.',
-    },
-  });
+  // CPMI is a separate instrument seeded by `seed:cpmi`, which reads this
+  // same JSON. Do not archive it here: a WPT re-seed must leave it published.
 
   console.log(
     `Seeded ${data.test.slug}: items ${describeSync(items)}, interpretations ${describeSync(interps)}, ${assets} figures`,
@@ -56,10 +47,6 @@ async function main(): Promise<void> {
       ? 'price + status overwritten (--force).'
       : 'price + status left untouched — add --force to overwrite them.',
   );
-  if (archived.count > 0) {
-    console.log('Archived legacy "cpmi" test (alias of wpt).');
-  }
-
   await prisma.$disconnect();
 }
 
