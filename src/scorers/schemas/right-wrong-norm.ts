@@ -113,8 +113,14 @@ const ChoiceIndexSchema = z
   .min(0)
   .max(MAX_OPTIONS - 1);
 
+/**
+ * An empty `chosen` is a real answer, not a malformed one: a multi-key item is
+ * ticked one option at a time, so unticking the last one leaves nothing picked.
+ * Storing that lets the participant clear a wrong pick, and the scorer already
+ * counts it as wrong — the same as a blank on a raw-score test.
+ */
 const ChoiceResponseSchema = z.object({
-  chosen: z.array(ChoiceIndexSchema).min(1).max(MAX_OPTIONS),
+  chosen: z.array(ChoiceIndexSchema).max(MAX_OPTIONS),
 });
 
 const ShortResponseSchema = z.object({

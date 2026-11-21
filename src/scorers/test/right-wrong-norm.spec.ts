@@ -69,6 +69,33 @@ describe('RightWrongNormScorer', () => {
         scoreRightWrongNorm({ items, responses: partial }).scores.raw,
       ).toBe(0);
     });
+
+    it('stores an emptied selection and scores it as wrong', () => {
+      // Unticking the last option of a multi-key item sends `chosen: []`.
+      // It used to be rejected as a 422, which left the participant unable to
+      // finish the attempt.
+      const parsed = SCORERS.RIGHT_WRONG_NORM.responseSchema.safeParse({
+        chosen: [],
+      });
+      expect(parsed.success).toBe(true);
+
+      const items = [
+        {
+          id: 'i1',
+          content: {
+            question: 'Q',
+            options: ['a', 'b', 'c'],
+            correctIndexes: [1],
+          },
+        },
+      ];
+      const out = scoreRightWrongNorm({
+        items,
+        responses: [{ itemId: 'i1', value: { chosen: [] } }],
+      });
+      expect(out.scores.raw).toBe(0);
+      expect(out.scores.perItem).toEqual([false]);
+    });
   });
 
   describe('short-answer items', () => {
