@@ -21,7 +21,7 @@ import type {
 } from '../../../generated/prisma/client';
 
 /** The sequence the certificate series starts from (spec D6). */
-const FIRST_SEQ = 60;
+const FIRST_SEQ = 50;
 
 const RECORD_SELECT = {
   id: true,
@@ -584,7 +584,7 @@ export class PrismaCertificatesRepository implements CertificatesRepository {
       where: { year },
       _max: { seq: true },
     });
-    // A new year has no rows, so the max is null and the series restarts at 60.
+    // A new year has no rows, so the max is null and the series restarts at 50.
     return (aggregate._max.seq ?? FIRST_SEQ - 1) + 1;
   }
 }

@@ -563,7 +563,7 @@ describe('CertificatesService', () => {
         'certificate.city': 'Bandung',
       });
       repo.nextRevision.mockResolvedValue(1);
-      repo.nextSeq.mockResolvedValue(60);
+      repo.nextSeq.mockResolvedValue(50);
       repo.issue.mockResolvedValue(ready({ status: 'ACTIVE' }));
     }
 
@@ -572,7 +572,7 @@ describe('CertificatesService', () => {
 
       const issued = await service.issue(OWNER, 'cert-1');
 
-      expect(issued.number).toMatch(/^060\/TES-KRAEPELIN\/YM\//);
+      expect(issued.number).toMatch(/^050\/KRAEPELIN\/YM\//);
       expect(issued.revision).toBe(1);
       expect(issued.status).toBe('ACTIVE');
       expect(issued.verifyCode).toHaveLength(10);
@@ -661,8 +661,8 @@ describe('CertificatesService', () => {
       repo.findById.mockResolvedValue(
         ready({
           supersedesId: 'cert-0',
-          number: '060/TES-KRAEPELIN/YM/XI/2026',
-          seq: 60,
+          number: '050/KRAEPELIN/YM/XI/2026',
+          seq: 50,
           year: 2026,
         }),
       );
@@ -681,7 +681,7 @@ describe('CertificatesService', () => {
 
       const issued = await service.issue(OWNER, 'cert-1');
 
-      expect(issued.number).toBe('060/TES-KRAEPELIN/YM/XI/2026');
+      expect(issued.number).toBe('050/KRAEPELIN/YM/XI/2026');
       expect(issued.revision).toBe(2);
       expect(repo.nextSeq).not.toHaveBeenCalled();
     });

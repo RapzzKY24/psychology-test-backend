@@ -57,10 +57,10 @@ describe('PrismaCertificatesRepository', () => {
   });
 
   describe('nextSeq', () => {
-    it('starts the series at 60 when the year has no rows', async () => {
+    it('starts the series at 50 when the year has no rows', async () => {
       prisma.certificate.aggregate.mockResolvedValue({ _max: { seq: null } });
 
-      await expect(repo.nextSeq(2026)).resolves.toBe(60);
+      await expect(repo.nextSeq(2026)).resolves.toBe(50);
     });
 
     it('continues from the highest sequence of that year', async () => {
