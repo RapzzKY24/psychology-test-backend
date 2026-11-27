@@ -59,16 +59,19 @@ export class InstitutionsService {
   }
 
   /** Every published test with this institution's deal price (null = list). */
-  async listTestPrices(id: string): Promise<InstitutionTestPriceView[]> {
+  async listTestPrices(
+    id: string,
+  ): Promise<PaginatedResponse<InstitutionTestPriceView>> {
     const institution = await this.repo.findById(id);
     if (!institution) throw new NotFoundException('Institution not found');
-    return this.repo.listPublishedTestsWithPrices(id);
+    const data = await this.repo.listPublishedTestsWithPrices(id);
+    return paginateTestPrices(data);
   }
 
   async replaceTestPrices(
     id: string,
     dto: ReplaceInstitutionTestPricesDto,
-  ): Promise<InstitutionTestPriceView[]> {
+  ): Promise<PaginatedResponse<InstitutionTestPriceView>> {
     const institution = await this.repo.findById(id);
     if (!institution) throw new NotFoundException('Institution not found');
 
@@ -85,6 +88,24 @@ export class InstitutionsService {
     }
 
     await this.repo.replaceTestPrices(id, dto.prices);
-    return this.repo.listPublishedTestsWithPrices(id);
+    return paginateTestPrices(await this.repo.listPublishedTestsWithPrices(id));
   }
+}
+
+/**
+ * The editor needs every published test, so this reference list is
+ * unpaginated but still returns the standard `meta` envelope.
+ */
+function paginateTestPrices(
+  data: InstitutionTestPriceView[],
+): PaginatedResponse<InstitutionTestPriceView> {
+  return {
+    data,
+    meta: {
+      page: 1,
+      limit: data.length > 0 ? data.length : 1,
+      total: data.length,
+      totalPages: 1,
+    },
+  };
 }

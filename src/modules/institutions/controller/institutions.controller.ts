@@ -70,9 +70,8 @@ export class InstitutionsController {
   @Roles(['ADMIN'])
   async listTestPrices(
     @Param('id') id: string,
-  ): Promise<ApiResponse<InstitutionTestPriceView[]>> {
-    const data = await this.institutionsService.listTestPrices(id);
-    return { data };
+  ): Promise<PaginatedResponse<InstitutionTestPriceView>> {
+    return this.institutionsService.listTestPrices(id);
   }
 
   @Put(':id/test-prices')
@@ -81,8 +80,7 @@ export class InstitutionsController {
     @Param('id') id: string,
     @Body(new ZodValidationPipe(ReplaceInstitutionTestPricesSchema))
     dto: ReplaceInstitutionTestPricesDto,
-  ): Promise<ApiResponse<InstitutionTestPriceView[]>> {
-    const data = await this.institutionsService.replaceTestPrices(id, dto);
-    return { data };
+  ): Promise<PaginatedResponse<InstitutionTestPriceView>> {
+    return this.institutionsService.replaceTestPrices(id, dto);
   }
 }
