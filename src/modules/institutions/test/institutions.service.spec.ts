@@ -15,6 +15,9 @@ describe('InstitutionsService', () => {
       update: jest.fn(),
       promoteUserAndCreateInstitution: jest.fn(),
       deleteUserById: jest.fn(),
+      findTestPricesForTests: jest.fn(),
+      listPublishedTestsWithPrices: jest.fn(),
+      replaceTestPrices: jest.fn(),
     };
     service = new InstitutionsService(mockRepo);
   });
@@ -67,6 +70,66 @@ describe('InstitutionsService', () => {
       mockRepo.update.mockResolvedValue({ id: 'inst-1', name: 'X' } as any);
       await service.update('inst-1', { name: 'X' });
       expect(mockRepo.update).toHaveBeenCalledWith('inst-1', { name: 'X' });
+    });
+  });
+
+  describe('test prices', () => {
+    const published = [
+      {
+        testId: 'test-1',
+        name: 'WPT',
+        slug: 'wpt',
+        basePrice: 150000,
+        dealPrice: null,
+      },
+    ];
+
+    it('lists published tests with their deal price', async () => {
+      mockRepo.findById.mockResolvedValue({ id: 'inst-1' } as any);
+      mockRepo.listPublishedTestsWithPrices.mockResolvedValue(published);
+
+      const result = await service.listTestPrices('inst-1');
+
+      expect(mockRepo.listPublishedTestsWithPrices).toHaveBeenCalledWith(
+        'inst-1',
+      );
+      expect(result).toEqual(published);
+    });
+
+    it('404s for an unknown institution', async () => {
+      mockRepo.findById.mockResolvedValue(null);
+
+      await expect(service.listTestPrices('missing')).rejects.toThrow(
+        'Institution not found',
+      );
+    });
+
+    it('rejects a test that is not published', async () => {
+      mockRepo.findById.mockResolvedValue({ id: 'inst-1' } as any);
+      mockRepo.listPublishedTestsWithPrices.mockResolvedValue(published);
+
+      await expect(
+        service.replaceTestPrices('inst-1', {
+          prices: [{ testId: 'draft-test', price: 100000 }],
+        }),
+      ).rejects.toThrow('validation_failed');
+      expect(mockRepo.replaceTestPrices).not.toHaveBeenCalled();
+    });
+
+    it('replaces the deal prices and returns the refreshed list', async () => {
+      mockRepo.findById.mockResolvedValue({ id: 'inst-1' } as any);
+      mockRepo.listPublishedTestsWithPrices
+        .mockResolvedValueOnce(published)
+        .mockResolvedValueOnce([{ ...published[0], dealPrice: 100000 }]);
+
+      const result = await service.replaceTestPrices('inst-1', {
+        prices: [{ testId: 'test-1', price: 100000 }],
+      });
+
+      expect(mockRepo.replaceTestPrices).toHaveBeenCalledWith('inst-1', [
+        { testId: 'test-1', price: 100000 },
+      ]);
+      expect(result[0].dealPrice).toBe(100000);
     });
   });
 });
