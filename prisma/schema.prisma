@@ -320,6 +320,7 @@ model Test {
   sessionTests         SessionTest[]
   orders               Order[]
   attempts             Attempt[]
+  institutionPrices    InstitutionTestPrice[]
 
   @@map("tests")
 }
@@ -406,8 +407,29 @@ model Institution {
   sessions                TestSession[]
   invoices                Invoice[]
   institutionParticipants InstitutionParticipant[]
+  testPrices              InstitutionTestPrice[]
 
   @@map("institutions")
+}
+
+/**
+ * Negotiated per-institution price for one test (WhatsApp deal). Absent row =
+ * the institution pays `Test.price`. Resolved at checkout only, so an invoice
+ * stays immutable when the deal changes later.
+ */
+model InstitutionTestPrice {
+  id            String      @id @default(uuid()) @db.Uuid
+  institutionId String      @db.Uuid
+  testId        String      @db.Uuid
+  price         Int
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  test          Test        @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@unique([institutionId, testId])
+  @@index([institutionId])
+  @@map("institution_test_prices")
 }
 
 model InstitutionParticipant {
@@ -478,6 +500,8 @@ model SessionTest {
   testId       String @db.Uuid
   order        Int
   timeLimitSec Int? // reserved for the timer engine (cognitive phase, test-library-mechanics §2.E/F) — no logic in MVP
+  /** Effective per-seat price at checkout (deal or list); null on older rows. */
+  unitPrice    Int?
 
   session TestSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   test    Test        @relation(fields: [testId], references: [id], onDelete: Cascade)
