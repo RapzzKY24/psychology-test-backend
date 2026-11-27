@@ -15,6 +15,7 @@ import { InstansiStatsController } from './controller/instansi-stats.controller'
 import { InstansiReportsController } from './controller/instansi-reports.controller';
 import { InstansiCertificatesController } from './controller/instansi-certificates.controller';
 import { InstansiParticipantsService } from './service/instansi-participants.service';
+import { InstansiTestsService } from './service/instansi-tests.service';
 import { InstansiSessionsService } from './service/instansi-sessions.service';
 import { InstansiInvoicesService } from './service/instansi-invoices.service';
 import { InstansiResultsService } from './service/instansi-results.service';
@@ -51,6 +52,7 @@ import { INSTITUTIONS_REPOSITORY } from '../institutions/repository/institutions
   ],
   providers: [
     InstansiParticipantsService,
+    InstansiTestsService,
     InstansiSessionsService,
     InstansiInvoicesService,
     InstansiResultsService,
