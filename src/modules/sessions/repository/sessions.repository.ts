@@ -42,7 +42,7 @@ export interface CreateSessionParams {
   expiresAt: Date;
   joinMode: 'OPEN' | 'ROSTER';
   status?: 'PENDING_PAYMENT' | 'ACTIVE';
-  tests: { testId: string; order: number }[];
+  tests: { testId: string; order: number; unitPrice?: number | null }[];
   roster: {
     name: string;
     candidateNumber: string | null;

@@ -37,6 +37,9 @@ describe('RegisterInstitutionService', () => {
       update: jest.fn(),
       promoteUserAndCreateInstitution: jest.fn(),
       deleteUserById: jest.fn(),
+      findTestPricesForTests: jest.fn(),
+      listPublishedTestsWithPrices: jest.fn(),
+      replaceTestPrices: jest.fn(),
     };
     signUpEmail.mockReset();
     service = new RegisterInstitutionService(mockRepo);

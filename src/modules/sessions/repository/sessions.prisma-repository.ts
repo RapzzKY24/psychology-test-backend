@@ -260,6 +260,7 @@ export class PrismaSessionsRepository implements SessionsRepository {
                 create: params.session.tests.map((test) => ({
                   testId: test.testId,
                   order: test.order,
+                  unitPrice: test.unitPrice ?? null,
                 })),
               },
               participants: {

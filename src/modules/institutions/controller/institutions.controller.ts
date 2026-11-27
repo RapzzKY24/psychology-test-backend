@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Patch,
+  Put,
   Param,
   Query,
   Body,
@@ -15,8 +16,11 @@ import { CreateInstitutionSchema } from '../dto/create-institution.dto';
 import type { CreateInstitutionDto } from '../dto/create-institution.dto';
 import { UpdateInstitutionSchema } from '../dto/update-institution.dto';
 import type { UpdateInstitutionDto } from '../dto/update-institution.dto';
+import { ReplaceInstitutionTestPricesSchema } from '../dto/institution-test-prices.dto';
+import type { ReplaceInstitutionTestPricesDto } from '../dto/institution-test-prices.dto';
 import { InstitutionsService } from '../service/institutions.service';
 import type { Institution } from '../../../generated/prisma/client';
+import type { InstitutionTestPriceView } from '../repository/institutions.repository';
 import type {
   ApiResponse,
   PaginatedResponse,
@@ -53,5 +57,30 @@ export class InstitutionsController {
   ): Promise<ApiResponse<Institution>> {
     const data = await this.institutionsService.update(id, dto);
     return { data };
+  }
+
+  @Get(':id')
+  @Roles(['ADMIN'])
+  async findOne(@Param('id') id: string): Promise<ApiResponse<Institution>> {
+    const data = await this.institutionsService.findOne(id);
+    return { data };
+  }
+
+  @Get(':id/test-prices')
+  @Roles(['ADMIN'])
+  async listTestPrices(
+    @Param('id') id: string,
+  ): Promise<PaginatedResponse<InstitutionTestPriceView>> {
+    return this.institutionsService.listTestPrices(id);
+  }
+
+  @Put(':id/test-prices')
+  @Roles(['ADMIN'])
+  async replaceTestPrices(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(ReplaceInstitutionTestPricesSchema))
+    dto: ReplaceInstitutionTestPricesDto,
+  ): Promise<PaginatedResponse<InstitutionTestPriceView>> {
+    return this.institutionsService.replaceTestPrices(id, dto);
   }
 }

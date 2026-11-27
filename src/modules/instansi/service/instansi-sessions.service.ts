@@ -105,9 +105,26 @@ export class InstansiSessionsService {
       });
     }
 
-    // A zero price would create a Rp 0 invoice that can never be paid. Refuse
-    // before the session exists so nothing is left half-created.
-    const pricePerSeat = tests.data.reduce((sum, t) => sum + t.price, 0);
+    // Deal price wins over the list price; an absent row falls back to
+    // Test.price. Resolved here, at checkout, so the invoice stays immutable
+    // if the deal changes later.
+    const overrides = await this.institutionsRepo.findTestPricesForTests(
+      institutionId,
+      dto.testIds,
+    );
+    const overrideByTest = new Map(
+      overrides.map((row) => [row.testId, row.price]),
+    );
+    const unitPriceByTest = new Map(
+      tests.data.map((test) => [
+        test.id,
+        overrideByTest.get(test.id) ?? test.price,
+      ]),
+    );
+    const pricePerSeat = [...unitPriceByTest.values()].reduce(
+      (sum, price) => sum + price,
+      0,
+    );
     if (pricePerSeat <= 0) {
       throw new UnprocessableEntityException({
         message: 'validation_failed',
@@ -159,6 +176,7 @@ export class InstansiSessionsService {
           tests: dto.testIds.map((testId, index) => ({
             testId,
             order: index + 1,
+            unitPrice: unitPriceByTest.get(testId) ?? null,
           })),
           roster: dto.employeeIds.map((id) => {
             const employee = byId.get(id);
