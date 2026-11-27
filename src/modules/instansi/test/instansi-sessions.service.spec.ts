@@ -9,7 +9,10 @@ describe('InstansiSessionsService', () => {
   let mockSessionsRepo: jest.Mocked<SessionsRepository>;
   let mockParticipantsRepo: jest.Mocked<InstansiParticipantsRepository>;
   let mockTestsRepo: { findMany: jest.Mock };
-  let mockInstitutionsRepo: { findByOwnerUserId: jest.Mock };
+  let mockInstitutionsRepo: {
+    findByOwnerUserId: jest.Mock;
+    findTestPricesForTests: jest.Mock;
+  };
   let mockConfig: { get: jest.Mock };
   let mockParticipantsService: { resolveInstitutionId: jest.Mock };
   let mockSessionsService: { create: jest.Mock; close: jest.Mock };
@@ -90,6 +93,7 @@ describe('InstansiSessionsService', () => {
       findByOwnerUserId: jest
         .fn()
         .mockResolvedValue({ id: INSTITUTION_ID, name: INSTITUTION_NAME }),
+      findTestPricesForTests: jest.fn().mockResolvedValue([]),
     };
     mockConfig = { get: jest.fn().mockReturnValue(30) };
     mockInvoicesService = {
@@ -136,7 +140,7 @@ describe('InstansiSessionsService', () => {
             createdById: USER_ID,
             status: 'PENDING_PAYMENT',
             joinMode: 'ROSTER',
-            tests: [{ testId: 'test-1', order: 1 }],
+            tests: [{ testId: 'test-1', order: 1, unitPrice: 50000 }],
             roster: [
               {
                 name: 'Budi Santoso',
@@ -184,6 +188,52 @@ describe('InstansiSessionsService', () => {
       await service.create(USER_ID, { ...dto, testIds: ['test-1', 'test-2'] });
       expect(mockSessionsRepo.createInstitutionBatch).toHaveBeenCalledWith(
         expect.objectContaining({ amount: 750000 }),
+      );
+    });
+
+    it('bills the deal price when the institution has an override', async () => {
+      mockParticipantsRepo.findManyByIds.mockResolvedValue([] as never);
+      mockTestsRepo.findMany.mockResolvedValue({
+        data: [{ id: 'test-1', name: 'WPT', price: 150000 }],
+        total: 1,
+      });
+      mockInstitutionsRepo.findTestPricesForTests.mockResolvedValue([
+        { testId: 'test-1', price: 100000 },
+      ]);
+
+      await service.create(USER_ID, { ...dto, employeeIds: [] });
+
+      expect(mockInstitutionsRepo.findTestPricesForTests).toHaveBeenCalledWith(
+        INSTITUTION_ID,
+        ['test-1'],
+      );
+      expect(mockSessionsRepo.createInstitutionBatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          amount: 1000000,
+          session: expect.objectContaining({
+            tests: [{ testId: 'test-1', order: 1, unitPrice: 100000 }],
+          }),
+        }),
+      );
+    });
+
+    it('falls back to the list price when the override is absent', async () => {
+      mockParticipantsRepo.findManyByIds.mockResolvedValue([] as never);
+      mockTestsRepo.findMany.mockResolvedValue({
+        data: [{ id: 'test-1', name: 'WPT', price: 150000 }],
+        total: 1,
+      });
+      mockInstitutionsRepo.findTestPricesForTests.mockResolvedValue([]);
+
+      await service.create(USER_ID, { ...dto, employeeIds: [] });
+
+      expect(mockSessionsRepo.createInstitutionBatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          amount: 1500000,
+          session: expect.objectContaining({
+            tests: [{ testId: 'test-1', order: 1, unitPrice: 150000 }],
+          }),
+        }),
       );
     });
 
